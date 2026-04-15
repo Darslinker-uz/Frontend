@@ -25,7 +25,7 @@ const courses = [
 export default function HomePage() {
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
-      <div className="max-w-[1060px] mx-auto px-5 py-8 md:py-12 space-y-10 md:space-y-14">
+      <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-8 md:py-12 space-y-10 md:space-y-14">
         {/* HEADING + SEARCH */}
         <div className="relative rounded-[16px] md:rounded-[20px] border border-[#e4e7ea] overflow-hidden bg-[#080e18]">
           <div className="absolute w-[450px] h-[450px] rounded-full bg-[#7ea2d4]/60 blur-[120px] -top-40 -left-28 aurora-blob-1" />
