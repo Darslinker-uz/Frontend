@@ -25,16 +25,23 @@ const courses = [
 export default function HomePage() {
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
-      <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-8 md:py-12 space-y-10 md:space-y-14">
+      <div className="max-w-[1600px] mx-auto px-5 md:px-20">
+        {/* HERO AREA — viewport markazida */}
+        <div className="flex flex-col gap-5 pt-6 md:pt-8 pb-6">
         {/* HEADING + SEARCH */}
         <div className="relative rounded-[16px] md:rounded-[20px] border border-[#e4e7ea] overflow-hidden bg-[#080e18]">
           <div className="absolute w-[450px] h-[450px] rounded-full bg-[#7ea2d4]/60 blur-[120px] -top-40 -left-28 aurora-blob-1" />
           <div className="absolute w-[400px] h-[400px] rounded-full bg-[#4a7ab5]/50 blur-[120px] -bottom-40 -right-20 aurora-blob-2" />
         <div className="relative px-5 py-5 md:px-10 md:py-8">
-          <h1 className="text-[18px] md:text-[26px] font-semibold text-white tracking-[-0.02em] mb-4 md:mb-5">
+          {/* Mobil — yuqorida text, pastda input */}
+          <h1 className="md:hidden text-[18px] font-semibold text-white tracking-[-0.02em] mb-4">
             O&apos;zingizga mos kursni toping
           </h1>
-          <div className="flex items-center gap-2 md:gap-3">
+          {/* Desktop — text va input bir qatorda */}
+          <div className="flex items-center gap-2 md:gap-4">
+            <h1 className="hidden md:block text-[22px] font-semibold text-white tracking-[-0.02em] whitespace-nowrap shrink-0">
+              O&apos;zingizga mos kursni toping
+            </h1>
             <div className="relative flex-1">
               <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-[16px] h-[16px] md:w-[18px] md:h-[18px] text-white/25" />
               <input
@@ -57,6 +64,10 @@ export default function HomePage() {
 
         {/* FEATURED SLIDER */}
         <FeaturedSlider />
+        </div>
+
+        {/* QOLGAN SECTIONLAR */}
+        <div className="space-y-10 md:space-y-14 py-10 md:py-14">
 
         {/* CATEGORIES SECTION */}
         <div className="bg-[#e8eaed] rounded-[20px] p-5 md:p-8">
@@ -161,6 +172,7 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
+      </div>
       </div>
     </div>
   );

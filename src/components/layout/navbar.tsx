@@ -11,7 +11,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 glass-nav border-b border-[#e4e7ea]">
-      <div className="max-w-[1060px] mx-auto px-5 flex items-center justify-between h-[62px]">
+      <div className="max-w-[1200px] mx-auto px-8 flex items-center justify-between h-[62px]">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <span className="text-[20px] font-[family-name:var(--font-outfit)] font-bold tracking-tight text-[#16181a]">

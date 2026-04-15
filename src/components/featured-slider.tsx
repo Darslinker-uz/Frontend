@@ -217,7 +217,7 @@ export function FeaturedSlider() {
       className={`rounded-[24px] overflow-hidden relative bg-gradient-to-br ${slides[current].gradient}`}
     >
       {/* Slides — chapga surish animatsiya */}
-      <div className="relative min-h-[360px] md:min-h-[400px]">
+      <div className="relative min-h-[360px] md:min-h-[480px]">
         {slides.map((slide, i) => {
           // Doim chapga: hozirgi=0%, oldingi=-100%, qolganlari=100% (o'ngda kutadi)
           let tx = "100%";
