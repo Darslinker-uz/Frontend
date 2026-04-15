@@ -47,7 +47,7 @@ export default function HomePage() {
               <input
                 type="text"
                 placeholder="Kurs izlash..."
-                className="w-full h-[40px] md:h-[44px] pl-9 md:pl-10 pr-4 rounded-[10px] md:rounded-[12px] bg-white/[0.07] border border-white/[0.1] text-[13px] md:text-[14px] text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#7ea2d4]/40 focus:border-[#7ea2d4]/50 transition-all"
+                className="w-full h-[40px] md:h-[44px] pl-9 md:pl-10 pr-4 rounded-[10px] md:rounded-[12px] bg-white/[0.07] border border-white/[0.1] text-[16px] md:text-[14px] text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#7ea2d4]/40 focus:border-[#7ea2d4]/50 transition-all"
               />
             </div>
             <button className="h-[40px] w-[40px] md:h-[44px] md:w-auto md:px-4 rounded-[10px] md:rounded-[12px] border border-white/[0.1] text-white/50 font-medium hover:bg-white/[0.06] transition-colors flex items-center justify-center md:gap-2 shrink-0">
@@ -147,9 +147,9 @@ export default function HomePage() {
             <p className="text-[15px] text-white/25 mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
           </div>
           <div className="max-w-[520px] mx-auto space-y-3">
-            <input placeholder="Ismingiz" className="w-full h-[52px] px-4 text-[15px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
-            <input placeholder="Telefon raqam" className="w-full h-[52px] px-4 text-[15px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
-            <input placeholder="Qaysi sohaga qiziqasiz?" className="w-full h-[52px] px-4 text-[15px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+            <input placeholder="Ismingiz" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+            <input placeholder="Telefon raqam" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+            <input placeholder="Qaysi sohaga qiziqasiz?" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
             <button className="w-full h-[52px] rounded-[12px] bg-white text-[#16181a] text-[15px] font-semibold">Ariza yuborish</button>
           </div>
           <div className="hidden md:flex justify-center gap-6 mt-10">
