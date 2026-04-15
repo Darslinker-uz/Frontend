@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Darslinker.uz</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Fraunces:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#16181a;
+  --blue:#7ea2d4;
+  --blue-light:#e8f0f9;
+  --fog:#f2f4f5;
+  --white:#ffffff;
+  --muted:#7c8490;
+  --border:#e4e7ea;
+  --bg:#f0f2f3;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* NAV */
+nav{
+  background:rgba(240,242,243,0.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  height:62px;display:flex;align-items:center;
+  padding:0 40px;gap:20px;
+  position:sticky;top:0;z-index:99;
+}
+.logo{font-family:'Fraunces',serif;font-size:21px;color:var(--ink);text-decoration:none;letter-spacing:-0.3px;flex-shrink:0}
+.logo b{color:var(--blue)}
+.nav-r{display:flex;align-items:center;gap:10px;margin-left:auto}
+.nbtn{height:36px;padding:0 18px;border-radius:9px;font-size:13px;font-family:'Outfit',sans-serif;font-weight:500;cursor:pointer;transition:all .15s;border:none;display:inline-flex;align-items:center}
+.nbtn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.nbtn-ghost:hover{background:var(--white);color:var(--ink)}
+.nbtn-dark{background:var(--ink);color:var(--white)}
+.nbtn-dark:hover{opacity:.85}
+
+/* WRAP */
+.wrap{max-width:1060px;margin:0 auto;padding:0 32px}
+
+/* TOP SECTION */
+.top-section{padding:32px 0 0}
+
+/* FEATURED CARD */
+.feat-card{
+  background:var(--ink);
+  border-radius:24px;
+  overflow:hidden;
+  position:relative;
+  cursor:pointer;
+  transition:transform .2s;
+}
+.feat-card:hover{transform:translateY(-2px)}
+.feat-card::before{
+  content:'';position:absolute;
+  right:0;top:0;bottom:0;width:55%;
+  background:radial-gradient(ellipse at 70% 40%,rgba(126,162,212,.2) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+/* SLIDES */
+.slides{position:relative;min-height:300px}
+.slide{
+  position:absolute;inset:0;
+  display:grid;grid-template-columns:1fr 300px;
+  opacity:0;transition:opacity .45s;
+  pointer-events:none;
+}
+.slide.on{opacity:1;pointer-events:auto;position:relative}
+
+.sl-left{padding:40px 44px 36px;display:flex;flex-direction:column;justify-content:space-between}
+.sl-badges{display:flex;gap:7px;margin-bottom:20px}
+.sbadge{font-size:11px;font-weight:600;letter-spacing:.4px;padding:4px 12px;border-radius:20px}
+.sb-blue{background:var(--blue);color:var(--ink)}
+.sb-ghost{background:rgba(255,255,255,.1);color:rgba(255,255,255,.55)}
+.sl-title{font-family:'Fraunces',serif;font-size:36px;line-height:1.1;letter-spacing:-1px;color:var(--white);margin-bottom:10px}
+.sl-sub{font-size:13px;color:rgba(255,255,255,.32);display:flex;align-items:center;gap:6px;margin-bottom:28px}
+.sdot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.18)}
+.sl-stats{display:flex;gap:28px;margin-bottom:28px}
+.ss-l{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.25);margin-bottom:4px}
+.ss-v{font-size:18px;font-weight:600;color:var(--white)}
+.ss-v.acc{color:var(--blue)}
+.sl-btns{display:flex;align-items:center;gap:14px}
+.btn-apply{
+  background:var(--blue);color:var(--ink);border:none;
+  border-radius:10px;padding:11px 26px;
+  font-size:13px;font-family:'Outfit',sans-serif;font-weight:600;
+  cursor:pointer;transition:opacity .15s,transform .15s;
+}
+.btn-apply:hover{opacity:.88;transform:translateY(-1px)}
+.btn-more{font-size:13px;color:rgba(255,255,255,.38);background:transparent;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:color .15s}
+.btn-more:hover{color:rgba(255,255,255,.65)}
+
+.sl-right{
+  display:flex;align-items:center;justify-content:center;
+  padding:32px;position:relative;
+}
+.sl-right::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:40px;
+  background:linear-gradient(to right,var(--ink),transparent);
+}
+.sl-visual{
+  width:160px;height:160px;border-radius:24px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;
+}
+.sl-visual-ic{
+  width:72px;height:72px;border-radius:16px;
+  background:rgba(126,162,212,.1);
+  border:1px solid rgba(126,162,212,.18);
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* CARD FOOTER */
+.feat-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 44px 22px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.feat-dots{display:flex;gap:5px}
+.fdot{height:3px;border-radius:2px;cursor:pointer;transition:all .3s}
+.fdot.on{width:24px;background:var(--blue)}
+.fdot:not(.on){width:5px;background:rgba(255,255,255,.18)}
+.feat-counter{font-size:11px;color:rgba(255,255,255,.22);letter-spacing:.5px}
+.feat-nav{display:flex;gap:7px}
+.fnav{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s;
+}
+.fnav:hover{background:rgba(255,255,255,.12)}
+
+/* SEARCH */
+.search-wrap{
+  background:var(--white);
+  border-radius:16px;
+  padding:16px 20px;
+  margin-top:14px;
+  display:flex;align-items:center;gap:10px;
+  border:1px solid var(--border);
+}
+.search-box{
+  flex:1;display:flex;align-items:center;gap:10px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:10px;padding:0 14px;height:42px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.search-box:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(126,162,212,.1)}
+.search-box input{flex:1;border:none;background:transparent;font-size:14px;font-family:'Outfit',sans-serif;color:var(--ink);outline:none}
+.search-box input::placeholder{color:#b5bbc3}
+.filter-btn{
+  height:42px;padding:0 16px;border-radius:10px;
+  background:var(--bg);border:1.5px solid var(--border);
+  font-size:13px;font-family:'Outfit',sans-serif;font-weight:500;
+  color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:7px;
+  transition:all .15s;white-space:nowrap;
+}
+.filter-btn:hover{background:var(--fog)}
+.search-btn{
+  height:42px;padding:0 22px;border-radius:10px;
+  background:var(--ink);color:var(--white);border:none;
+  font-size:13px;font-family:'Outfit',sans-serif;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:opacity .15s;white-space:nowrap;
+}
+.search-btn:hover{opacity:.85}
+
+/* CATS */
+.cats-wrap{
+  background:var(--white);border-radius:16px;
+  padding:18px 20px;margin-top:14px;
+  border:1px solid var(--border);
+}
+.cats-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:500;margin-bottom:12px}
+.cats-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.cats-row::-webkit-scrollbar{display:none}
+.cat{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1.5px solid transparent;
+  border-radius:10px;padding:8px 16px;
+  cursor:pointer;transition:all .18s;white-space:nowrap;
+  font-size:13px;font-weight:500;color:var(--muted);flex-shrink:0;
+}
+.cat:hover{background:var(--white);border-color:var(--border);color:var(--ink)}
+.cat.on{background:var(--white);border-color:var(--ink);color:var(--ink)}
+.cat-ic{font-size:15px;line-height:1}
+
+/* SECTION HEAD */
+.sh{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.sh-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--blue);font-weight:600;margin-bottom:5px}
+.sh-title{font-family:'Fraunces',serif;font-size:24px;letter-spacing:-0.5px}
+.sh-link{font-size:13px;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:1px;transition:color .15s,border-color .15s}
+.sh-link:hover{color:var(--ink);border-color:var(--ink)}
+
+/* COURSES SECTION */
+.courses-section{padding:28px 0 0}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ccard{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;cursor:pointer;
+  transition:transform .18s,box-shadow .18s;
+}
+.ccard:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(22,24,26,.08)}
+.cthumb{height:140px;display:flex;align-items:center;justify-content:center;position:relative}
+.t1{background:#eef3fb}.t2{background:#fdf0e8}.t3{background:#eaf5ee}
+.t4{background:#f5eef9}.t5{background:#fff8e8}.t6{background:#eef9f5}
+.cf-badge{
+  position:absolute;top:12px;left:12px;
+  background:rgba(255,255,255,.9);backdrop-filter:blur(8px);
+  border-radius:7px;padding:3px 10px;
+  font-size:11px;font-weight:600;color:var(--ink);
+}
+.cbody{padding:16px 18px 18px}
+.ccat{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;font-weight:600;color:var(--blue);margin-bottom:6px}
+.ctitle{font-size:14px;font-weight:500;line-height:1.4;margin-bottom:8px}
+.cprov{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-bottom:14px}
+.cfoot{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--fog)}
+.cprice{font-size:14px;font-weight:600}
+.cprice span{font-size:11px;font-weight:400;color:var(--muted)}
+.cfree{color:#2aa35a}
+.crating{font-size:12px;font-weight:500;display:flex;align-items:center;gap:3px}
+.cstar{color:#f5a623}
+
+/* HOW */
+.how-section{padding:28px 0 0}
+.how-wrap{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:20px;padding:40px 44px;
+}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:44px;margin-top:32px}
+.hnum{
+  width:34px;height:34px;border-radius:9px;
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;margin-bottom:14px;
+}
+.htitle{font-size:15px;font-weight:600;margin-bottom:7px}
+.hdesc{font-size:13px;color:var(--muted);line-height:1.65;font-weight:300}
+
+/* CTA */
+.cta-section{padding:28px 0 40px}
+.cta-wrap{
+  background:var(--ink);border-radius:20px;
+  padding:48px 56px;
+  display:flex;align-items:center;justify-content:space-between;gap:40px;
+}
+.cta-t h2{font-family:'Fraunces',serif;font-size:32px;color:var(--white);letter-spacing:-0.8px;line-height:1.15;margin-bottom:8px}
+.cta-t p{font-size:14px;color:rgba(255,255,255,.36);font-weight:300;max-width:320px;line-height:1.65}
+.cta-btn{
+  background:var(--blue);color:var(--ink);border:none;
+  border-radius:11px;padding:13px 30px;
+  font-size:14px;font-family:'Outfit',sans-serif;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .15s;flex-shrink:0;
+}
+.cta-btn:hover{opacity:.88;transform:translateY(-1px)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:48px 0 32px;background:var(--white);margin-top:0}
+.ft{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:36px}
+.ft-brand .logo{display:block;margin-bottom:8px}
+.ft-brand p{font-size:13px;color:var(--muted);line-height:1.65;font-weight:300;max-width:210px}
+.ft-col h4{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:14px}
+.ft-col ul{list-style:none}
+.ft-col li{margin-bottom:9px}
+.ft-col a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s;font-weight:300}
+.ft-col a:hover{color:var(--ink)}
+.ft-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:28px;border-top:1px solid var(--border)}
+.ft-copy{font-size:12px;color:var(--muted)}
+.ft-socials{display:flex;gap:7px}
+.fsoc{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;text-decoration:none}
+.fsoc:hover{background:var(--fog)}
+
+@media(max-width:768px){
+  nav{padding:0 16px}
+  .wrap{padding:0 16px}
+  .top-section{padding:20px 0 0}
+  .slide{grid-template-columns:1fr}
+  .sl-right{display:none}
+  .sl-left{padding:28px 24px 24px}
+  .sl-title{font-size:26px}
+  .feat-footer{padding:14px 24px 18px}
+  .cgrid{grid-template-columns:1fr 1fr}
+  .how-wrap{padding:28px 24px}
+  .how-steps{grid-template-columns:1fr;gap:24px}
+  .cta-wrap{flex-direction:column;align-items:flex-start;padding:32px 24px}
+  .ft{grid-template-columns:1fr 1fr}
+  .ft-brand{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Dars<b>linker</b>.uz</a>
+  <div class="nav-r">
+    <button class="nbtn nbtn-ghost">Kategoriyalar</button>
+    <button class="nbtn nbtn-ghost">Kirish</button>
+    <button class="nbtn nbtn-dark">E'lon berish</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- TOP: FEATURED + SEARCH + CATS -->
+  <div class="top-section">
+
+    <!-- FEATURED CARD -->
+    <div class="feat-card">
+      <div class="slides" id="slidesEl">
+
+        <div class="slide on">
+          <div class="sl-left">
+            <div>
+              <div class="sl-badges"><span class="sbadge sb-blue">Dasturlash</span><span class="sbadge sb-ghost">Offline</span><span class="sbadge sb-ghost">Toshkent</span></div>
+              <div class="sl-title">Python & Django<br>Full-stack bootcamp</div>
+              <div class="sl-sub">IT Park Academy <div class="sdot"></div> Chilonzor, Toshkent</div>
+              <div class="sl-stats">
+                <div><div class="ss-l">Narx</div><div class="ss-v acc">850 000 so'm</div></div>
+                <div><div class="ss-l">Davomiylik</div><div class="ss-v">6 oy</div></div>
+                <div><div class="ss-l">Reyting</div><div class="ss-v">4.9 ★</div></div>
+                <div><div class="ss-l">Bo'sh joy</div><div class="ss-v">3 ta</div></div>
+              </div>
+            </div>
+            <div class="sl-btns"><button class="btn-apply">Murojaat qilish</button><button class="btn-more">Batafsil →</button></div>
+          </div>
+          <div class="sl-right">
+            <div class="sl-visual"><div class="sl-visual-ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7ea2d4" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="sl-left">
+            <div>
+              <div class="sl-badges"><span class="sbadge sb-blue">Dizayn</span><span class="sbadge sb-ghost">Online</span><span class="sbadge sb-ghost">O'zbekiston</span></div>
+              <div class="sl-title">UI/UX dizayn<br>Figma masterclass</div>
+              <div class="sl-sub">Sarvar Nazarov <div class="sdot"></div> Online · O'zbekiston</div>
+              <div class="sl-stats">
+                <div><div class="ss-l">Narx</div><div class="ss-v acc">Bepul</div></div>
+                <div><div class="ss-l">Davomiylik</div><div class="ss-v">3 oy</div></div>
+                <div><div class="ss-l">Reyting</div><div class="ss-v">4.7 ★</div></div>
+                <div><div class="ss-l">O'quvchilar</div><div class="ss-v">1 200+</div></div>
+              </div>
+            </div>
+            <div class="sl-btns"><button class="btn-apply">Murojaat qilish</button><button class="btn-more">Batafsil →</button></div>
+          </div>
+          <div class="sl-right">
+            <div class="sl-visual"><div class="sl-visual-ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7ea2d4" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="sl-left">
+            <div>
+              <div class="sl-badges"><span class="sbadge sb-blue">Ingliz tili</span><span class="sbadge sb-ghost">Offline</span><span class="sbadge sb-ghost">Toshkent</span></div>
+              <div class="sl-title">Ingliz tili<br>A1 dan B2 gacha</div>
+              <div class="sl-sub">English Time <div class="sdot"></div> Yunusobod, Toshkent</div>
+              <div class="sl-stats">
+                <div><div class="ss-l">Narx</div><div class="ss-v acc">350 000 so'm</div></div>
+                <div><div class="ss-l">Davomiylik</div><div class="ss-v">8 oy</div></div>
+                <div><div class="ss-l">Reyting</div><div class="ss-v">4.8 ★</div></div>
+                <div><div class="ss-l">Bo'sh joy</div><div class="ss-v">7 ta</div></div>
+              </div>
+            </div>
+            <div class="sl-btns"><button class="btn-apply">Murojaat qilish</button><button class="btn-more">Batafsil →</button></div>
+          </div>
+          <div class="sl-right">
+            <div class="sl-visual"><div class="sl-visual-ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7ea2d4" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="sl-left">
+            <div>
+              <div class="sl-badges"><span class="sbadge sb-blue">Marketing</span><span class="sbadge sb-ghost">Offline</span><span class="sbadge sb-ghost">Samarqand</span></div>
+              <div class="sl-title">Digital Marketing<br>& SMM intensiv</div>
+              <div class="sl-sub">Marketing Pro <div class="sdot"></div> Samarqand shahri</div>
+              <div class="sl-stats">
+                <div><div class="ss-l">Narx</div><div class="ss-v acc">400 000 so'm</div></div>
+                <div><div class="ss-l">Davomiylik</div><div class="ss-v">4 oy</div></div>
+                <div><div class="ss-l">Reyting</div><div class="ss-v">4.6 ★</div></div>
+                <div><div class="ss-l">Bo'sh joy</div><div class="ss-v">5 ta</div></div>
+              </div>
+            </div>
+            <div class="sl-btns"><button class="btn-apply">Murojaat qilish</button><button class="btn-more">Batafsil →</button></div>
+          </div>
+          <div class="sl-right">
+            <div class="sl-visual"><div class="sl-visual-ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7ea2d4" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="sl-left">
+            <div>
+              <div class="sl-badges"><span class="sbadge sb-blue">Dasturlash</span><span class="sbadge sb-ghost">Bootcamp</span><span class="sbadge sb-ghost">Toshkent</span></div>
+              <div class="sl-title">Data Science & AI<br>4 oylik bootcamp</div>
+              <div class="sl-sub">AI Academy <div class="sdot"></div> Mirzo Ulug'bek, Toshkent</div>
+              <div class="sl-stats">
+                <div><div class="ss-l">Narx</div><div class="ss-v acc">1 200 000 so'm</div></div>
+                <div><div class="ss-l">Davomiylik</div><div class="ss-v">4 oy</div></div>
+                <div><div class="ss-l">Reyting</div><div class="ss-v">4.9 ★</div></div>
+                <div><div class="ss-l">Bo'sh joy</div><div class="ss-v">2 ta</div></div>
+              </div>
+            </div>
+            <div class="sl-btns"><button class="btn-apply">Murojaat qilish</button><button class="btn-more">Batafsil →</button></div>
+          </div>
+          <div class="sl-right">
+            <div class="sl-visual"><div class="sl-visual-ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7ea2d4" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="feat-footer">
+        <div class="feat-dots" id="fdots">
+          <div class="fdot on"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div><div class="fdot"></div>
+        </div>
+        <div class="feat-counter" id="fctr">01 / 05</div>
+        <div class="feat-nav">
+          <div class="fnav" onclick="slide(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
+          <div class="fnav" onclick="slide(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b5bbc3" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input placeholder="Kurs, yo'nalish yoki shahar izlang...">
+      </div>
+      <button class="filter-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        Filtr
+      </button>
+      <button class="search-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Qidirish
+      </button>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="cats-wrap">
+      <div class="cats-label">Kategoriyalar</div>
+      <div class="cats-row">
+        <div class="cat on" onclick="setCat(this)"><span class="cat-ic">💻</span> Dasturlash</div>
+        <div class="cat" onclick="setCat(this)"><span class="cat-ic">🎨</span> Dizayn</div>
+        <div class="cat" onclick="setCat(this)"><span class="cat-ic">📈</span> Marketing</div>
+        <div class="cat" onclick="setCat(this)"><span class="cat-ic">🇬🇧</span> Ingliz tili</div>
+        <div class="cat" onclick="setCat(this)"><span class="cat-ic">🇷🇺</span> Rus tili</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSES -->
+  <div class="courses-section">
+    <div class="sh">
+      <div><div class="sh-eyebrow">Top kurslar</div><div class="sh-title">Mashhur kurslar</div></div>
+      <a href="#" class="sh-link">Barchasini ko'rish →</a>
+    </div>
+    <div class="cgrid">
+
+      <div class="ccard">
+        <div class="cthumb t1"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#7ea2d4" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><div class="cf-badge">Offline</div></div>
+        <div class="cbody"><div class="ccat">Dasturlash</div><div class="ctitle">JavaScript & React — zamonaviy web dasturlash</div><div class="cprov"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Najot Ta'lim · Toshkent</div><div class="cfoot"><div class="cprice">650 000 <span>so'm/oy</span></div><div class="crating"><span class="cstar">★</span> 4.9</div></div></div>
+      </div>
+
+      <div class="ccard">
+        <div class="cthumb t2"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#d4916a" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg><div class="cf-badge">Online</div></div>
+        <div class="cbody"><div class="ccat">Dizayn</div><div class="ctitle">UI/UX dizayn Figma bilan — noldan pro darajaga</div><div class="cprov"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Sarvar Nazarov · Online</div><div class="cfoot"><div class="cprice cfree">Bepul</div><div class="crating"><span class="cstar">★</span> 4.7</div></div></div>
+      </div>
+
+      <div class="ccard">
+        <div class="cthumb t3"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#5a9e6f" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><div class="cf-badge">Offline</div></div>
+        <div class="cbody"><div class="ccat">Marketing</div><div class="ctitle">Digital marketing & SMM amaliyoti</div><div class="cprov"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Marketing Pro · Samarqand</div><div class="cfoot"><div class="cprice">400 000 <span>so'm/oy</span></div><div class="crating"><span class="cstar">★</span> 4.6</div></div></div>
+      </div>
+
+      <div class="ccard">
+        <div class="cthumb t4"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#a06aaa" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div class="cf-badge">Offline</div></div>
+        <div class="cbody"><div class="ccat">Ingliz tili</div><div class="ctitle">Ingliz tili — A1 dan B2 gacha intensiv kurs</div><div class="cprov"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> English Time · Toshkent</div><div class="cfoot"><div class="cprice">350 000 <span>so'm/oy</span></div><div class="crating"><span class="cstar">★</span> 4.8</div></div></div>
+      </div>
+
+      <div class="ccard">
+        <div class="cthumb t5"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#c49a3c" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><div class="cf-badge">Video</div></div>
+        <div class="cbody"><div class="ccat">Dasturlash</div><div class="ctitle">Flutter — mobil ilova yaratish to'liq kurs</div><div class="cprov"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Botir Xolmatov · YouTube</div><div class="cfoot"><div class="cprice cfree">Bepul</div><div class="crating"><span class="cstar">★</span> 4.5</div></div></div>
+      </div>
+
+      <div class="ccard">
+        <div class="cthumb t6"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#3ca87a" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg><div class="cf-badge">Bootcamp</div></div>
+        <div class="cbody"><div class="ccat">Dasturlash</div><div class="ctitle">Data Science & AI — 4 oylik intensiv bootcamp</div><div class="cprov"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> AI Academy · Toshkent</div><div class="cfoot"><div class="cprice">1 200 000 <span>so'm/oy</span></div><div class="crating"><span class="cstar">★</span> 4.9</div></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HOW -->
+  <div class="how-section">
+    <div class="how-wrap">
+      <div class="sh" style="margin-bottom:0"><div><div class="sh-eyebrow">Qanday ishlaydi</div><div class="sh-title">3 qadam — tamom</div></div></div>
+      <div class="how-steps">
+        <div><div class="hnum">01</div><div class="htitle">Qidiring</div><div class="hdesc">Kategoriya, narx, format yoki shahar bo'yicha filtrlang va o'zingizga mos kursni toping.</div></div>
+        <div><div class="hnum">02</div><div class="htitle">Solishtiring</div><div class="hdesc">Narx, davomiylik va reytinglarni ko'ring. Bir nechta kursni bir vaqtda solishtiring.</div></div>
+        <div><div class="hnum">03</div><div class="htitle">Bog'laning</div><div class="hdesc">To'g'ridan-to'g'ri kurs egasiga murojaat qoldiring. Ular sizga o'zi bog'lanadi.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-wrap">
+      <div class="cta-t">
+        <h2>Kurs o'tasizmi?<br>O'quvchilar siz bilan bog'lansin.</h2>
+        <p>E'lon joylang — birinchi leadlar bepul. Minglab o'quvchilar platformada kurs izlaydi.</p>
+      </div>
+      <button class="cta-btn">Bepul boshlash →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <div class="ft-brand"><a href="#" class="logo">Dars<b>linker</b>.uz</a><p>O'zbekistondagi online va offline kurslarni topish va solishtirish platformasi.</p></div>
+      <div class="ft-col"><h4>Kategoriyalar</h4><ul><li><a href="#">Dasturlash</a></li><li><a href="#">Dizayn</a></li><li><a href="#">Marketing</a></li><li><a href="#">Ingliz tili</a></li><li><a href="#">Rus tili</a></li></ul></div>
+      <div class="ft-col"><h4>Platforma</h4><ul><li><a href="#">Barcha kurslar</a></li><li><a href="#">E'lon berish</a></li><li><a href="#">Qanday ishlaydi</a></li></ul></div>
+      <div class="ft-col"><h4>Maqolalar</h4><ul><li><a href="#">Blog</a></li><li><a href="#">Qo'llanmalar</a></li><li><a href="#">Yangiliklar</a></li><li><a href="#">Shartlar</a></li><li><a href="#">Maxfiylik</a></li></ul></div>
+    </div>
+    <div class="ft-bottom">
+      <p class="ft-copy">© 2025 Darslinker.uz — Barcha huquqlar himoyalangan</p>
+      <div class="ft-socials">
+        <a href="#" class="fsoc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c8490" stroke-width="2"><path d="M21 2H3v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V2z"/><path d="M9 22v-4h6v4"/></svg></a>
+        <a href="#" class="fsoc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c8490" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="#" class="fsoc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c8490" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.5 11.5a19.79 19.79 0 01-3.07-8.63A2 2 0 012.35 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.4a16 16 0 006 6l.77-.77a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0120.92 16z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+let cur=0,total=5,timer;
+function upd(){
+  document.querySelectorAll('.slide').forEach((s,i)=>{
+    if(i===cur){s.classList.add('on');s.style.position='relative'}
+    else{s.classList.remove('on');s.style.position='absolute'}
+  });
+  document.querySelectorAll('.fdot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+  document.getElementById('fctr').textContent=String(cur+1).padStart(2,'0')+' / '+String(total).padStart(2,'0');
+}
+function slide(d){cur=(cur+d+total)%total;upd();clearInterval(timer);timer=setInterval(()=>slide(1),4500)}
+document.querySelectorAll('.fdot').forEach((d,i)=>d.addEventListener('click',()=>{cur=i;upd();clearInterval(timer);timer=setInterval(()=>slide(1),4500)}));
+timer=setInterval(()=>slide(1),4500);
+function setCat(el){document.querySelectorAll('.cat').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+</script>
+</body>
+</html>
