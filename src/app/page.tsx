@@ -69,6 +69,9 @@ export default function HomePage() {
         {/* QOLGAN SECTIONLAR */}
         <div className="space-y-10 md:space-y-14 py-10 md:py-14">
 
+        {/* CTA TEXT */}
+        <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Kasbingizni bugun tanlang</p>
+
         {/* CATEGORIES SECTION */}
         <div className="bg-[#e8eaed] rounded-[20px] p-5 md:p-8">
           <h2 className="text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">Yo&apos;nalishlar</h2>
@@ -76,11 +79,11 @@ export default function HomePage() {
           <div className="mt-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {categories.map((cat) => (
-            <button key={cat.name} className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] md:p-5 md:h-[130px] hover:bg-[#26282c] transition-all">
+            <button key={cat.name} className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] lg:rounded-[20px] md:p-5 lg:p-6 xl:p-7 md:h-[150px] lg:h-[180px] xl:h-[200px] hover:bg-[#26282c] transition-all">
               {/* Desktop */}
-              <span className="hidden md:block absolute top-5 left-5 text-[20px] font-bold text-white leading-tight max-w-[55%]">{cat.name}</span>
-              <span className="hidden md:block absolute bottom-5 left-5 text-[12px] text-white/80 line-clamp-1 max-w-[50%]">{cat.desc}</span>
-              <span className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 text-[38px] font-bold text-white/15 leading-none">{cat.count}</span>
+              <span className="hidden md:block absolute top-5 left-5 lg:top-6 lg:left-6 xl:top-7 xl:left-7 text-[20px] lg:text-[24px] xl:text-[26px] font-bold text-white leading-tight max-w-[55%]">{cat.name}</span>
+              <span className="hidden md:block absolute bottom-5 left-5 lg:bottom-6 lg:left-6 xl:bottom-7 xl:left-7 text-[12px] lg:text-[13px] xl:text-[14px] text-white/80 line-clamp-1 max-w-[55%]">{cat.desc}</span>
+              <span className="hidden md:block absolute right-4 lg:right-6 xl:right-7 top-1/2 -translate-y-1/2 text-[38px] lg:text-[48px] xl:text-[52px] font-bold text-white/15 leading-none">{cat.count}</span>
               {/* Mobil */}
               <div className="relative md:hidden px-4 py-4 h-[85px] flex flex-col justify-between items-start text-left">
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[44px] font-bold text-white/15 leading-none">{cat.count}</span>
@@ -94,6 +97,9 @@ export default function HomePage() {
         </div>
 
         {/* COURSES GRID */}
+        {/* CTA TEXT */}
+        <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Har bir kurs yangi imkoniyat</p>
+
         <section>
           <h2 className="font-[family-name:var(--font-outfit)] text-[24px] md:text-[28px] font-bold text-[#16181a] leading-tight mb-5">
             Mashhur kurslar
@@ -130,6 +136,9 @@ export default function HomePage() {
             Barcha kurslarni ko&apos;rish <ArrowRight className="w-4 h-4" />
           </Link>
         </section>
+
+        {/* CTA TEXT */}
+        <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Kerakli kursni topa olmadingizmi?</p>
 
         {/* ARIZA QOLDIRISH */}
         <section className="bg-gradient-to-br from-[#1e2530] via-[#253550] to-[#1e2530] rounded-[20px] p-8 md:p-12">

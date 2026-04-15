@@ -5,15 +5,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 glass-nav border-b border-[#e4e7ea]">
-      <div className="max-w-[1200px] mx-auto px-8 flex items-center justify-between h-[62px]">
+      <div className="px-4 md:max-w-[1600px] md:mx-auto md:px-20 flex items-center justify-between h-[62px]">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center gap-2">
+          <DarslinkerLogo size={28} />
           <span className="text-[20px] font-[family-name:var(--font-outfit)] font-bold tracking-tight text-[#16181a]">
             Dars<span className="text-[#7ea2d4]">Linker</span>
           </span>
@@ -53,7 +55,8 @@ export function Navbar() {
           </SheetTrigger>
           <SheetContent side="right" className="w-80 p-0">
             <div className="flex flex-col h-full">
-              <div className="px-6 pt-8 pb-4">
+              <div className="px-6 pt-8 pb-4 flex items-center gap-2">
+                <DarslinkerLogo size={28} />
                 <span className="text-[20px] font-[family-name:var(--font-outfit)] font-bold tracking-tight text-[#16181a]">
                   Dars<span className="text-[#7ea2d4]">Linker</span>
                 </span>
