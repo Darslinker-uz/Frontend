@@ -1,1 +1,2 @@
-export { Role, ListingFormat, ListingStatus, AdmissionStatus, LeadStatus, BoostType, BoostStatus, PaymentType, BalanceType } from "@/generated/prisma/enums";
+// Prisma tiplar — DB ulangandan keyin yoqiladi
+// export { Role, ListingFormat, ListingStatus, ... } from "@/generated/prisma/enums";
