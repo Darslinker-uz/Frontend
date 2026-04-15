@@ -21,23 +21,6 @@ const courses = [
   { title: "Data Science & AI", category: "Dasturlash", format: "Bootcamp", provider: "AI Academy", location: "Toshkent", price: "1 200 000", priceFree: false, rating: "4.9", duration: "4 oy", gradient: "from-[#1a1a2e] via-[#16213e] to-[#0f3460]", iconPath: "M12 2a10 10 0 1 0 10 10H12V2z" },
 ];
 
-const steps = [
-  {
-    num: "01",
-    title: "Qidiring",
-    desc: "Kategoriya, narx, format yoki shahar bo'yicha filtrlang",
-  },
-  {
-    num: "02",
-    title: "Solishtiring",
-    desc: "Narx, davomiylik va reytinglarni ko'ring",
-  },
-  {
-    num: "03",
-    title: "Bog'laning",
-    desc: "To'g'ridan-to'g'ri kurs egasiga murojaat qoldiring",
-  },
-];
 
 export default function HomePage() {
   return (
@@ -85,13 +68,13 @@ export default function HomePage() {
             <button key={cat.name} className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] md:p-5 md:h-[130px] hover:bg-[#26282c] transition-all">
               {/* Desktop */}
               <span className="hidden md:block absolute top-5 left-5 text-[20px] font-bold text-white leading-tight max-w-[55%]">{cat.name}</span>
-              <span className="hidden md:block absolute bottom-5 left-5 text-[12px] text-white/20 line-clamp-1 max-w-[50%]">{cat.desc}</span>
-              <span className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 text-[38px] font-bold text-white/[0.06] leading-none">{cat.count}</span>
+              <span className="hidden md:block absolute bottom-5 left-5 text-[12px] text-white/80 line-clamp-1 max-w-[50%]">{cat.desc}</span>
+              <span className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 text-[38px] font-bold text-white/15 leading-none">{cat.count}</span>
               {/* Mobil */}
               <div className="relative md:hidden px-4 py-4 h-[85px] flex flex-col justify-between items-start text-left">
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[44px] font-bold text-white/[0.04] leading-none">{cat.count}</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[44px] font-bold text-white/15 leading-none">{cat.count}</span>
                 <span className="relative text-[21px] font-bold text-white leading-tight">{cat.name}</span>
-                <span className="relative text-[11px] text-white/15">{cat.desc}</span>
+                <span className="relative text-[11px] text-white/80">{cat.desc}</span>
               </div>
             </button>
           ))}
@@ -137,32 +120,24 @@ export default function HomePage() {
           </Link>
         </section>
 
-        {/* HOW IT WORKS */}
-        <section className="bg-white rounded-[20px] border border-[#e4e7ea] p-8 md:p-10">
-          <div className="mb-8">
-            <p className="text-[11px] font-semibold text-[#7ea2d4] uppercase tracking-[0.08em] mb-1">
-              QANDAY ISHLAYDI
-            </p>
-            <h2 className="font-[family-name:var(--font-outfit)] text-[24px] md:text-[28px] font-bold text-[#16181a] leading-tight">
-              3 qadam — tamom
-            </h2>
+        {/* ARIZA QOLDIRISH */}
+        <section className="bg-gradient-to-br from-[#1e2530] via-[#253550] to-[#1e2530] rounded-[20px] p-8 md:p-12">
+          <div className="text-center mb-10">
+            <h2 className="text-[30px] md:text-[44px] font-bold text-white tracking-[-0.03em]">Kurs topa olmayapsizmi?</h2>
+            <p className="text-[15px] text-white/25 mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {steps.map((step) => (
-              <div key={step.num} className="flex flex-col">
-                <div className="w-[34px] h-[34px] rounded-[9px] border-2 border-[#e4e7ea] flex items-center justify-center mb-4">
-                  <span className="text-[13px] font-semibold text-[#16181a]">
-                    {step.num}
-                  </span>
-                </div>
-                <h3 className="text-[17px] font-semibold text-[#16181a] mb-1.5">
-                  {step.title}
-                </h3>
-                <p className="text-[14px] text-[#7c8490] leading-relaxed">
-                  {step.desc}
-                </p>
-              </div>
+          <div className="max-w-[520px] mx-auto space-y-3">
+            <input placeholder="Ismingiz" className="w-full h-[52px] px-4 text-[15px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+            <input placeholder="Telefon raqam" className="w-full h-[52px] px-4 text-[15px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+            <input placeholder="Qaysi sohaga qiziqasiz?" className="w-full h-[52px] px-4 text-[15px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+            <button className="w-full h-[52px] rounded-[12px] bg-white text-[#16181a] text-[15px] font-semibold">Ariza yuborish</button>
+          </div>
+          <div className="hidden md:flex justify-center gap-6 mt-10">
+            {["Sizga mos kurslarni tanlab beramiz", "Narx va sifatni solishtiramiz", "24 soat ichida javob beramiz", "Xizmat bepul"].map((t) => (
+              <span key={t} className="text-[12px] text-white/20 flex items-center gap-1.5">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                {t}
+              </span>
             ))}
           </div>
         </section>
