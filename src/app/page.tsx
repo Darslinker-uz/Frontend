@@ -132,7 +132,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <Link href="/kurslar" className="mt-4 flex items-center justify-center gap-2 w-full py-3 rounded-[14px] bg-gradient-to-r from-[#4a7ab5] to-[#7ea2d4] hover:from-[#3d6a96] hover:to-[#6b91c3] text-[14px] text-white font-medium transition-all">
+          <Link href="/kurslar" className="mt-5 flex items-center justify-center gap-2 w-full py-3.5 rounded-[14px] bg-gradient-to-r from-[#2a5080] to-[#4a7ab5] hover:opacity-90 text-[14px] text-white/90 font-medium transition-all">
             Barcha kurslarni ko&apos;rish <ArrowRight className="w-4 h-4" />
           </Link>
         </section>
@@ -143,7 +143,7 @@ export default function HomePage() {
         {/* ARIZA QOLDIRISH */}
         <section className="bg-gradient-to-br from-[#1e2530] via-[#253550] to-[#1e2530] rounded-[20px] p-8 md:p-12">
           <div className="text-center mb-10">
-            <h2 className="text-[30px] md:text-[44px] font-bold text-white tracking-[-0.03em]">Kurs topa olmayapsizmi?</h2>
+            <h2 className="text-[30px] md:text-[44px] font-bold text-white tracking-[-0.03em]">Yordam kerakmi?</h2>
             <p className="text-[15px] text-white/25 mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
           </div>
           <div className="max-w-[520px] mx-auto space-y-3">
@@ -163,19 +163,16 @@ export default function HomePage() {
         </section>
 
         {/* CTA SECTION */}
-        <section className="bg-[#16181a] rounded-[20px] p-8 md:p-10">
+        <section className="bg-[#26282c] rounded-[20px] p-8 md:p-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
-              <h2 className="font-[family-name:var(--font-outfit)] text-[22px] md:text-[26px] font-bold text-white leading-tight mb-2">
-                Kurs o&apos;tasizmi? O&apos;quvchilar siz bilan bog&apos;lansin.
+              <h2 className="font-[family-name:var(--font-outfit)] text-[22px] md:text-[26px] font-bold text-white leading-tight">
+                Kurs egasimisiz?
               </h2>
-              <p className="text-[14px] text-white/40 max-w-[400px]">
-                Minglab o&apos;quvchilarga yeting. Bepul e&apos;lon joylab boshlang.
-              </p>
             </div>
             <Link href="/dashboard/listings/new">
-              <Button className="h-[44px] px-6 rounded-[12px] bg-[#7ea2d4] text-white text-[14px] font-medium hover:bg-[#6b91c3] transition-colors border-0 shrink-0 flex items-center gap-2">
-                Bepul boshlash
+              <Button className="h-[44px] px-6 rounded-[12px] bg-transparent border-2 border-white/20 text-white text-[14px] font-medium hover:border-white/40 transition-colors shrink-0 flex items-center gap-2">
+                Hamkorlik qilish
                 <ArrowRight className="w-[16px] h-[16px]" />
               </Button>
             </Link>

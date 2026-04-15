@@ -1,72 +1,75 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight, Star } from "lucide-react";
+
+const courses = [
+  { title: "JavaScript & React", category: "Dasturlash", format: "Offline", provider: "Najot Ta'lim", price: "650 000", rating: "4.9", duration: "6 oy", gradient: "from-[#4a7ab5] via-[#7ea2d4] to-[#a3c4e8]", iconPath: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" },
+  { title: "UI/UX dizayn Figma", category: "Dizayn", format: "Online", provider: "Sarvar Nazarov", price: "Bepul", rating: "4.7", duration: "3 oy", gradient: "from-[#6b5b95] via-[#8b7bb5] to-[#b0a3d4]", iconPath: "M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586" },
+  { title: "Digital Marketing", category: "Marketing", format: "Offline", provider: "Marketing Pro", price: "400 000", rating: "4.6", duration: "4 oy", gradient: "from-[#a35b2d] via-[#c47e4a] to-[#d4a07e]", iconPath: "M22 12h-4l-3 9L9 3l-3 9H2" },
+];
 
 export default function CheckPage() {
   const [active, setActive] = useState(0);
 
-  const fonts = [
-    { name: "1 — Kalam (tanlangan)", family: "'Kalam', cursive", url: "https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" },
-    { name: "2 — Nanum Pen Script", family: "'Nanum Pen Script', cursive", url: "https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" },
-    { name: "3 — Reenie Beanie", family: "'Reenie Beanie', cursive", url: "https://fonts.googleapis.com/css2?family=Reenie+Beanie&display=swap" },
-    { name: "4 — Coming Soon", family: "'Coming Soon', cursive", url: "https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap" },
-    { name: "5 — Pangolin", family: "'Pangolin', cursive", url: "https://fonts.googleapis.com/css2?family=Pangolin&display=swap" },
-    { name: "6 — Sriracha", family: "'Sriracha', cursive", url: "https://fonts.googleapis.com/css2?family=Sriracha&display=swap" },
-    { name: "7 — Neucha", family: "'Neucha', cursive", url: "https://fonts.googleapis.com/css2?family=Neucha&display=swap" },
-    { name: "8 — Bad Script", family: "'Bad Script', cursive", url: "https://fonts.googleapis.com/css2?family=Bad+Script&display=swap" },
-    { name: "9 — Marck Script", family: "'Marck Script', cursive", url: "https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" },
-    { name: "10 — Comforter Brush", family: "'Comforter Brush', cursive", url: "https://fonts.googleapis.com/css2?family=Comforter+Brush&display=swap" },
+  const variants = [
+    { name: "1 — Ko'k→och ko'k", bg: "bg-gradient-to-r from-[#1e2d42] to-[#2a3d55]", text: "text-white/80" },
+    { name: "2 — Qora→ko'k", bg: "bg-gradient-to-r from-[#16181a] to-[#2a3d55]", text: "text-white/80" },
+    { name: "3 — Ko'k→kulrang", bg: "bg-gradient-to-r from-[#2a3545] to-[#34363a]", text: "text-white/80" },
+    { name: "4 — Kulrang→ko'k", bg: "bg-gradient-to-r from-[#26282c] to-[#1e2d42]", text: "text-white/80" },
+    { name: "5 — Och ko'k→oq", bg: "bg-gradient-to-r from-[#dce6f0] to-[#edf1f5]", text: "text-[#1e2d42]" },
+    { name: "6 — Ko'k gradient to'q", bg: "bg-gradient-to-r from-[#2a5080] to-[#4a7ab5]", text: "text-white/90" },
+    { name: "7 — Tun→ko'k", bg: "bg-gradient-to-r from-[#0f1923] to-[#1e3a5f]", text: "text-white/70" },
+    { name: "8 — Ko'k→binafsha", bg: "bg-gradient-to-r from-[#1e2d42] to-[#2a2540]", text: "text-white/80" },
+    { name: "9 — Diagonal ko'k", bg: "bg-gradient-to-br from-[#1e2d42] via-[#253550] to-[#1e2d42]", text: "text-white/80" },
+    { name: "10 — Qora→kulrang→ko'k", bg: "bg-gradient-to-r from-[#16181a] via-[#26282c] to-[#2a3545]", text: "text-white/80" },
   ];
 
-  const text = "O'zingizga qiziq sohani kashf qiling";
+  const v = variants[active];
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      {fonts.map((f) => <link key={f.name} rel="stylesheet" href={f.url} />)}
-
       <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#e4e7ea] py-3">
         <div className="max-w-[1600px] mx-auto px-5 md:px-20 flex items-center gap-2 overflow-x-auto hide-scrollbar">
-          {fonts.map((f, i) => (
+          {variants.map((item, i) => (
             <button key={i} onClick={() => setActive(i)} className={`shrink-0 px-4 py-2 rounded-full text-[12px] font-medium transition-all ${active === i ? "bg-[#16181a] text-white" : "bg-white border border-[#e4e7ea] text-[#7c8490] hover:text-[#16181a]"}`}>
-              {f.name}
+              {item.name}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-10 space-y-6">
+      <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-10">
+        <h2 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-5">Mashhur kurslar</h2>
 
-        <div className="bg-[#1e2024] rounded-[18px] h-[100px] flex items-center justify-center">
-          <span className="text-white/20 text-[13px]">Slider</span>
-        </div>
-        <p className="text-center text-[24px] md:text-[34px] text-[#16181a] py-3" style={{ fontFamily: fonts[active].family }}>{text}</p>
-        <div className="bg-[#e8eaed] rounded-[18px] h-[150px] flex items-center justify-center">
-          <span className="text-[#7c8490] text-[13px]">Yo&apos;nalishlar</span>
-        </div>
-        <p className="text-center text-[24px] md:text-[34px] text-[#16181a] py-3" style={{ fontFamily: fonts[active].family }}>Eng yaxshi kurslar shu yerda</p>
-        <div className="grid grid-cols-3 gap-3">
-          {["from-[#4a7ab5] to-[#a3c4e8]","from-[#6b5b95] to-[#b0a3d4]","from-[#a35b2d] to-[#d4a07e]"].map((g, i) => (
-            <div key={i} className={`bg-gradient-to-br ${g} rounded-[18px] h-[120px]`} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+          {courses.map((c) => (
+            <div key={c.title} className={`relative overflow-hidden rounded-[18px] bg-gradient-to-br ${c.gradient} flex flex-col`}>
+              <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+              <svg className="absolute right-4 top-1/3 w-[60px] h-[60px] text-white/[0.08]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"><path d={c.iconPath} /></svg>
+              <div className="relative p-5 flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{c.category}</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{c.format}</span>
+                </div>
+                <h3 className="text-[17px] font-bold text-white">{c.title}</h3>
+                <p className="text-[12px] text-white/35 mt-1">{c.provider}</p>
+                <div className="flex items-center gap-2 mt-2 text-[11px] text-white/30">
+                  <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-white/50 text-white/50" />{c.rating}</span>
+                  <span>{c.duration}</span>
+                </div>
+              </div>
+              <div className="relative mx-3 mb-3 rounded-[12px] bg-white/[0.1] border border-white/[0.08] px-4 py-2.5 flex items-center justify-between">
+                <span className="text-[14px] font-bold text-white">{c.price === "Bepul" ? "Bepul" : `${c.price} so'm`}</span>
+                <ArrowRight className="w-4 h-4 text-white/30" />
+              </div>
+            </div>
           ))}
         </div>
-        <p className="text-center text-[24px] md:text-[34px] text-[#16181a] py-3" style={{ fontFamily: fonts[active].family }}>Kurs topa olmadingizmi? Biz yordam beramiz</p>
-        <div className="bg-gradient-to-br from-[#1e2530] via-[#253550] to-[#1e2530] rounded-[18px] h-[150px] flex items-center justify-center">
-          <span className="text-white/20 text-[13px]">Ariza</span>
-        </div>
 
-        {/* Solishtirish */}
-        <div className="mt-12 pt-8 border-t border-[#e4e7ea]">
-          <p className="text-[12px] text-[#7c8490] mb-6">Barcha fontlar solishtirish:</p>
-          <div className="space-y-5">
-            {fonts.map((f, i) => (
-              <div key={i} className={`flex flex-col md:flex-row md:items-center gap-2 md:gap-4 ${active === i ? "bg-[#7ea2d4]/10 -mx-4 px-4 py-3 rounded-[14px]" : ""}`}>
-                <span className="text-[11px] text-[#7c8490] md:w-[200px] shrink-0">{f.name}</span>
-                <p className="text-[24px] md:text-[30px] text-[#16181a]" style={{ fontFamily: f.family }}>{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <button className={`mt-5 w-full py-3.5 rounded-[14px] text-[14px] font-medium flex items-center justify-center gap-2 transition-all hover:opacity-90 ${v.bg} ${v.text}`}>
+          Barcha kurslarni ko&apos;rish <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

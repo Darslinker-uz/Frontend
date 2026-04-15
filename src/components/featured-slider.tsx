@@ -310,8 +310,8 @@ export function FeaturedSlider() {
 
         {/* O'ng — buttonlar */}
         <div className="flex items-center gap-2">
-          <button className="h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] bg-white text-[#16181a] text-[12px] md:text-[13px] font-semibold hover:bg-white/90 transition-colors">Bog'lanish</button>
-          <button className="hidden sm:flex h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] border border-white/20 text-white/70 text-[12px] md:text-[13px] font-medium hover:bg-white/10 transition-colors items-center">Batafsil</button>
+          <button className="h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] bg-white/50 text-[#16181a] text-[12px] md:text-[13px] font-semibold hover:bg-white/70 transition-colors">Bog&apos;lanish</button>
+          <button className="hidden sm:flex h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] bg-white/50 text-[#16181a] text-[12px] md:text-[13px] font-semibold hover:bg-white/70 transition-colors items-center">Batafsil</button>
         </div>
       </div>
     </div>
