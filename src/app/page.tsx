@@ -4,6 +4,7 @@ import { Star, MapPin, ArrowRight, MousePointerClick } from "lucide-react";
 import { FeaturedSlider } from "@/components/featured-slider";
 import { CoursesSlider } from "@/components/courses-slider";
 import { HeroSearch } from "@/components/hero-search";
+import { PhoneInput, TelegramInput } from "@/components/phone-input";
 import { categories, courses } from "@/data/courses";
 
 
@@ -63,14 +64,15 @@ export default function HomePage() {
         <div className="space-y-10 md:space-y-14 py-10 md:py-14">
           <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Kerakli kursni topa olmadingizmi?</p>
 
-          <section className="bg-gradient-to-br from-[#1e2530] via-[#253550] to-[#1e2530] rounded-[20px] p-8 md:p-12">
+          <section id="ariza" className="bg-gradient-to-br from-[#1e2530] via-[#253550] to-[#1e2530] rounded-[20px] p-8 md:p-12">
             <div className="text-center mb-10">
               <h2 className="text-[30px] md:text-[44px] font-bold text-white tracking-[-0.03em]">Yordam kerakmi?</h2>
               <p className="text-[15px] text-white/25 mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
             </div>
             <div className="max-w-[520px] mx-auto space-y-3">
               <input placeholder="Ismingiz" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
-              <input placeholder="Telefon raqam" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+              <PhoneInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
+              <TelegramInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
               <input placeholder="Qaysi sohaga qiziqasiz?" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
               <button className="w-full h-[52px] rounded-[12px] bg-white text-[#16181a] text-[15px] font-semibold">Ariza yuborish</button>
             </div>
@@ -89,7 +91,7 @@ export default function HomePage() {
               <h2 className="font-[family-name:var(--font-outfit)] text-[18px] md:text-[26px] font-bold text-[#16181a] leading-tight">
                 Kurs egasimisiz?
               </h2>
-              <Link href="/dashboard/listings/new">
+              <Link href="/hamkorlik">
                 <Button className="h-[40px] md:h-[44px] px-5 md:px-6 rounded-[12px] bg-white text-[#16181a] text-[13px] md:text-[14px] font-medium hover:bg-white/80 transition-colors shrink-0 flex items-center gap-2 border-0">
                   Hamkorlik
                   <ArrowRight className="w-[16px] h-[16px]" />

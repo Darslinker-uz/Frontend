@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Star, ArrowRight } from "lucide-react";
 import { courses as allCourses, type Course } from "@/data/courses";
@@ -50,7 +50,7 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
   );
 }
 
-export default function KurslarPage() {
+function KurslarContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
   const [filtered, setFiltered] = useState<Course[]>(allCourses);
@@ -78,5 +78,13 @@ export default function KurslarPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function KurslarPage() {
+  return (
+    <Suspense>
+      <KurslarContent />
+    </Suspense>
   );
 }

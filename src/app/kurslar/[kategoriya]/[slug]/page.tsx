@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, MapPin, Clock, Star, Send, BookOpen, Award, Calendar, Users, Globe, CreditCard } from "lucide-react";
 import { courses, categories } from "@/data/courses";
 import { notFound } from "next/navigation";
+import { PhoneInput, TelegramInput } from "@/components/phone-input";
 
 type Props = {
   params: Promise<{ kategoriya: string; slug: string }>;
@@ -189,7 +190,11 @@ export default async function KursDetailPage({ params }: Props) {
                   </div>
                   <div>
                     <Label htmlFor="phone" className="text-[12px] text-[#7c8490] mb-1.5">Telefon</Label>
-                    <Input id="phone" placeholder="+998 90 123 45 67" className="rounded-[10px] h-11 border-[#e4e7ea] text-[16px]" />
+                    <PhoneInput className="w-full h-11 px-4 text-[16px] rounded-[10px] border border-[#e4e7ea] text-[#16181a] placeholder:text-[#7c8490]/50 focus:outline-none focus:border-[#7ea2d4] transition-colors" />
+                  </div>
+                  <div>
+                    <Label htmlFor="telegram" className="text-[12px] text-[#7c8490] mb-1.5">Telegram</Label>
+                    <TelegramInput className="w-full h-11 px-4 text-[16px] rounded-[10px] border border-[#e4e7ea] text-[#16181a] placeholder:text-[#7c8490]/50 focus:outline-none focus:border-[#7ea2d4] transition-colors" />
                   </div>
                   <Button className="w-full h-12 rounded-[12px] bg-[#16181a] text-white text-[15px] font-medium hover:bg-[#16181a]/80 border-0 flex items-center gap-2">
                     <Send className="h-4 w-4" />
