@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Kalam, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
+import { MainShell } from "@/components/layout/main-shell";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -42,9 +41,7 @@ export default function RootLayout({
       className={`${outfit.variable} ${kalam.variable} ${plusJakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-outfit)]">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <MainShell>{children}</MainShell>
       </body>
     </html>
   );

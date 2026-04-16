@@ -1,129 +1,174 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Yangi e'lon",
-};
+const categoriyalar = ["IT & Dasturlash", "Dizayn", "Marketing", "Xorijiy tillar", "Biznes & Startap", "Akademik fanlar"];
+const formatlar = ["Onlayn", "Oflayn", "Gibrid", "Video"];
+const tillar = ["O'zbek", "Rus", "Ingliz"];
+const darajalar = ["Boshlang'ich", "O'rta", "Ilg'or"];
+const tolovTuri = ["Bir martalik", "Oylik"];
+
+const inputClass = "w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all";
+const selectClass = "w-full h-[44px] px-3 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[14px] text-white/70 focus:outline-none focus:border-[#7ea2d4]/40 transition-all appearance-none";
+const textareaClass = "w-full px-4 py-3 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all resize-none";
+const labelClass = "text-[12px] text-white/30 mb-1.5 block";
 
 export default function NewListingPage() {
+  const [isFree, setIsFree] = useState(false);
+  const [format, setFormat] = useState("");
+
+  const showLocation = format === "Oflayn" || format === "Gibrid";
+  const showSchedule = format !== "Video" && format !== "";
+
   return (
-    <div className="max-w-2xl mx-auto px-6 py-10 md:py-14">
-      {/* Back */}
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-2 text-[14px] text-[#7ea2d4] hover:text-[#5b87c0] font-medium mb-8 transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Dashboard
+    <div className="px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8 max-w-[700px] mx-auto">
+      <Link href="/dashboard" className="inline-flex items-center gap-2 text-[13px] text-[#7ea2d4] font-medium mb-6">
+        <ArrowLeft className="w-4 h-4" /> Dashboard
       </Link>
 
-      <h1 className="text-3xl font-bold text-[#232324] tracking-tight mb-2">
-        Yangi e&apos;lon
-      </h1>
-      <p className="text-[15px] text-[#232324]/40 mb-10">
-        Kurs ma&apos;lumotlarini kiriting
-      </p>
+      <h1 className="text-[22px] md:text-[26px] font-bold text-white mb-1">Yangi e&apos;lon</h1>
+      <p className="text-[14px] text-white/40 mb-6">* belgilangan maydonlar majburiy</p>
 
-      {/* Form */}
-      <div className="space-y-6">
-        <div className="p-8 rounded-2xl bg-white border border-[#e8ecef] space-y-5">
-          <h2 className="text-[16px] font-semibold text-[#232324] mb-2">
-            Asosiy ma&apos;lumotlar
-          </h2>
+      <div className="space-y-5">
+        {/* ASOSIY */}
+        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
+          <h2 className="text-[15px] font-bold text-white">Asosiy ma&apos;lumotlar</h2>
           <div>
-            <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-              Kurs nomi *
-            </Label>
-            <Input
-              placeholder="Masalan: Python dasturlash kursi"
-              className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-            />
+            <label className={labelClass}>Kurs nomi *</label>
+            <input placeholder="Masalan: JavaScript Full-stack bootcamp" className={inputClass} />
           </div>
           <div>
-            <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-              Kategoriya *
-            </Label>
-            <Input
-              placeholder="Kategoriyani tanlang"
-              className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-            />
+            <label className={labelClass}>Kategoriya *</label>
+            <select className={selectClass}>
+              <option value="">Tanlang</option>
+              {categoriyalar.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-                Format *
-              </Label>
-              <Input
-                placeholder="Online / Offline / Video"
-                className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-              />
+              <label className={labelClass}>Format *</label>
+              <select value={format} onChange={(e) => setFormat(e.target.value)} className={selectClass}>
+                <option value="">Tanlang</option>
+                {formatlar.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
             </div>
             <div>
-              <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-                Narx (so&apos;m) *
-              </Label>
-              <Input
-                type="number"
-                placeholder="500 000"
-                className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-              />
+              <label className={labelClass}>Narx *</label>
+              {/* Bepul/Pullik toggle */}
+              <div className="flex items-center gap-2 mb-2">
+                <button onClick={() => setIsFree(false)} className={`flex-1 h-[36px] rounded-[8px] text-[13px] font-medium transition-all ${!isFree ? "bg-[#7ea2d4] text-white" : "bg-white/[0.06] text-white/30 hover:text-white/50"}`}>
+                  Pullik
+                </button>
+                <button onClick={() => setIsFree(true)} className={`flex-1 h-[36px] rounded-[8px] text-[13px] font-medium transition-all ${isFree ? "bg-[#7ea2d4] text-white" : "bg-white/[0.06] text-white/30 hover:text-white/50"}`}>
+                  Bepul
+                </button>
+              </div>
+              {!isFree && (
+                <input placeholder="650,000 so'm" className={inputClass} />
+              )}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>Davomiylik *</label>
+            <input placeholder="Masalan: 6 oy" className={inputClass} />
+          </div>
+        </div>
+
+        {/* QO'SHIMCHA */}
+        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
+          <h2 className="text-[15px] font-bold text-white">Qo&apos;shimcha</h2>
+          <div>
+            <label className={labelClass}>Kurs tavsifi</label>
+            <textarea placeholder="Kursda nima o'rgatiladi..." className={textareaClass} rows={4} />
+          </div>
+          {showLocation && (
             <div>
-              <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-                Davomiylik *
-              </Label>
-              <Input
-                placeholder="3 oy"
-                className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-              />
+              <label className={labelClass}>Manzil *</label>
+              <input placeholder="Toshkent, Chilonzor tumani..." className={inputClass} />
+            </div>
+          )}
+          {showSchedule && (
+            <div>
+              <label className={labelClass}>Dars jadvali</label>
+              <input placeholder="Du-Ju, 14:00-16:00" className={inputClass} />
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Til</label>
+              <select className={selectClass}>
+                {tillar.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
             <div>
-              <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-                Telefon *
-              </Label>
-              <Input
-                placeholder="+998 90 123 45 67"
-                className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-              />
+              <label className={labelClass}>Daraja</label>
+              <select className={selectClass}>
+                <option value="">Tanlang</option>
+                {darajalar.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>O&apos;quvchilar limiti</label>
+              <input type="number" placeholder="20" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>To&apos;lov turi</label>
+              <select className={selectClass}>
+                {tolovTuri.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
           </div>
         </div>
 
-        <div className="p-8 rounded-2xl bg-white border border-[#e8ecef] space-y-5">
-          <h2 className="text-[16px] font-semibold text-[#232324] mb-2">
-            Qo&apos;shimcha
-          </h2>
+        {/* O'QITUVCHI */}
+        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
+          <h2 className="text-[15px] font-bold text-white">O&apos;qituvchi haqida</h2>
           <div>
-            <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-              Joylashuv (offline uchun)
-            </Label>
-            <Input
-              placeholder="Toshkent, Chilonzor tumani"
-              className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-            />
+            <label className={labelClass}>Ism</label>
+            <input placeholder="Ism familiya" className={inputClass} />
           </div>
           <div>
-            <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-              Tavsif
-            </Label>
-            <Textarea
-              placeholder="Kurs haqida batafsil ma'lumot..."
-              rows={5}
-              className="rounded-xl border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-            />
+            <label className={labelClass}>Tajriba</label>
+            <textarea placeholder="5 yillik tajriba, Google sertifikati..." className={textareaClass} rows={3} />
           </div>
         </div>
 
-        <Button className="w-full h-13 rounded-xl gradient-accent border-0 text-white text-[15px] font-medium shadow-sm hover:shadow-md transition-shadow">
+        {/* OPSIYALAR */}
+        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
+          <h2 className="text-[15px] font-bold text-white">Opsiyalar</h2>
+          <div>
+            <label className={labelClass}>Dars rejasi</label>
+            <textarea placeholder={"1-oy: Asoslar\n2-oy: Amaliy\n3-oy: Real loyiha"} className={textareaClass} rows={4} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Sertifikat</label>
+              <select className={selectClass}>
+                <option value="yoq">Yo&apos;q</option>
+                <option value="ha">Ha, beriladi</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>Demo dars</label>
+              <select className={selectClass}>
+                <option value="yoq">Yo&apos;q</option>
+                <option value="ha">Ha, bor</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Chegirma / aksiya</label>
+            <input placeholder="Birinchi oy 50% chegirma" className={inputClass} />
+          </div>
+        </div>
+
+        <button className="w-full h-[50px] rounded-[12px] bg-[#7ea2d4] text-white text-[16px] font-medium hover:bg-[#6b91c3] transition-colors">
           E&apos;lonni joylash
-        </Button>
+        </button>
       </div>
     </div>
   );

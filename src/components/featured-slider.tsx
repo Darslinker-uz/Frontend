@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Star, MapPin, Clock, Users } from "lucide-react";
+import Link from "next/link";
 
 const SLIDE_DURATION = 6000;
 
 interface Slide {
+  slug: string;
+  categorySlug: string;
   category: string;
   format: string;
   location: string;
@@ -20,146 +23,16 @@ interface Slide {
 }
 
 const slides: Slide[] = [
-  {
-    category: "Dasturlash",
-    format: "Bootcamp",
-    location: "Chilonzor, Toshkent",
-    title: "Python & Django Full-stack bootcamp",
-    subtitle: "IT Park Academy",
-    price: "850 000 so'm",
-    duration: "6 oy",
-    rating: "4.9",
-    seats: "3 bo'sh joy",
-    gradient: "from-[#4a7ab5] via-[#7ea2d4] to-[#a3c4e8]",
-    // Terminal
-    iconPath: "M2 3h20a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM7 8l4 4-4 4M13 16h4",
-  },
-  {
-    category: "Dizayn",
-    format: "Online",
-    location: "Online",
-    title: "UI/UX dizayn Figma masterclass",
-    subtitle: "Sarvar Nazarov",
-    price: "Bepul",
-    duration: "3 oy",
-    rating: "4.7",
-    seats: "1200+ o'quvchilar",
-    gradient: "from-[#6b5b95] via-[#8b7bb5] to-[#b0a3d4]",
-    // Pen tool
-    iconPath: "M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586",
-  },
-  {
-    category: "Ingliz tili",
-    format: "Offline",
-    location: "Yunusobod, Toshkent",
-    title: "Ingliz tili A1 dan B2 gacha",
-    subtitle: "English Time",
-    price: "350 000 so'm",
-    duration: "8 oy",
-    rating: "4.8",
-    seats: "7 bo'sh joy",
-    gradient: "from-[#2d6a5a] via-[#4a9e8a] to-[#7ec4b8]",
-    // Message / chat
-    iconPath: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
-  },
-  {
-    category: "Marketing",
-    format: "Intensiv",
-    location: "Samarqand",
-    title: "Digital Marketing & SMM intensiv",
-    subtitle: "Marketing Pro",
-    price: "400 000 so'm",
-    duration: "4 oy",
-    rating: "4.6",
-    seats: "5 bo'sh joy",
-    gradient: "from-[#a35b2d] via-[#c47e4a] to-[#d4a07e]",
-    // Trending up
-    iconPath: "M22 12h-4l-3 9L9 3l-3 9H2",
-  },
-  {
-    category: "Data Science",
-    format: "Bootcamp",
-    location: "Mirzo Ulug'bek, Toshkent",
-    title: "Data Science & AI bootcamp",
-    subtitle: "AI Academy",
-    price: "1 200 000 so'm",
-    duration: "4 oy",
-    rating: "4.9",
-    seats: "2 bo'sh joy",
-    gradient: "from-[#16181a] via-[#2a3f5f] to-[#4a7ab5]",
-    // Database
-    iconPath: "M12 2C6.48 2 2 3.34 2 5v14c0 1.66 4.48 3 10 3s10-1.34 10-3V5c0-1.66-4.48-3-10-3zM2 12c0 1.66 4.48 3 10 3s10-1.34 10-3",
-  },
-  {
-    category: "Mobil dasturlash",
-    format: "Video",
-    location: "YouTube",
-    title: "Flutter — mobil ilova yaratish",
-    subtitle: "Botir Xolmatov",
-    price: "Bepul",
-    duration: "3 oy",
-    rating: "4.5",
-    seats: "2000+ o'quvchilar",
-    gradient: "from-[#7a3e6b] via-[#a05e92] to-[#c47eb5]",
-    // Smartphone
-    iconPath: "M12 18h.01M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z",
-  },
-  {
-    category: "Rus tili",
-    format: "Offline",
-    location: "Toshkent",
-    title: "Rus tili — noldan B1 gacha",
-    subtitle: "Multilang Academy",
-    price: "280 000 so'm",
-    duration: "6 oy",
-    rating: "4.6",
-    seats: "10 bo'sh joy",
-    gradient: "from-[#8b2f3a] via-[#b34a58] to-[#d4707e]",
-    // Book
-    iconPath: "M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z",
-  },
-  {
-    category: "Grafik dizayn",
-    format: "Offline",
-    location: "Chilonzor, Toshkent",
-    title: "Adobe Photoshop & Illustrator Pro",
-    subtitle: "Astrum IT Academy",
-    price: "750 000 so'm",
-    duration: "5 oy",
-    rating: "4.8",
-    seats: "4 bo'sh joy",
-    gradient: "from-[#7a6520] via-[#a08a35] to-[#c4a84e]",
-    // Layers
-    iconPath: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
-  },
-  {
-    category: "Matematika",
-    format: "Online",
-    location: "Online",
-    title: "Olimpiada matematikasi — 9-11 sinf",
-    subtitle: "MathPro Academy",
-    price: "200 000 so'm",
-    duration: "4 oy",
-    rating: "4.9",
-    seats: "15 bo'sh joy",
-    gradient: "from-[#2c2c2c] via-[#424242] to-[#5a5a5a]",
-    // Calculator
-    iconPath: "M4 2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM6 6h12M6 12h4M6 18h4M14 12h4M14 18h4",
-  },
-  {
-    category: "Biznes",
-    format: "Intensiv",
-    location: "Toshkent",
-    title: "Startup va tadbirkorlik asoslari",
-    subtitle: "Business Hub",
-    price: "500 000 so'm",
-    duration: "2 oy",
-    rating: "4.7",
-    seats: "8 bo'sh joy",
-    gradient: "from-[#1a1a2e] via-[#16213e] to-[#0f3460]",
-    // Briefcase
-    iconPath: "M20 7h-4V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z",
-  },
+  { slug: "javascript-react-fullstack", categorySlug: "dasturlash", category: "Dasturlash", format: "Bootcamp", location: "Chilonzor, Toshkent", title: "Python & Django Full-stack bootcamp", subtitle: "IT Park Academy", price: "850 000 so'm", duration: "6 oy", rating: "4.9", seats: "3 bo'sh joy", gradient: "from-[#4a7ab5] via-[#7ea2d4] to-[#a3c4e8]", iconPath: "M2 3h20a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM7 8l4 4-4 4M13 16h4" },
+  { slug: "ui-ux-dizayn-figma", categorySlug: "dizayn", category: "Dizayn", format: "Online", location: "Online", title: "UI/UX dizayn Figma masterclass", subtitle: "Sarvar Nazarov", price: "Bepul", duration: "3 oy", rating: "4.7", seats: "1200+ o'quvchilar", gradient: "from-[#6b5b95] via-[#8b7bb5] to-[#b0a3d4]", iconPath: "M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586" },
+  { slug: "ielts-intensive-7", categorySlug: "xorijiy-tillar", category: "Ingliz tili", format: "Offline", location: "Yunusobod, Toshkent", title: "Ingliz tili A1 dan B2 gacha", subtitle: "English Time", price: "350 000 so'm", duration: "8 oy", rating: "4.8", seats: "7 bo'sh joy", gradient: "from-[#2d6a5a] via-[#4a9e8a] to-[#7ec4b8]", iconPath: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
+  { slug: "digital-marketing-smm", categorySlug: "marketing", category: "Marketing", format: "Intensiv", location: "Samarqand", title: "Digital Marketing & SMM intensiv", subtitle: "Marketing Pro", price: "400 000 so'm", duration: "4 oy", rating: "4.6", seats: "5 bo'sh joy", gradient: "from-[#a35b2d] via-[#c47e4a] to-[#d4a07e]", iconPath: "M22 12h-4l-3 9L9 3l-3 9H2" },
+  { slug: "data-science-ai-bootcamp", categorySlug: "dasturlash", category: "Data Science", format: "Bootcamp", location: "Mirzo Ulug'bek, Toshkent", title: "Data Science & AI bootcamp", subtitle: "AI Academy", price: "1 200 000 so'm", duration: "4 oy", rating: "4.9", seats: "2 bo'sh joy", gradient: "from-[#16181a] via-[#2a3f5f] to-[#4a7ab5]", iconPath: "M12 2C6.48 2 2 3.34 2 5v14c0 1.66 4.48 3 10 3s10-1.34 10-3V5c0-1.66-4.48-3-10-3zM2 12c0 1.66 4.48 3 10 3s10-1.34 10-3" },
+  { slug: "flutter-mobil-ilova", categorySlug: "dasturlash", category: "Mobil dasturlash", format: "Video", location: "YouTube", title: "Flutter — mobil ilova yaratish", subtitle: "Botir Xolmatov", price: "Bepul", duration: "3 oy", rating: "4.5", seats: "2000+ o'quvchilar", gradient: "from-[#7a3e6b] via-[#a05e92] to-[#c47eb5]", iconPath: "M12 18h.01M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z" },
+  { slug: "rus-tili-noldan-b1", categorySlug: "xorijiy-tillar", category: "Rus tili", format: "Offline", location: "Toshkent", title: "Rus tili — noldan B1 gacha", subtitle: "Multilang Academy", price: "280 000 so'm", duration: "6 oy", rating: "4.6", seats: "10 bo'sh joy", gradient: "from-[#8b2f3a] via-[#b34a58] to-[#d4707e]", iconPath: "M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z" },
+  { slug: "grafik-dizayn-pro", categorySlug: "dizayn", category: "Grafik dizayn", format: "Offline", location: "Chilonzor, Toshkent", title: "Adobe Photoshop & Illustrator Pro", subtitle: "Astrum IT Academy", price: "750 000 so'm", duration: "5 oy", rating: "4.8", seats: "4 bo'sh joy", gradient: "from-[#7a6520] via-[#a08a35] to-[#c4a84e]", iconPath: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" },
+  { slug: "startup-tadbirkorlik", categorySlug: "biznes", category: "Matematika", format: "Online", location: "Online", title: "Olimpiada matematikasi — 9-11 sinf", subtitle: "MathPro Academy", price: "200 000 so'm", duration: "4 oy", rating: "4.9", seats: "15 bo'sh joy", gradient: "from-[#2c2c2c] via-[#424242] to-[#5a5a5a]", iconPath: "M4 2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM6 6h12M6 12h4M6 18h4M14 12h4M14 18h4" },
+  { slug: "startup-tadbirkorlik", categorySlug: "biznes", category: "Biznes", format: "Intensiv", location: "Toshkent", title: "Startup va tadbirkorlik asoslari", subtitle: "Business Hub", price: "500 000 so'm", duration: "2 oy", rating: "4.7", seats: "8 bo'sh joy", gradient: "from-[#1a1a2e] via-[#16213e] to-[#0f3460]", iconPath: "M20 7h-4V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" },
 ];
 
 export function FeaturedSlider() {
@@ -237,6 +110,8 @@ export function FeaturedSlider() {
               {/* Dot pattern */}
               <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
 
+              {/* Card bosilganda kurs sahifasiga o'tish */}
+              <Link href={`/kurslar/${slide.categorySlug}/${slide.slug}`} className="absolute inset-0 z-[2]" />
               <div className="relative flex min-h-[300px] md:min-h-[340px]">
                 {/* Left — text */}
                 <div className="flex-1 p-5 pt-6 pb-[70px] md:p-10 md:pb-20 lg:p-12 lg:pb-20 flex flex-col">
@@ -310,8 +185,8 @@ export function FeaturedSlider() {
 
         {/* O'ng — buttonlar */}
         <div className="flex items-center gap-2">
-          <button className="h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] bg-white/50 text-[#16181a] text-[12px] md:text-[13px] font-semibold hover:bg-white/70 transition-colors">Bog&apos;lanish</button>
-          <button className="hidden sm:flex h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] bg-white/50 text-[#16181a] text-[12px] md:text-[13px] font-semibold hover:bg-white/70 transition-colors items-center">Batafsil</button>
+          <Link href={`/kurslar/${slides[current].categorySlug}/${slides[current].slug}`} className="h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] bg-white/50 text-[#16181a] text-[12px] md:text-[13px] font-semibold hover:bg-white/70 transition-colors flex items-center">Bog&apos;lanish</Link>
+          <Link href={`/kurslar/${slides[current].categorySlug}/${slides[current].slug}`} className="hidden sm:flex h-[34px] md:h-[38px] px-4 md:px-5 rounded-[8px] md:rounded-[10px] bg-white/50 text-[#16181a] text-[12px] md:text-[13px] font-semibold hover:bg-white/70 transition-colors items-center">Batafsil</Link>
         </div>
       </div>
     </div>

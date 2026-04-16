@@ -1,65 +1,39 @@
-import type { Metadata } from "next";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { User } from "lucide-react";
-
-export const metadata: Metadata = {
-  title: "Profil",
-};
 
 export default function ProfilePage() {
   return (
-    <div className="max-w-lg mx-auto px-6 py-10 md:py-14">
-      <h1 className="text-3xl font-bold text-[#232324] tracking-tight mb-10">
-        Profil
-      </h1>
+    <div className="px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8 max-w-lg">
+      <h1 className="text-[22px] md:text-[26px] font-bold text-white mb-6">Profil</h1>
 
-      <div className="p-8 rounded-2xl bg-white border border-[#e8ecef]">
+      <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-6">
         {/* Avatar */}
-        <div className="flex items-center gap-4 mb-8 pb-8 border-b border-[#e8ecef]">
-          <div className="w-16 h-16 rounded-2xl gradient-accent flex items-center justify-center shadow-sm">
-            <User className="h-7 w-7 text-white" />
+        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/[0.06]">
+          <div className="w-14 h-14 rounded-[16px] bg-[#7ea2d4]/20 flex items-center justify-center">
+            <User className="h-6 w-6 text-[#7ea2d4]" />
           </div>
           <div>
-            <p className="text-[16px] font-semibold text-[#232324]">
-              Demo User
-            </p>
-            <p className="text-[14px] text-[#232324]/40">Kurs egasi</p>
+            <p className="text-[16px] font-semibold text-white">Demo User</p>
+            <p className="text-[13px] text-white/30">Kurs egasi</p>
           </div>
         </div>
 
         {/* Form */}
-        <div className="space-y-5">
+        <div className="space-y-4">
           <div>
-            <Label className="text-[13px] text-[#232324]/50 mb-1.5">Ism</Label>
-            <Input
-              placeholder="Ismingiz"
-              className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-            />
+            <label className="text-[12px] text-white/30 mb-1.5 block">Ism</label>
+            <input placeholder="Ismingiz" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
           </div>
           <div>
-            <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-              Telefon
-            </Label>
-            <Input
-              disabled
-              placeholder="+998 90 123 45 67"
-              className="rounded-xl h-11 border-[#e8ecef] bg-[#f5f7f7]"
-            />
+            <label className="text-[12px] text-white/30 mb-1.5 block">Telefon</label>
+            <input disabled placeholder="+998 90 123 45 67" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.03] border border-white/[0.06] text-[15px] text-white/30 placeholder:text-white/15" />
           </div>
           <div>
-            <Label className="text-[13px] text-[#232324]/50 mb-1.5">
-              Telegram
-            </Label>
-            <Input
-              placeholder="@username"
-              className="rounded-xl h-11 border-[#e8ecef] focus-visible:ring-[#7ea2d4]/30"
-            />
+            <label className="text-[12px] text-white/30 mb-1.5 block">Telegram</label>
+            <input placeholder="@username" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
           </div>
-          <Button className="w-full h-12 rounded-xl gradient-accent border-0 text-white text-[15px] font-medium shadow-sm hover:shadow-md transition-shadow mt-2">
+          <button className="w-full h-[46px] rounded-[10px] bg-[#7ea2d4] text-white text-[15px] font-medium hover:bg-[#6b91c3] transition-colors mt-2">
             Saqlash
-          </Button>
+          </button>
         </div>
       </div>
     </div>

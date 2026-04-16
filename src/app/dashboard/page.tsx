@@ -1,84 +1,89 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, Users, BarChart3, Wallet, Plus } from "lucide-react";
-
-export const metadata: Metadata = {
-  title: "Dashboard",
-};
-
-const stats = [
-  { label: "Jami leadlar", value: "0", icon: Users, color: "from-blue-500/10 to-blue-600/5" },
-  { label: "Bu oy", value: "0", icon: TrendingUp, color: "from-green-500/10 to-green-600/5" },
-  { label: "Konversiya", value: "0%", icon: BarChart3, color: "from-purple-500/10 to-purple-600/5" },
-  { label: "Balans", value: "50 000", icon: Wallet, color: "from-amber-500/10 to-amber-600/5" },
-];
+import { TrendingUp, Users, BarChart3, Wallet, Plus, ArrowRight, Phone, Clock } from "lucide-react";
+import { useLeads } from "@/context/leads-context";
 
 export default function DashboardPage() {
+  const { leads, stats } = useLeads();
+  const recentLeads = leads.filter(l => l.status === "yangi").slice(0, 5);
+
+  const statCards = [
+    { label: "Jami arizalar", value: String(stats.total), icon: Users, color: "#3b82f6" },
+    { label: "Yangi", value: String(stats.yangi), icon: TrendingUp, color: "#22c55e" },
+    { label: "Konversiya", value: `${stats.konversiya}%`, icon: BarChart3, color: "#a855f7" },
+    { label: "Balans", value: "50,000", icon: Wallet, color: "#f59e0b" },
+  ];
+
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 md:py-14">
+    <div className="px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#232324] tracking-tight">
-            Dashboard
-          </h1>
-          <p className="text-[15px] text-[#232324]/40 mt-1">
-            Xush kelibsiz!
-          </p>
+          <h1 className="text-[22px] md:text-[26px] font-bold text-white">Dashboard</h1>
+          <p className="text-[14px] text-white/40 mt-0.5">Xush kelibsiz!</p>
         </div>
-        <Link href="/dashboard/listings/new">
-          <Button className="rounded-xl gradient-accent border-0 text-white h-11 px-5 text-[14px] font-medium shadow-sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Yangi e&apos;lon
-          </Button>
+        <Link href="/dashboard/listings/new" className="h-[40px] px-4 rounded-[10px] bg-[#7ea2d4] text-white text-[13px] font-medium flex items-center gap-2 hover:bg-[#6b91c3] transition-colors">
+          <Plus className="w-4 h-4" /> Yangi e&apos;lon
         </Link>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        {stats.map((stat) => {
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div
-              key={stat.label}
-              className={`p-6 rounded-2xl bg-gradient-to-br ${stat.color} border border-[#e8ecef]`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-                  <Icon className="h-4 w-4 text-[#7ea2d4]" />
-                </div>
+            <div key={stat.label} className="rounded-[14px] border border-white/[0.06] p-4" style={{ backgroundColor: `${stat.color}12` }}>
+              <div className="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3" style={{ backgroundColor: `${stat.color}25` }}>
+                <Icon className="w-4 h-4" style={{ color: stat.color }} />
               </div>
-              <p className="text-2xl font-bold text-[#232324]">{stat.value}</p>
-              <p className="text-[13px] text-[#232324]/40 mt-1">
-                {stat.label}
-              </p>
+              <p className="text-[20px] font-bold text-white">{stat.value}</p>
+              <p className="text-[12px] text-white/40 mt-0.5">{stat.label}</p>
             </div>
           );
         })}
       </div>
 
-      {/* Listings */}
-      <div className="p-8 rounded-2xl bg-white border border-[#e8ecef]">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[18px] font-semibold text-[#232324]">
-            Mening e&apos;lonlarim
-          </h2>
+      {/* E'lonlarim */}
+      <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 md:p-6 mb-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-[16px] font-bold text-white">Mening e&apos;lonlarim</h2>
         </div>
-        <div className="flex flex-col items-center justify-center py-16 rounded-xl border border-dashed border-[#e8ecef]">
-          <p className="text-[15px] text-[#232324]/30 mb-4">
-            Hali e&apos;lon qo&apos;shilmagan
-          </p>
-          <Link href="/dashboard/listings/new">
-            <Button
-              variant="outline"
-              className="rounded-xl h-10 px-5 text-[14px] border-[#e8ecef]"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              E&apos;lon qo&apos;shish
-            </Button>
+        <div className="flex flex-col items-center justify-center py-12 rounded-[12px] border border-dashed border-white/[0.08]">
+          <p className="text-[14px] text-white/40 mb-3">Hali e&apos;lon qo&apos;shilmagan</p>
+          <Link href="/dashboard/listings/new" className="h-[36px] px-4 rounded-[8px] bg-white/[0.06] text-white text-[13px] font-medium flex items-center gap-2 hover:bg-white/[0.1] transition-colors">
+            <Plus className="w-3.5 h-3.5" /> E&apos;lon qo&apos;shish
           </Link>
         </div>
+      </div>
+
+      {/* Oxirgi arizalar */}
+      <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 md:p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-[16px] font-bold text-white">Yangi arizalar</h2>
+          <Link href="/dashboard/leads" className="text-[13px] text-[#7ea2d4] font-medium flex items-center gap-1">
+            Barchasi ({stats.total}) <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        {recentLeads.length > 0 ? (
+          <div className="space-y-2">
+            {recentLeads.map((lead) => (
+              <div key={lead.id} className="rounded-[12px] bg-white/[0.04] border border-white/[0.06] px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[14px] font-medium text-white">{lead.name}</p>
+                  <p className="text-[12px] text-white/30 mt-0.5">{lead.course}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[11px] text-white/20 flex items-center gap-1"><Clock className="w-3 h-3" /> {lead.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 rounded-[12px] border border-dashed border-white/[0.08]">
+            <p className="text-[14px] text-white/40">Hali arizalar yo&apos;q</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -6,9 +6,10 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
 
   // Dashboard sahifalari — faqat kirganlar uchun
-  if (pathname.startsWith("/dashboard") && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/auth", req.url));
-  }
+  // TODO: DB ulangandan keyin yoqish
+  // if (pathname.startsWith("/dashboard") && !isLoggedIn) {
+  //   return NextResponse.redirect(new URL("/auth", req.url));
+  // }
 
   // Admin sahifalari — faqat adminlar uchun
   if (pathname.startsWith("/admin")) {
