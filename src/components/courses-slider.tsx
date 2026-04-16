@@ -20,7 +20,7 @@ interface Course {
 
 function CourseCard({ c }: { c: Course }) {
   return (
-    <div className={`group relative overflow-hidden rounded-[22px] bg-gradient-to-br ${c.gradient} flex flex-col shrink-0 w-[360px] h-[560px] cursor-pointer transition-all`}>
+    <div className={`group relative overflow-hidden rounded-[22px] bg-gradient-to-br ${c.gradient} flex flex-col shrink-0 w-[360px] h-[500px] md:h-[560px] cursor-pointer transition-all`}>
       <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
       <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
       <svg className="absolute right-5 bottom-24 w-[90px] h-[90px] text-white/[0.06]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"><path d={c.iconPath} /></svg>
@@ -55,18 +55,21 @@ export function CoursesSlider({ courses }: { courses: Course[] }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    // Mobileda animatsiya yo'q — faqat native scroll
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) return;
+
     const cardW = el.querySelector<HTMLElement>(":scope > div")?.offsetWidth ?? 360;
     const gap = 20;
     const step = cardW + gap;
     const half = el.scrollWidth / 2;
-    // Offset — card ekran o'rtasida turishi uchun
     const centerOffset = (el.offsetWidth - cardW) / 2;
     let id: number;
     let paused = true;
     let pauseTimer: ReturnType<typeof setTimeout>;
     let cardIndex = 0;
 
-    // Boshlang'ich pozitsiya — birinchi card markazda
     posRef.current = -centerOffset;
     targetRef.current = -centerOffset;
 
@@ -96,7 +99,6 @@ export function CoursesSlider({ courses }: { courses: Course[] }) {
         if (Math.abs(diff) < 1) {
           posRef.current = targetRef.current;
           wrap();
-          // wrap o'zgartgandan keyin cardIndex ni sync qilish
           cardIndex = Math.round((posRef.current + centerOffset) / step);
           startPause();
         }
@@ -113,23 +115,17 @@ export function CoursesSlider({ courses }: { courses: Course[] }) {
 
   return (
     <div>
-      <div ref={ref} className="flex gap-5 overflow-hidden" style={{ scrollbarWidth: "none" }}>
+      <div ref={ref} className="flex gap-5 overflow-x-auto md:overflow-hidden" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
         {[...courses, ...courses].map((c, i) => <CourseCard key={i} c={c} />)}
       </div>
 
       {/* Barcha kurslar + < > */}
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 mt-5">
         {/* Mobil */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center md:hidden">
           <Link href="/kurslar" className="flex-1 h-11 rounded-full bg-white text-[#16181a] text-[13px] font-medium hover:bg-white/80 flex items-center justify-center gap-2 transition-all">
             Barcha kurslarni ko&apos;rish <ArrowRight className="w-4 h-4" />
           </Link>
-          <button onClick={() => onPrevRef.current()} className="w-11 h-11 rounded-full bg-white text-[#16181a] hover:bg-white/80 flex items-center justify-center transition-all shrink-0">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button onClick={() => onNextRef.current()} className="w-11 h-11 rounded-full bg-white text-[#16181a] hover:bg-white/80 flex items-center justify-center transition-all shrink-0">
-            <ChevronRight className="w-5 h-5" />
-          </button>
         </div>
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-2 justify-center">
