@@ -21,7 +21,7 @@ export function HeroSearch() {
             Barcha kurslarni ko&apos;rish <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
-        <p className="text-[13px] md:text-[15px] text-white/70 max-w-[420px]">Kurslarni solishtiring, tanlang va o&apos;rganishni boshlang</p>
+        <p className="hidden md:block text-[15px] text-white/70 max-w-[420px]">Kurslarni solishtiring, tanlang va o&apos;rganishni boshlang</p>
         <Link href="/kurslar" className="md:hidden inline-flex items-center justify-center gap-2 h-[44px] px-6 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[14px] font-semibold hover:bg-white/25 transition-colors mt-4 w-full">
           Barcha kurslarni ko&apos;rish <ArrowRight className="w-4 h-4" />
         </Link>

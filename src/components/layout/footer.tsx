@@ -25,8 +25,8 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-4 lg:col-span-4">
             <Link href="/" className="inline-block">
-              <span className="text-[18px] font-[family-name:var(--font-outfit)] font-bold tracking-tight text-[#16181a]">
-                Dars<span className="text-[#7ea2d4]">linker</span>.uz
+              <span className="text-[18px] font-bold tracking-tight text-[#16181a]">
+                darslinker.uz
               </span>
             </Link>
             <p className="text-[14px] text-[#7c8490] mt-3 max-w-[240px] leading-relaxed">

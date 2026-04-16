@@ -183,19 +183,25 @@ export function applyFilter(courses: Course[], filter: FilterState): Course[] {
   return result;
 }
 
-export function CourseFilter({ courses, onFilter, children, initialCategory, initialSearch }: { courses: Course[]; onFilter: (filtered: Course[]) => void; children?: React.ReactNode; initialCategory?: string; initialSearch?: string }) {
+const URL_FORMAT_MAP: Record<string, string> = { "online": "Onlayn", "offline": "Oflayn", "gibrid": "Gibrid", "video": "Video" };
+
+export function CourseFilter({ courses, onFilter, children, initialCategory, initialSearch, initialFormat }: { courses: Course[]; onFilter: (filtered: Course[]) => void; children?: React.ReactNode; initialCategory?: string; initialSearch?: string; initialFormat?: string }) {
   const [filter, setFilter] = useState<FilterState>(() => {
     const base = { ...defaultFilter };
     if (initialCategory) base.categorySlug = initialCategory;
     if (initialSearch) base.search = initialSearch;
+    if (initialFormat) base.format = URL_FORMAT_MAP[initialFormat] || null;
     return base;
   });
   const [filterOpen, setFilterOpen] = useState(false);
 
-  // initialSearch bor bo'lsa darhol filtrni qo'llash
+  // initial filtrlar bor bo'lsa darhol qo'llash
   useEffect(() => {
-    if (initialSearch) {
-      onFilter(applyFilter(courses, { ...defaultFilter, search: initialSearch }));
+    const base = { ...defaultFilter };
+    if (initialSearch) base.search = initialSearch;
+    if (initialFormat) base.format = URL_FORMAT_MAP[initialFormat] || null;
+    if (initialSearch || initialFormat) {
+      onFilter(applyFilter(courses, base));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

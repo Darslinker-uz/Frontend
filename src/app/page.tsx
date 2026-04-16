@@ -64,21 +64,21 @@ export default function HomePage() {
         <div className="space-y-10 md:space-y-14 py-10 md:py-14">
           <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Kerakli kursni topa olmadingizmi?</p>
 
-          <section id="ariza" className="bg-gradient-to-br from-[#1e2530] via-[#253550] to-[#1e2530] rounded-[20px] p-8 md:p-12">
+          <section id="ariza" className="bg-gradient-to-br from-[#eaecf0] via-[#e0e5ec] to-[#d8dfe8] rounded-[20px] p-8 md:p-12">
             <div className="text-center mb-10">
-              <h2 className="text-[30px] md:text-[44px] font-bold text-white tracking-[-0.03em]">Yordam kerakmi?</h2>
-              <p className="text-[15px] text-white/25 mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
+              <h2 className="text-[30px] md:text-[44px] font-bold text-[#16181a] tracking-[-0.03em]">Yordam beramiz</h2>
+              <p className="text-[15px] text-[#6a7585] mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
             </div>
             <div className="max-w-[520px] mx-auto space-y-3">
-              <input placeholder="Ismingiz" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
-              <PhoneInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
-              <TelegramInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
-              <input placeholder="Qaysi sohaga qiziqasiz?" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/25 focus:outline-none focus:border-[#7ea2d4]/40 transition-all" />
-              <button className="w-full h-[52px] rounded-[12px] bg-white text-[#16181a] text-[15px] font-semibold">Ariza yuborish</button>
+              <input placeholder="Ismingiz" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
+              <PhoneInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
+              <TelegramInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
+              <input placeholder="Qaysi sohaga qiziqasiz?" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
+              <button className="w-full h-[52px] rounded-[12px] bg-[#2d5a8a] text-white text-[15px] font-semibold hover:bg-[#2d5a8a]/90 transition-colors">Ariza yuborish</button>
             </div>
             <div className="hidden md:flex justify-center gap-6 mt-10">
               {["Sizga mos kurslarni tanlab beramiz", "Narx va sifatni solishtiramiz", "24 soat ichida javob beramiz", "Xizmat bepul"].map((t) => (
-                <span key={t} className="text-[12px] text-white/20 flex items-center gap-1.5">
+                <span key={t} className="text-[12px] text-[#6a7585]/50 flex items-center gap-1.5">
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
                   {t}
                 </span>
