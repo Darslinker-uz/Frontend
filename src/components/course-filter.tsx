@@ -185,7 +185,7 @@ export function applyFilter(courses: Course[], filter: FilterState): Course[] {
 
 const URL_FORMAT_MAP: Record<string, string> = { "online": "Onlayn", "offline": "Oflayn", "gibrid": "Gibrid", "video": "Video" };
 
-export function CourseFilter({ courses, onFilter, children, initialCategory, initialSearch, initialFormat }: { courses: Course[]; onFilter: (filtered: Course[]) => void; children?: React.ReactNode; initialCategory?: string; initialSearch?: string; initialFormat?: string }) {
+export function CourseFilter({ courses, onFilter, children, initialCategory, initialSearch, initialFormat, onClearCategory }: { courses: Course[]; onFilter: (filtered: Course[]) => void; children?: React.ReactNode; initialCategory?: string; initialSearch?: string; initialFormat?: string; onClearCategory?: () => void }) {
   const [filter, setFilter] = useState<FilterState>(() => {
     const base = { ...defaultFilter };
     if (initialCategory) base.categorySlug = initialCategory;
@@ -221,16 +221,24 @@ export function CourseFilter({ courses, onFilter, children, initialCategory, ini
   }, [courses, filter, onFilter]);
 
   const clearAll = useCallback(() => {
+    if (initialCategory && onClearCategory) {
+      onClearCategory();
+      return;
+    }
     const cleared = defaultFilter;
     setFilter(cleared);
     onFilter(applyFilter(courses, cleared));
-  }, [courses, onFilter]);
+  }, [courses, onFilter, initialCategory, onClearCategory]);
 
   const removeTag = useCallback((clearFn: () => FilterState) => {
     const newFilter = clearFn();
+    if (initialCategory && !newFilter.categorySlug && onClearCategory) {
+      onClearCategory();
+      return;
+    }
     setFilter(newFilter);
     onFilter(applyFilter(courses, newFilter));
-  }, [courses, onFilter]);
+  }, [courses, onFilter, initialCategory, onClearCategory]);
 
   // Search — real-time ishlaydi (yozgan zahoti)
   const handleSearch = useCallback((search: string) => {

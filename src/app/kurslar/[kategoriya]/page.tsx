@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Star, ArrowRight } from "lucide-react";
 import { courses as allCourses, categories, type Course } from "@/data/courses";
 import { CourseFilter } from "@/components/course-filter";
@@ -55,9 +56,8 @@ export default function KategoriyaPage() {
   const kategoriya = params.kategoriya as string;
   const cat = categories.find((c) => c.slug === kategoriya);
   const name = cat?.name ?? kategoriya.replace(/-/g, " ");
-  const categoryCourses = allCourses.filter((c) => c.categorySlug === kategoriya);
-
-  const [filtered, setFiltered] = useState<Course[]>(categoryCourses);
+  const router = useRouter();
+  const [filtered, setFiltered] = useState<Course[]>(allCourses.filter((c) => c.categorySlug === kategoriya));
   const [filterKey, setFilterKey] = useState(0);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -72,7 +72,7 @@ export default function KategoriyaPage() {
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-5">
         <h1 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-4 md:hidden">{name}</h1>
         <div className="md:flex">
-          <CourseFilter courses={categoryCourses} onFilter={handleFilter} initialCategory={kategoriya}>
+          <CourseFilter courses={allCourses} onFilter={handleFilter} initialCategory={kategoriya} onClearCategory={() => router.push("/kurslar")}>
             <CourseGrid courses={filtered} filterKey={filterKey} />
           </CourseFilter>
         </div>
