@@ -10,13 +10,10 @@ const footerLinks = {
   ],
   Platforma: [
     { href: "/kurslar", label: "Barcha kurslar" },
-    { href: "/dashboard/listings/new", label: "E'lon berish" },
-    { href: "/auth", label: "Kirish" },
-  ],
-  Maqolalar: [
-    { href: "/blog", label: "Blog" },
-    { href: "/blog/qanday-kurs-tanlash", label: "Qanday kurs tanlash" },
-    { href: "/blog/online-vs-offline", label: "Online vs Offline" },
+    { href: "/dashboard/listings/new", label: "Hamkorlik qilish" },
+    { href: "/kurslar?format=online", label: "Onlayn kurslar" },
+    { href: "/kurslar?format=offline", label: "Oflayn kurslar" },
+    { href: "/blog", label: "Maqolalar" },
   ],
 };
 
@@ -33,8 +30,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-[14px] text-[#7c8490] mt-3 max-w-[240px] leading-relaxed">
-              O&apos;zbekistondagi eng yaxshi kurslarni bir joyda toping va
-              solishtiring.
+              O&apos;zbekistondagi eng yaxshi kurslarni bir joyda toping.
             </p>
           </div>
 
@@ -83,23 +79,15 @@ export function Footer() {
             </a>
             {/* Instagram */}
             <a
-              href="#"
+              href="https://www.instagram.com/darslinker"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-9 h-9 rounded-[10px] border border-[#e4e7ea] flex items-center justify-center text-[#7c8490] hover:text-[#16181a] hover:border-[#16181a]/20 transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-              </svg>
-            </a>
-            {/* YouTube */}
-            <a
-              href="#"
-              className="w-9 h-9 rounded-[10px] border border-[#e4e7ea] flex items-center justify-center text-[#7c8490] hover:text-[#16181a] hover:border-[#16181a]/20 transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
-                <path d="m10 15 5-3-5-3z" />
               </svg>
             </a>
           </div>

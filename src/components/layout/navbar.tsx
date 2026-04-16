@@ -31,6 +31,22 @@ export function Navbar() {
               Kurslar
             </Button>
           </Link>
+          <Link href="/kurslar?format=online">
+            <Button
+              variant="ghost"
+              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
+            >
+              Onlayn
+            </Button>
+          </Link>
+          <Link href="/kurslar?format=offline">
+            <Button
+              variant="ghost"
+              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
+            >
+              Oflayn
+            </Button>
+          </Link>
           <Link href="/blog">
             <Button
               variant="ghost"
@@ -59,6 +75,8 @@ export function Navbar() {
               <nav className="flex-1 px-4 py-2">
                 {[
                   { href: "/kurslar", label: "Kurslar" },
+                  { href: "/kurslar?format=online", label: "Onlayn" },
+                  { href: "/kurslar?format=offline", label: "Oflayn" },
                   { href: "/blog", label: "Blog" },
                 ].map((link) => (
                   <Link

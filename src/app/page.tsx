@@ -67,7 +67,7 @@ export default function HomePage() {
 
         {/* KATEGORIYALAR */}
         <div className="space-y-10 md:space-y-14 py-10 md:py-14">
-          <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Kasbingizni bugun tanlang</p>
+          <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Qidirish emas,<br className="md:hidden" /> tanlash vaqti keldi!</p>
 
           <div className="bg-[#e8eaed] rounded-[20px] p-5 md:p-8">
             <h2 className="text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">Yo&apos;nalishlar</h2>
@@ -129,16 +129,14 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section className="bg-[#26282c] rounded-[20px] p-8 md:p-10">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div>
-                <h2 className="font-[family-name:var(--font-outfit)] text-[22px] md:text-[26px] font-bold text-white leading-tight">
-                  Kurs egasimisiz?
-                </h2>
-              </div>
+          <section className="bg-[#e8eaed] rounded-[20px] p-8 md:p-10">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="font-[family-name:var(--font-outfit)] text-[18px] md:text-[26px] font-bold text-[#16181a] leading-tight">
+                Kurs egasimisiz?
+              </h2>
               <Link href="/dashboard/listings/new">
-                <Button className="h-[44px] px-6 rounded-[12px] bg-transparent border-2 border-white/20 text-white text-[14px] font-medium hover:border-white/40 transition-colors shrink-0 flex items-center gap-2">
-                  Hamkorlik qilish
+                <Button className="h-[40px] md:h-[44px] px-5 md:px-6 rounded-[12px] bg-white text-[#16181a] text-[13px] md:text-[14px] font-medium hover:bg-white/80 transition-colors shrink-0 flex items-center gap-2 border-0">
+                  Hamkorlik
                   <ArrowRight className="w-[16px] h-[16px]" />
                 </Button>
               </Link>
