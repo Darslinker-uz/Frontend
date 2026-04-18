@@ -98,7 +98,7 @@ export function Navbar() {
         className={`md:hidden fixed left-0 right-0 z-[55] origin-top transition-transform duration-600 ${open ? "translate-y-0" : "-translate-y-full"}`}
         style={{
           top: "-200px",
-          height: "calc(90vh + 200px)",
+          height: "780px",
           background: "rgba(255, 255, 255, 0.35)",
           backdropFilter: "saturate(200%) blur(40px)",
           WebkitBackdropFilter: "saturate(200%) blur(40px)",
