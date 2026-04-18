@@ -33,9 +33,18 @@ export function Navbar() {
         background: "rgba(255, 255, 255, 0.6)",
         backdropFilter: "saturate(200%) blur(120px)",
         WebkitBackdropFilter: "saturate(200%) blur(120px)",
+        isolation: "isolate",
+        WebkitTransform: "translate3d(0,0,0)",
       }}
     >
-      <div className="px-4 md:max-w-[1600px] md:mx-auto md:px-20 flex items-center justify-between h-[62px] relative">
+      <div
+        className="px-4 md:max-w-[1600px] md:mx-auto md:px-20 flex items-center justify-between h-[62px] relative"
+        style={{
+          transform: "translate3d(0,0,0)",
+          WebkitTransform: "translate3d(0,0,0)",
+          willChange: "transform",
+        }}
+      >
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <DarslinkerLogo size={28} />
