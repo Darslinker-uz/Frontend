@@ -15,8 +15,11 @@ export function Navbar() {
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      if (y > lastScrollY.current && y > 80) setHidden(true);
-      else setHidden(false);
+      const delta = y - lastScrollY.current;
+      // Kichik scroll o'zgarishlarini e'tiborga olmaymiz (Telegram brauzeri URL bar harakati)
+      if (Math.abs(delta) < 10) return;
+      if (delta > 0 && y > 80) setHidden(true);
+      else if (delta < 0) setHidden(false);
       lastScrollY.current = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
