@@ -69,7 +69,7 @@ function KurslarContent() {
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-5">
         <h1 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-4 md:hidden">Kurslar</h1>
         <div className="md:flex">
-          <CourseFilter courses={allCourses} onFilter={handleFilter} initialSearch={initialSearch} initialFormat={initialFormat}>
+          <CourseFilter key={`${initialSearch}-${initialFormat}`} courses={allCourses} onFilter={handleFilter} initialSearch={initialSearch} initialFormat={initialFormat}>
             <CourseGrid courses={filtered} filterKey={filterKey} />
           </CourseFilter>
         </div>
