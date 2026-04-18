@@ -29,22 +29,18 @@ export function Navbar() {
   return (
     <header
       className={`sticky top-0 z-[60] transition-transform duration-300 ease-in-out ${hidden ? "-translate-y-full" : "translate-y-0"}`}
-      style={{
-        background: "rgba(255, 255, 255, 0.6)",
-        backdropFilter: "saturate(200%) blur(120px)",
-        WebkitBackdropFilter: "saturate(200%) blur(120px)",
-        isolation: "isolate",
-        WebkitTransform: "translate3d(0,0,0)",
-      }}
     >
+      {/* Glass fon — alohida absolute element, transform ta'sir qilmaydi */}
       <div
-        className="px-4 md:max-w-[1600px] md:mx-auto md:px-20 flex items-center justify-between h-[62px] relative"
+        className="absolute inset-0"
+        aria-hidden
         style={{
-          transform: "translate3d(0,0,0)",
-          WebkitTransform: "translate3d(0,0,0)",
-          willChange: "transform",
+          background: "rgba(255, 255, 255, 0.6)",
+          backdropFilter: "saturate(200%) blur(120px)",
+          WebkitBackdropFilter: "saturate(200%) blur(120px)",
         }}
-      >
+      />
+      <div className="relative px-4 md:max-w-[1600px] md:mx-auto md:px-20 flex items-center justify-between h-[62px]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <DarslinkerLogo size={28} />
