@@ -33,6 +33,10 @@ export default async function KursDetailPage({ params }: Props) {
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-8 md:py-12">
+        {/* Back button */}
+        <Link href="/kurslar" className="inline-flex items-center gap-2 text-[13px] text-[#7c8490] hover:text-[#16181a] font-medium mb-4 transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Kurslarga qaytish
+        </Link>
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-[13px] mb-8">
           <Link href="/kurslar" className="text-[#7ea2d4] hover:text-[#5b87c0] transition-colors">Kurslar</Link>

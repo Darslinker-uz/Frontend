@@ -129,7 +129,7 @@ export function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
-            className="w-full flex items-center justify-center gap-2 py-4 text-[16px] font-semibold text-[#16181a] bg-white hover:bg-white/80 rounded-xl border border-[#16181a]/10 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-4 text-[16px] font-semibold text-[#16181a]/80 hover:text-[#16181a] hover:bg-white/40 rounded-xl border border-[#16181a]/10 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
             Yordam

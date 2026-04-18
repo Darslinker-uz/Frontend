@@ -1,21 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plus, Users, Wallet, User, LogOut } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
+import { LayoutDashboard, FileText, Users, Wallet, LogOut, Settings, ExternalLink, X, Shield } from "lucide-react";
 import { LeadsProvider } from "@/context/leads-context";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 
 const navItems = [
   { href: "/dashboard", label: "Bosh sahifa", icon: LayoutDashboard },
-  { href: "/dashboard/listings/new", label: "Yangi e'lon", icon: Plus },
+  { href: "/dashboard/listings", label: "E'lonlar", icon: FileText },
   { href: "/dashboard/leads", label: "Arizalar", icon: Users },
+  { href: "/dashboard/managers", label: "Menejerlar", icon: Shield },
   { href: "/dashboard/balance", label: "Balans", icon: Wallet },
-  { href: "/dashboard/profile", label: "Profil", icon: User },
+  { href: "/dashboard/settings", label: "Sozlamalar", icon: Settings },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [confirmExit, setConfirmExit] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#0e1015]">
@@ -27,9 +31,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             Dars<span className="text-[#7ea2d4]">Linker</span>
           </span>
         </Link>
-        <Link href="/" className="text-[12px] text-white/30 font-medium">
+        <button onClick={() => setConfirmExit(true)} className="text-[12px] text-white/30 font-medium">
           Saytga qaytish
-        </Link>
+        </button>
       </div>
 
       <div className="flex">
@@ -64,10 +68,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Bottom */}
             <div className="px-3 pb-4 space-y-1">
-              <Link href="/" className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[14px] font-medium text-white/30 hover:text-white/50 hover:bg-white/[0.04] transition-all">
+              <button onClick={() => setConfirmExit(true)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[14px] font-medium text-white/30 hover:text-white/50 hover:bg-white/[0.04] transition-all">
                 <LogOut className="w-[18px] h-[18px]" />
                 Saytga qaytish
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -77,6 +81,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <LeadsProvider>{children}</LeadsProvider>
         </div>
       </div>
+
+      {/* Saytga qaytish tasdiqlash modali */}
+      {confirmExit && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmExit(false)} />
+          <div className="relative bg-[#16181a] rounded-[18px] border border-white/[0.08] p-6 max-w-[400px] w-full">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-11 h-11 rounded-[12px] bg-white/[0.08] flex items-center justify-center shrink-0">
+                <ExternalLink className="w-5 h-5 text-white/70" />
+              </div>
+              <div>
+                <h3 className="text-[17px] font-bold text-white">Saytga qaytasizmi?</h3>
+                <p className="text-[13px] text-white/50 mt-1">Siz dashboard dan chiqasiz. Qaytish uchun qaytadan kirishingiz kerak bo&apos;ladi.</p>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => setConfirmExit(false)} className="flex-1 h-[44px] rounded-[10px] bg-white/[0.06] text-white/60 text-[14px] font-medium hover:bg-white/[0.1]">
+                Bekor
+              </button>
+              <button onClick={() => { setConfirmExit(false); router.push("/"); }} className="flex-1 h-[44px] rounded-[10px] bg-white text-[#16181a] text-[14px] font-medium hover:bg-white/90">
+                Ha, chiqish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobil bottom nav */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#16181a] border-t border-white/[0.06] px-2 py-1.5 flex items-center justify-around z-50">

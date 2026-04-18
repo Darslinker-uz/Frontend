@@ -9,10 +9,10 @@ export default function DashboardPage() {
   const recentLeads = leads.filter(l => l.status === "yangi").slice(0, 5);
 
   const statCards = [
-    { label: "Jami arizalar", value: String(stats.total), icon: Users, color: "#3b82f6" },
-    { label: "Yangi", value: String(stats.yangi), icon: TrendingUp, color: "#22c55e" },
-    { label: "Konversiya", value: `${stats.konversiya}%`, icon: BarChart3, color: "#a855f7" },
-    { label: "Balans", value: "50,000", icon: Wallet, color: "#f59e0b" },
+    { label: "Jami arizalar", value: String(stats.total), icon: Users },
+    { label: "Yangi", value: String(stats.yangi), icon: TrendingUp },
+    { label: "Konversiya", value: `${stats.konversiya}%`, icon: BarChart3 },
+    { label: "Balans", value: "50,000", icon: Wallet },
   ];
 
   return (
@@ -23,7 +23,7 @@ export default function DashboardPage() {
           <h1 className="text-[22px] md:text-[26px] font-bold text-white">Dashboard</h1>
           <p className="text-[14px] text-white/40 mt-0.5">Xush kelibsiz!</p>
         </div>
-        <Link href="/dashboard/listings/new" className="h-[40px] px-4 rounded-[10px] bg-[#7ea2d4] text-white text-[13px] font-medium flex items-center gap-2 hover:bg-[#6b91c3] transition-colors">
+        <Link href="/dashboard/listings/new" className="h-[40px] px-4 rounded-[10px] bg-white text-[#16181a] text-[13px] font-medium flex items-center gap-2 hover:bg-white/90 transition-colors">
           <Plus className="w-4 h-4" /> Yangi e&apos;lon
         </Link>
       </div>
@@ -33,9 +33,9 @@ export default function DashboardPage() {
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="rounded-[14px] border border-white/[0.06] p-4" style={{ backgroundColor: `${stat.color}12` }}>
-              <div className="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3" style={{ backgroundColor: `${stat.color}25` }}>
-                <Icon className="w-4 h-4" style={{ color: stat.color }} />
+            <div key={stat.label} className="rounded-[14px] border border-white/[0.06] bg-white/[0.04] p-4">
+              <div className="w-9 h-9 rounded-[10px] bg-white/[0.06] flex items-center justify-center mb-3">
+                <Icon className="w-4 h-4 text-white/60" />
               </div>
               <p className="text-[20px] font-bold text-white">{stat.value}</p>
               <p className="text-[12px] text-white/40 mt-0.5">{stat.label}</p>
@@ -48,6 +48,9 @@ export default function DashboardPage() {
       <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 md:p-6 mb-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-[16px] font-bold text-white">Mening e&apos;lonlarim</h2>
+          <Link href="/dashboard/listings" className="text-[13px] text-[#7ea2d4] font-medium flex items-center gap-1">
+            Barchasi <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
         <div className="flex flex-col items-center justify-center py-12 rounded-[12px] border border-dashed border-white/[0.08]">
           <p className="text-[14px] text-white/40 mb-3">Hali e&apos;lon qo&apos;shilmagan</p>
