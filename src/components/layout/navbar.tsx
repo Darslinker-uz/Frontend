@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, Home, BookOpen, Wifi, WifiOff, PenLine } from "lucide-react";
@@ -9,30 +9,12 @@ import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      const delta = y - lastScrollY.current;
-      // Kichik scroll o'zgarishlarini e'tiborga olmaymiz (Telegram brauzeri URL bar harakati)
-      if (Math.abs(delta) < 10) return;
-      if (delta > 0 && y > 80) setHidden(true);
-      else if (delta < 0) setHidden(false);
-      lastScrollY.current = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-[60] transition-transform duration-300 ease-in-out ${hidden ? "-translate-y-full" : "translate-y-0"}`}
-    >
-      {/* Glass fon — alohida absolute element, transform ta'sir qilmaydi */}
+    <header className="sticky top-0 z-[60]">
+      {/* Glass fon — alohida absolute element */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 z-0"
         aria-hidden
         style={{
           background: "rgba(255, 255, 255, 0.6)",
@@ -40,7 +22,7 @@ export function Navbar() {
           WebkitBackdropFilter: "saturate(200%) blur(120px)",
         }}
       />
-      <div className="relative px-4 md:max-w-[1600px] md:mx-auto md:px-20 flex items-center justify-between h-[62px]">
+      <div className="relative z-10 px-4 md:max-w-[1600px] md:mx-auto md:px-20 flex items-center justify-between h-[62px]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <DarslinkerLogo size={28} />
