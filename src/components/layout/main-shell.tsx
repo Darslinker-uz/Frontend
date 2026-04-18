@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
+import { PageTransition } from "@/components/page-transition";
 
 export function MainShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,7 +18,7 @@ export function MainShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1"><PageTransition>{children}</PageTransition></main>
       <Footer />
     </>
   );

@@ -13,18 +13,27 @@ export function HeroSearch() {
         </svg>
       </div>
       <div className="relative px-5 py-5 md:px-10 md:py-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-0 mb-3 md:mb-4">
-          <h1 className="text-[18px] md:text-[26px] font-semibold text-white tracking-[-0.02em]">
-            O&apos;zingizga mos kursni toping
-          </h1>
-          <Link href="/kurslar" className="hidden md:inline-flex items-center gap-2 h-[48px] px-7 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[15px] font-semibold hover:bg-white/25 transition-colors shrink-0">
+        {/* Desktop — text chap, CTA o'ng (vertikal o'rtada) */}
+        <div className="hidden md:flex md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-[26px] font-semibold text-white tracking-[-0.02em] mb-3">
+              O&apos;zingizga mos kursni toping
+            </h1>
+            <p className="text-[15px] text-white/70 max-w-[420px]">Kurslarni solishtiring, tanlang va o&apos;rganishni boshlang</p>
+          </div>
+          <Link href="/kurslar" className="inline-flex items-center gap-2 h-[48px] px-7 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[15px] font-semibold hover:bg-white/25 transition-colors shrink-0">
             Barcha kurslarni ko&apos;rish <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
-        <p className="hidden md:block text-[15px] text-white/70 max-w-[420px]">Kurslarni solishtiring, tanlang va o&apos;rganishni boshlang</p>
-        <Link href="/kurslar" className="md:hidden inline-flex items-center justify-center gap-2 h-[44px] px-6 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[14px] font-semibold hover:bg-white/25 transition-colors mt-4 w-full">
-          Barcha kurslarni ko&apos;rish <ArrowRight className="w-4 h-4" />
-        </Link>
+        {/* Mobil */}
+        <div className="md:hidden">
+          <h1 className="text-[18px] font-semibold text-white tracking-[-0.02em] mb-3">
+            O&apos;zingizga mos kursni toping
+          </h1>
+          <Link href="/kurslar" className="inline-flex items-center justify-center gap-2 h-[44px] px-6 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[14px] font-semibold hover:bg-white/25 transition-colors mt-4 w-full">
+            Barcha kurslarni ko&apos;rish <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
       <style>{`
         @keyframes waveMove {
