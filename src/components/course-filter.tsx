@@ -9,6 +9,24 @@ const PRICE_STEP = 50000;
 const PRICE_TOTAL_STEPS = PRICE_MAX / PRICE_STEP;
 const FORMATS = ["Onlayn", "Oflayn", "Gibrid", "Video"];
 
+// O'zbekiston viloyatlari va shaharlari
+const REGIONS: { name: string; cities: string[] }[] = [
+  { name: "Toshkent shahri", cities: ["Toshkent"] },
+  { name: "Toshkent viloyati", cities: ["Chirchiq", "Angren", "Olmaliq", "Bekobod", "Ohangaron"] },
+  { name: "Samarqand", cities: ["Samarqand", "Kattaqo'rg'on", "Urgut"] },
+  { name: "Buxoro", cities: ["Buxoro", "Kogon", "G'ijduvon"] },
+  { name: "Andijon", cities: ["Andijon", "Asaka", "Xonobod"] },
+  { name: "Farg'ona", cities: ["Farg'ona", "Marg'ilon", "Quva"] },
+  { name: "Namangan", cities: ["Namangan", "Chust", "Pop"] },
+  { name: "Qashqadaryo", cities: ["Qarshi", "Shahrisabz"] },
+  { name: "Surxondaryo", cities: ["Termiz", "Denov"] },
+  { name: "Xorazm", cities: ["Urganch", "Xiva"] },
+  { name: "Navoiy", cities: ["Navoiy", "Zarafshon"] },
+  { name: "Jizzax", cities: ["Jizzax", "Gallaorol"] },
+  { name: "Sirdaryo", cities: ["Guliston", "Yangiyer"] },
+  { name: "Qoraqalpog'iston", cities: ["Nukus", "Mo'ynoq"] },
+];
+
 function formatPrice(v: number) {
   if (v === 0) return "0";
   return v.toLocaleString("uz-UZ").replace(/\s/g, ",");
@@ -58,6 +76,8 @@ interface FilterState {
   format: string | null;
   priceMin: number;
   priceMax: number;
+  region: string | null;
+  city: string | null;
 }
 
 function getActiveTags(f: FilterState): { label: string; clear: () => FilterState }[] {
@@ -77,10 +97,16 @@ function getActiveTags(f: FilterState): { label: string; clear: () => FilterStat
     const maxP = f.priceMax * PRICE_STEP;
     tags.push({ label: `${minP === 0 ? "0" : formatPrice(minP)} — ${formatPrice(maxP)}${maxP === PRICE_MAX ? "+" : ""} so'm`, clear: () => ({ ...f, priceMin: 0, priceMax: PRICE_TOTAL_STEPS }) });
   }
+  if (f.region) {
+    tags.push({ label: f.region, clear: () => ({ ...f, region: null, city: null }) });
+  }
+  if (f.city) {
+    tags.push({ label: f.city, clear: () => ({ ...f, city: null }) });
+  }
   return tags;
 }
 
-const defaultFilter: FilterState = { search: "", categorySlug: null, subcategories: [], format: null, priceMin: 0, priceMax: PRICE_TOTAL_STEPS };
+const defaultFilter: FilterState = { search: "", categorySlug: null, subcategories: [], format: null, priceMin: 0, priceMax: PRICE_TOTAL_STEPS, region: null, city: null };
 
 function FilterContent({ filter, setFilter }: { filter: FilterState; setFilter: (f: FilterState) => void }) {
   const openCatIdx = filter.categorySlug ? categories.findIndex(c => c.slug === filter.categorySlug) : -1;
@@ -147,6 +173,27 @@ function FilterContent({ filter, setFilter }: { filter: FilterState; setFilter: 
         </div>
       </div>
       <div>
+        <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Joylashuv</p>
+        <select
+          value={filter.region ?? ""}
+          onChange={(e) => setFilter({ ...filter, region: e.target.value || null, city: null })}
+          className="w-full h-[42px] px-3 rounded-[10px] bg-[#f0f2f3] border border-[#e4e7ea] text-[14px] text-[#16181a] focus:outline-none focus:border-[#7ea2d4] mb-2"
+        >
+          <option value="">Barcha viloyatlar</option>
+          {REGIONS.map((r) => <option key={r.name} value={r.name}>{r.name}</option>)}
+        </select>
+        {filter.region && (
+          <select
+            value={filter.city ?? ""}
+            onChange={(e) => setFilter({ ...filter, city: e.target.value || null })}
+            className="w-full h-[42px] px-3 rounded-[10px] bg-[#f0f2f3] border border-[#e4e7ea] text-[14px] text-[#16181a] focus:outline-none focus:border-[#7ea2d4]"
+          >
+            <option value="">Barcha shaharlar</option>
+            {REGIONS.find(r => r.name === filter.region)?.cities.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        )}
+      </div>
+      <div>
         <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Narx</p>
         <PriceRangeSlider minVal={filter.priceMin} maxVal={filter.priceMax} onMinChange={(v) => setFilter({ ...filter, priceMin: v })} onMaxChange={(v) => setFilter({ ...filter, priceMax: v })} />
       </div>
@@ -180,6 +227,13 @@ export function applyFilter(courses: Course[], filter: FilterState): Course[] {
       return p >= minPrice && (maxPrice === PRICE_MAX || p <= maxPrice);
     });
   }
+  // Shahar tanlangan bo'lsa — aniq shahar; yo'q bo'lsa viloyat ichidagi barcha shaharlar
+  if (filter.city) {
+    result = result.filter(c => c.location === filter.city);
+  } else if (filter.region) {
+    const region = REGIONS.find(r => r.name === filter.region);
+    if (region) result = result.filter(c => region.cities.includes(c.location));
+  }
   return result;
 }
 
@@ -210,10 +264,11 @@ export function CourseFilter({ courses, onFilter, children, initialCategory, ini
   const hasFilter = tags.length > 0;
   const filtered = applyFilter(courses, filter);
 
-  // Sidebar da faqat state o'zgaradi, "Qo'llash" bosilganda onFilter chaqiriladi
+  // Sidebar da filtr darhol qo'llanadi (real-time)
   const updateFilter = useCallback((newFilter: FilterState) => {
     setFilter(newFilter);
-  }, []);
+    onFilter(applyFilter(courses, newFilter));
+  }, [courses, onFilter]);
 
   // Qo'llash bosilganda
   const applyFilter_ = useCallback(() => {
