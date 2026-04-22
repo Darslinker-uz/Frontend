@@ -8,9 +8,19 @@ import type { Course } from "@/data/courses";
 function CourseCard({ c }: { c: Course }) {
   return (
     <Link href={`/kurslar/${c.categorySlug}/${c.slug}`} className={`group relative overflow-hidden rounded-[22px] bg-gradient-to-br ${c.gradient} flex flex-col shrink-0 w-[360px] h-[500px] md:h-[560px] cursor-pointer transition-all`}>
-      <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+      {c.imageUrl ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={c.imageUrl} alt={c.title} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `${c.imagePosX ?? 50}% ${c.imagePosY ?? 50}%`, transform: `scale(${(c.imageZoom ?? 100) / 100})`, transformOrigin: `${c.imagePosX ?? 50}% ${c.imagePosY ?? 50}%` }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
+        </>
+      ) : (
+        <>
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+          <svg className="absolute right-5 bottom-24 w-[90px] h-[90px] text-white/[0.06]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"><path d={c.iconPath} /></svg>
+        </>
+      )}
       <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
-      <svg className="absolute right-5 bottom-24 w-[90px] h-[90px] text-white/[0.06]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"><path d={c.iconPath} /></svg>
       <div className="relative z-[2] p-6 md:p-7 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-5">
           <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[12px] font-semibold">{c.category}</span>

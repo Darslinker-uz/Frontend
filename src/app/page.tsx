@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, ArrowRight, MousePointerClick } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { FeaturedSlider } from "@/components/featured-slider";
 import { CoursesSlider } from "@/components/courses-slider";
 import { HeroSearch } from "@/components/hero-search";
-import { PhoneInput, TelegramInput } from "@/components/phone-input";
-import { categories, courses } from "@/data/courses";
+import { HelpForm } from "@/components/help-form";
+import { getActiveCategories, getActiveListings } from "@/lib/listings";
 
+export default async function HomePage() {
+  const [categories, courses] = await Promise.all([
+    getActiveCategories(),
+    getActiveListings({ limit: 12 }),
+  ]);
 
-export default function HomePage() {
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
       {/* HERO + SLIDER — konteyner ichida */}
@@ -69,13 +73,7 @@ export default function HomePage() {
               <h2 className="text-[30px] md:text-[44px] font-bold text-[#16181a] tracking-[-0.03em]">Yordam beramiz</h2>
               <p className="text-[15px] text-[#6a7585] mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
             </div>
-            <div className="max-w-[520px] mx-auto space-y-3">
-              <input placeholder="Ismingiz" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
-              <PhoneInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
-              <TelegramInput className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
-              <input placeholder="Qaysi sohaga qiziqasiz?" className="w-full h-[52px] px-4 text-[16px] rounded-[12px] bg-white/80 border border-[#c5cdd8] text-[#16181a] placeholder:text-[#6a7585]/50 focus:outline-none focus:border-[#7ea2d4] transition-all" />
-              <button className="w-full h-[52px] rounded-[12px] bg-[#2d5a8a] text-white text-[15px] font-semibold hover:bg-[#2d5a8a]/90 transition-colors">Ariza yuborish</button>
-            </div>
+            <HelpForm />
             <div className="hidden md:flex justify-center gap-6 mt-10">
               {["Sizga mos kurslarni tanlab beramiz", "Narx va sifatni solishtiramiz", "24 soat ichida javob beramiz", "Xizmat bepul"].map((t) => (
                 <span key={t} className="text-[12px] text-[#6a7585]/50 flex items-center gap-1.5">

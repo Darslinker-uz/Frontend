@@ -1,455 +1,690 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Clock, Check, XCircle, MoreHorizontal, GripVertical, LayoutDashboard, FileText, Users, Wallet, User, LogOut, X, Calendar, MessageSquare, Mail, Send, History, BookOpen, Copy, Plus } from "lucide-react";
-import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
+import { Crown, Award, Eye, Users as UsersIcon, Search, SlidersHorizontal, Rows3, LayoutGrid, Calendar, ChevronDown, X, Check } from "lucide-react";
 
-type Lead = { id: number; name: string; phone: string; course: string; time: string; status: string; note?: string };
+// ==================== DATA ====================
 
-const COLS = [
-  { key: "yangi", title: "Yangi ariza", color: "#3b82f6", count: 3 },
-  { key: "jarayonda", title: "Jarayonda", color: "#f59e0b", count: 2 },
-  { key: "sotib_oldi", title: "Sotib oldi", color: "#22c55e", count: 1 },
-  { key: "sifatsiz", title: "Sifatsiz", color: "#ef4444", count: 1 },
+type BoostClass = "A" | "B";
+type BoostStatus = "aktiv" | "tugagan" | "to'xtatilgan";
+
+interface Boost {
+  id: string;
+  centerName: string;
+  listingTitle: string;
+  category: string;
+  boostClass: BoostClass;
+  daysTotal: number;
+  daysLeft: number;
+  pricePerDay: number;
+  totalPaid: number;
+  startedAt: string;
+  endsAt: string;
+  status: BoostStatus;
+  views: number;
+  leads: number;
+}
+
+const BOOSTS: Boost[] = [
+  { id: "B-2041", centerName: "Najot Ta'lim", listingTitle: "JavaScript & React Full-stack", category: "IT", boostClass: "A", daysTotal: 30, daysLeft: 24, pricePerDay: 100000, totalPaid: 3000000, startedAt: "2026-04-12", endsAt: "2026-05-12", status: "aktiv", views: 4820, leads: 42 },
+  { id: "B-2040", centerName: "Everest School", listingTitle: "IELTS Premium 7.0+", category: "Tillar", boostClass: "A", daysTotal: 10, daysLeft: 7, pricePerDay: 100000, totalPaid: 1000000, startedAt: "2026-04-15", endsAt: "2026-04-25", status: "aktiv", views: 2140, leads: 18 },
+  { id: "B-2039", centerName: "Marketing Pro", listingTitle: "Digital Marketing A-Z", category: "Marketing", boostClass: "B", daysTotal: 7, daysLeft: 4, pricePerDay: 70000, totalPaid: 490000, startedAt: "2026-04-14", endsAt: "2026-04-21", status: "aktiv", views: 890, leads: 7 },
+  { id: "B-2038", centerName: "IT Park Academy", listingTitle: "Python Backend Bootcamp", category: "IT", boostClass: "A", daysTotal: 15, daysLeft: 11, pricePerDay: 100000, totalPaid: 1500000, startedAt: "2026-04-13", endsAt: "2026-04-28", status: "aktiv", views: 3250, leads: 28 },
+  { id: "B-2037", centerName: "Sarvar Nazarov", listingTitle: "UI/UX Figma Pro", category: "Dizayn", boostClass: "B", daysTotal: 14, daysLeft: 3, pricePerDay: 70000, totalPaid: 980000, startedAt: "2026-04-07", endsAt: "2026-04-21", status: "aktiv", views: 1120, leads: 9 },
+  { id: "B-2036", centerName: "Najot Ta'lim", listingTitle: "Node.js Backend", category: "IT", boostClass: "B", daysTotal: 10, daysLeft: 1, pricePerDay: 70000, totalPaid: 700000, startedAt: "2026-04-01", endsAt: "2026-04-11", status: "aktiv", views: 1560, leads: 14 },
+  { id: "B-2035", centerName: "Everest School", listingTitle: "SAT Preparation", category: "Tillar", boostClass: "A", daysTotal: 7, daysLeft: 0, pricePerDay: 100000, totalPaid: 700000, startedAt: "2026-04-05", endsAt: "2026-04-12", status: "tugagan", views: 980, leads: 8 },
+  { id: "B-2033", centerName: "Marketing Pro", listingTitle: "SMM Pro Course", category: "Marketing", boostClass: "B", daysTotal: 7, daysLeft: 0, pricePerDay: 70000, totalPaid: 490000, startedAt: "2026-03-28", endsAt: "2026-04-04", status: "tugagan", views: 670, leads: 5 },
 ];
 
-const LEADS: Lead[] = [
-  { id: 1, name: "Jasur Karimov", phone: "+998 90 123 45 67", course: "JavaScript & React", time: "2 daqiqa oldin", status: "yangi" },
-  { id: 2, name: "Madina Rahimova", phone: "+998 91 234 56 78", course: "UI/UX dizayn Figma", time: "15 daqiqa oldin", status: "yangi" },
-  { id: 3, name: "Bobur Toshmatov", phone: "+998 93 345 67 89", course: "IELTS 7.0+", time: "1 soat oldin", status: "yangi" },
-  { id: 4, name: "Nilufar Azimova", phone: "+998 94 456 78 90", course: "Python Backend", time: "2 soat oldin", status: "jarayonda", note: "Ertaga bog'laniladi" },
-  { id: 5, name: "Sardor Umarov", phone: "+998 90 567 89 01", course: "Data Science", time: "3 soat oldin", status: "jarayonda", note: "Yana bir bor qo'ng'iroq kerak" },
-  { id: 6, name: "Zarina Aliyeva", phone: "+998 91 678 90 12", course: "Digital Marketing", time: "5 soat oldin", status: "sotib_oldi" },
-  { id: 7, name: "Otabek Nazarov", phone: "+998 93 789 01 23", course: "Flutter", time: "6 soat oldin", status: "sifatsiz", note: "Telefonni ko'tarmadi" },
-];
+const fmt = (n: number) => new Intl.NumberFormat("uz-UZ").format(n);
 
-// Inicial harflar
-const initials = (name: string) => name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
-
-// Fon rangini ismdan generatsiya
-const avatarColor = (name: string) => {
-  const colors = ["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#22c55e", "#06b6d4", "#ef4444", "#f97316"];
-  return colors[name.charCodeAt(0) % colors.length];
+const CLASS_CFG: Record<BoostClass, { label: string; color: string; softBg: string; icon: typeof Crown }> = {
+  A: { label: "A class", color: "#f59e0b", softBg: "linear-gradient(135deg, rgba(245,158,11,0.14), rgba(245,158,11,0.04))", icon: Crown },
+  B: { label: "B class", color: "#3b82f6", softBg: "linear-gradient(135deg, rgba(59,130,246,0.14), rgba(59,130,246,0.04))", icon: Award },
 };
 
+const STATUS_CFG: Record<BoostStatus, { label: string; color: string }> = {
+  aktiv: { label: "Aktiv", color: "#22c55e" },
+  tugagan: { label: "Tugagan", color: "#64748b" },
+  "to'xtatilgan": { label: "To'xtatilgan", color: "#ef4444" },
+};
+
+const S = {
+  bg: "#0e1015",
+  surface: "rgba(255,255,255,0.04)",
+  surfaceStrong: "rgba(255,255,255,0.06)",
+  border: "rgba(255,255,255,0.06)",
+  sidebar: "#16181a",
+  text: "#ffffff",
+  textMuted: "rgba(255,255,255,0.55)",
+  textDim: "rgba(255,255,255,0.3)",
+  hover: "rgba(255,255,255,0.06)",
+};
+
+// Shared Gantt window
+const WINDOW_START = new Date("2026-04-01").getTime();
+const WINDOW_END = new Date("2026-05-15").getTime();
+const WINDOW_SPAN = WINDOW_END - WINDOW_START;
+const TODAY = new Date("2026-04-20").getTime();
+const todayPct = ((TODAY - WINDOW_START) / WINDOW_SPAN) * 100;
+
+const bStart = (b: Boost) => ((new Date(b.startedAt).getTime() - WINDOW_START) / WINDOW_SPAN) * 100;
+const bWidth = (b: Boost) => ((new Date(b.endsAt).getTime() - new Date(b.startedAt).getTime()) / WINDOW_SPAN) * 100;
+
+// ==================== MAIN ====================
+
+const VARIANTS = [
+  "1 — Pill filters",
+  "2 — View switcher",
+  "3 — Tabs",
+  "4 — Sidebar filters",
+  "5 — Top filter bar",
+];
+
 export default function CheckPage() {
-  const [active, setActive] = useState(3);
-  const [openLead, setOpenLead] = useState<Lead | null>(null);
-  const [moveMenu, setMoveMenu] = useState<number | null>(null);
-  const [colMenu, setColMenu] = useState<string | null>(null);
-  const [addLead, setAddLead] = useState<string | null>(null);
-
-  const variants = [
-    "1 — Compact",
-    "2 — Avatar + full info",
-    "3 — Minimal cards",
-    "4 — Big cards + avatar",
-    "5 — Timeline style",
-  ];
-
-  const navItems = [
-    { href: "#", label: "Bosh sahifa", icon: LayoutDashboard, active: false },
-    { href: "#", label: "E'lonlar", icon: FileText, active: false },
-    { href: "#", label: "Arizalar", icon: Users, active: true },
-    { href: "#", label: "Balans", icon: Wallet, active: false },
-    { href: "#", label: "Profil", icon: User, active: false },
-  ];
+  const [active, setActive] = useState(0);
 
   return (
-    <div className="bg-[#0e1015] min-h-screen flex">
-      {/* Sidebar */}
-      <div className="hidden md:block w-[240px] shrink-0">
-        <div className="fixed top-0 left-0 w-[240px] h-screen bg-[#16181a] flex flex-col">
-          <div className="px-5 h-[62px] flex items-center gap-2 border-b border-white/[0.06]">
-            <DarslinkerLogo size={24} />
-            <span className="text-[17px] font-[family-name:var(--font-plus-jakarta)] font-extrabold tracking-tight text-white">
-              Dars<span className="text-[#7ea2d4]">Linker</span>
-            </span>
-          </div>
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <a key={item.label} href={item.href} className={`flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[14px] font-medium transition-all ${item.active ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}>
-                  <Icon className="w-[18px] h-[18px]" />
-                  {item.label}
-                </a>
-              );
-            })}
-          </nav>
-          <div className="px-3 pb-4">
-            <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-[14px] font-medium text-white/30 hover:text-white/50 hover:bg-white/[0.04]">
-              <LogOut className="w-[18px] h-[18px]" />
-              Saytga qaytish
-            </a>
-          </div>
+    <div className="min-h-screen" style={{ backgroundColor: S.bg, color: S.text }}>
+      <div className="sticky top-0 z-50 backdrop-blur-md py-3" style={{ backgroundColor: "rgba(22,24,26,0.85)", borderBottom: `1px solid ${S.border}` }}>
+        <div className="px-5 md:px-8 flex items-center gap-2 overflow-x-auto hide-scrollbar">
+          {VARIANTS.map((v, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className="shrink-0 px-4 h-8 rounded-full text-[12px] font-medium transition-all"
+              style={{
+                backgroundColor: active === i ? "#ffffff" : S.surfaceStrong,
+                color: active === i ? "#16181a" : S.textMuted,
+              }}
+            >
+              {v}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-h-screen">
-        <div className="sticky top-0 z-50 bg-[#16181a]/80 backdrop-blur-md border-b border-white/[0.06] py-3">
-          <div className="px-5 md:px-8 flex items-center gap-2 overflow-x-auto hide-scrollbar">
-            {variants.map((v, i) => (
-              <button key={i} onClick={() => setActive(i)} className={`shrink-0 px-4 py-2 rounded-full text-[12px] font-medium transition-all ${active === i ? "bg-white text-[#16181a]" : "bg-white/[0.06] text-white/40 hover:text-white/70"}`}>
-                {v}
-              </button>
-            ))}
-          </div>
+      <div className="px-5 md:px-8 py-6 md:py-10">
+        {active === 0 && <V1PillFilters />}
+        {active === 1 && <V2ViewSwitcher />}
+        {active === 2 && <V3Tabs />}
+        {active === 3 && <V4SidebarFilters />}
+        {active === 4 && <V5TopBar />}
+      </div>
+    </div>
+  );
+}
+
+// ==================== V1 — PILL FILTERS ====================
+// Default: standart rail list (barchasi), filter pill bosilganda filtrlash
+
+function V1PillFilters() {
+  type Filter = "hammasi" | "A" | "B" | "urgent" | "arxiv";
+  const [filter, setFilter] = useState<Filter>("hammasi");
+
+  const filtered = BOOSTS.filter(b => {
+    if (filter === "hammasi") return b.status === "aktiv";
+    if (filter === "A") return b.boostClass === "A" && b.status === "aktiv";
+    if (filter === "B") return b.boostClass === "B" && b.status === "aktiv";
+    if (filter === "urgent") return b.status === "aktiv" && b.daysLeft <= 3;
+    if (filter === "arxiv") return b.status !== "aktiv";
+    return true;
+  });
+
+  const counts = {
+    hammasi: BOOSTS.filter(b => b.status === "aktiv").length,
+    A: BOOSTS.filter(b => b.boostClass === "A" && b.status === "aktiv").length,
+    B: BOOSTS.filter(b => b.boostClass === "B" && b.status === "aktiv").length,
+    urgent: BOOSTS.filter(b => b.status === "aktiv" && b.daysLeft <= 3).length,
+    arxiv: BOOSTS.filter(b => b.status !== "aktiv").length,
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <Header title="Boostlar" subtitle="Filterlar orqali kerakli guruhni ko'ring" />
+
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
+        {[
+          { k: "hammasi" as Filter, label: "Hammasi", color: "#ffffff" },
+          { k: "A" as Filter, label: "A class", color: "#f59e0b" },
+          { k: "B" as Filter, label: "B class", color: "#3b82f6" },
+          { k: "urgent" as Filter, label: "Tugamoqda", color: "#ef4444" },
+          { k: "arxiv" as Filter, label: "Arxiv", color: "#64748b" },
+        ].map(f => {
+          const isActive = filter === f.k;
+          return (
+            <button
+              key={f.k}
+              onClick={() => setFilter(f.k)}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-medium transition-all"
+              style={{
+                backgroundColor: isActive ? `${f.color}22` : S.surface,
+                color: isActive ? f.color : S.textMuted,
+                border: `1px solid ${isActive ? `${f.color}55` : S.border}`,
+              }}
+            >
+              {f.label}
+              <span className="text-[10px] font-bold opacity-80">{counts[f.k]}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <RailList items={filtered} />
+    </div>
+  );
+}
+
+// ==================== V2 — VIEW SWITCHER ====================
+// Default: rail list, View mode tugmalari: List / Timeline / Group
+
+function V2ViewSwitcher() {
+  type View = "list" | "timeline" | "group";
+  const [view, setView] = useState<View>("list");
+  const active = BOOSTS.filter(b => b.status === "aktiv");
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
+        <div>
+          <h1 className="text-[24px] font-bold">Boostlar</h1>
+          <p className="text-[13px] mt-1" style={{ color: S.textMuted }}>{active.length} ta aktiv</p>
         </div>
-
-        <div className="px-5 md:px-8 py-6 md:py-8">
-        <h1 className="text-[22px] md:text-[26px] font-bold text-white mb-6">Arizalar</h1>
-
-        <div className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
-          {COLS.map((col) => {
-            const colLeads = LEADS.filter(l => l.status === col.key);
+        <div className="flex items-center gap-1 p-1 rounded-lg" style={{ backgroundColor: S.surface, border: `1px solid ${S.border}` }}>
+          {[
+            { k: "list" as View, label: "Ro'yxat", icon: Rows3 },
+            { k: "timeline" as View, label: "Timeline", icon: Calendar },
+            { k: "group" as View, label: "Guruh", icon: LayoutGrid },
+          ].map(v => {
+            const Icon = v.icon;
+            const isActive = view === v.k;
             return (
-              <div key={col.key} className="rounded-[14px] border border-white/[0.06] p-3 min-h-[400px] w-[280px] md:w-auto md:flex-1 shrink-0" style={{ backgroundColor: `${col.color}10` }}>
-                {/* Column header */}
-                <div className="flex items-center gap-2 mb-3 px-1 relative">
-                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: col.color }} />
-                  <span className="text-[13px] font-semibold text-white">{col.title}</span>
-                  <span className="text-[11px] text-white/20 ml-auto">{colLeads.length}</span>
-                  <div className="relative">
-                    <button onClick={() => setColMenu(colMenu === col.key ? null : col.key)} className="w-6 h-6 rounded-[6px] flex items-center justify-center text-white/15 hover:text-white/40 hover:bg-white/[0.06] transition-all">
-                      <MoreHorizontal className="w-3.5 h-3.5" />
-                    </button>
-                    {colMenu === col.key && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setColMenu(null)} />
-                        <div className="absolute right-0 top-7 z-50 w-[180px] rounded-[10px] bg-[#1e2024] border border-white/[0.08] shadow-xl py-1">
-                          <button onClick={() => { setAddLead(col.key); setColMenu(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">
-                            <Plus className="w-3.5 h-3.5" /> Lead qo&apos;shish
-                          </button>
-                          <button onClick={() => setColMenu(null)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">
-                            <MessageSquare className="w-3.5 h-3.5" /> Eksport
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  {colLeads.map((lead) => {
-                    // 1 — Compact
-                    if (active === 0) return (
-                      <div key={lead.id} className="rounded-[10px] bg-white/[0.05] border border-white/[0.06] p-3 group hover:bg-white/[0.08] transition-all cursor-pointer">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <p className="text-[13px] font-semibold text-white">{lead.name}</p>
-                          <GripVertical className="w-3.5 h-3.5 text-white/10 shrink-0" />
-                        </div>
-                        <p className="text-[11px] text-white/40 mb-2">{lead.course}</p>
-                        <div className="flex items-center justify-between text-[10px] text-white/25">
-                          <span>{lead.phone.slice(-9)}</span>
-                          <span>{lead.time}</span>
-                        </div>
-                        {lead.note && <p className="text-[10px] text-white/30 italic mt-1.5 pt-1.5 border-t border-white/[0.06]">{lead.note}</p>}
-                      </div>
-                    );
-
-                    // 2 — Avatar + full info
-                    if (active === 1) return (
-                      <div key={lead.id} className="rounded-[12px] bg-white/[0.05] border border-white/[0.06] p-3 group hover:bg-white/[0.08] transition-all cursor-pointer">
-                        <div className="flex items-start gap-2.5">
-                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white shrink-0" style={{ backgroundColor: avatarColor(lead.name) }}>
-                            {initials(lead.name)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-semibold text-white truncate">{lead.name}</p>
-                            <p className="text-[11px] text-white/40 truncate">{lead.course}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 mt-2.5 text-[11px] text-white/30">
-                          <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{lead.phone.slice(-9)}</span>
-                          <span className="flex items-center gap-1 ml-auto"><Clock className="w-3 h-3" />{lead.time}</span>
-                        </div>
-                        {lead.note && <p className="text-[11px] text-white/30 italic mt-2 pt-2 border-t border-white/[0.06]">&ldquo;{lead.note}&rdquo;</p>}
-                        {col.key === "yangi" && (
-                          <div className="flex gap-1.5 mt-2.5">
-                            <button className="flex-1 h-[26px] rounded-[6px] bg-green-500/15 text-green-400 text-[11px] font-medium hover:bg-green-500/25 flex items-center justify-center gap-1"><Check className="w-3 h-3" />Jarayonda</button>
-                            <button className="flex-1 h-[26px] rounded-[6px] bg-red-500/15 text-red-400 text-[11px] font-medium hover:bg-red-500/25 flex items-center justify-center gap-1"><XCircle className="w-3 h-3" />Sifatsiz</button>
-                          </div>
-                        )}
-                      </div>
-                    );
-
-                    // 3 — Minimal
-                    if (active === 2) return (
-                      <div key={lead.id} className="rounded-[10px] bg-white/[0.04] px-3 py-2.5 group hover:bg-white/[0.08] transition-all cursor-pointer">
-                        <p className="text-[13px] font-medium text-white">{lead.name}</p>
-                        <div className="flex items-center justify-between mt-0.5">
-                          <p className="text-[11px] text-white/30 truncate">{lead.course}</p>
-                          <span className="text-[10px] text-white/20 shrink-0 ml-2">{lead.time}</span>
-                        </div>
-                      </div>
-                    );
-
-                    // 4 — Big cards + avatar
-                    if (active === 3) {
-                      const otherCols = COLS.filter(c => c.key !== lead.status);
-                      return (
-                        <div key={lead.id} onClick={() => setOpenLead(lead)} className="rounded-[14px] bg-white/[0.06] border border-white/[0.08] p-4 group hover:bg-white/[0.1] transition-all cursor-pointer shadow-sm">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-[12px] flex items-center justify-center text-[13px] font-bold text-white shrink-0" style={{ backgroundColor: avatarColor(lead.name) }}>
-                              {initials(lead.name)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[14px] font-semibold text-white truncate">{lead.name}</p>
-                              <p className="text-[11px] text-white/40">{lead.time}</p>
-                            </div>
-                            <div className="relative">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setMoveMenu(moveMenu === lead.id ? null : lead.id); }}
-                                className="w-7 h-7 rounded-[6px] hover:bg-white/[0.08] flex items-center justify-center text-white/30 hover:text-white/70 transition-all"
-                              >
-                                <MoreHorizontal className="w-4 h-4" />
-                              </button>
-                              {moveMenu === lead.id && (
-                                <>
-                                  <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setMoveMenu(null); }} />
-                                  <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-8 z-50 w-[180px] rounded-[10px] bg-[#1e2024] border border-white/[0.08] shadow-xl py-1">
-                                    <p className="px-3 py-1.5 text-[10px] text-white/25 uppercase tracking-wider">Ko&apos;chirish</p>
-                                    {otherCols.map((c) => (
-                                      <button key={c.key} onClick={() => setMoveMenu(null)} className="w-full text-left px-3 py-2 text-[13px] text-white/60 hover:text-white hover:bg-white/[0.06] flex items-center gap-2 transition-all">
-                                        <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
-                                        {c.title}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          <div className="rounded-[8px] bg-white/[0.04] px-3 py-2 mb-2">
-                            <p className="text-[11px] text-white/30 mb-0.5">Kurs</p>
-                            <p className="text-[12px] font-medium text-white">{lead.course}</p>
-                          </div>
-                          <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 text-[12px] text-white/60 hover:text-white"><Phone className="w-3.5 h-3.5" />{lead.phone}</a>
-                          {lead.note && <p className="text-[11px] text-white/35 italic mt-2 pt-2 border-t border-white/[0.08]">&ldquo;{lead.note}&rdquo;</p>}
-                        </div>
-                      );
-                    }
-
-                    // 5 — Timeline
-                    return (
-                      <div key={lead.id} className="flex gap-2.5 group cursor-pointer">
-                        <div className="flex flex-col items-center shrink-0 pt-3">
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: col.color }} />
-                          <div className="w-px flex-1 bg-white/[0.06] mt-1" />
-                        </div>
-                        <div className="flex-1 rounded-[10px] bg-white/[0.04] border border-white/[0.06] p-3 group-hover:bg-white/[0.08] transition-all mb-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <p className="text-[13px] font-semibold text-white">{lead.name}</p>
-                            <span className="text-[10px] text-white/25">{lead.time}</span>
-                          </div>
-                          <p className="text-[11px] text-white/40">{lead.course}</p>
-                          {lead.note && <p className="text-[10px] text-white/30 italic mt-1.5">&ldquo;{lead.note}&rdquo;</p>}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <button
+                key={v.k}
+                onClick={() => setView(v.k)}
+                className="flex items-center gap-1.5 h-8 px-3 rounded-md text-[12px] font-medium transition-all"
+                style={{
+                  backgroundColor: isActive ? S.text : "transparent",
+                  color: isActive ? S.bg : S.textMuted,
+                }}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {v.label}
+              </button>
             );
           })}
         </div>
+      </div>
+
+      {view === "list" && <RailList items={active} />}
+      {view === "timeline" && <TimelineView items={active} />}
+      {view === "group" && <GroupedView items={active} />}
+    </div>
+  );
+}
+
+// ==================== V3 — TABS ====================
+// Default: "Hammasi" tab active, cards grid
+
+function V3Tabs() {
+  type Tab = "hammasi" | "A" | "B" | "urgent" | "arxiv";
+  const [tab, setTab] = useState<Tab>("hammasi");
+
+  const items = BOOSTS.filter(b => {
+    if (tab === "hammasi") return b.status === "aktiv";
+    if (tab === "A") return b.boostClass === "A" && b.status === "aktiv";
+    if (tab === "B") return b.boostClass === "B" && b.status === "aktiv";
+    if (tab === "urgent") return b.status === "aktiv" && b.daysLeft <= 3;
+    if (tab === "arxiv") return b.status !== "aktiv";
+    return true;
+  });
+
+  const counts = {
+    hammasi: BOOSTS.filter(b => b.status === "aktiv").length,
+    A: BOOSTS.filter(b => b.boostClass === "A" && b.status === "aktiv").length,
+    B: BOOSTS.filter(b => b.boostClass === "B" && b.status === "aktiv").length,
+    urgent: BOOSTS.filter(b => b.status === "aktiv" && b.daysLeft <= 3).length,
+    arxiv: BOOSTS.filter(b => b.status !== "aktiv").length,
+  };
+
+  const tabs: { k: Tab; label: string }[] = [
+    { k: "hammasi", label: "Hammasi" },
+    { k: "A", label: "A class" },
+    { k: "B", label: "B class" },
+    { k: "urgent", label: "Tugamoqda" },
+    { k: "arxiv", label: "Arxiv" },
+  ];
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <Header title="Boostlar" subtitle="Tablarga bosib turdagina filtrlash" />
+
+      <div className="flex overflow-x-auto mb-5" style={{ borderBottom: `1px solid ${S.border}` }}>
+        {tabs.map(t => {
+          const isActive = tab === t.k;
+          return (
+            <button
+              key={t.k}
+              onClick={() => setTab(t.k)}
+              className="flex items-center gap-2 h-11 px-4 md:px-5 text-[13px] font-medium whitespace-nowrap transition-colors"
+              style={{
+                color: isActive ? S.text : S.textMuted,
+                borderBottom: `2px solid ${isActive ? S.text : "transparent"}`,
+                marginBottom: "-1px",
+              }}
+            >
+              {t.label}
+              <span className="text-[10px] px-1.5 h-[18px] rounded-full flex items-center font-bold" style={{ backgroundColor: S.hover, color: S.textMuted }}>{counts[t.k]}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <CardGrid items={items} />
+    </div>
+  );
+}
+
+// ==================== V4 — SIDEBAR FILTERS ====================
+// Default: chap sidebar filter paneli + o'ngda standart list
+
+function V4SidebarFilters() {
+  const [classFilter, setClassFilter] = useState<Set<BoostClass>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<Set<BoostStatus>>(new Set(["aktiv"]));
+  const [urgentOnly, setUrgentOnly] = useState(false);
+  const [sort, setSort] = useState<"newest" | "ending" | "revenue">("ending");
+
+  const filtered = BOOSTS
+    .filter(b => classFilter.size === 0 || classFilter.has(b.boostClass))
+    .filter(b => statusFilter.size === 0 || statusFilter.has(b.status))
+    .filter(b => !urgentOnly || (b.status === "aktiv" && b.daysLeft <= 3))
+    .sort((a, b) => {
+      if (sort === "ending") return a.daysLeft - b.daysLeft;
+      if (sort === "revenue") return b.totalPaid - a.totalPaid;
+      return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+    });
+
+  const toggleClass = (c: BoostClass) => {
+    const next = new Set(classFilter);
+    if (next.has(c)) next.delete(c); else next.add(c);
+    setClassFilter(next);
+  };
+  const toggleStatus = (s: BoostStatus) => {
+    const next = new Set(statusFilter);
+    if (next.has(s)) next.delete(s); else next.add(s);
+    setStatusFilter(next);
+  };
+
+  const hasFilters = classFilter.size > 0 || statusFilter.size !== 1 || !statusFilter.has("aktiv") || urgentOnly;
+
+  return (
+    <div>
+      <Header title="Boostlar" subtitle="Chap paneldan filterlang" />
+
+      <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-5">
+        <div className="rounded-[14px] p-4 h-fit" style={{ backgroundColor: S.surface, border: `1px solid ${S.border}` }}>
+          <div className="flex items-center gap-2 mb-4">
+            <SlidersHorizontal className="w-4 h-4" style={{ color: S.textMuted }} />
+            <p className="text-[13px] font-bold">Filterlar</p>
+            {hasFilters && (
+              <button onClick={() => { setClassFilter(new Set()); setStatusFilter(new Set(["aktiv"])); setUrgentOnly(false); }} className="ml-auto text-[11px]" style={{ color: "#ef4444" }}>
+                Tozalash
+              </button>
+            )}
+          </div>
+
+          <FilterGroup title="Class">
+            {(["A", "B"] as BoostClass[]).map(c => {
+              const cfg = CLASS_CFG[c];
+              return (
+                <Checkbox key={c} checked={classFilter.has(c)} onChange={() => toggleClass(c)} label={cfg.label} color={cfg.color} />
+              );
+            })}
+          </FilterGroup>
+
+          <FilterGroup title="Holat">
+            {(["aktiv", "tugagan", "to'xtatilgan"] as BoostStatus[]).map(s => {
+              const cfg = STATUS_CFG[s];
+              return (
+                <Checkbox key={s} checked={statusFilter.has(s)} onChange={() => toggleStatus(s)} label={cfg.label} color={cfg.color} />
+              );
+            })}
+          </FilterGroup>
+
+          <FilterGroup title="Maxsus">
+            <Checkbox checked={urgentOnly} onChange={() => setUrgentOnly(!urgentOnly)} label="Tugamoqda (≤3 kun)" color="#ef4444" />
+          </FilterGroup>
+
+          <FilterGroup title="Tartib" last>
+            {[
+              { k: "ending" as const, label: "Tez tugaydigan" },
+              { k: "newest" as const, label: "Eng yangi" },
+              { k: "revenue" as const, label: "Daromad bo'yicha" },
+            ].map(o => (
+              <button
+                key={o.k}
+                onClick={() => setSort(o.k)}
+                className="w-full flex items-center gap-2 h-7 px-2 rounded-md text-[12px] text-left transition-colors"
+                style={{ backgroundColor: sort === o.k ? S.hover : "transparent", color: sort === o.k ? S.text : S.textMuted }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: sort === o.k ? S.text : S.textDim }} />
+                {o.label}
+              </button>
+            ))}
+          </FilterGroup>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-3 text-[12px]" style={{ color: S.textMuted }}>
+            <span>{filtered.length} ta natija</span>
+          </div>
+          <RailList items={filtered} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FilterGroup({ title, children, last }: { title: string; children: React.ReactNode; last?: boolean }) {
+  return (
+    <div className={`${last ? "" : "pb-4 mb-4"}`} style={last ? {} : { borderBottom: `1px solid ${S.border}` }}>
+      <p className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: S.textDim }}>{title}</p>
+      <div className="space-y-1">{children}</div>
+    </div>
+  );
+}
+
+function Checkbox({ checked, onChange, label, color }: { checked: boolean; onChange: () => void; label: string; color: string }) {
+  return (
+    <button onClick={onChange} className="w-full flex items-center gap-2 h-7 rounded-md text-[12px] text-left transition-colors px-1" style={{ color: checked ? S.text : S.textMuted }}>
+      <div
+        className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all"
+        style={{
+          backgroundColor: checked ? color : "transparent",
+          border: `1.5px solid ${checked ? color : S.border}`,
+        }}
+      >
+        {checked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+      </div>
+      {label}
+    </button>
+  );
+}
+
+// ==================== V5 — TOP FILTER BAR ====================
+// Default: standart cards, yuqorida search + filter chips + sort dropdown
+
+function V5TopBar() {
+  const [search, setSearch] = useState("");
+  const [classFilter, setClassFilter] = useState<BoostClass | null>(null);
+  const [statusFilter, setStatusFilter] = useState<BoostStatus | "all">("aktiv");
+  const [sort, setSort] = useState<"ending" | "revenue" | "newest">("ending");
+  const [sortOpen, setSortOpen] = useState(false);
+
+  const filtered = BOOSTS
+    .filter(b => statusFilter === "all" || b.status === statusFilter)
+    .filter(b => !classFilter || b.boostClass === classFilter)
+    .filter(b => !search || b.listingTitle.toLowerCase().includes(search.toLowerCase()) || b.centerName.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sort === "ending") return a.daysLeft - b.daysLeft;
+      if (sort === "revenue") return b.totalPaid - a.totalPaid;
+      return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+    });
+
+  const sortLabels = { ending: "Tez tugaydigan", revenue: "Daromad bo'yicha", newest: "Eng yangi" };
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <Header title="Boostlar" subtitle="Yuqorida qidiruv va filterlar" />
+
+      <div className="rounded-[12px] p-3 mb-5" style={{ backgroundColor: S.surface, border: `1px solid ${S.border}` }}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: S.textDim }} />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="E'lon yoki markaz nomi..."
+              className="w-full h-9 pl-9 pr-3 rounded-md text-[13px] outline-none"
+              style={{ backgroundColor: S.bg, border: `1px solid ${S.border}`, color: S.text }}
+            />
+          </div>
+
+          <div className="flex items-center gap-1 p-0.5 rounded-md" style={{ backgroundColor: S.bg, border: `1px solid ${S.border}` }}>
+            {([
+              { k: "aktiv" as const, label: "Aktiv" },
+              { k: "tugagan" as const, label: "Tugagan" },
+              { k: "all" as const, label: "Hammasi" },
+            ]).map(s => {
+              const isActive = statusFilter === s.k;
+              return (
+                <button
+                  key={s.k}
+                  onClick={() => setStatusFilter(s.k)}
+                  className="h-8 px-2.5 rounded text-[11px] font-medium transition-colors"
+                  style={{ backgroundColor: isActive ? S.surfaceStrong : "transparent", color: isActive ? S.text : S.textMuted }}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative">
+            <button
+              onClick={() => setSortOpen(!sortOpen)}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-md text-[12px] font-medium"
+              style={{ backgroundColor: S.bg, border: `1px solid ${S.border}`, color: S.text }}
+            >
+              {sortLabels[sort]}
+              <ChevronDown className="w-3 h-3" style={{ color: S.textMuted }} />
+            </button>
+            {sortOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
+                <div className="absolute top-10 right-0 z-20 w-44 rounded-md py-1 shadow-xl" style={{ backgroundColor: S.sidebar, border: `1px solid ${S.border}` }}>
+                  {(Object.entries(sortLabels) as [typeof sort, string][]).map(([k, label]) => (
+                    <button
+                      key={k}
+                      onClick={() => { setSort(k); setSortOpen(false); }}
+                      className="w-full h-8 px-3 text-left text-[12px] flex items-center gap-2 transition-colors"
+                      style={{ color: sort === k ? S.text : S.textMuted }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = S.hover}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                      {sort === k && <Check className="w-3 h-3" />}
+                      <span className={sort === k ? "" : "pl-5"}>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Filter chips */}
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
+          <span className="text-[11px]" style={{ color: S.textDim }}>Class:</span>
+          {(["A", "B"] as BoostClass[]).map(c => {
+            const cfg = CLASS_CFG[c];
+            const isActive = classFilter === c;
+            return (
+              <button
+                key={c}
+                onClick={() => setClassFilter(isActive ? null : c)}
+                className="inline-flex items-center gap-1 h-6 px-2 rounded-full text-[11px] font-medium transition-all"
+                style={{
+                  backgroundColor: isActive ? `${cfg.color}22` : "transparent",
+                  color: isActive ? cfg.color : S.textMuted,
+                  border: `1px solid ${isActive ? `${cfg.color}55` : S.border}`,
+                }}
+              >
+                <cfg.icon className="w-3 h-3" />
+                {cfg.label}
+                {isActive && <X className="w-2.5 h-2.5 ml-0.5" />}
+              </button>
+            );
+          })}
+          {(classFilter || search) && (
+            <button onClick={() => { setClassFilter(null); setSearch(""); }} className="ml-auto text-[11px]" style={{ color: "#ef4444" }}>
+              Filtrlarni tozalash
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Lead qo'shish modal */}
-      {addLead && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAddLead(null)} />
-          <div className="relative bg-[#16181a] rounded-[20px] border border-white/[0.08] w-full max-w-[460px] overflow-hidden">
-            <div className="px-6 pt-5 pb-4 border-b border-white/[0.06] flex items-center justify-between">
-              <div>
-                <h2 className="text-[17px] font-bold text-white">Yangi lead qo&apos;shish</h2>
-                <div className="flex items-center gap-1.5 mt-1 text-[12px] text-white/40">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLS.find(c => c.key === addLead)?.color }} />
-                  {COLS.find(c => c.key === addLead)?.title}
-                </div>
-              </div>
-              <button onClick={() => setAddLead(null)} className="w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/[0.1] flex items-center justify-center">
-                <X className="w-4 h-4 text-white/50" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="text-[12px] text-white/40 mb-1.5 block">Ism familiya *</label>
-                <input placeholder="Ism familiya" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/30" />
-              </div>
-              <div>
-                <label className="text-[12px] text-white/40 mb-1.5 block">Telefon *</label>
-                <input placeholder="+998 90 123 45 67" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/30" />
-              </div>
-              <div>
-                <label className="text-[12px] text-white/40 mb-1.5 block">Kurs</label>
-                <select className="w-full h-[44px] px-3 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[14px] text-white/70 focus:outline-none focus:border-white/30 appearance-none">
-                  <option>Tanlang</option>
-                  <option>JavaScript &amp; React</option>
-                  <option>UI/UX dizayn Figma</option>
-                  <option>IELTS 7.0+</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-[12px] text-white/40 mb-1.5 block">Izoh</label>
-                <textarea placeholder="Qo'shimcha ma'lumot..." rows={3} className="w-full px-4 py-3 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[14px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/30 resize-none" />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button onClick={() => setAddLead(null)} className="flex-1 h-[44px] rounded-[10px] bg-white/[0.06] text-white/60 text-[14px] font-medium hover:bg-white/[0.1]">
-                  Bekor
-                </button>
-                <button onClick={() => setAddLead(null)} className="flex-1 h-[44px] rounded-[10px] bg-white text-[#16181a] text-[14px] font-medium hover:bg-white/90 flex items-center justify-center gap-2">
-                  <Plus className="w-4 h-4" /> Qo&apos;shish
-                </button>
-              </div>
-            </div>
+      <CardGrid items={filtered} />
+    </div>
+  );
+}
+
+// ==================== SHARED VIEW COMPONENTS ====================
+
+function RailList({ items }: { items: Boost[] }) {
+  if (items.length === 0) {
+    return (
+      <div className="rounded-[14px] p-12 text-center" style={{ backgroundColor: S.surface, border: `1px dashed ${S.border}` }}>
+        <p className="text-[14px]" style={{ color: S.textMuted }}>Boost topilmadi</p>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-2.5">
+      {items.map(b => <RailCard key={b.id} boost={b} />)}
+    </div>
+  );
+}
+
+function RailCard({ boost }: { boost: Boost }) {
+  const cfg = CLASS_CFG[boost.boostClass];
+  const stat = STATUS_CFG[boost.status];
+  const pct = boost.daysTotal > 0 ? ((boost.daysTotal - boost.daysLeft) / boost.daysTotal) * 100 : 100;
+  const urgent = boost.status === "aktiv" && boost.daysLeft <= 3;
+  return (
+    <div className="rounded-[12px] p-4" style={{ backgroundColor: S.surface, border: `1px solid ${S.border}`, borderLeft: `3px solid ${cfg.color}` }}>
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="inline-flex items-center gap-1 px-1.5 h-5 rounded text-[10px] font-bold shrink-0" style={{ backgroundColor: `${cfg.color}22`, color: cfg.color }}>
+            <cfg.icon className="w-3 h-3" />
+            {cfg.label}
+          </div>
+          <div className="min-w-0">
+            <p className="text-[14px] font-semibold truncate">{boost.listingTitle}</p>
+            <p className="text-[11px] truncate" style={{ color: S.textMuted }}>{boost.centerName}</p>
           </div>
         </div>
-      )}
+        <div className="text-right shrink-0">
+          {boost.status === "aktiv"
+            ? <p className="text-[13px] font-bold" style={{ color: urgent ? "#ef4444" : S.text }}>{boost.daysLeft} kun</p>
+            : <p className="text-[12px] font-semibold" style={{ color: stat.color }}>{stat.label}</p>
+          }
+          <p className="text-[10px]" style={{ color: S.textDim }}>{fmt(boost.totalPaid / 1000)}k so&apos;m</p>
+        </div>
+      </div>
+      <div className="relative h-6 rounded-md overflow-hidden mb-2" style={{ backgroundColor: S.hover }}>
+        <div
+          className="absolute inset-y-0 left-0 flex items-center justify-end pr-2 transition-all"
+          style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${urgent ? "#ef444466" : `${cfg.color}66`}, ${urgent ? "#ef4444" : cfg.color})` }}
+        >
+          <span className="text-[10px] font-bold text-white">{Math.round(pct)}%</span>
+        </div>
+        <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none">
+          <span className="text-[10px] font-medium" style={{ color: S.textDim }}>{boost.startedAt.slice(5)}</span>
+          <span className="text-[10px] font-medium" style={{ color: S.textDim }}>{boost.endsAt.slice(5)}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-4 text-[11px]" style={{ color: S.textMuted }}>
+        <span><Eye className="w-3 h-3 inline mr-1" />{fmt(boost.views)}</span>
+        <span style={{ color: "#22c55e" }}><UsersIcon className="w-3 h-3 inline mr-1" />{boost.leads} lead</span>
+      </div>
+    </div>
+  );
+}
 
-      {/* Lead detail modal */}
-      {openLead && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpenLead(null)} />
-          <div className="relative bg-[#16181a] rounded-[20px] border border-white/[0.08] w-full max-w-[520px] max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="sticky top-0 bg-[#16181a] border-b border-white/[0.06] px-6 pt-6 pb-4 flex items-start justify-between">
+function CardGrid({ items }: { items: Boost[] }) {
+  if (items.length === 0) {
+    return (
+      <div className="rounded-[14px] p-12 text-center" style={{ backgroundColor: S.surface, border: `1px dashed ${S.border}` }}>
+        <p className="text-[14px]" style={{ color: S.textMuted }}>Boost topilmadi</p>
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {items.map(b => <RailCard key={b.id} boost={b} />)}
+    </div>
+  );
+}
+
+function TimelineView({ items }: { items: Boost[] }) {
+  return (
+    <div className="rounded-[14px] overflow-hidden" style={{ backgroundColor: S.surface, border: `1px solid ${S.border}` }}>
+      <div className="px-5 pt-4">
+        <div className="flex items-center justify-between pb-2" style={{ color: S.textDim }}>
+          {["1 Apr", "10 Apr", "20 Apr", "1 May", "10 May"].map((d, i) => (
+            <span key={i} className="text-[10px]">{d}</span>
+          ))}
+        </div>
+      </div>
+      <div className="relative pb-3">
+        <div className="absolute top-0 bottom-0 w-px z-10" style={{ left: `calc(20px + (100% - 40px) * ${todayPct / 100})`, backgroundColor: "#ef4444" }} />
+        {items.map((b, i) => {
+          const cfg = CLASS_CFG[b.boostClass];
+          return (
+            <div key={b.id} className="px-5 py-2" style={{ borderTop: i === 0 ? `1px solid ${S.border}` : "none" }}>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-[14px] flex items-center justify-center text-[16px] font-bold text-white shrink-0" style={{ backgroundColor: avatarColor(openLead.name) }}>
-                  {initials(openLead.name)}
+                <div className="w-40 shrink-0 min-w-0">
+                  <p className="text-[12px] font-semibold truncate">{b.listingTitle}</p>
+                  <p className="text-[10px] truncate" style={{ color: S.textDim }}>{b.centerName}</p>
                 </div>
-                <div>
-                  <h2 className="text-[18px] font-bold text-white">{openLead.name}</h2>
-                  <div className="flex items-center gap-1.5 text-[12px] text-white/40 mt-0.5">
-                    <Clock className="w-3 h-3" /> {openLead.time}
+                <div className="flex-1 relative h-6">
+                  <div
+                    className="absolute inset-y-0 rounded-sm flex items-center px-1.5 overflow-hidden"
+                    style={{ left: `${bStart(b)}%`, width: `${bWidth(b)}%`, background: `linear-gradient(90deg, ${cfg.color}55, ${cfg.color}bb)` }}
+                  >
+                    <span className="text-[9px] font-bold">{b.daysLeft}k</span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setOpenLead(null)} className="w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/[0.1] flex items-center justify-center">
-                <X className="w-4 h-4 text-white/50" />
-              </button>
             </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-            <div className="p-6 space-y-5">
-              {/* Kontakt */}
-              <div>
-                <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-2.5">Kontakt</p>
-                <div className="space-y-2">
-                  <a href={`tel:${openLead.phone}`} className="flex items-center gap-3 rounded-[12px] bg-white/[0.04] border border-white/[0.06] px-4 py-3 hover:bg-white/[0.08] transition-all group">
-                    <div className="w-9 h-9 rounded-[10px] bg-white/[0.06] flex items-center justify-center">
-                      <Phone className="w-4 h-4 text-white/60" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[11px] text-white/30">Telefon</p>
-                      <p className="text-[14px] font-medium text-white">{openLead.phone}</p>
-                    </div>
-                    <Copy className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-colors" />
-                  </a>
-                  <a href="#" className="flex items-center gap-3 rounded-[12px] bg-white/[0.04] border border-white/[0.06] px-4 py-3 hover:bg-white/[0.08] transition-all">
-                    <div className="w-9 h-9 rounded-[10px] bg-white/[0.06] flex items-center justify-center">
-                      <Send className="w-4 h-4 text-white/60" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[11px] text-white/30">Telegram</p>
-                      <p className="text-[14px] font-medium text-white">@user{openLead.id}</p>
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-              {/* Kurs */}
-              <div>
-                <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-2.5">Qiziqgan kurs</p>
-                <div className="rounded-[12px] bg-white/[0.04] border border-white/[0.06] px-4 py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-[10px] bg-white/[0.06] flex items-center justify-center">
-                    <BookOpen className="w-4 h-4 text-white/60" />
-                  </div>
-                  <div>
-                    <p className="text-[14px] font-medium text-white">{openLead.course}</p>
-                    <p className="text-[11px] text-white/30 mt-0.5">IT & Dasturlash</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Izoh */}
-              {openLead.note && (
-                <div>
-                  <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-2.5">Izoh</p>
-                  <div className="rounded-[12px] bg-white/[0.04] border border-white/[0.06] p-4">
-                    <p className="text-[13px] text-white/70 italic">&ldquo;{openLead.note}&rdquo;</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Tarix */}
-              <div>
-                <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-2.5">Jarayon tarixi</p>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-[13px] text-white">Yangi ariza qabul qilindi</p>
-                      <p className="text-[11px] text-white/30">{openLead.time}</p>
-                    </div>
-                  </div>
-                  {openLead.status !== "yangi" && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-[13px] text-white">Jarayonga olindi</p>
-                        <p className="text-[11px] text-white/30">1 soat oldin</p>
-                      </div>
-                    </div>
-                  )}
-                  {openLead.status === "sotib_oldi" && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-[13px] text-white">Kurs sotib olindi</p>
-                        <p className="text-[11px] text-white/30">30 daqiqa oldin</p>
-                      </div>
-                    </div>
-                  )}
-                  {openLead.status === "sifatsiz" && (
-                    <div className="flex items-start gap-3">
-                      <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-[13px] text-white">Sifatsiz deb belgilandi</p>
-                        <p className="text-[11px] text-white/30">{openLead.note}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Actions */}
-              {openLead.status === "yangi" && (
-                <div className="flex gap-2 pt-2">
-                  <button className="flex-1 h-[44px] rounded-[10px] bg-green-500/15 text-green-400 text-[13px] font-medium hover:bg-green-500/25 flex items-center justify-center gap-2">
-                    <Check className="w-4 h-4" /> Jarayonga olish
-                  </button>
-                  <button className="flex-1 h-[44px] rounded-[10px] bg-red-500/15 text-red-400 text-[13px] font-medium hover:bg-red-500/25 flex items-center justify-center gap-2">
-                    <XCircle className="w-4 h-4" /> Sifatsiz
-                  </button>
-                </div>
-              )}
-              {openLead.status === "jarayonda" && (
-                <div className="flex gap-2 pt-2">
-                  <button className="flex-1 h-[44px] rounded-[10px] bg-green-500/15 text-green-400 text-[13px] font-medium hover:bg-green-500/25 flex items-center justify-center gap-2">
-                    <Check className="w-4 h-4" /> Sotib oldi
-                  </button>
-                  <button className="flex-1 h-[44px] rounded-[10px] bg-red-500/15 text-red-400 text-[13px] font-medium hover:bg-red-500/25 flex items-center justify-center gap-2">
-                    <XCircle className="w-4 h-4" /> Sifatsiz
-                  </button>
-                </div>
-              )}
+function GroupedView({ items }: { items: Boost[] }) {
+  return (
+    <div className="space-y-5">
+      {(["A", "B"] as BoostClass[]).map(cls => {
+        const group = items.filter(b => b.boostClass === cls);
+        if (group.length === 0) return null;
+        const cfg = CLASS_CFG[cls];
+        return (
+          <div key={cls}>
+            <div className="rounded-[12px] p-3 mb-2 flex items-center gap-3" style={{ background: cfg.softBg, border: `1px solid ${cfg.color}33` }}>
+              <cfg.icon className="w-4 h-4" style={{ color: cfg.color }} />
+              <p className="text-[13px] font-bold">{cfg.label}</p>
+              <span className="text-[11px]" style={{ color: S.textMuted }}>· {group.length} ta</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {group.map(b => <RailCard key={b.id} boost={b} />)}
             </div>
           </div>
-        </div>
-      )}
+        );
+      })}
+    </div>
+  );
+}
+
+// ==================== HELPERS ====================
+
+function Header({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className="mb-6">
+      <h1 className="text-[24px] font-bold">{title}</h1>
+      {subtitle && <p className="text-[13px] mt-1" style={{ color: S.textMuted }}>{subtitle}</p>}
     </div>
   );
 }

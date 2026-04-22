@@ -1,216 +1,399 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, GripVertical, X, Save } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft, Save, AlertCircle, Monitor, Smartphone } from "lucide-react";
+import { useDashboardTheme } from "@/context/dashboard-theme-context";
+import { ImageUpload } from "@/components/image-upload";
+import { PriceScroll } from "@/components/price-scroll";
 
-const categoriyalar = ["IT & Dasturlash", "Dizayn", "Marketing", "Xorijiy tillar", "Biznes & Startap", "Akademik fanlar"];
-const formatlar = ["Onlayn", "Oflayn", "Gibrid", "Video"];
-const tillar = ["O'zbek", "Rus", "Ingliz"];
-const darajalar = ["Boshlang'ich", "O'rta", "Ilg'or"];
-const tolovTuri = ["Bir martalik", "Oylik"];
-
-const inputClass = "w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all";
-const selectClass = "w-full h-[44px] px-3 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[14px] text-white/70 focus:outline-none focus:border-[#7ea2d4]/40 transition-all appearance-none";
-const textareaClass = "w-full px-4 py-3 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all resize-none";
-const labelClass = "text-[12px] text-white/30 mb-1.5 block";
-
-// Mock data — haqiqiy DB dan keladi
-const mockListing = {
-  title: "JavaScript & React Full-stack",
-  category: "IT & Dasturlash",
-  format: "Oflayn",
-  price: "650,000",
-  priceFree: false,
-  duration: "6 oy",
-  description: "Noldan boshlab JavaScript, React, Node.js va boshqa zamonaviy texnologiyalarni o'rganing.",
-  location: "Toshkent, Chilonzor tumani",
-  schedule: "Du-Ju, 14:00-16:00",
-  language: "O'zbek",
-  level: "Boshlang'ich",
-  limit: 20,
-  paymentType: "Oylik",
-  teacher: "Najot Ta'lim",
-  experience: "5+ yillik tajriba, Meta sertifikati",
-  lessons: ["HTML/CSS asoslari", "JavaScript fundamentals", "React komponentlar", "Real loyiha"],
-  certificate: "ha",
-  demo: "ha",
-  discount: "",
+const FORMAT_TO_UI: Record<string, string> = { offline: "Oflayn", online: "Onlayn", video: "Video" };
+const UI_TO_FORMAT: Record<string, "offline" | "online" | "video"> = {
+  Oflayn: "offline",
+  Gibrid: "offline",
+  Onlayn: "online",
+  Video: "video",
 };
 
+const formatlar = ["Onlayn", "Oflayn", "Gibrid", "Video"];
+
+interface ApiListing {
+  id: number;
+  title: string;
+  description: string | null;
+  price: number;
+  format: "offline" | "online" | "video";
+  location: string | null;
+  duration: string | null;
+  color: string | null;
+  icon: string | null;
+  imageUrl: string | null;
+  imagePosX: number;
+  imagePosY: number;
+  imageAPosX: number;
+  imageAPosY: number;
+  imageAMPosX: number;
+  imageAMPosY: number;
+  imageCPosX: number;
+  imageCPosY: number;
+  imageCMPosX: number;
+  imageCMPosY: number;
+  imageZoom: number;
+  imageAZoom: number;
+  imageAMZoom: number;
+  imageCZoom: number;
+  imageCMZoom: number;
+  status: "pending" | "active" | "paused" | "rejected";
+  category: { id: number; name: string; slug: string };
+}
+
 export default function EditListingPage() {
-  const [isFree, setIsFree] = useState(mockListing.priceFree);
-  const [format, setFormat] = useState(mockListing.format);
-  const [lessons, setLessons] = useState<string[]>(mockListing.lessons);
+  const { config } = useDashboardTheme();
+  const params = useParams();
+  const router = useRouter();
+  const listingId = Number(params.id);
+
+  const inputStyle = { backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text };
+  const selectStyle = { backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.textMuted };
+  const labelStyle = { color: config.textDim };
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
+
+  const [title, setTitle] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [format, setFormat] = useState("");
+  const [isFree, setIsFree] = useState(false);
+  const [price, setPrice] = useState(50000);
+  const [duration, setDuration] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imagePosX, setImagePosX] = useState(50);
+  const [imagePosY, setImagePosY] = useState(50);
+  const [imageAPosX, setImageAPosX] = useState(50);
+  const [imageAPosY, setImageAPosY] = useState(50);
+  const [imageAMPosX, setImageAMPosX] = useState(50);
+  const [imageAMPosY, setImageAMPosY] = useState(50);
+  const [imageCPosX, setImageCPosX] = useState(50);
+  const [imageCPosY, setImageCPosY] = useState(50);
+  const [imageCMPosX, setImageCMPosX] = useState(50);
+  const [imageCMPosY, setImageCMPosY] = useState(50);
+  const [imageZoom, setImageZoom] = useState(100);
+  const [imageAZoom, setImageAZoom] = useState(100);
+  const [imageAMZoom, setImageAMZoom] = useState(100);
+  const [imageCZoom, setImageCZoom] = useState(100);
+  const [imageCMZoom, setImageCMZoom] = useState(100);
+  const [activeVariant, setActiveVariant] = useState<"a-desktop" | "a-mobile" | "b" | "c-desktop" | "c-mobile">("a-desktop");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/dashboard/listings/${listingId}`, { cache: "no-store" });
+        if (res.status === 404) { if (!cancelled) setNotFound(true); return; }
+        const data: { listing: ApiListing } = await res.json();
+        if (cancelled) return;
+        const l = data.listing;
+        setTitle(l.title);
+        setCategoryName(l.category.name);
+        setFormat(FORMAT_TO_UI[l.format] ?? "Onlayn");
+        setIsFree(l.price === 0);
+        setPrice(l.price === 0 ? 50000 : l.price);
+        setDuration(l.duration ?? "");
+        setDescription(l.description ?? "");
+        setLocation(l.location ?? "");
+        setImageUrl(l.imageUrl);
+        setImagePosX(l.imagePosX ?? 50);
+        setImagePosY(l.imagePosY ?? 50);
+        setImageAPosX(l.imageAPosX ?? 50);
+        setImageAPosY(l.imageAPosY ?? 50);
+        setImageAMPosX(l.imageAMPosX ?? 50);
+        setImageAMPosY(l.imageAMPosY ?? 50);
+        setImageCPosX(l.imageCPosX ?? 50);
+        setImageCPosY(l.imageCPosY ?? 50);
+        setImageCMPosX(l.imageCMPosX ?? 50);
+        setImageCMPosY(l.imageCMPosY ?? 50);
+        setImageZoom(l.imageZoom ?? 100);
+        setImageAZoom(l.imageAZoom ?? 100);
+        setImageAMZoom(l.imageAMZoom ?? 100);
+        setImageCZoom(l.imageCZoom ?? 100);
+        setImageCMZoom(l.imageCMZoom ?? 100);
+      } catch (e) { console.error(e); }
+      finally { if (!cancelled) setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, [listingId]);
 
   const showLocation = format === "Oflayn" || format === "Gibrid";
-  const showSchedule = format !== "Video" && format !== "";
 
-  const addLesson = () => setLessons([...lessons, ""]);
-  const removeLesson = (i: number) => setLessons(lessons.filter((_, idx) => idx !== i));
-  const updateLesson = (i: number, v: string) => setLessons(lessons.map((l, idx) => idx === i ? v : l));
+  const save = async () => {
+    setError(null);
+    if (!title.trim() || title.trim().length < 3) { setError("Kurs nomini kiriting"); return; }
+    if (!format) { setError("Formatni tanlang"); return; }
+    if (!isFree && price < 10000) { setError("Narx 10,000 so'mdan kam bo'lmasin"); return; }
+
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/dashboard/listings/${listingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          format: UI_TO_FORMAT[format],
+          price: isFree ? 0 : price,
+          duration,
+          description,
+          location: showLocation ? location : null,
+          imageUrl,
+          imagePosX,
+          imagePosY,
+          imageAPosX,
+          imageAPosY,
+          imageAMPosX,
+          imageAMPosY,
+          imageCPosX,
+          imageCPosY,
+          imageCMPosX,
+          imageCMPosY,
+          imageZoom,
+          imageAZoom,
+          imageAMZoom,
+          imageCZoom,
+          imageCMZoom,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data?.error ?? "Saqlashda xatolik");
+        setSaving(false);
+        return;
+      }
+      router.push("/dashboard/listings");
+      router.refresh();
+    } catch {
+      setError("Tarmoq xatosi, qayta urining");
+      setSaving(false);
+    }
+  };
+
+  const inputClass = "w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all";
+  const selectClass = "w-full h-[44px] px-3 rounded-[10px] text-[14px] focus:outline-none focus:border-[#7ea2d4]/40 transition-all appearance-none";
+  const textareaClass = "w-full px-4 py-3 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all resize-none";
+  const labelClass = "text-[12px] mb-1.5 block";
+
+  if (loading) {
+    return (
+      <div className="px-5 md:px-8 py-16 text-center">
+        <p className="text-[14px]" style={{ color: config.textMuted }}>Yuklanmoqda...</p>
+      </div>
+    );
+  }
+  if (notFound) {
+    return (
+      <div className="px-5 md:px-8 py-16 text-center">
+        <p className="text-[16px] mb-3" style={{ color: config.text }}>E&apos;lon topilmadi</p>
+        <Link href="/dashboard/listings" className="text-[13px] text-[#7ea2d4]">Orqaga qaytish</Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
+    <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
       <Link href="/dashboard/listings" className="inline-flex items-center gap-2 text-[13px] text-[#7ea2d4] font-medium mb-6">
         <ArrowLeft className="w-4 h-4" /> E&apos;lonlar
       </Link>
 
-      <h1 className="text-[22px] md:text-[26px] font-bold text-white mb-1">E&apos;lonni tahrirlash</h1>
-      <p className="text-[14px] text-white/40 mb-6">O&apos;zgarishlardan so&apos;ng saqlashni unutmang</p>
+      <h1 className="text-[22px] md:text-[26px] font-bold mb-1" style={{ color: config.text }}>E&apos;lonni tahrirlash</h1>
+      <p className="text-[14px] mb-6" style={{ color: config.textMuted }}>O&apos;zgarishlardan so&apos;ng saqlashni unutmang</p>
 
       <div className="space-y-5">
-        {/* ASOSIY */}
-        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
-          <h2 className="text-[15px] font-bold text-white">Asosiy ma&apos;lumotlar</h2>
+        <div className="rounded-[16px] p-4 sm:p-5 space-y-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+          <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Asosiy ma&apos;lumotlar</h2>
           <div>
-            <label className={labelClass}>Kurs nomi *</label>
-            <input defaultValue={mockListing.title} className={inputClass} />
+            <label className={labelClass} style={labelStyle}>Kurs nomi *</label>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} style={inputStyle} />
           </div>
           <div>
-            <label className={labelClass}>Kategoriya *</label>
-            <select defaultValue={mockListing.category} className={selectClass}>
-              <option value="">Tanlang</option>
-              {categoriyalar.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <label className={labelClass} style={labelStyle}>Kategoriya</label>
+            <input value={categoryName} disabled className={inputClass} style={{ ...inputStyle, opacity: 0.6, cursor: "not-allowed" }} />
+            <p className="text-[11px] mt-1" style={{ color: config.textDim }}>Kategoriyani o&apos;zgartirish uchun admin bilan bog&apos;laning</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Format *</label>
-              <select value={format} onChange={(e) => setFormat(e.target.value)} className={selectClass}>
+              <label className={labelClass} style={labelStyle}>Format *</label>
+              <select value={format} onChange={(e) => setFormat(e.target.value)} className={selectClass} style={selectStyle}>
                 <option value="">Tanlang</option>
                 {formatlar.map((f) => <option key={f} value={f}>{f}</option>)}
               </select>
             </div>
             <div>
-              <label className={labelClass}>Narx *</label>
+              <label className={labelClass} style={labelStyle}>Narx *</label>
               <div className="flex items-center gap-2 mb-2">
-                <button onClick={() => setIsFree(false)} className={`flex-1 h-[36px] rounded-[8px] text-[13px] font-medium transition-all ${!isFree ? "bg-white text-[#16181a]" : "bg-white/[0.06] text-white/30"}`}>Pullik</button>
-                <button onClick={() => setIsFree(true)} className={`flex-1 h-[36px] rounded-[8px] text-[13px] font-medium transition-all ${isFree ? "bg-white text-[#16181a]" : "bg-white/[0.06] text-white/30"}`}>Bepul</button>
+                <button onClick={() => setIsFree(false)} className="flex-1 h-[36px] rounded-[8px] text-[13px] font-medium transition-all" style={!isFree ? { backgroundColor: config.accent, color: config.accentText } : { backgroundColor: config.hover, color: config.textDim }}>Pullik</button>
+                <button onClick={() => setIsFree(true)} className="flex-1 h-[36px] rounded-[8px] text-[13px] font-medium transition-all" style={isFree ? { backgroundColor: config.accent, color: config.accentText } : { backgroundColor: config.hover, color: config.textDim }}>Bepul</button>
               </div>
-              {!isFree && <input defaultValue={mockListing.price} className={inputClass} />}
+              {!isFree && (
+                <PriceScroll
+                  value={price}
+                  onChange={setPrice}
+                  bg={config.hover}
+                  border={config.surfaceBorder}
+                  text={config.text}
+                  textMuted={config.textMuted}
+                  accent={config.accent}
+                />
+              )}
             </div>
           </div>
           <div>
-            <label className={labelClass}>Davomiylik *</label>
-            <input defaultValue={mockListing.duration} className={inputClass} />
+            <label className={labelClass} style={labelStyle}>Davomiylik</label>
+            <input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="6 oy" className={inputClass} style={inputStyle} />
           </div>
         </div>
 
-        {/* QO'SHIMCHA */}
-        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
-          <h2 className="text-[15px] font-bold text-white">Qo&apos;shimcha</h2>
+        <div className="rounded-[16px] p-4 sm:p-5 space-y-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+          <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Tavsif</h2>
           <div>
-            <label className={labelClass}>Kurs tavsifi</label>
-            <textarea defaultValue={mockListing.description} className={textareaClass} rows={4} />
+            <label className={labelClass} style={labelStyle}>Kurs tavsifi</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={textareaClass} style={inputStyle} rows={4} />
           </div>
           {showLocation && (
             <div>
-              <label className={labelClass}>Manzil *</label>
-              <input defaultValue={mockListing.location} className={inputClass} />
+              <label className={labelClass} style={labelStyle}>Manzil *</label>
+              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Toshkent, Chilonzor tumani" className={inputClass} style={inputStyle} />
             </div>
           )}
-          {showSchedule && (
-            <div>
-              <label className={labelClass}>Dars jadvali</label>
-              <input defaultValue={mockListing.schedule} className={inputClass} />
-            </div>
-          )}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>Til</label>
-              <select defaultValue={mockListing.language} className={selectClass}>
-                {tillar.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Daraja</label>
-              <select defaultValue={mockListing.level} className={selectClass}>
-                <option value="">Tanlang</option>
-                {darajalar.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>O&apos;quvchilar limiti</label>
-              <input type="number" defaultValue={mockListing.limit} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>To&apos;lov turi</label>
-              <select defaultValue={mockListing.paymentType} className={selectClass}>
-                {tolovTuri.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-          </div>
         </div>
 
-        {/* O'QITUVCHI */}
-        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
-          <h2 className="text-[15px] font-bold text-white">O&apos;qituvchi haqida</h2>
+        {/* KURS RASMI VA KO'RINISHI — pastda, saqlash dan oldin */}
+        <div className="rounded-[16px] p-4 sm:p-5 space-y-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
           <div>
-            <label className={labelClass}>Ism</label>
-            <input defaultValue={mockListing.teacher} className={inputClass} />
+            <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Kurs rasmi va ko&apos;rinishi</h2>
+            <p className="text-[12px] mt-1" style={{ color: config.textMuted }}>Rasm va uning Desktop / Mobil qurilmalarda ko&apos;rinishi</p>
           </div>
-          <div>
-            <label className={labelClass}>Tajriba</label>
-            <textarea defaultValue={mockListing.experience} className={textareaClass} rows={3} />
-          </div>
-        </div>
 
-        {/* OPSIYALAR */}
-        <div className="rounded-[16px] bg-white/[0.04] border border-white/[0.06] p-5 space-y-4">
-          <h2 className="text-[15px] font-bold text-white">Opsiyalar</h2>
-          <div>
-            <label className={labelClass}>Dars rejasi</label>
-            <div className="space-y-2">
-              {lessons.map((lesson, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 flex-1 h-[44px] px-3 rounded-[10px] bg-white/[0.06] border border-white/[0.08] focus-within:border-[#7ea2d4]/40 transition-all">
-                    <GripVertical className="w-4 h-4 text-white/20 shrink-0 cursor-grab" />
-                    <span className="text-[12px] text-white/30 font-medium shrink-0 min-w-[24px]">{i + 1}.</span>
-                    <input type="text" value={lesson} onChange={(e) => updateLesson(i, e.target.value)} placeholder="Mavzu nomi..." className="flex-1 bg-transparent text-[14px] text-white placeholder:text-white/20 focus:outline-none" />
+          <ImageUpload
+            value={imageUrl}
+            onChange={setImageUrl}
+            disabled={saving}
+            label=""
+            bg={config.hover}
+            border={config.surfaceBorder}
+            text={config.text}
+            textMuted={config.textMuted}
+          />
+
+          {imageUrl && (() => {
+            const variants = [
+              { id: "a-desktop" as const, label: "A-class · Desktop", shortLabel: "A · Desktop", aspect: "12/5",  maxW: 720, posX: imageAPosX, posY: imageAPosY, zoom: imageAZoom, setX: setImageAPosX, setY: setImageAPosY, setZoom: setImageAZoom },
+              { id: "a-mobile"  as const, label: "A-class · Mobile",  shortLabel: "A · Mobile",  aspect: "1/1",   maxW: 380, posX: imageAMPosX, posY: imageAMPosY, zoom: imageAMZoom, setX: setImageAMPosX, setY: setImageAMPosY, setZoom: setImageAMZoom },
+              { id: "b"         as const, label: "B-class · Slider",  shortLabel: "B · Slider",  aspect: "9/13",  maxW: 360, posX: imagePosX, posY: imagePosY, zoom: imageZoom, setX: setImagePosX, setY: setImagePosY, setZoom: setImageZoom },
+              { id: "c-desktop" as const, label: "C-class · Desktop", shortLabel: "C · Desktop", aspect: "4/3",   maxW: 480, posX: imageCPosX, posY: imageCPosY, zoom: imageCZoom, setX: setImageCPosX, setY: setImageCPosY, setZoom: setImageCZoom },
+              { id: "c-mobile"  as const, label: "C-class · Mobile",  shortLabel: "C · Mobile",  aspect: "9/13",  maxW: 360, posX: imageCMPosX, posY: imageCMPosY, zoom: imageCMZoom, setX: setImageCMPosX, setY: setImageCMPosY, setZoom: setImageCMZoom },
+            ];
+            const active = variants.find(v => v.id === activeVariant) ?? variants[0];
+            return (
+              <>
+                <div className="h-px" style={{ backgroundColor: config.surfaceBorder }} />
+                <div className="space-y-3">
+                  <div>
+                    <label className={labelClass} style={labelStyle}>Ko&apos;rinish tanlash</label>
+                    <p className="text-[11px]" style={{ color: config.textDim }}>Tanlangan ko&apos;rinish uchun rasmni sozlang</p>
                   </div>
-                  {lessons.length > 1 && (
-                    <button type="button" onClick={() => removeLesson(i)} className="w-[44px] h-[44px] rounded-[10px] bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white/30 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-all shrink-0">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
+                  <div className="flex flex-wrap gap-1.5">
+                    {variants.map(v => {
+                      const isActive = activeVariant === v.id;
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setActiveVariant(v.id)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-all"
+                          style={{
+                            backgroundColor: isActive ? config.accent : config.hover,
+                            color: isActive ? config.accentText : config.textMuted,
+                            border: `1px solid ${isActive ? config.accent : config.surfaceBorder}`,
+                          }}
+                        >
+                          {v.id.includes("mobile") ? <Smartphone className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}
+                          {v.shortLabel}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="pt-2 flex justify-center">
+                    <div className="w-full" style={{ maxWidth: active.maxW }}>
+                      <div
+                        className="relative overflow-hidden rounded-[14px] w-full"
+                        style={{
+                          aspectRatio: active.aspect,
+                          backgroundColor: config.hover,
+                          border: `1px solid ${config.surfaceBorder}`,
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={imageUrl} alt={active.label} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `${active.posX}% ${active.posY}%`, transform: `scale(${active.zoom / 100})`, transformOrigin: `${active.posX}% ${active.posY}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-[12px] p-4 space-y-3" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}` }}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[12px] font-semibold" style={{ color: config.text }}>{active.label}</span>
+                      <button type="button" onClick={() => { active.setX(50); active.setY(50); active.setZoom(100); }} className="text-[11px] font-medium hover:underline" style={{ color: config.textMuted }}>
+                        Tiklash
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[11px]" style={labelStyle}>Gorizontal</label>
+                          <span className="text-[11px]" style={{ color: config.textDim }}>{active.posX}%</span>
+                        </div>
+                        <input type="range" min={0} max={100} value={active.posX} onChange={(e) => active.setX(Number(e.target.value))} className="w-full accent-[#7ea2d4]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[11px]" style={labelStyle}>Vertikal</label>
+                          <span className="text-[11px]" style={{ color: config.textDim }}>{active.posY}%</span>
+                        </div>
+                        <input type="range" min={0} max={100} value={active.posY} onChange={(e) => active.setY(Number(e.target.value))} className="w-full accent-[#7ea2d4]" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px]" style={labelStyle}>Zoom</label>
+                        <span className="text-[11px]" style={{ color: config.textDim }}>{(active.zoom / 100).toFixed(2)}x</span>
+                      </div>
+                      <input type="range" min={100} max={300} step={5} value={active.zoom} onChange={(e) => active.setZoom(Number(e.target.value))} className="w-full accent-[#7ea2d4]" />
+                    </div>
+                  </div>
                 </div>
-              ))}
-              <button type="button" onClick={addLesson} className="w-full h-[40px] rounded-[10px] border border-dashed border-white/[0.12] text-white/40 text-[13px] font-medium hover:border-[#7ea2d4]/40 hover:text-[#7ea2d4] hover:bg-[#7ea2d4]/5 transition-all flex items-center justify-center gap-2">
-                <Plus className="w-4 h-4" /> Mavzu qo&apos;shish
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelClass}>Sertifikat</label>
-              <select defaultValue={mockListing.certificate} className={selectClass}>
-                <option value="yoq">Yo&apos;q</option>
-                <option value="ha">Ha, beriladi</option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Demo dars</label>
-              <select defaultValue={mockListing.demo} className={selectClass}>
-                <option value="yoq">Yo&apos;q</option>
-                <option value="ha">Ha, bor</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className={labelClass}>Chegirma / aksiya</label>
-            <input defaultValue={mockListing.discount} placeholder="Birinchi oy 50% chegirma" className={inputClass} />
-          </div>
+              </>
+            );
+          })()}
         </div>
 
-        {/* Submit */}
+        {error && (
+          <div className="flex items-start gap-2 p-3 rounded-[10px]" style={{ backgroundColor: "#ef444414", border: "1px solid #ef444433", color: "#ef4444" }}>
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <p className="text-[13px]">{error}</p>
+          </div>
+        )}
+
         <div className="flex gap-3">
-          <button className="flex-1 h-[50px] rounded-[12px] bg-white text-[#16181a] text-[15px] font-medium hover:bg-[#6b91c3] transition-colors flex items-center justify-center gap-2">
-            <Save className="w-4 h-4" /> Saqlash
+          <button
+            onClick={save}
+            disabled={saving}
+            className="flex-1 h-[50px] rounded-[12px] text-[15px] font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: config.accent, color: config.accentText }}
+          >
+            <Save className="w-4 h-4" /> {saving ? "Saqlanmoqda..." : "Saqlash"}
           </button>
-          <Link href="/dashboard/listings" className="h-[50px] px-5 rounded-[12px] bg-white/[0.06] text-white/60 text-[15px] font-medium hover:bg-white/[0.1] transition-colors flex items-center justify-center">
+          <Link href="/dashboard/listings" className="h-[50px] px-5 rounded-[12px] text-[15px] font-medium flex items-center justify-center" style={{ backgroundColor: config.hover, color: config.textMuted }}>
             Bekor
           </Link>
         </div>

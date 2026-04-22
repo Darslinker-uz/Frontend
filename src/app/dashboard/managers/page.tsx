@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, MoreHorizontal, Pencil, Trash2, Shield, Eye, FileText, Users, Wallet, Zap, BarChart3, Check, X, Send, Crown, User, AlertCircle } from "lucide-react";
+import { useDashboardTheme } from "@/context/dashboard-theme-context";
 
 type Permission = "view_leads" | "manage_leads" | "view_listings" | "create_listings" | "edit_listings" | "boost" | "view_balance" | "topup" | "view_stats" | "manage_managers";
 
@@ -81,6 +82,7 @@ function UserCog(props: any) {
 }
 
 export default function ManagersPage() {
+  const { config } = useDashboardTheme();
   const [managers, setManagers] = useState<Manager[]>(initialManagers);
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
   const [editor, setEditor] = useState<{ mode: "add" | "edit"; manager?: Manager } | null>(null);
@@ -93,26 +95,26 @@ export default function ManagersPage() {
   };
 
   return (
-    <div className="px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
+    <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[22px] md:text-[26px] font-bold text-white">Menejerlar</h1>
-          <p className="text-[14px] text-white/40 mt-0.5">Jamoaga menejer qo&apos;shing va huquqlarini belgilang</p>
+          <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>Menejerlar</h1>
+          <p className="text-[14px] mt-0.5" style={{ color: config.textMuted }}>Jamoaga menejer qo&apos;shing va huquqlarini belgilang</p>
         </div>
-        <button onClick={() => setEditor({ mode: "add" })} className="h-[40px] px-4 rounded-[10px] bg-white text-[#16181a] text-[13px] font-medium flex items-center gap-2 hover:bg-white/90">
+        <button onClick={() => setEditor({ mode: "add" })} className="h-[40px] px-4 rounded-[10px] text-[13px] font-medium flex items-center gap-2 hover:opacity-90" style={{ backgroundColor: config.accent, color: config.accentText }}>
           <Plus className="w-4 h-4" /> Menejer qo&apos;shish
         </button>
       </div>
 
       {/* Info card */}
-      <div className="rounded-[14px] bg-white/[0.04] border border-white/[0.06] p-4 mb-5 flex items-start gap-3">
-        <div className="w-9 h-9 rounded-[10px] bg-white/[0.06] flex items-center justify-center shrink-0">
-          <AlertCircle className="w-4 h-4 text-white/50" />
+      <div className="rounded-[14px] p-4 mb-5 flex items-start gap-3" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+        <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ backgroundColor: config.hover }}>
+          <AlertCircle className="w-4 h-4" style={{ color: config.textMuted }} />
         </div>
         <div>
-          <p className="text-[13px] font-medium text-white">Menejer qanday ishlaydi?</p>
-          <p className="text-[12px] text-white/40 mt-0.5">Siz menejerga taklif yuborasiz. U Telegram bot orqali kirib, belgilangan huquqlar bilan dashboard ga ulanadi.</p>
+          <p className="text-[13px] font-medium" style={{ color: config.text }}>Menejer qanday ishlaydi?</p>
+          <p className="text-[12px] mt-0.5" style={{ color: config.textMuted }}>Siz menejerga taklif yuborasiz. U Telegram bot orqali kirib, belgilangan huquqlar bilan dashboard ga ulanadi.</p>
         </div>
       </div>
 
@@ -121,14 +123,14 @@ export default function ManagersPage() {
         {managers.map((m) => {
           const role = ROLE_PRESETS[m.role];
           return (
-            <div key={m.id} className="rounded-[14px] bg-white/[0.04] border border-white/[0.06] p-4 md:p-5">
+            <div key={m.id} className="rounded-[14px] p-4 md:p-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
               <div className="flex items-start gap-3">
                 <div className="w-11 h-11 rounded-[12px] flex items-center justify-center text-[14px] font-bold text-white shrink-0" style={{ backgroundColor: avatarColor(m.name) }}>
                   {initials(m.name)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <p className="text-[15px] font-semibold text-white">{m.name}</p>
+                    <p className="text-[15px] font-semibold" style={{ color: config.text }}>{m.name}</p>
                     <span className="h-[20px] px-2 rounded-full text-[10px] font-bold flex items-center gap-1" style={{ backgroundColor: `${role.color}20`, color: role.color }}>
                       {m.role === "admin" && <Crown className="w-2.5 h-2.5" />}
                       {role.label}
@@ -137,31 +139,31 @@ export default function ManagersPage() {
                       <span className="h-[20px] px-2 rounded-full text-[10px] font-medium bg-amber-500/20 text-amber-400">Taklif kutilmoqda</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-[12px] text-white/40 mb-2">
+                  <div className="flex items-center gap-3 text-[12px] mb-2" style={{ color: config.textMuted }}>
                     <span>{m.phone}</span>
                     {m.telegram && <span>{m.telegram}</span>}
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] text-white/30">{m.permissions.length} ta huquq:</span>
+                    <span className="text-[11px]" style={{ color: config.textDim }}>{m.permissions.length} ta huquq:</span>
                     {m.permissions.slice(0, 3).map((p) => {
                       const perm = PERMISSIONS.find(x => x.key === p);
-                      return perm ? <span key={p} className="text-[11px] text-white/50 px-2 py-0.5 rounded-full bg-white/[0.06]">{perm.label}</span> : null;
+                      return perm ? <span key={p} className="text-[11px] px-2 py-0.5 rounded-full" style={{ color: config.textMuted, backgroundColor: config.hover }}>{perm.label}</span> : null;
                     })}
-                    {m.permissions.length > 3 && <span className="text-[11px] text-white/30">+{m.permissions.length - 3}</span>}
+                    {m.permissions.length > 3 && <span className="text-[11px]" style={{ color: config.textDim }}>+{m.permissions.length - 3}</span>}
                   </div>
                 </div>
                 <div className="relative">
-                  <button onClick={() => setMenuOpen(menuOpen === m.id ? null : m.id)} className="w-9 h-9 rounded-[10px] bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-white/70">
+                  <button onClick={() => setMenuOpen(menuOpen === m.id ? null : m.id)} className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: config.surface, color: config.textMuted }}>
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                   {menuOpen === m.id && (
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                      <div className="absolute right-0 top-10 z-50 w-[200px] rounded-[10px] bg-[#1e2024] border border-white/[0.08] shadow-xl py-1">
-                        <button onClick={() => { setEditor({ mode: "edit", manager: m }); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06]">
+                      <div className="absolute right-0 top-10 z-50 w-[200px] rounded-[10px] shadow-xl py-1" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+                        <button onClick={() => { setEditor({ mode: "edit", manager: m }); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: config.textMuted }}>
                           <Pencil className="w-3.5 h-3.5" /> Tahrirlash
                         </button>
-                        <div className="border-t border-white/[0.06] my-1" />
+                        <div className="my-1" style={{ borderTop: `1px solid ${config.surfaceBorder}` }} />
                         <button onClick={() => { setConfirmDelete(m); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-red-400/80 hover:text-red-400 hover:bg-red-500/[0.06]">
                           <Trash2 className="w-3.5 h-3.5" /> Olib tashlash
                         </button>
@@ -175,8 +177,8 @@ export default function ManagersPage() {
         })}
 
         {managers.length === 0 && (
-          <div className="rounded-[14px] border border-dashed border-white/[0.08] p-12 text-center">
-            <p className="text-[14px] text-white/40">Hali menejer qo&apos;shilmagan</p>
+          <div className="rounded-[14px] border border-dashed p-12 text-center" style={{ borderColor: config.surfaceBorder }}>
+            <p className="text-[14px]" style={{ color: config.textMuted }}>Hali menejer qo&apos;shilmagan</p>
           </div>
         )}
       </div>
@@ -195,18 +197,18 @@ export default function ManagersPage() {
       {confirmDelete && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
-          <div className="relative bg-[#16181a] rounded-[18px] border border-white/[0.08] p-6 max-w-[420px] w-full">
+          <div className="relative rounded-[18px] p-6 max-w-[420px] w-full" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
             <div className="flex items-start gap-3 mb-4">
               <div className="w-11 h-11 rounded-[12px] bg-red-500/15 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <h3 className="text-[17px] font-bold text-white">Menejerni olib tashlash</h3>
-                <p className="text-[13px] text-white/50 mt-1"><span className="text-white font-medium">{confirmDelete.name}</span> dashboard ga kirish huquqidan mahrum bo&apos;ladi. Bu amaliyotni qaytarish mumkin.</p>
+                <h3 className="text-[17px] font-bold" style={{ color: config.text }}>Menejerni olib tashlash</h3>
+                <p className="text-[13px] mt-1" style={{ color: config.textMuted }}><span className="font-medium" style={{ color: config.text }}>{confirmDelete.name}</span> dashboard ga kirish huquqidan mahrum bo&apos;ladi. Bu amaliyotni qaytarish mumkin.</p>
               </div>
             </div>
             <div className="flex gap-2 mt-5">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 h-[44px] rounded-[10px] bg-white/[0.06] text-white/60 text-[14px] font-medium hover:bg-white/[0.1]">Bekor</button>
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium" style={{ backgroundColor: config.hover, color: config.textMuted }}>Bekor</button>
               <button onClick={removeManager} className="flex-1 h-[44px] rounded-[10px] bg-red-500 text-white text-[14px] font-medium hover:bg-red-500/90">Ha, olib tashlash</button>
             </div>
           </div>
@@ -223,6 +225,7 @@ function ManagerEditor({ editor, onClose, onSave }: {
   onClose: () => void;
   onSave: (m: Omit<Manager, "id" | "addedAt" | "status">) => void;
 }) {
+  const { config } = useDashboardTheme();
   const m = editor.manager;
   const [name, setName] = useState(m?.name || "");
   const [phone, setPhone] = useState(m?.phone || "");
@@ -254,41 +257,41 @@ function ManagerEditor({ editor, onClose, onSave }: {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#16181a] rounded-[20px] border border-white/[0.08] w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <div className="relative rounded-[20px] w-full max-w-[600px] max-h-[90vh] overflow-y-auto" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
         {/* Header */}
-        <div className="sticky top-0 bg-[#16181a] border-b border-white/[0.06] px-6 pt-5 pb-4 flex items-center justify-between">
+        <div className="sticky top-0 px-6 pt-5 pb-4 flex items-center justify-between" style={{ backgroundColor: config.sidebar, borderBottom: `1px solid ${config.surfaceBorder}` }}>
           <div>
-            <h2 className="text-[18px] font-bold text-white">{editor.mode === "add" ? "Yangi menejer" : "Menejerni tahrirlash"}</h2>
-            <p className="text-[12px] text-white/40 mt-0.5">Ma&apos;lumotlar va huquqlarni belgilang</p>
+            <h2 className="text-[18px] font-bold" style={{ color: config.text }}>{editor.mode === "add" ? "Yangi menejer" : "Menejerni tahrirlash"}</h2>
+            <p className="text-[12px] mt-0.5" style={{ color: config.textMuted }}>Ma&apos;lumotlar va huquqlarni belgilang</p>
           </div>
-          <button onClick={onClose} className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.1] flex items-center justify-center">
-            <X className="w-4 h-4 text-white/50" />
+          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: config.hover }}>
+            <X className="w-4 h-4" style={{ color: config.textMuted }} />
           </button>
         </div>
 
         <div className="p-6 space-y-5">
           {/* Asosiy */}
           <div>
-            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-3">Shaxsiy ma&apos;lumotlar</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: config.textDim }}>Shaxsiy ma&apos;lumotlar</p>
             <div className="space-y-3">
               <div>
-                <label className="text-[12px] text-white/40 mb-1.5 block">Ism familiya *</label>
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ism familiya" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/30" />
+                <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Ism familiya *</label>
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ism familiya" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
               </div>
               <div>
-                <label className="text-[12px] text-white/40 mb-1.5 block">Telefon *</label>
-                <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/30" />
+                <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Telefon *</label>
+                <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
               </div>
               <div>
-                <label className="text-[12px] text-white/40 mb-1.5 block">Telegram <span className="text-white/20">(ixtiyoriy)</span></label>
-                <input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@username" className="w-full h-[44px] px-4 rounded-[10px] bg-white/[0.06] border border-white/[0.08] text-[15px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/30" />
+                <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Telegram <span style={{ color: config.textDim }}>(ixtiyoriy)</span></label>
+                <input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@username" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
               </div>
             </div>
           </div>
 
           {/* Rol presetlar */}
           <div>
-            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-3">Rol (tez tanlash)</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: config.textDim }}>Rol (tez tanlash)</p>
             <div className="grid grid-cols-2 gap-2">
               {(Object.keys(ROLE_PRESETS) as Role[]).map((r) => {
                 const preset = ROLE_PRESETS[r];
@@ -297,15 +300,18 @@ function ManagerEditor({ editor, onClose, onSave }: {
                   <button
                     key={r}
                     onClick={() => selectRole(r)}
-                    className={`text-left p-3 rounded-[12px] border-2 transition-all ${isActive ? "bg-white/[0.08]" : "bg-white/[0.04] border-white/[0.06] hover:bg-white/[0.06]"}`}
-                    style={isActive ? { borderColor: preset.color } : {}}
+                    className="text-left p-3 rounded-[12px] border-2 transition-all"
+                    style={{
+                      backgroundColor: isActive ? config.hover : config.surface,
+                      borderColor: isActive ? preset.color : config.surfaceBorder,
+                    }}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: preset.color }} />
-                      <span className="text-[13px] font-semibold text-white">{preset.label}</span>
+                      <span className="text-[13px] font-semibold" style={{ color: config.text }}>{preset.label}</span>
                       {isActive && <Check className="w-3.5 h-3.5 ml-auto" style={{ color: preset.color }} />}
                     </div>
-                    <p className="text-[11px] text-white/40">{preset.desc}</p>
+                    <p className="text-[11px]" style={{ color: config.textMuted }}>{preset.desc}</p>
                   </button>
                 );
               })}
@@ -314,28 +320,32 @@ function ManagerEditor({ editor, onClose, onSave }: {
 
           {/* Huquqlar */}
           <div>
-            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-wider mb-3">Huquqlar ({permissions.length})</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: config.textDim }}>Huquqlar ({permissions.length})</p>
             <div className="space-y-4">
               {Object.entries(groups).map(([groupName, perms]) => (
-                <div key={groupName} className="rounded-[12px] bg-white/[0.04] border border-white/[0.06] p-3">
-                  <p className="text-[12px] font-semibold text-white/60 mb-2 px-1">{groupName}</p>
+                <div key={groupName} className="rounded-[12px] p-3" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+                  <p className="text-[12px] font-semibold mb-2 px-1" style={{ color: config.textMuted }}>{groupName}</p>
                   <div className="space-y-1">
                     {perms.map((p) => {
                       const checked = permissions.includes(p.key);
                       const Icon = p.icon;
                       return (
-                        <label key={p.key} className="flex items-center gap-3 py-2 px-2 rounded-[8px] hover:bg-white/[0.04] cursor-pointer">
+                        <label key={p.key} className="flex items-center gap-3 py-2 px-2 rounded-[8px] cursor-pointer" style={{ backgroundColor: "transparent" }}>
                           <button
                             type="button"
                             onClick={() => togglePerm(p.key)}
-                            className={`w-[18px] h-[18px] rounded border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-white border-white" : "border-white/20"}`}
+                            className="w-[18px] h-[18px] rounded border-2 flex items-center justify-center shrink-0 transition-all"
+                            style={{
+                              backgroundColor: checked ? config.accent : "transparent",
+                              borderColor: checked ? config.accent : config.surfaceBorder,
+                            }}
                           >
-                            {checked && <Check className="w-3 h-3 text-[#16181a]" />}
+                            {checked && <Check className="w-3 h-3" style={{ color: config.accentText }} />}
                           </button>
-                          <Icon className="w-4 h-4 text-white/40 shrink-0" />
+                          <Icon className="w-4 h-4 shrink-0" style={{ color: config.textMuted }} />
                           <div className="flex-1">
-                            <p className="text-[13px] text-white">{p.label}</p>
-                            <p className="text-[11px] text-white/30">{p.desc}</p>
+                            <p className="text-[13px]" style={{ color: config.text }}>{p.label}</p>
+                            <p className="text-[11px]" style={{ color: config.textDim }}>{p.desc}</p>
                           </div>
                         </label>
                       );
@@ -348,12 +358,13 @@ function ManagerEditor({ editor, onClose, onSave }: {
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-[#16181a] border-t border-white/[0.06] p-6 flex gap-2">
-          <button onClick={onClose} className="flex-1 h-[46px] rounded-[10px] bg-white/[0.06] text-white/60 text-[14px] font-medium hover:bg-white/[0.1]">Bekor</button>
+        <div className="sticky bottom-0 p-6 flex gap-2" style={{ backgroundColor: config.sidebar, borderTop: `1px solid ${config.surfaceBorder}` }}>
+          <button onClick={onClose} className="flex-1 h-[46px] rounded-[10px] text-[14px] font-medium" style={{ backgroundColor: config.hover, color: config.textMuted }}>Bekor</button>
           <button
             disabled={!canSave}
             onClick={() => canSave && onSave({ name, phone, telegram: telegram || undefined, role, permissions })}
-            className={`flex-1 h-[46px] rounded-[10px] text-[14px] font-medium flex items-center justify-center gap-2 ${canSave ? "bg-white text-[#16181a] hover:bg-white/90" : "bg-white/[0.06] text-white/30 cursor-not-allowed"}`}
+            className="flex-1 h-[46px] rounded-[10px] text-[14px] font-medium flex items-center justify-center gap-2"
+            style={canSave ? { backgroundColor: config.accent, color: config.accentText } : { backgroundColor: config.hover, color: config.textDim, cursor: "not-allowed" }}
           >
             {editor.mode === "add" ? <><Send className="w-4 h-4" /> Taklif yuborish</> : "Saqlash"}
           </button>

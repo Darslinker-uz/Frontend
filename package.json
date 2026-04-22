@@ -4,12 +4,27 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed-prod": "tsx prisma/seed-prod.ts",
+    "db:studio": "prisma studio",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset",
+    "bot": "tsx scripts/bot-poll.ts",
+    "webhook:set": "tsx scripts/setup-webhook.ts",
+    "webhook:info": "tsx scripts/setup-webhook.ts info",
+    "webhook:delete": "tsx scripts/setup-webhook.ts delete"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
+    "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -17,6 +32,7 @@
     "lucide-react": "^1.8.0",
     "next": "16.2.3",
     "next-auth": "^5.0.0-beta.30",
+    "pg": "^8.20.0",
     "prisma": "^7.7.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -27,11 +43,13 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

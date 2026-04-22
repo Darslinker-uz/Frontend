@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "listings" ADD COLUMN     "image_am_pos_x" INTEGER NOT NULL DEFAULT 50,
+ADD COLUMN     "image_am_pos_y" INTEGER NOT NULL DEFAULT 50,
+ADD COLUMN     "image_c_pos_x" INTEGER NOT NULL DEFAULT 50,
+ADD COLUMN     "image_c_pos_y" INTEGER NOT NULL DEFAULT 50,
+ADD COLUMN     "image_cm_pos_x" INTEGER NOT NULL DEFAULT 50,
+ADD COLUMN     "image_cm_pos_y" INTEGER NOT NULL DEFAULT 50;

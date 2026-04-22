@@ -1,8 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, MoreHorizontal, Edit, Trash2, Eye, EyeOff, Star, Users, Zap, Pause, Play, AlertCircle } from "lucide-react";
+import { useDashboardTheme } from "@/context/dashboard-theme-context";
+
+type DbStatus = "pending" | "active" | "paused" | "rejected";
+
+interface ApiListing {
+  id: number;
+  title: string;
+  format: "offline" | "online" | "video";
+  price: number;
+  views: number;
+  status: DbStatus;
+  createdAt: string;
+  category: { id: number; name: string; slug: string; color: string | null };
+  _count: { leads: number; boosts: number };
+}
 
 interface Listing {
   id: number;
@@ -18,12 +33,34 @@ interface Listing {
   createdAt: string;
 }
 
-const initialListings: Listing[] = [
-  { id: 1, title: "JavaScript & React Full-stack", category: "IT & Dasturlash", format: "Oflayn", price: "650,000", priceFree: false, status: "aktiv", boost: "A", views: 1240, leads: 18, createdAt: "2026-03-15" },
-  { id: 2, title: "UI/UX dizayn Figma masterclass", category: "Dizayn", format: "Onlayn", price: "Bepul", priceFree: true, status: "aktiv", boost: "B", views: 890, leads: 12, createdAt: "2026-03-20" },
-  { id: 3, title: "IELTS Intensive 7.0+", category: "Xorijiy tillar", format: "Oflayn", price: "600,000", priceFree: false, status: "pauza", boost: null, views: 450, leads: 5, createdAt: "2026-04-01" },
-  { id: 4, title: "Python Backend Development", category: "IT & Dasturlash", format: "Oflayn", price: "750,000", priceFree: false, status: "moderatsiyada", boost: null, views: 0, leads: 0, createdAt: "2026-04-15" },
-];
+const STATUS_MAP: Record<DbStatus, Listing["status"]> = {
+  active: "aktiv",
+  paused: "pauza",
+  rejected: "rad_etilgan",
+  pending: "moderatsiyada",
+};
+
+const FORMAT_MAP: Record<ApiListing["format"], string> = {
+  offline: "Oflayn",
+  online: "Onlayn",
+  video: "Video",
+};
+
+function fromApi(l: ApiListing): Listing {
+  return {
+    id: l.id,
+    title: l.title,
+    category: l.category?.name ?? "—",
+    format: FORMAT_MAP[l.format],
+    price: l.price === 0 ? "Bepul" : new Intl.NumberFormat("uz-UZ").format(l.price),
+    priceFree: l.price === 0,
+    status: STATUS_MAP[l.status],
+    boost: l._count.boosts > 0 ? "A" : null,
+    views: l.views,
+    leads: l._count.leads,
+    createdAt: l.createdAt.slice(0, 10),
+  };
+}
 
 const statusConfig = {
   aktiv: { label: "Aktiv", color: "#22c55e", icon: Eye },
@@ -33,11 +70,26 @@ const statusConfig = {
 };
 
 export default function ListingsPage() {
-  const [listings, setListings] = useState<Listing[]>(initialListings);
+  const { config } = useDashboardTheme();
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
   const [filter, setFilter] = useState<"hammasi" | Listing["status"]>("hammasi");
   const [confirmDelete, setConfirmDelete] = useState<Listing | null>(null);
   const [confirmPause, setConfirmPause] = useState<Listing | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/dashboard/listings", { cache: "no-store" });
+        const data: { listings: ApiListing[] } = await res.json();
+        if (!cancelled) setListings((data.listings ?? []).map(fromApi));
+      } catch (e) { console.error(e); }
+      finally { if (!cancelled) setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const filtered = filter === "hammasi" ? listings : listings.filter(l => l.status === filter);
 
@@ -51,16 +103,39 @@ export default function ListingsPage() {
     setMenuOpen(null);
   };
 
-  const togglePause = () => {
+  const togglePause = async () => {
     if (!confirmPause) return;
-    setListings(prev => prev.map(l => l.id === confirmPause.id ? { ...l, status: l.status === "aktiv" ? "pauza" : "aktiv" } : l));
+    const target = confirmPause;
+    const nextStatus: Listing["status"] = target.status === "aktiv" ? "pauza" : "aktiv";
+    const apiStatus = nextStatus === "aktiv" ? "active" : "paused";
+    setListings(prev => prev.map(l => l.id === target.id ? { ...l, status: nextStatus } : l));
     setConfirmPause(null);
+    try {
+      const res = await fetch(`/api/dashboard/listings/${target.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: apiStatus }),
+      });
+      if (!res.ok) {
+        setListings(prev => prev.map(l => l.id === target.id ? { ...l, status: target.status } : l));
+      }
+    } catch {
+      setListings(prev => prev.map(l => l.id === target.id ? { ...l, status: target.status } : l));
+    }
   };
 
-  const deleteListing = () => {
+  const deleteListing = async () => {
     if (!confirmDelete) return;
-    setListings(prev => prev.filter(l => l.id !== confirmDelete.id));
+    const id = confirmDelete.id;
+    const prevList = listings;
+    setListings(prev => prev.filter(l => l.id !== id));
     setConfirmDelete(null);
+    try {
+      const res = await fetch(`/api/dashboard/listings/${id}`, { method: "DELETE" });
+      if (!res.ok) setListings(prevList);
+    } catch {
+      setListings(prevList);
+    }
   };
 
   const counts = {
@@ -71,17 +146,17 @@ export default function ListingsPage() {
   };
 
   return (
-    <div className="px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
+    <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[22px] md:text-[26px] font-bold text-white">E&apos;lonlar</h1>
-          <p className="text-[14px] text-white/40 mt-0.5">Barcha e&apos;lonlaringizni boshqaring</p>
+          <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>E&apos;lonlar</h1>
+          <p className="text-[14px] mt-0.5" style={{ color: config.textMuted }}>Barcha e&apos;lonlaringizni boshqaring</p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard/listings/new" className="h-[40px] px-4 rounded-[10px] bg-white text-[#16181a] text-[13px] font-medium flex items-center gap-2 hover:bg-white/90 transition-colors">
+          <Link href="/dashboard/listings/new" className="h-[40px] px-4 rounded-[10px] text-[13px] font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: config.accent, color: config.accentText }}>
             <Plus className="w-4 h-4" /> Yangi e&apos;lon
           </Link>
-          <Link href="/dashboard/boost" className="h-[40px] px-4 rounded-[10px] bg-white/[0.08] border border-white/[0.12] text-white text-[13px] font-medium flex items-center gap-2 hover:bg-white/[0.12] transition-colors">
+          <Link href="/dashboard/boost" className="h-[40px] px-4 rounded-[10px] text-[13px] font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}>
             <Zap className="w-4 h-4" /> Boost
           </Link>
         </div>
@@ -95,9 +170,9 @@ export default function ListingsPage() {
           { key: "pauza" as const, label: "Pauza", count: counts.pauza },
           { key: "moderatsiyada" as const, label: "Tekshiruvda", count: counts.moderatsiyada },
         ].map((tab) => (
-          <button key={tab.key} onClick={() => setFilter(tab.key)} className={`shrink-0 h-[36px] px-4 rounded-full text-[13px] font-medium transition-all flex items-center gap-2 ${filter === tab.key ? "bg-white text-[#16181a]" : "bg-white/[0.06] text-white/50 hover:text-white/80"}`}>
+          <button key={tab.key} onClick={() => setFilter(tab.key)} className="shrink-0 h-[36px] px-4 rounded-full text-[13px] font-medium transition-all flex items-center gap-2" style={filter === tab.key ? { backgroundColor: config.accent, color: config.accentText } : { backgroundColor: config.hover, color: config.textMuted }}>
             {tab.label}
-            <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${filter === tab.key ? "bg-[#16181a]/10 text-[#16181a]" : "bg-white/[0.06]"}`}>{tab.count}</span>
+            <span className="text-[11px] px-1.5 py-0.5 rounded-full" style={filter === tab.key ? { backgroundColor: `${config.accentText}1a`, color: config.accentText } : { backgroundColor: config.hover }}>{tab.count}</span>
           </button>
         ))}
       </div>
@@ -108,7 +183,7 @@ export default function ListingsPage() {
           {filtered.map((listing) => {
             const StatusIcon = statusConfig[listing.status].icon;
             return (
-              <div key={listing.id} className="rounded-[14px] bg-white/[0.04] border border-white/[0.06] p-4 md:p-5">
+              <div key={listing.id} className="rounded-[14px] p-4 md:p-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -120,10 +195,10 @@ export default function ListingsPage() {
                           <Zap className="w-3 h-3 fill-white" /> {listing.boost}-class
                         </span>
                       )}
-                      <span className="text-[11px] text-white/25">{listing.category}</span>
+                      <span className="text-[11px]" style={{ color: config.textDim }}>{listing.category}</span>
                     </div>
-                    <h3 className="text-[15px] md:text-[16px] font-semibold text-white leading-tight">{listing.title}</h3>
-                    <div className="flex items-center gap-4 mt-3 text-[12px] text-white/40">
+                    <h3 className="text-[15px] md:text-[16px] font-semibold leading-tight" style={{ color: config.text }}>{listing.title}</h3>
+                    <div className="flex items-center gap-4 mt-3 text-[12px]" style={{ color: config.textMuted }}>
                       <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {listing.views}</span>
                       <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {listing.leads} ariza</span>
                       <span>{listing.priceFree ? "Bepul" : `${listing.price} so'm`}</span>
@@ -131,25 +206,25 @@ export default function ListingsPage() {
                     </div>
                   </div>
                   <div className="relative">
-                    <button onClick={() => setMenuOpen(menuOpen === listing.id ? null : listing.id)} className="w-9 h-9 rounded-[10px] bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-white/70 transition-all">
+                    <button onClick={() => setMenuOpen(menuOpen === listing.id ? null : listing.id)} className="w-9 h-9 rounded-[10px] flex items-center justify-center transition-all" style={{ backgroundColor: config.surface, color: config.textMuted }}>
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
                     {menuOpen === listing.id && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                        <div className="absolute right-0 top-10 z-50 w-[200px] rounded-[10px] bg-[#1e2024] border border-white/[0.08] shadow-xl py-1">
-                          <Link href={`/dashboard/listings/${listing.id}/edit`} onClick={() => setMenuOpen(null)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">
+                        <div className="absolute right-0 top-10 z-50 w-[200px] rounded-[10px] shadow-xl py-1" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+                          <Link href={`/dashboard/listings/${listing.id}/edit`} onClick={() => setMenuOpen(null)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] transition-all" style={{ color: config.textMuted }}>
                             <Edit className="w-3.5 h-3.5" /> Tahrirlash
                           </Link>
                           <Link href={`/dashboard/listings/${listing.id}/boost`} onClick={() => setMenuOpen(null)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#7ea2d4] hover:bg-[#7ea2d4]/10 transition-all">
                             <Zap className="w-3.5 h-3.5" /> Boost qilish
                           </Link>
                           {listing.status !== "moderatsiyada" && (
-                            <button onClick={() => openPauseModal(listing)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">
+                            <button onClick={() => openPauseModal(listing)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] transition-all" style={{ color: config.textMuted }}>
                               {listing.status === "aktiv" ? <><Pause className="w-3.5 h-3.5" /> Pauzaga qo&apos;yish</> : <><Play className="w-3.5 h-3.5" /> Aktivlashtirish</>}
                             </button>
                           )}
-                          <div className="border-t border-white/[0.06] my-1" />
+                          <div className="my-1" style={{ borderTop: `1px solid ${config.surfaceBorder}` }} />
                           <button onClick={() => openDeleteModal(listing)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-red-400/80 hover:text-red-400 hover:bg-red-500/[0.06] transition-all">
                             <Trash2 className="w-3.5 h-3.5" /> O&apos;chirish
                           </button>
@@ -163,12 +238,12 @@ export default function ListingsPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 rounded-[14px] border border-dashed border-white/[0.08]">
-          <p className="text-[14px] text-white/40 mb-3">
+        <div className="flex flex-col items-center justify-center py-16 rounded-[14px] border border-dashed" style={{ borderColor: config.surfaceBorder }}>
+          <p className="text-[14px] mb-3" style={{ color: config.textMuted }}>
             {filter === "hammasi" ? "Hali e'lon qo'shilmagan" : `${statusConfig[filter as keyof typeof statusConfig]?.label || ""} e'lon yo'q`}
           </p>
           {filter === "hammasi" && (
-            <Link href="/dashboard/listings/new" className="h-[36px] px-4 rounded-[8px] bg-white/[0.06] text-white text-[13px] font-medium flex items-center gap-2 hover:bg-white/[0.1] transition-colors">
+            <Link href="/dashboard/listings/new" className="h-[36px] px-4 rounded-[8px] text-[13px] font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: config.hover, color: config.text }}>
               <Plus className="w-3.5 h-3.5" /> E&apos;lon qo&apos;shish
             </Link>
           )}
@@ -179,16 +254,16 @@ export default function ListingsPage() {
       {confirmPause && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmPause(null)} />
-          <div className="relative bg-[#1e2024] rounded-[18px] border border-white/[0.08] p-6 max-w-[420px] w-full">
+          <div className="relative rounded-[18px] p-6 max-w-[420px] w-full" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
             <div className="flex items-start gap-4 mb-5">
               <div className="w-11 h-11 rounded-[12px] bg-amber-500/15 flex items-center justify-center shrink-0">
                 {confirmPause.status === "aktiv" ? <Pause className="w-5 h-5 text-amber-400" /> : <Play className="w-5 h-5 text-green-400" />}
               </div>
               <div>
-                <h3 className="text-[17px] font-bold text-white">
+                <h3 className="text-[17px] font-bold" style={{ color: config.text }}>
                   {confirmPause.status === "aktiv" ? "Pauzaga qo'yish" : "Aktivlashtirish"}
                 </h3>
-                <p className="text-[13px] text-white/50 mt-1">
+                <p className="text-[13px] mt-1" style={{ color: config.textMuted }}>
                   {confirmPause.status === "aktiv"
                     ? "E'lon pauzada bo'lganda qidiruvda ko'rinmaydi. Xohlagan vaqtda qayta yoqishingiz mumkin."
                     : "E'lon qayta aktiv bo'ladi va qidiruvda ko'rinadi."
@@ -196,15 +271,15 @@ export default function ListingsPage() {
                 </p>
               </div>
             </div>
-            <div className="rounded-[12px] bg-white/[0.04] border border-white/[0.06] p-3 mb-5">
-              <p className="text-[11px] text-white/30 mb-0.5">{confirmPause.category}</p>
-              <p className="text-[13px] font-semibold text-white">{confirmPause.title}</p>
+            <div className="rounded-[12px] p-3 mb-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+              <p className="text-[11px] mb-0.5" style={{ color: config.textDim }}>{confirmPause.category}</p>
+              <p className="text-[13px] font-semibold" style={{ color: config.text }}>{confirmPause.title}</p>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setConfirmPause(null)} className="flex-1 h-[44px] rounded-[10px] bg-white/[0.06] text-white/60 text-[14px] font-medium hover:bg-white/[0.1] transition-colors">
+              <button onClick={() => setConfirmPause(null)} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium transition-colors" style={{ backgroundColor: config.hover, color: config.textMuted }}>
                 Bekor
               </button>
-              <button onClick={togglePause} className="flex-1 h-[44px] rounded-[10px] bg-white text-[#16181a] text-[14px] font-medium hover:bg-white/90 transition-colors">
+              <button onClick={togglePause} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium transition-colors" style={{ backgroundColor: config.accent, color: config.accentText }}>
                 {confirmPause.status === "aktiv" ? "Pauzaga qo'yish" : "Aktivlashtirish"}
               </button>
             </div>
@@ -216,29 +291,29 @@ export default function ListingsPage() {
       {confirmDelete && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
-          <div className="relative bg-[#1e2024] rounded-[18px] border border-white/[0.08] p-6 max-w-[420px] w-full">
+          <div className="relative rounded-[18px] p-6 max-w-[420px] w-full" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
             <div className="flex items-start gap-4 mb-5">
               <div className="w-11 h-11 rounded-[12px] bg-red-500/15 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <h3 className="text-[17px] font-bold text-white">E&apos;lonni o&apos;chirish</h3>
-                <p className="text-[13px] text-white/50 mt-1">
+                <h3 className="text-[17px] font-bold" style={{ color: config.text }}>E&apos;lonni o&apos;chirish</h3>
+                <p className="text-[13px] mt-1" style={{ color: config.textMuted }}>
                   E&apos;lon butunlay o&apos;chiriladi va qaytarib bo&apos;lmaydi. Statistika va arizalar tarixi ham yo&apos;qoladi.
                 </p>
               </div>
             </div>
-            <div className="rounded-[12px] bg-white/[0.04] border border-white/[0.06] p-3 mb-5">
-              <p className="text-[11px] text-white/30 mb-0.5">{confirmDelete.category}</p>
-              <p className="text-[13px] font-semibold text-white">{confirmDelete.title}</p>
-              <div className="flex items-center gap-3 mt-2 text-[11px] text-white/30">
+            <div className="rounded-[12px] p-3 mb-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+              <p className="text-[11px] mb-0.5" style={{ color: config.textDim }}>{confirmDelete.category}</p>
+              <p className="text-[13px] font-semibold" style={{ color: config.text }}>{confirmDelete.title}</p>
+              <div className="flex items-center gap-3 mt-2 text-[11px]" style={{ color: config.textDim }}>
                 <span>{confirmDelete.views} ko&apos;rishlar</span>
                 <span>•</span>
                 <span>{confirmDelete.leads} ariza</span>
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 h-[44px] rounded-[10px] bg-white/[0.06] text-white/60 text-[14px] font-medium hover:bg-white/[0.1] transition-colors">
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium transition-colors" style={{ backgroundColor: config.hover, color: config.textMuted }}>
                 Bekor
               </button>
               <button onClick={deleteListing} className="flex-1 h-[44px] rounded-[10px] bg-red-500 text-white text-[14px] font-medium hover:bg-red-500/90 transition-colors">

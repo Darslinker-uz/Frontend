@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 
 function formatPhone(input: string) {
   const digits = input.replace(/\D/g, "").replace(/^998/, "").slice(0, 9);
@@ -17,8 +17,26 @@ function formatTg(input: string) {
   return clean;
 }
 
-export function PhoneInput({ className }: { className?: string }) {
-  const [value, setValue] = useState("");
+interface ControlledInputProps {
+  className?: string;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
+}
+
+export function PhoneInput({ className, value: controlled, onChange, disabled }: ControlledInputProps) {
+  const [internal, setInternal] = useState("");
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : internal;
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value);
+    if (!isControlled) setInternal(formatted);
+    if (onChange) {
+      const synthetic = { ...e, target: { ...e.target, value: formatted } } as ChangeEvent<HTMLInputElement>;
+      onChange(synthetic);
+    }
+  };
 
   return (
     <div className="relative">
@@ -27,7 +45,8 @@ export function PhoneInput({ className }: { className?: string }) {
         type="tel"
         name="phone"
         value={value}
-        onChange={(e) => setValue(formatPhone(e.target.value))}
+        onChange={handleChange}
+        disabled={disabled}
         placeholder="77 123 45 67"
         maxLength={12}
         className={`${className} pl-[60px]`}
@@ -36,8 +55,19 @@ export function PhoneInput({ className }: { className?: string }) {
   );
 }
 
-export function TelegramInput({ className }: { className?: string }) {
-  const [value, setValue] = useState("");
+export function TelegramInput({ className, value: controlled, onChange, disabled }: ControlledInputProps) {
+  const [internal, setInternal] = useState("");
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : internal;
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatTg(e.target.value);
+    if (!isControlled) setInternal(formatted);
+    if (onChange) {
+      const synthetic = { ...e, target: { ...e.target, value: formatted } } as ChangeEvent<HTMLInputElement>;
+      onChange(synthetic);
+    }
+  };
 
   return (
     <div className="relative">
@@ -46,7 +76,8 @@ export function TelegramInput({ className }: { className?: string }) {
         type="text"
         name="telegram"
         value={value}
-        onChange={(e) => setValue(formatTg(e.target.value))}
+        onChange={handleChange}
+        disabled={disabled}
         placeholder="username"
         className={`${className} pl-[34px]`}
       />

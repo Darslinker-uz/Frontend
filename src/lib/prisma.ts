@@ -1,12 +1,19 @@
-// Prisma client - DB ulangandan keyin ishlatiladi
-// Hozircha placeholder sifatida export qilingan
+import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-// Prisma 7 da adapter kerak. PostgreSQL ulanganda quyidagi kodni yoqing:
-//
-// import { PrismaClient } from "@/generated/prisma/client";
-// import { PrismaPg } from "@prisma/adapter-pg";
-//
-// const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-// export const prisma = new PrismaClient({ adapter });
+// Singleton pattern: hot-reload vaqtida qayta-qayta yaratilmasligi uchun
+// globalThis'da saqlanadi (Next.js dev mode).
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-export const prisma = null as unknown;
+function createPrismaClient() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("DATABASE_URL is not set");
+  const adapter = new PrismaPg({ connectionString });
+  return new PrismaClient({ adapter });
+}
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

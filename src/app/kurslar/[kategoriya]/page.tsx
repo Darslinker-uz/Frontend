@@ -4,15 +4,26 @@ import Link from "next/link";
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Star, ArrowRight } from "lucide-react";
-import { courses as allCourses, categories, type Course } from "@/data/courses";
+import { type Course } from "@/data/courses";
 import { CourseFilter } from "@/components/course-filter";
 import { useParams } from "next/navigation";
+import { apiListingToCourse, type ApiListing } from "@/lib/listing-mapper";
 
 function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
   return (
     <Link href={`/kurslar/${course.categorySlug}/${course.slug}`} style={{ animationDelay: `${index * 80}ms` }} className="animate-[cardStagger_0.4s_ease-out_backwards]">
       <div className={`relative overflow-hidden rounded-[18px] bg-gradient-to-br ${course.gradient} flex flex-col h-full group`}>
-        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+        {course.imageUrl ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover hidden md:block" style={{ objectPosition: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%`, transform: `scale(${(course.imageCZoom ?? 100) / 100})`, transformOrigin: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%` }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover md:hidden" style={{ objectPosition: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%`, transform: `scale(${(course.imageCMZoom ?? 100) / 100})`, transformOrigin: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%` }} />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
+          </>
+        ) : (
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+        )}
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
         <div className="relative z-[2] p-5 flex-1">
           <div className="flex items-center gap-2 mb-3">
@@ -54,13 +65,38 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
 export default function KategoriyaPage() {
   const params = useParams();
   const kategoriya = params.kategoriya as string;
-  const cat = categories.find((c) => c.slug === kategoriya);
-  const name = cat?.name ?? kategoriya.replace(/-/g, " ");
   const router = useRouter();
-  const [filtered, setFiltered] = useState<Course[]>(allCourses.filter((c) => c.categorySlug === kategoriya));
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [filtered, setFiltered] = useState<Course[]>([]);
   const [filterKey, setFilterKey] = useState(0);
+  const [name, setName] = useState<string>(kategoriya.replace(/-/g, " "));
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [listingsRes, catsRes] = await Promise.all([
+          fetch("/api/listings"),
+          fetch("/api/categories"),
+        ]);
+        const listingsJson: { listings: ApiListing[] } = await listingsRes.json();
+        const catsJson: { categories: { name: string; slug: string }[] } = await catsRes.json();
+        if (cancelled) return;
+        const mapped = (listingsJson.listings ?? []).map(apiListingToCourse);
+        setAllCourses(mapped);
+        const scoped = mapped.filter(c => c.categorySlug === kategoriya);
+        setFiltered(scoped);
+        const cat = catsJson.categories?.find(c => c.slug === kategoriya);
+        if (cat) setName(cat.name);
+      } catch (e) { console.error(e); } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [kategoriya]);
 
   const handleFilter = useCallback((courses: Course[]) => {
     setFiltered(courses);
@@ -71,15 +107,22 @@ export default function KategoriyaPage() {
     <div className="bg-[#f0f2f3] min-h-screen">
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-5">
         <h1 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-4 md:hidden">{name}</h1>
-        <div className="md:flex">
-          <CourseFilter courses={allCourses} onFilter={handleFilter} initialCategory={kategoriya} onClearCategory={() => router.push("/kurslar")}>
-            <CourseGrid courses={filtered} filterKey={filterKey} />
-          </CourseFilter>
-        </div>
-        {/* Mobil — kurslar CourseFilter dan tashqarida */}
-        <div className="md:hidden mt-4">
-          <CourseGrid courses={filtered} filterKey={filterKey} />
-        </div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 rounded-[18px] bg-white border border-[#e4e7ea]">
+            <p className="text-[16px] text-[#7c8490] font-medium">Yuklanmoqda...</p>
+          </div>
+        ) : (
+          <>
+            <div className="md:flex">
+              <CourseFilter courses={allCourses} onFilter={handleFilter} initialCategory={kategoriya} onClearCategory={() => router.push("/kurslar")}>
+                <CourseGrid courses={filtered} filterKey={filterKey} />
+              </CourseFilter>
+            </div>
+            <div className="md:hidden mt-4">
+              <CourseGrid courses={filtered} filterKey={filterKey} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

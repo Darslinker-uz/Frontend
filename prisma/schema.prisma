@@ -24,6 +24,7 @@ enum ListingFormat {
 enum ListingStatus {
   pending
   active
+  paused
   rejected
 }
 
@@ -35,28 +36,62 @@ enum AdmissionStatus {
 enum LeadStatus {
   new_lead
   contacted
+  callback
   converted
+  not_interested
   disputed
 }
 
 enum BoostType {
   a_class
+  b_class
 }
 
 enum BoostStatus {
+  pending
   active
   ended
+  stopped
+  rejected
 }
 
 enum PaymentType {
   topup
   lead
   boost
+  refund
+}
+
+enum PaymentStatus {
+  success
+  pending
+  cancelled
+}
+
+enum PaymentMethod {
+  click
+  payme
+  uzcard
+  humo
+  internal
 }
 
 enum BalanceType {
   credit
   debit
+}
+
+enum HelpStatus {
+  new_req
+  answered
+  closed
+}
+
+enum PartnerStatus {
+  new_app
+  in_progress
+  accepted
+  rejected
 }
 
 // ==================== MODELS ====================
@@ -65,25 +100,50 @@ model User {
   id              Int      @id @default(autoincrement())
   name            String
   phone           String   @unique
+  email           String?
   passwordHash    String   @map("password_hash")
   role            Role     @default(student)
   telegramChatId  String?  @map("telegram_chat_id")
   balance         Int      @default(0)
+  banned          Boolean  @default(false)
   createdAt       DateTime @default(now()) @map("created_at")
+  lastActiveAt    DateTime @default(now()) @map("last_active_at")
 
   listings    Listing[]
   payments    Payment[]
   balanceLogs BalanceLog[]
+  managers    Manager[]
 
   @@map("users")
 }
 
+model Manager {
+  id             Int      @id @default(autoincrement())
+  ownerId        Int      @map("owner_id") // parent teacher
+  name           String
+  phone          String
+  telegramChatId String?  @map("telegram_chat_id")
+  canReply       Boolean  @default(true) @map("can_reply")
+  canManage      Boolean  @default(false) @map("can_manage")
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("managers")
+}
+
 model Category {
-  id       Int       @id @default(autoincrement())
-  name     String
-  icon     String?
-  slug     String    @unique
-  listings Listing[]
+  id            Int       @id @default(autoincrement())
+  name          String
+  slug          String    @unique
+  description   String?
+  icon          String?
+  color         String?
+  active        Boolean   @default(true)
+  order         Int       @default(0)
+  subcategories String[]
+  listings      Listing[]
 
   @@map("categories")
 }
@@ -104,32 +164,87 @@ model Listing {
   admissionStatus AdmissionStatus @default(open) @map("admission_status")
   phone           String
   imageUrl        String?         @map("image_url")
+  imagePosX       Int             @default(50) @map("image_pos_x")
+  imagePosY       Int             @default(50) @map("image_pos_y")
+  imageAPosX      Int             @default(50) @map("image_a_pos_x")
+  imageAPosY      Int             @default(50) @map("image_a_pos_y")
+  imageAMPosX     Int             @default(50) @map("image_am_pos_x")
+  imageAMPosY     Int             @default(50) @map("image_am_pos_y")
+  imageCPosX      Int             @default(50) @map("image_c_pos_x")
+  imageCPosY      Int             @default(50) @map("image_c_pos_y")
+  imageCMPosX     Int             @default(50) @map("image_cm_pos_x")
+  imageCMPosY     Int             @default(50) @map("image_cm_pos_y")
+  imageZoom       Int             @default(100) @map("image_zoom")
+  imageAZoom      Int             @default(100) @map("image_a_zoom")
+  imageAMZoom     Int             @default(100) @map("image_am_zoom")
+  imageCZoom      Int             @default(100) @map("image_c_zoom")
+  imageCMZoom     Int             @default(100) @map("image_cm_zoom")
+  color           String?
+  icon            String?
+  views           Int             @default(0)
   status          ListingStatus   @default(pending)
+  rejectReason    String?         @map("reject_reason")
   createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
 
-  user     User     @relation(fields: [userId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id])
   leads    Lead[]
   reviews  Review[]
   boosts   Boost[]
 
+  @@index([status])
+  @@index([categoryId])
   @@map("listings")
 }
 
 model Lead {
-  id        Int        @id @default(autoincrement())
-  listingId Int        @map("listing_id")
-  name      String
-  phone     String
-  message   String?
-  status    LeadStatus @default(new_lead)
-  createdAt DateTime   @default(now()) @map("created_at")
+  id           Int        @id @default(autoincrement())
+  listingId    Int        @map("listing_id")
+  name         String
+  phone        String
+  message      String?
+  status       LeadStatus @default(new_lead)
+  note         String?
+  botChatId    String?    @map("bot_chat_id")
+  botMessageId Int?       @map("bot_message_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
 
-  listing Listing  @relation(fields: [listingId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
   review  Review?
 
   @@unique([phone, listingId])
+  @@index([listingId])
+  @@index([status])
   @@map("leads")
+}
+
+model HelpLead {
+  id        Int        @id @default(autoincrement())
+  name      String
+  phone     String
+  interest  String
+  message   String?
+  status    HelpStatus @default(new_req)
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@map("help_leads")
+}
+
+model PartnerApplication {
+  id             Int           @id @default(autoincrement())
+  name           String
+  phone          String
+  telegram       String?
+  centerName     String        @map("center_name")
+  category       String
+  city           String
+  studentsCount  String        @map("students_count")
+  message        String?
+  status         PartnerStatus @default(new_app)
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  @@map("partner_applications")
 }
 
 model Review {
@@ -140,37 +255,78 @@ model Review {
   comment   String?
   createdAt DateTime @default(now()) @map("created_at")
 
-  listing Listing @relation(fields: [listingId], references: [id])
-  lead    Lead    @relation(fields: [leadId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  lead    Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
   @@map("reviews")
 }
 
 model Boost {
-  id          Int         @id @default(autoincrement())
-  listingId   Int         @map("listing_id")
-  type        BoostType   @default(a_class)
-  pricePerDay Int         @map("price_per_day")
-  startDate   DateTime    @map("start_date")
-  endDate     DateTime    @map("end_date")
-  status      BoostStatus @default(active)
+  id           Int         @id @default(autoincrement())
+  listingId    Int         @map("listing_id")
+  type         BoostType   @default(a_class)
+  pricePerDay  Int         @map("price_per_day")
+  daysTotal    Int         @map("days_total")
+  totalPaid    Int         @map("total_paid")
+  startDate    DateTime    @map("start_date")
+  endDate      DateTime    @map("end_date")
+  status       BoostStatus @default(pending)
+  views        Int         @default(0)
+  leadsCount   Int         @default(0) @map("leads_count")
+  rejectReason String?     @map("reject_reason")
+  reviewedAt   DateTime?   @map("reviewed_at")
+  createdAt    DateTime    @default(now()) @map("created_at")
 
-  listing Listing @relation(fields: [listingId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
+  @@index([status])
+  @@index([listingId])
   @@map("boosts")
 }
 
 model Payment {
-  id          Int         @id @default(autoincrement())
-  userId      Int         @map("user_id")
+  id          Int           @id @default(autoincrement())
+  userId      Int           @map("user_id")
   amount      Int
   type        PaymentType
+  status      PaymentStatus @default(pending)
+  method      PaymentMethod @default(internal)
   description String?
-  createdAt   DateTime    @default(now()) @map("created_at")
+  txnRef      String?       @map("txn_ref") // bog'liq tranzaksiya id (refund uchun)
+  createdAt   DateTime      @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([type])
+  @@index([status])
   @@map("payments")
+}
+
+model BotPendingAction {
+  id        Int      @id @default(autoincrement())
+  chatId    String   @map("chat_id")
+  leadId    Int      @map("lead_id")
+  action    String // "note_for_contacted" | "reason_for_disputed"
+  messageId Int      @map("message_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([chatId])
+  @@map("bot_pending_actions")
+}
+
+model AuthCode {
+  id        Int       @id @default(autoincrement())
+  phone     String
+  code      String
+  chatId    String?   @map("chat_id")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([phone])
+  @@index([code])
+  @@map("auth_codes")
 }
 
 model BalanceLog {
@@ -179,9 +335,11 @@ model BalanceLog {
   amount      Int
   type        BalanceType
   referenceId String?     @map("reference_id")
+  note        String?
   createdAt   DateTime    @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("balance_logs")
 }

@@ -1,51 +1,83 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import crypto from "node:crypto";
+import { prisma } from "@/lib/prisma";
+import { normalizePhone } from "@/lib/telegram";
+import { authConfig } from "@/lib/auth.config";
+
+const sha256 = (s: string) => crypto.createHash("sha256").update(s).digest("hex");
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
-      name: "Phone OTP",
+      id: "admin-password",
+      name: "Admin password",
       credentials: {
         phone: { label: "Telefon", type: "tel" },
-        otp: { label: "Kod", type: "text" },
+        password: { label: "Parol", type: "password" },
       },
       async authorize(credentials) {
-        // TODO: Play Mobile SMS OTP tekshiruv
-        // Hozircha demo uchun har qanday kodni qabul qiladi
-        if (!credentials?.phone || !credentials?.otp) return null;
-
-        // TODO: DB dan foydalanuvchini topish yoki yaratish
+        if (!credentials?.phone || !credentials?.password) return null;
+        const phone = normalizePhone(String(credentials.phone));
+        const password = String(credentials.password);
+        const user = await prisma.user.findUnique({ where: { phone } });
+        if (!user || user.role !== "admin" || user.banned) return null;
+        if (!user.passwordHash || user.passwordHash !== sha256(password)) return null;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastActiveAt: new Date() },
+        });
         return {
-          id: "1",
-          name: "Demo User",
-          phone: credentials.phone as string,
-          role: "student",
-        };
+          id: String(user.id),
+          name: user.name,
+          phone: user.phone,
+          role: user.role,
+        } as { id: string; name: string; phone: string; role: string };
+      },
+    }),
+    Credentials({
+      name: "Telegram bot code",
+      credentials: {
+        phone: { label: "Telefon", type: "tel" },
+        code: { label: "Kod", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.phone || !credentials?.code) return null;
+
+        const phone = normalizePhone(String(credentials.phone));
+        const code = String(credentials.code).trim();
+
+        const authCode = await prisma.authCode.findFirst({
+          where: {
+            phone,
+            code,
+            usedAt: null,
+            expiresAt: { gt: new Date() },
+          },
+          orderBy: { createdAt: "desc" },
+        });
+        if (!authCode) return null;
+
+        const user = await prisma.user.findUnique({ where: { phone } });
+        if (!user || user.banned) return null;
+
+        await prisma.authCode.update({
+          where: { id: authCode.id },
+          data: { usedAt: new Date() },
+        });
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastActiveAt: new Date() },
+        });
+
+        return {
+          id: String(user.id),
+          name: user.name,
+          phone: user.phone,
+          role: user.role,
+        } as { id: string; name: string; phone: string; role: string };
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = (user as unknown as { role: string }).role;
-        token.phone = (user as unknown as { phone: string }).phone;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (session.user as any).role = token.role as string;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (session.user as any).phone = token.phone as string;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: "/auth",
-  },
 });

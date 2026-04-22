@@ -2,145 +2,149 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Send, Phone, Lock, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { ArrowLeft, ExternalLink, Phone, KeyRound, AlertCircle } from "lucide-react";
+
+const BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "Darslinker_cbot";
 
 export default function AuthPage() {
+  const router = useRouter();
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [notFound, setNotFound] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function handlePhone(value: string) {
+    const digits = value.replace(/\D/g, "").replace(/^998/, "").slice(0, 9);
+    let formatted = "";
+    if (digits.length > 0) formatted = digits.slice(0, 2);
+    if (digits.length > 2) formatted += " " + digits.slice(2, 5);
+    if (digits.length > 5) formatted += " " + digits.slice(5, 7);
+    if (digits.length > 7) formatted += " " + digits.slice(7, 9);
+    setPhone(formatted);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setNotFound(false);
 
-    if (!phone || phone.length < 9) {
-      setError("Telefon raqamni kiriting");
-      return;
-    }
-    if (!password) {
-      setError("Parolni kiriting");
-      return;
-    }
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 9) { setError("Telefon raqamni to'liq kiriting"); return; }
+    if (!/^\d{6}$/.test(code)) { setError("6 xonali kod kiriting"); return; }
 
-    // TODO: API ga so'rov yuborish
-    // Hozircha demo: bazada yo'q deb ko'rsatamiz
-    setNotFound(true);
-  };
+    setSubmitting(true);
+    try {
+      const res = await signIn("credentials", {
+        phone: "+998" + digits,
+        code,
+        redirect: false,
+      });
+      if (res?.error) {
+        setError("Kod noto'g'ri yoki muddati tugagan");
+        setSubmitting(false);
+        return;
+      }
+      // Success — redirect to dashboard; admin role handled server-side
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setError("Xatolik yuz berdi, qayta urining");
+      setSubmitting(false);
+    }
+  }
 
   return (
-    <div className="bg-[#f0f2f3] min-h-screen flex items-center justify-center px-5 py-10">
-      <div className="w-full max-w-[400px]">
-        <Link href="/" className="inline-flex items-center gap-2 text-[13px] text-[#7ea2d4] font-medium mb-8">
-          <ArrowLeft className="w-4 h-4" /> Bosh sahifa
+    <div className="min-h-screen bg-[#f0f2f3] flex items-center justify-center px-5 py-8">
+      <div className="w-full max-w-[440px]">
+        <Link href="/" className="inline-flex items-center gap-2 text-[13px] text-[#7ea2d4] font-medium mb-6 hover:text-[#4a7ab5] transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Asosiy sahifa
         </Link>
 
-        {!notFound ? (
-          /* KIRISH FORMASI */
-          <div className="bg-white rounded-[20px] border border-[#e4e7ea] p-8">
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-[16px] bg-[#7ea2d4]/10 flex items-center justify-center mx-auto mb-4">
-                <Lock className="w-6 h-6 text-[#7ea2d4]" />
-              </div>
-              <h1 className="text-[22px] font-bold text-[#16181a]">Kirish</h1>
-              <p className="text-[14px] text-[#7c8490] mt-1">Dashboard ga kirish uchun ma&apos;lumotlaringizni kiriting</p>
-            </div>
+        <div className="bg-white rounded-[20px] border border-[#e4e7ea] p-6 md:p-8">
+          <h1 className="text-[22px] md:text-[26px] font-bold text-[#16181a] tracking-[-0.02em]">Kirish</h1>
+          <p className="text-[13px] text-[#7c8490] mt-1.5">Telegram bot orqali tezkor kirish</p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-[13px] text-[#7c8490] mb-1.5 block">Telefon raqam</label>
-                <div className="relative">
+          {/* Step 1: Open bot */}
+          <div className="mt-6 rounded-[14px] bg-[#eaf1fb] border border-[#7ea2d4]/30 p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-7 h-7 rounded-full bg-[#7ea2d4] text-white flex items-center justify-center text-[13px] font-bold shrink-0">1</div>
+              <div className="flex-1">
+                <p className="text-[14px] font-semibold text-[#16181a]">Botni oching</p>
+                <p className="text-[12px] text-[#6a7585] mt-0.5 mb-3">
+                  Botga telefon raqamingizni ulashing — bot sizga 6-xonali kod yuboradi.
+                </p>
+                <a
+                  href={`https://t.me/${BOT_USERNAME}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 h-10 px-4 rounded-[10px] bg-[#2AABEE] text-white text-[13px] font-semibold hover:bg-[#2197d3] transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> @{BOT_USERNAME}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2: Enter phone + code */}
+          <form onSubmit={handleSubmit} className="mt-4 rounded-[14px] bg-[#f0f2f3] p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-7 h-7 rounded-full bg-[#16181a] text-white flex items-center justify-center text-[13px] font-bold shrink-0 mt-0.5">2</div>
+              <div className="flex-1">
+                <p className="text-[14px] font-semibold text-[#16181a] mb-3">Telefon va kodni kiriting</p>
+
+                <label className="block text-[12px] text-[#6a7585] mb-1.5">Telefon raqam</label>
+                <div className="relative mb-3">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8490]" />
+                  <span className="absolute left-9 top-1/2 -translate-y-1/2 text-[15px] text-[#16181a] font-medium">+998</span>
                   <input
                     type="tel"
+                    inputMode="numeric"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+998 90 123 45 67"
-                    className="w-full h-[48px] pl-10 pr-4 rounded-[12px] border border-[#e4e7ea] text-[16px] text-[#16181a] placeholder:text-[#7c8490]/50 focus:outline-none focus:ring-2 focus:ring-[#7ea2d4]/30 transition-all"
+                    onChange={(e) => handlePhone(e.target.value)}
+                    placeholder="77 123 45 67"
+                    maxLength={12}
+                    disabled={submitting}
+                    className="w-full h-[48px] pl-[70px] pr-4 text-[16px] rounded-[10px] bg-white border border-[#e4e7ea] text-[#16181a] placeholder:text-[#7c8490]/40 focus:outline-none focus:border-[#7ea2d4] transition-colors"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="text-[13px] text-[#7c8490] mb-1.5 block">Parol</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8490]" />
+                <label className="block text-[12px] text-[#6a7585] mb-1.5">Bot yuborgan 6-xonali kod</label>
+                <div className="relative mb-1">
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8490]" />
                   <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Parolingiz"
-                    className="w-full h-[48px] pl-10 pr-4 rounded-[12px] border border-[#e4e7ea] text-[16px] text-[#16181a] placeholder:text-[#7c8490]/50 focus:outline-none focus:ring-2 focus:ring-[#7ea2d4]/30 transition-all"
+                    type="text"
+                    inputMode="numeric"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="000000"
+                    maxLength={6}
+                    disabled={submitting}
+                    className="w-full h-[48px] pl-10 pr-4 text-[18px] tracking-[6px] text-center font-bold rounded-[10px] bg-white border border-[#e4e7ea] text-[#16181a] placeholder:text-[#7c8490]/30 focus:outline-none focus:border-[#7ea2d4] transition-colors"
                   />
                 </div>
-              </div>
 
-              {error && (
-                <div className="flex items-center gap-2 text-[13px] text-red-500">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  {error}
-                </div>
-              )}
+                {error && (
+                  <div className="flex items-start gap-2 mt-2 text-[12px] text-red-600">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {error}
+                  </div>
+                )}
 
-              <button type="submit" className="w-full h-[48px] rounded-[14px] bg-[#16181a] text-white text-[15px] font-medium hover:bg-[#16181a]/80 transition-colors">
-                Kirish
-              </button>
-            </form>
-
-            <p className="text-[13px] text-[#7c8490] text-center mt-5">
-              Hisobingiz yo&apos;qmi?{" "}
-              <a href="https://t.me/darslinker_bot" target="_blank" rel="noopener noreferrer" className="text-[#7ea2d4] font-medium">
-                Telegram orqali ro&apos;yxatdan o&apos;ting
-              </a>
-            </p>
-          </div>
-        ) : (
-          /* RO'YXATDAN O'TISH — Telegram botga yo'naltirish */
-          <div className="bg-white rounded-[20px] border border-[#e4e7ea] p-8 text-center">
-            <div className="w-14 h-14 rounded-[16px] bg-amber-50 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="w-6 h-6 text-amber-500" />
-            </div>
-
-            <h2 className="text-[20px] font-bold text-[#16181a]">Hisob topilmadi</h2>
-            <p className="text-[14px] text-[#7c8490] mt-2">
-              <span className="font-medium text-[#16181a]">{phone}</span> raqami bazada topilmadi. Avval Telegram bot orqali ro&apos;yxatdan o&apos;ting.
-            </p>
-
-            <a
-              href="https://t.me/darslinker_bot"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 w-full h-[48px] rounded-[14px] bg-[#16181a] text-white text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-[#16181a]/80 transition-colors"
-            >
-              <Send className="w-4 h-4" />
-              Telegram bot orqali ro&apos;yxatdan o&apos;tish
-            </a>
-
-            <div className="mt-6 space-y-3">
-              <div className="flex items-start gap-3 text-left">
-                <span className="w-6 h-6 rounded-full bg-[#f0f2f3] flex items-center justify-center shrink-0 text-[12px] font-bold text-[#7c8490]">1</span>
-                <p className="text-[13px] text-[#7c8490]">Telegram botga o&apos;ting va &quot;Boshlash&quot; tugmasini bosing</p>
-              </div>
-              <div className="flex items-start gap-3 text-left">
-                <span className="w-6 h-6 rounded-full bg-[#f0f2f3] flex items-center justify-center shrink-0 text-[12px] font-bold text-[#7c8490]">2</span>
-                <p className="text-[13px] text-[#7c8490]">Telefon raqam va parol o&apos;rnating</p>
-              </div>
-              <div className="flex items-start gap-3 text-left">
-                <span className="w-6 h-6 rounded-full bg-[#f0f2f3] flex items-center justify-center shrink-0 text-[12px] font-bold text-[#7c8490]">3</span>
-                <p className="text-[13px] text-[#7c8490]">Shu sahifaga qaytib kiring</p>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full h-[48px] mt-3 rounded-[10px] bg-[#16181a] text-white text-[14px] font-semibold hover:bg-[#16181a]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? "Tekshirilmoqda..." : "Kirish"}
+                </button>
               </div>
             </div>
+          </form>
 
-            <button onClick={() => setNotFound(false)} className="mt-5 text-[13px] text-[#7ea2d4] font-medium">
-              ← Kirish sahifasiga qaytish
-            </button>
-          </div>
-        )}
-
-        <p className="text-[12px] text-[#7c8490]/60 text-center mt-4">
-          Kirib, siz <Link href="#" className="text-[#7ea2d4]">foydalanish shartlari</Link>ga rozilik bildirasiz
-        </p>
+          <p className="text-[11px] text-[#7c8490] text-center mt-5">
+            Muammo bormi? Botga <code className="bg-[#f0f2f3] px-1.5 py-0.5 rounded">/code</code> yozib yangi kod so&apos;rang.
+          </p>
+        </div>
       </div>
     </div>
   );
