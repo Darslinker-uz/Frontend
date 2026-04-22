@@ -13,7 +13,7 @@ module.exports = {
       name: "darslinker",
       script: "npm",
       args: "start",
-      cwd: "/var/www/darslinker",
+      cwd: "/root/Frontend",
       instances: 1,
       exec_mode: "fork",
       autorestart: true,
