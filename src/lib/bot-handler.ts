@@ -7,7 +7,7 @@ import {
   escHtml,
   type TgUpdate,
 } from "@/lib/telegram";
-import type { LeadStatus } from "@/generated/prisma/enums";
+import type { LeadStatus } from "@/generated/prisma";
 
 // ==================== HANDLER ====================
 // Shared update processor — used by both webhook and polling.

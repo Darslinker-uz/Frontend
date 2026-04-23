@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { syncLeadBotMessage } from "@/lib/bot-handler";
-import type { LeadStatus } from "@/generated/prisma/enums";
+import type { LeadStatus } from "@/generated/prisma";
 
 interface Ctx { params: Promise<{ id: string }> }
 

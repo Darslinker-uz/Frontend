@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notifyListingApproved, notifyListingRejected } from "@/lib/bot-handler";
-import type { ListingStatus } from "@/generated/prisma/enums";
+import type { ListingStatus } from "@/generated/prisma";
 import { requireAdmin } from "@/lib/require-admin";
 
 interface Ctx { params: Promise<{ id: string }> }
