@@ -44,14 +44,14 @@ interface ApiBoost {
     id: number;
     title: string;
     category: { id: number; name: string };
-    user: { id: number; name: string };
+    user: { id: number; name: string; centerName: string | null };
   };
 }
 
 function mapBoost(b: ApiBoost): Boost {
   return {
     id: b.id,
-    centerName: b.listing.user.name,
+    centerName: b.listing.user.centerName ?? b.listing.user.name,
     listingTitle: b.listing.title,
     category: b.listing.category.name,
     boostClass: b.type === "a_class" ? "A" : "B",

@@ -33,7 +33,7 @@ interface ApiFeatured {
   color: string | null;
   icon: string | null;
   category: { slug: string; name: string };
-  user: { name: string };
+  user: { name: string; centerName?: string | null };
 }
 
 interface Slide {
@@ -68,7 +68,7 @@ function toSlide(l: ApiFeatured): Slide {
     format: FORMAT_LABELS[l.format] ?? "Online",
     location: l.location ?? "Online",
     title: l.title,
-    subtitle: l.user.name,
+    subtitle: l.user.centerName ?? l.user.name,
     price: l.price === 0 ? "Bepul" : `${new Intl.NumberFormat("uz-UZ").format(l.price)} so'm`,
     duration: l.duration ?? "—",
     rating: "5.0",

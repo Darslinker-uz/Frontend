@@ -22,6 +22,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     include: {
       category: { select: { id: true, name: true, slug: true, color: true } },
+      user: { select: { id: true, name: true, centerName: true } },
       _count: { select: { leads: true, boosts: true } },
     },
   });
@@ -120,10 +121,10 @@ export async function POST(request: Request) {
     },
   });
 
-  const teacher = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+  const teacher = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, centerName: true } });
   notifyListingPending({
     title,
-    centerName: teacher?.name ?? "—",
+    centerName: teacher?.centerName ?? teacher?.name ?? "—",
     category: category.name,
     price,
     listingId: listing.id,

@@ -11,7 +11,7 @@ export async function GET(_request: Request, { params }: Ctx) {
     where: { slug },
     include: {
       category: { select: { id: true, name: true, slug: true, color: true } },
-      user: { select: { id: true, name: true, phone: true } },
+      user: { select: { id: true, name: true, centerName: true, phone: true } },
       _count: { select: { leads: true, reviews: true } },
     },
   });

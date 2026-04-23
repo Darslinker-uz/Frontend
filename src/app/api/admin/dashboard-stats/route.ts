@@ -78,16 +78,16 @@ export async function GET() {
   const [recentListings, recentPayments, recentLeads, recentPartners] = await Promise.all([
     prisma.listing.findMany({
       orderBy: { createdAt: "desc" }, take: 5,
-      select: { id: true, title: true, createdAt: true, user: { select: { name: true } } },
+      select: { id: true, title: true, createdAt: true, user: { select: { name: true, centerName: true } } },
     }),
     prisma.payment.findMany({
       where: { status: "success" },
       orderBy: { createdAt: "desc" }, take: 5,
-      select: { id: true, amount: true, type: true, createdAt: true, user: { select: { name: true } } },
+      select: { id: true, amount: true, type: true, createdAt: true, user: { select: { name: true, centerName: true } } },
     }),
     prisma.lead.findMany({
       orderBy: { createdAt: "desc" }, take: 5,
-      select: { id: true, name: true, createdAt: true, listing: { select: { title: true, user: { select: { name: true } } } } },
+      select: { id: true, name: true, createdAt: true, listing: { select: { title: true, user: { select: { name: true, centerName: true } } } } },
     }),
     prisma.partnerApplication.findMany({
       orderBy: { createdAt: "desc" }, take: 3,
@@ -107,7 +107,7 @@ export async function GET() {
     activity.push({
       type: "listing",
       time: l.createdAt.toISOString(),
-      user: l.user?.name ?? "—",
+      user: l.user?.centerName ?? l.user?.name ?? "—",
       action: "Yangi e'lon qo'shdi",
       detail: l.title,
     });
@@ -116,7 +116,7 @@ export async function GET() {
     activity.push({
       type: "payment",
       time: p.createdAt.toISOString(),
-      user: p.user?.name ?? "—",
+      user: p.user?.centerName ?? p.user?.name ?? "—",
       action: PAYMENT_LABEL[p.type] ?? p.type,
       detail: `${new Intl.NumberFormat("uz-UZ").format(p.amount)} so'm`,
     });
@@ -126,7 +126,7 @@ export async function GET() {
       type: "lead",
       time: l.createdAt.toISOString(),
       user: l.name,
-      action: `${l.listing.user?.name ?? "Markaz"}'ga lead qoldirdi`,
+      action: `${l.listing.user?.centerName ?? l.listing.user?.name ?? "Markaz"}'ga lead qoldirdi`,
       detail: l.listing.title,
     });
   }

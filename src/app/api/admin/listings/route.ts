@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     where: status ? { status } : undefined,
     orderBy: { createdAt: "desc" },
     include: {
-      user: { select: { id: true, name: true, phone: true, telegramChatId: true } },
+      user: { select: { id: true, name: true, centerName: true, phone: true, telegramChatId: true } },
       category: { select: { id: true, name: true, slug: true, color: true } },
       _count: { select: { leads: true, boosts: true } },
     },
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       status: body.status ?? "active", // admin qo'shganda darhol aktiv
     },
     include: {
-      user: { select: { id: true, name: true, phone: true } },
+      user: { select: { id: true, name: true, centerName: true, phone: true } },
       category: { select: { id: true, name: true, slug: true, color: true } },
     },
   });

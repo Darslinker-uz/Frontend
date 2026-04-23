@@ -1,128 +1,93 @@
-"use client";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getActiveListings, getActiveCategories } from "@/lib/listings";
+import { KategoriyaClient } from "./kategoriya-client";
 
-import Link from "next/link";
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Star, ArrowRight } from "lucide-react";
-import { type Course } from "@/data/courses";
-import { CourseFilter } from "@/components/course-filter";
-import { useParams } from "next/navigation";
-import { apiListingToCourse, type ApiListing } from "@/lib/listing-mapper";
+export const dynamic = "force-dynamic";
 
-function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
-  return (
-    <Link href={`/kurslar/${course.categorySlug}/${course.slug}`} style={{ animationDelay: `${index * 80}ms` }} className="animate-[cardStagger_0.4s_ease-out_backwards]">
-      <div className={`relative overflow-hidden rounded-[18px] bg-gradient-to-br ${course.gradient} flex flex-col h-full group`}>
-        {course.imageUrl ? (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover hidden md:block" style={{ objectPosition: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%`, transform: `scale(${(course.imageCZoom ?? 100) / 100})`, transformOrigin: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%` }} />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover md:hidden" style={{ objectPosition: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%`, transform: `scale(${(course.imageCMZoom ?? 100) / 100})`, transformOrigin: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%` }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
-          </>
-        ) : (
-          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
-        )}
-        <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
-        <div className="relative z-[2] p-5 flex-1">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{course.category}</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{course.format}</span>
-          </div>
-          <h3 className="text-[17px] font-bold text-white leading-tight">{course.title}</h3>
-          <p className="text-[12px] text-white/35 mt-1">{course.provider} · {course.location}</p>
-          <div className="flex items-center gap-2 mt-2 text-[11px] text-white/30">
-            <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-white/50 text-white/50" />{course.rating}</span>
-            <span>{course.duration}</span>
-          </div>
-        </div>
-        <div className="relative z-[2] mx-3 mb-3 rounded-[12px] bg-white/[0.1] border border-white/[0.08] px-4 py-2.5 flex items-center justify-between">
-          <span className="text-[14px] font-bold text-white">{course.priceFree ? "Bepul" : `${course.price} so'm`}</span>
-          <ArrowRight className="w-4 h-4 text-white/30" />
-        </div>
-      </div>
-    </Link>
-  );
-}
+const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
-function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: number }) {
-  if (courses.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 md:py-20 rounded-[18px] bg-white border border-[#e4e7ea]">
-        <p className="text-[16px] text-[#7c8490] font-medium">Kurs topilmadi</p>
-        <p className="text-[13px] text-[#7c8490]/60 mt-1">Filtrlarni o&apos;zgartirib ko&apos;ring</p>
-      </div>
-    );
+type Props = {
+  params: Promise<{ kategoriya: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { kategoriya } = await params;
+  const categories = await getActiveCategories();
+  const cat = categories.find(c => c.slug === kategoriya);
+  if (!cat) {
+    return { title: "Kategoriya topilmadi" };
   }
-  return (
-    <div key={filterKey} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {courses.map((course, i) => <CourseCard key={course.slug} course={course} index={i} />)}
-    </div>
-  );
+  const url = `${SITE_URL}/kurslar/${kategoriya}`;
+  const title = `${cat.name} kurslari — O'zbekiston bo'yicha eng yaxshi markazlar`;
+  const description = cat.desc
+    ? `${cat.desc}. ${cat.count} ta aktiv kurs. Darslinker.uz orqali ${cat.name.toLowerCase()} bo'yicha o'quv markazlarini toping, solishtiring va ariza qoldiring.`
+    : `${cat.name} bo'yicha O'zbekistondagi ${cat.count} ta kurs va o'quv markazlarini bir joyda ko'ring, solishtiring va ariza qoldiring.`;
+
+  return {
+    title,
+    description,
+    keywords: [cat.name, `${cat.name} kursi`, `${cat.name} kurslari`, `${cat.name} o'quv markaz`, ...cat.subcategories, "o'zbekiston", "toshkent"],
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      locale: "uz_UZ",
+      url,
+      siteName: "Darslinker.uz",
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
 }
 
-export default function KategoriyaPage() {
-  const params = useParams();
-  const kategoriya = params.kategoriya as string;
-  const router = useRouter();
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
-  const [filtered, setFiltered] = useState<Course[]>([]);
-  const [filterKey, setFilterKey] = useState(0);
-  const [name, setName] = useState<string>(kategoriya.replace(/-/g, " "));
-  const [loading, setLoading] = useState(true);
+export default async function KategoriyaPage({ params }: Props) {
+  const { kategoriya } = await params;
+  const [allCourses, categories] = await Promise.all([
+    getActiveListings(),
+    getActiveCategories(),
+  ]);
+  const cat = categories.find(c => c.slug === kategoriya);
+  if (!cat) notFound();
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  const scoped = allCourses.filter(c => c.categorySlug === kategoriya);
+  const url = `${SITE_URL}/kurslar/${kategoriya}`;
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [listingsRes, catsRes] = await Promise.all([
-          fetch("/api/listings"),
-          fetch("/api/categories"),
-        ]);
-        const listingsJson: { listings: ApiListing[] } = await listingsRes.json();
-        const catsJson: { categories: { name: string; slug: string }[] } = await catsRes.json();
-        if (cancelled) return;
-        const mapped = (listingsJson.listings ?? []).map(apiListingToCourse);
-        setAllCourses(mapped);
-        const scoped = mapped.filter(c => c.categorySlug === kategoriya);
-        setFiltered(scoped);
-        const cat = catsJson.categories?.find(c => c.slug === kategoriya);
-        if (cat) setName(cat.name);
-      } catch (e) { console.error(e); } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [kategoriya]);
-
-  const handleFilter = useCallback((courses: Course[]) => {
-    setFiltered(courses);
-    setFilterKey(k => k + 1);
-  }, []);
+  const itemListLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `${cat.name} kurslari`,
+    "description": cat.desc || `${cat.name} bo'yicha O'zbekistondagi kurslar`,
+    "numberOfItems": scoped.length,
+    "itemListElement": scoped.slice(0, 30).map((c, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SITE_URL}/kurslar/${c.categorySlug}/${c.slug}`,
+      "name": c.title,
+    })),
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": SITE_URL },
+      { "@type": "ListItem", "position": 2, "name": "Kurslar", "item": `${SITE_URL}/kurslar` },
+      { "@type": "ListItem", "position": 3, "name": cat.name, "item": url },
+    ],
+  };
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-5">
-        <h1 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-4 md:hidden">{name}</h1>
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 rounded-[18px] bg-white border border-[#e4e7ea]">
-            <p className="text-[16px] text-[#7c8490] font-medium">Yuklanmoqda...</p>
-          </div>
-        ) : (
-          <>
-            <div className="md:flex">
-              <CourseFilter courses={allCourses} onFilter={handleFilter} initialCategory={kategoriya} onClearCategory={() => router.push("/kurslar")}>
-                <CourseGrid courses={filtered} filterKey={filterKey} />
-              </CourseFilter>
-            </div>
-            <div className="md:hidden mt-4">
-              <CourseGrid courses={filtered} filterKey={filterKey} />
-            </div>
-          </>
-        )}
+        <h1 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-4 md:hidden">{cat.name}</h1>
+        <h1 className="sr-only">{cat.name} kurslari — {scoped.length} ta aktiv kurs</h1>
+        <KategoriyaClient kategoriya={kategoriya} allCourses={allCourses} />
       </div>
     </div>
   );

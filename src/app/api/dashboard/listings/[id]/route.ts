@@ -30,6 +30,7 @@ export async function GET(_request: Request, { params }: Ctx) {
     where: { id: listingId },
     include: {
       category: { select: { id: true, name: true, slug: true } },
+      user: { select: { id: true, name: true, centerName: true } },
     },
   });
   if (!listing || listing.userId !== userId) {
@@ -99,10 +100,10 @@ export async function PATCH(request: Request, { params }: Ctx) {
   const listing = await prisma.listing.update({ where: { id: listingId }, data, select: { id: true, title: true, price: true, createdAt: true, status: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, description: true } });
 
   if (shouldRemoderate) {
-    const teacher = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+    const teacher = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, centerName: true } });
     notifyListingPending({
       title: listing.title,
-      centerName: teacher?.name ?? "—",
+      centerName: teacher?.centerName ?? teacher?.name ?? "—",
       category: existing.category?.name ?? "—",
       price: listing.price,
       listingId: listing.id,

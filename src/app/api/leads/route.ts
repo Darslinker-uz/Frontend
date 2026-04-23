@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       id: true,
       title: true,
       status: true,
-      user: { select: { name: true, telegramChatId: true } },
+      user: { select: { name: true, centerName: true, telegramChatId: true } },
     },
   });
   if (!listing || listing.status !== "active") {
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
 
   // Fire-and-forget notification to admin monitoring group
   notifyAdminGroup({
-    centerName: listing.user.name,
+    centerName: listing.user.centerName ?? listing.user.name,
     course: listing.title,
     studentName: name,
     studentPhone: phone,

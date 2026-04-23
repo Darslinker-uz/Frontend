@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Faqat aktiv e'lonlarni boost qilish mumkin" }, { status: 400 });
   }
 
-  const teacher = await prisma.user.findUnique({ where: { id: userId }, select: { balance: true, name: true, telegramChatId: true } });
+  const teacher = await prisma.user.findUnique({ where: { id: userId }, select: { balance: true, name: true, centerName: true, telegramChatId: true } });
   if (!teacher) return NextResponse.json({ error: "Foydalanuvchi topilmadi" }, { status: 404 });
 
   const pricePerDay = PRICING[type];
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
   notifyBoostPending({
     boostId: boost.id,
     listingTitle: listing.title,
-    centerName: teacher.name ?? "—",
+    centerName: teacher.centerName ?? teacher.name ?? "—",
     type,
     daysTotal,
     totalPaid,

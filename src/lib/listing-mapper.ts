@@ -41,7 +41,7 @@ export interface ApiListing {
   imageCMZoom?: number;
   views: number;
   category: { id: number; name: string; slug: string; color: string | null };
-  user: { id: number; name: string };
+  user: { id: number; name: string; centerName?: string | null };
   _count?: { leads: number };
 }
 
@@ -59,7 +59,7 @@ export function apiListingToCourse(l: ApiListing): Course {
     category: l.category?.name ?? "—",
     categorySlug: l.category?.slug ?? "",
     format: FORMAT_LABELS[l.format] ?? "Online",
-    provider: l.user?.name ?? "—",
+    provider: l.user?.centerName ?? l.user?.name ?? "—",
     location: l.location ?? "",
     price,
     priceFree: l.price === 0,

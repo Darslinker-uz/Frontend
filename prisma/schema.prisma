@@ -99,6 +99,7 @@ enum PartnerStatus {
 model User {
   id              Int      @id @default(autoincrement())
   name            String
+  centerName      String?  @map("center_name")
   phone           String   @unique
   email           String?
   passwordHash    String   @map("password_hash")

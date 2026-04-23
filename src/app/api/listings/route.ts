@@ -61,7 +61,7 @@ export async function GET(request: Request) {
       views: true,
       createdAt: true,
       category: { select: { id: true, name: true, slug: true, color: true } },
-      user: { select: { id: true, name: true } },
+      user: { select: { id: true, name: true, centerName: true } },
       _count: { select: { leads: true } },
     },
   });

@@ -23,7 +23,7 @@ export async function GET(request: Request) {
           id: true,
           title: true,
           category: { select: { id: true, name: true } },
-          user: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, centerName: true } },
         },
       },
     },

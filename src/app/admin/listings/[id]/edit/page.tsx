@@ -62,7 +62,7 @@ interface ApiListing {
   status: Status;
   rejectReason: string | null;
   category: { id: number; name: string; slug: string };
-  user: { id: number; name: string; phone: string };
+  user: { id: number; name: string; centerName: string | null; phone: string };
 }
 
 export default function AdminEditListingPage() {
@@ -127,7 +127,7 @@ export default function AdminEditListingPage() {
         const l = data.listing;
         setTitle(l.title);
         setCategoryName(l.category?.name ?? "");
-        setProviderName(l.user?.name ?? "");
+        setProviderName(l.user?.centerName ? `${l.user.centerName} (${l.user.name})` : (l.user?.name ?? ""));
         setFormat(FORMAT_TO_UI[l.format] ?? "Onlayn");
         setIsFree(l.price === 0);
         setPrice(l.price === 0 ? 50000 : l.price);

@@ -39,7 +39,7 @@ const selectClass = "w-full h-[44px] px-3 rounded-[10px] text-[14px] focus:outli
 const textareaClass = "w-full px-4 py-3 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all resize-none";
 const labelClass = "text-[12px] mb-1.5 block";
 
-interface ProviderOption { id: number; name: string; phone: string }
+interface ProviderOption { id: number; name: string; centerName: string | null; phone: string }
 interface CategoryOption { id: number; name: string; slug: string }
 
 export default function AdminNewListingPage() {
@@ -101,9 +101,9 @@ export default function AdminNewListingPage() {
         if (uRes.ok) {
           const { users } = await uRes.json();
           if (!cancelled) {
-            const list = (users as Array<{ id: number; name: string; phone: string; role: string }>)
+            const list = (users as Array<{ id: number; name: string; centerName: string | null; phone: string; role: string }>)
               .filter(u => u.role === "provider")
-              .map(u => ({ id: u.id, name: u.name, phone: u.phone }));
+              .map(u => ({ id: u.id, name: u.name, centerName: u.centerName ?? null, phone: u.phone }));
             setProviders(list);
           }
         }
@@ -124,7 +124,7 @@ export default function AdminNewListingPage() {
 
   const selectedProvider = providers.find(p => p.id === providerId);
   const selectedCategory = categories.find(c => c.id === categoryId);
-  const providerName = selectedProvider?.name ?? "O'qituvchi";
+  const providerName = selectedProvider?.centerName ?? selectedProvider?.name ?? "O'qituvchi";
 
   const showLocation = format === "Oflayn" || format === "Gibrid";
   const showSchedule = format !== "Video" && format !== "";
@@ -365,7 +365,7 @@ export default function AdminNewListingPage() {
             >
               <option value="">{loadingLookups ? "Yuklanmoqda..." : "Tanlang"}</option>
               {providers.map((p) => (
-                <option key={p.id} value={p.id}>{p.name} · {p.phone}</option>
+                <option key={p.id} value={p.id}>{p.name}{p.centerName ? ` — ${p.centerName}` : ""} · {p.phone}</option>
               ))}
             </select>
             {!loadingLookups && providers.length === 0 && (

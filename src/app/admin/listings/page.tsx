@@ -28,7 +28,7 @@ interface Listing {
   status: Status;
   rejectReason: string | null;
   createdAt: string;
-  user: { id: number; name: string; phone: string; telegramChatId: string | null };
+  user: { id: number; name: string; centerName: string | null; phone: string; telegramChatId: string | null };
   category: { id: number; name: string; slug: string; color: string | null };
   _count: { leads: number; boosts: number };
 }
@@ -78,7 +78,8 @@ export default function AdminListingsPage() {
     if (tab !== "hammasi" && l.status !== tab) return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!l.title.toLowerCase().includes(q) && !l.user.name.toLowerCase().includes(q)) return false;
+      const centerOrName = (l.user.centerName ?? l.user.name).toLowerCase();
+      if (!l.title.toLowerCase().includes(q) && !l.user.name.toLowerCase().includes(q) && !centerOrName.includes(q)) return false;
     }
     return true;
   });
@@ -210,7 +211,7 @@ export default function AdminListingsPage() {
                   </div>
                   <h3 className="text-[15px] md:text-[16px] font-semibold leading-tight" style={{ color: config.text }}>{l.title}</h3>
                   <div className="flex items-center gap-3 mt-2 text-[12px]" style={{ color: config.textMuted }}>
-                    <span>{l.user.name}</span>
+                    <span>{l.user.centerName ?? l.user.name}</span>
                     <span>•</span>
                     <span>{l.price === 0 ? "Bepul" : `${fmt(l.price)} so'm`}</span>
                     <span className="hidden md:inline">•</span>
@@ -268,33 +269,52 @@ export default function AdminListingsPage() {
                     {menuOpen === l.id && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                        <div className="absolute right-0 top-10 z-50 w-[200px] rounded-[10px] py-1 shadow-xl" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
-                          <button onClick={() => { setOpenListing(l); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: config.textMuted }}>
-                            <Eye className="w-3.5 h-3.5" /> Batafsil
-                          </button>
-                          <Link href={`/admin/listings/${l.id}/edit`} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: config.textMuted }} onClick={() => setMenuOpen(null)}>
-                            <Pencil className="w-3.5 h-3.5" /> Tahrirlash
-                          </Link>
+                        <div className="absolute right-0 top-11 z-50 w-[210px] rounded-[12px] p-1.5 shadow-2xl" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+                          <MenuItem
+                            icon={Eye}
+                            label="Batafsil"
+                            color={config.text}
+                            onClick={() => { setOpenListing(l); setMenuOpen(null); }}
+                          />
+                          <MenuItem
+                            icon={Pencil}
+                            label="Tahrirlash"
+                            color={config.text}
+                            href={`/admin/listings/${l.id}/edit`}
+                            onClick={() => setMenuOpen(null)}
+                          />
                           {(l.status === "active" || l.status === "paused") && (
-                            <button onClick={() => togglePause(l)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: config.textMuted }}>
-                              {l.status === "active" ? <><Pause className="w-3.5 h-3.5" /> Pauzaga qo&apos;yish</> : <><Play className="w-3.5 h-3.5" /> Aktivlashtirish</>}
-                            </button>
+                            <MenuItem
+                              icon={l.status === "active" ? Pause : Play}
+                              label={l.status === "active" ? "Pauzaga qo'yish" : "Aktivlashtirish"}
+                              color={config.text}
+                              onClick={() => togglePause(l)}
+                            />
                           )}
-                          <div style={{ borderTop: `1px solid ${config.surfaceBorder}` }} className="my-1" />
-                          <button onClick={() => { setConfirmDelete(l); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: "#ef4444" }}>
-                            <Trash2 className="w-3.5 h-3.5" /> O&apos;chirish
-                          </button>
                           {l.status === "pending" && (
                             <>
-                              <div style={{ borderTop: `1px solid ${config.surfaceBorder}` }} className="my-1" />
-                              <button onClick={() => approve(l.id)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: "#22c55e" }}>
-                                <Check className="w-3.5 h-3.5" /> Tasdiqlash
-                              </button>
-                              <button onClick={() => { setRejectModal(l); setRejectReason(""); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: "#ef4444" }}>
-                                <X className="w-3.5 h-3.5" /> Rad etish
-                              </button>
+                              <div className="h-px my-1" style={{ backgroundColor: config.surfaceBorder }} />
+                              <MenuItem
+                                icon={Check}
+                                label="Tasdiqlash"
+                                color="#22c55e"
+                                onClick={() => approve(l.id)}
+                              />
+                              <MenuItem
+                                icon={X}
+                                label="Rad etish"
+                                color="#ef4444"
+                                onClick={() => { setRejectModal(l); setRejectReason(""); setMenuOpen(null); }}
+                              />
                             </>
                           )}
+                          <div className="h-px my-1" style={{ backgroundColor: config.surfaceBorder }} />
+                          <MenuItem
+                            icon={Trash2}
+                            label="O'chirish"
+                            color="#ef4444"
+                            onClick={() => { setConfirmDelete(l); setMenuOpen(null); }}
+                          />
                         </div>
                       </>
                     )}
@@ -336,7 +356,7 @@ export default function AdminListingsPage() {
             </div>
             <div className="rounded-[10px] p-3 mb-4" style={{ backgroundColor: config.hover }}>
               <p className="text-[13px] font-semibold" style={{ color: config.text }}>{confirmDelete.title}</p>
-              <p className="text-[11px] mt-0.5" style={{ color: config.textMuted }}>{confirmDelete.user.name} • {confirmDelete._count.leads} ariza</p>
+              <p className="text-[11px] mt-0.5" style={{ color: config.textMuted }}>{confirmDelete.user.centerName ?? confirmDelete.user.name} • {confirmDelete._count.leads} ariza</p>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setConfirmDelete(null)} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium" style={{ backgroundColor: config.hover, color: config.textMuted }}>
@@ -365,7 +385,7 @@ export default function AdminListingsPage() {
             </div>
             <div className="rounded-[10px] p-3 mb-4" style={{ backgroundColor: config.hover }}>
               <p className="text-[13px] font-semibold" style={{ color: config.text }}>{rejectModal.title}</p>
-              <p className="text-[11px] mt-0.5" style={{ color: config.textMuted }}>{rejectModal.user.name}</p>
+              <p className="text-[11px] mt-0.5" style={{ color: config.textMuted }}>{rejectModal.user.centerName ?? rejectModal.user.name}</p>
             </div>
             <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Rad etish sababi *</label>
             <textarea
@@ -463,7 +483,7 @@ export default function AdminListingsPage() {
                             <span className="px-2.5 py-1 rounded-full bg-white/10 text-white/60 text-[11px] capitalize">{openListing.format === "offline" ? "Offline" : openListing.format === "online" ? "Online" : "Video"}</span>
                           </div>
                           <h3 className="text-[18px] font-bold text-white leading-tight line-clamp-3">{openListing.title}</h3>
-                          <p className="text-[12px] text-white/40 mt-2">{openListing.user.name}</p>
+                          <p className="text-[12px] text-white/40 mt-2">{openListing.user.centerName ?? openListing.user.name}</p>
                           {openListing.location && (
                             <p className="text-[11px] text-white/30 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" />{openListing.location}</p>
                           )}
@@ -496,7 +516,10 @@ export default function AdminListingsPage() {
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-wider mb-2.5" style={{ color: config.textDim }}>Kurs egasi</p>
                 <div className="rounded-[12px] p-4" style={{ backgroundColor: config.hover }}>
-                  <p className="text-[14px] font-semibold" style={{ color: config.text }}>{openListing.user.name}</p>
+                  <p className="text-[14px] font-semibold" style={{ color: config.text }}>{openListing.user.centerName ?? openListing.user.name}</p>
+                  {openListing.user.centerName && (
+                    <p className="text-[12px] mt-0.5" style={{ color: config.textMuted }}>Egasi: {openListing.user.name}</p>
+                  )}
                   <p className="text-[12px] mt-0.5" style={{ color: config.textMuted }}>Yuborilgan: {timeAgo(openListing.createdAt)}</p>
                 </div>
               </div>
@@ -553,5 +576,39 @@ export default function AdminListingsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function MenuItem({ icon: Icon, label, color, onClick, href }: { icon: typeof Eye; label: string; color: string; onClick?: () => void; href?: string }) {
+  const { config } = useAdminTheme();
+  const [hover, setHover] = useState(false);
+  const cls = "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors";
+  const style = { backgroundColor: hover ? config.hover : "transparent", color };
+  if (href) {
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        className={cls}
+        style={style}
+      >
+        <Icon className="w-4 h-4 shrink-0" />
+        <span>{label}</span>
+      </Link>
+    );
+  }
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className={cls}
+      style={style}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      <span>{label}</span>
+    </button>
   );
 }

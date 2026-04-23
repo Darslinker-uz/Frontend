@@ -1,128 +1,66 @@
-"use client";
+import type { Metadata } from "next";
+import { getActiveListings } from "@/lib/listings";
+import { KurslarClient } from "./kurslar-client";
 
-import Link from "next/link";
-import { useState, useCallback, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { Star, ArrowRight } from "lucide-react";
-import { type Course } from "@/data/courses";
-import { CourseFilter } from "@/components/course-filter";
-import { apiListingToCourse, type ApiListing } from "@/lib/listing-mapper";
+export const dynamic = "force-dynamic";
 
-function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
-  return (
-    <Link href={`/kurslar/${course.categorySlug}/${course.slug}`} style={{ animationDelay: `${index * 80}ms` }} className="animate-[cardStagger_0.4s_ease-out_backwards]">
-      <div className={`relative overflow-hidden rounded-[18px] bg-gradient-to-br ${course.gradient} flex flex-col h-full group`}>
-        {course.imageUrl ? (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover hidden md:block" style={{ objectPosition: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%`, transform: `scale(${(course.imageCZoom ?? 100) / 100})`, transformOrigin: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%` }} />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover md:hidden" style={{ objectPosition: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%`, transform: `scale(${(course.imageCMZoom ?? 100) / 100})`, transformOrigin: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%` }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
-          </>
-        ) : (
-          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
-        )}
-        <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
-        <div className="relative z-[2] p-5 flex-1">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{course.category}</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{course.format}</span>
-          </div>
-          <h3 className="text-[17px] font-bold text-white leading-tight">{course.title}</h3>
-          <p className="text-[12px] text-white/35 mt-1">{course.provider} · {course.location}</p>
-          <div className="flex items-center gap-2 mt-2 text-[11px] text-white/30">
-            <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-white/50 text-white/50" />{course.rating}</span>
-            <span>{course.duration}</span>
-          </div>
-        </div>
-        <div className="relative z-[2] mx-3 mb-3 rounded-[12px] bg-white/[0.1] border border-white/[0.08] px-4 py-2.5 flex items-center justify-between">
-          <span className="text-[14px] font-bold text-white">{course.priceFree ? "Bepul" : `${course.price} so'm`}</span>
-          <ArrowRight className="w-4 h-4 text-white/30" />
-        </div>
-      </div>
-    </Link>
-  );
-}
+const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
-function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: number }) {
-  if (courses.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 md:py-20 rounded-[18px] bg-white border border-[#e4e7ea]">
-        <p className="text-[16px] text-[#7c8490] font-medium">Kurs topilmadi</p>
-        <p className="text-[13px] text-[#7c8490]/60 mt-1">Filtrlarni o&apos;zgartirib ko&apos;ring</p>
-      </div>
-    );
-  }
-  return (
-    <div key={filterKey} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {courses.map((course, i) => <CourseCard key={course.slug} course={course} index={i} />)}
-    </div>
-  );
-}
+export const metadata: Metadata = {
+  title: "Barcha kurslar — O'zbekistondagi online va offline kurslar",
+  description: "O'zbekistondagi barcha o'quv markazlari va kurslar bitta joyda. Dasturlash, dizayn, IELTS, ingliz tili, marketing va boshqa yo'nalishlar bo'yicha kurslarni toping, solishtiring va ariza qoldiring.",
+  keywords: ["kurslar", "o'zbekiston kurslari", "toshkent kurslar", "online kurslar", "offline kurslar", "o'quv markaz", "dasturlash kursi", "IELTS", "ingliz tili kursi", "dizayn kursi", "marketing kursi"],
+  alternates: { canonical: `${SITE_URL}/kurslar` },
+  openGraph: {
+    type: "website",
+    locale: "uz_UZ",
+    url: `${SITE_URL}/kurslar`,
+    siteName: "Darslinker.uz",
+    title: "Barcha kurslar — Darslinker.uz",
+    description: "O'zbekistondagi eng yaxshi kurslarni toping va solishtiring.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Barcha kurslar — Darslinker.uz",
+    description: "O'zbekistondagi eng yaxshi kurslarni toping va solishtiring.",
+  },
+};
 
-function KurslarContent() {
-  const searchParams = useSearchParams();
-  const initialSearch = searchParams.get("search") || "";
-  const initialFormat = searchParams.get("format") || "";
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
-  const [filtered, setFiltered] = useState<Course[]>([]);
-  const [filterKey, setFilterKey] = useState(0);
-  const [loading, setLoading] = useState(true);
+export default async function KurslarPage() {
+  const courses = await getActiveListings();
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/listings");
-        const data: { listings: ApiListing[] } = await r.json();
-        if (cancelled) return;
-        const mapped = (data.listings ?? []).map(apiListingToCourse);
-        setAllCourses(mapped);
-        setFiltered(mapped);
-      } catch (e) { console.error(e); } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  const handleFilter = useCallback((courses: Course[]) => {
-    setFiltered(courses);
-    setFilterKey(k => k + 1);
-  }, []);
+  const url = `${SITE_URL}/kurslar`;
+  const itemListLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Barcha kurslar — Darslinker.uz",
+    "description": "O'zbekistondagi barcha o'quv markazlari va kurslar",
+    "numberOfItems": courses.length,
+    "itemListElement": courses.slice(0, 30).map((c, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `${SITE_URL}/kurslar/${c.categorySlug}/${c.slug}`,
+      "name": c.title,
+    })),
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": SITE_URL },
+      { "@type": "ListItem", "position": 2, "name": "Kurslar", "item": url },
+    ],
+  };
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-5">
         <h1 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-4 md:hidden">Kurslar</h1>
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 rounded-[18px] bg-white border border-[#e4e7ea]">
-            <p className="text-[16px] text-[#7c8490] font-medium">Yuklanmoqda...</p>
-          </div>
-        ) : (
-          <>
-            <div className="md:flex">
-              <CourseFilter key={`${initialSearch}-${initialFormat}`} courses={allCourses} onFilter={handleFilter} initialSearch={initialSearch} initialFormat={initialFormat}>
-                <CourseGrid courses={filtered} filterKey={filterKey} />
-              </CourseFilter>
-            </div>
-            <div className="md:hidden mt-4">
-              <CourseGrid courses={filtered} filterKey={filterKey} />
-            </div>
-          </>
-        )}
+        <h1 className="sr-only">O&apos;zbekistondagi kurslar — {courses.length} ta kurs</h1>
+        <KurslarClient initialCourses={courses} />
       </div>
     </div>
-  );
-}
-
-export default function KurslarPage() {
-  return (
-    <Suspense>
-      <KurslarContent />
-    </Suspense>
   );
 }

@@ -47,7 +47,7 @@ export async function GET() {
           views: true,
           status: true,
           category: { select: { id: true, name: true, slug: true, color: true } },
-          user: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, centerName: true } },
         },
       },
     },

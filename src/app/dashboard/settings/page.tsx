@@ -34,6 +34,7 @@ export default function SettingsPage() {
 
   // Profil
   const [name, setName] = useState("");
+  const [centerName, setCenterName] = useState("");
   const [emailAddr, setEmailAddr] = useState("");
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileSaving, setProfileSaving] = useState(false);
@@ -74,9 +75,10 @@ export default function SettingsPage() {
       try {
         const res = await fetch("/api/dashboard/profile", { cache: "no-store" });
         if (!res.ok) return;
-        const data = await res.json() as { user: { name: string; email: string | null; phone: string } };
+        const data = await res.json() as { user: { name: string; centerName: string | null; email: string | null; phone: string } };
         if (cancelled) return;
         setName(data.user.name ?? "");
+        setCenterName(data.user.centerName ?? "");
         setEmailAddr(data.user.email ?? "");
       } catch (e) {
         console.error("[settings] load profile failed", e);
@@ -98,7 +100,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/dashboard/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: emailAddr.trim() || null }),
+        body: JSON.stringify({ name: name.trim(), email: emailAddr.trim() || null, centerName: centerName.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -240,6 +242,20 @@ export default function SettingsPage() {
                 className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none"
                 style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
               />
+            </div>
+            <div>
+              <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Markaz nomi (agar bor bo&apos;lsa)</label>
+              <input
+                value={profileLoading ? "" : centerName}
+                onChange={(e) => setCenterName(e.target.value)}
+                placeholder={profileLoading ? "Yuklanmoqda..." : "Masalan: IT Park Academy"}
+                disabled={profileLoading}
+                className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none"
+                style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+              />
+              <p className="text-[11px] mt-1.5" style={{ color: config.textDim }}>
+                Kurs egasi sifatida e&apos;lonlarda ko&apos;rinadi. Bo&apos;sh qoldirsangiz, ismingiz ishlatiladi.
+              </p>
             </div>
             <div>
               <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Telefon</label>

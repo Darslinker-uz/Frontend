@@ -19,7 +19,7 @@ export async function GET(_request: Request, { params }: Ctx) {
   const listing = await prisma.listing.findUnique({
     where: { id: listingId },
     include: {
-      user: { select: { id: true, name: true, phone: true, telegramChatId: true } },
+      user: { select: { id: true, name: true, centerName: true, phone: true, telegramChatId: true } },
       category: { select: { id: true, name: true, slug: true, color: true } },
       _count: { select: { leads: true, boosts: true, reviews: true } },
     },
@@ -84,7 +84,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
     where: { id: listingId },
     data,
     include: {
-      user: { select: { id: true, name: true, phone: true, telegramChatId: true } },
+      user: { select: { id: true, name: true, centerName: true, phone: true, telegramChatId: true } },
       category: { select: { id: true, name: true, slug: true, color: true } },
     },
   });

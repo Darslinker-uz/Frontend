@@ -11,13 +11,40 @@ type Props = {
   params: Promise<{ kategoriya: string; slug: string }>;
 };
 
+const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { kategoriya, slug } = await params;
   const result = await getListingBySlug(slug);
   if (!result) return { title: "Kurs topilmadi" };
+  const c = result.course;
+  const url = `${SITE_URL}/kurslar/${kategoriya}/${slug}`;
+  const imageUrl = c.imageUrl ? (c.imageUrl.startsWith("http") ? c.imageUrl : `${SITE_URL}${c.imageUrl}`) : undefined;
+  const priceText = c.priceFree ? "Bepul" : `${c.price} so'm`;
+  const desc = (c.description && c.description.length > 40)
+    ? `${c.description.slice(0, 155).trim()}…`
+    : `${c.title} — ${c.provider}${c.location ? `, ${c.location}` : ""}. ${c.format} format. Narx: ${priceText}. Davomiylik: ${c.duration}.`;
+
   return {
-    title: result.course.title,
-    description: `${result.course.title} — ${result.course.provider}. ${result.course.description}`,
+    title: `${c.title} — ${c.provider}`,
+    description: desc,
+    keywords: [c.title, c.category, c.provider, c.location, "kurs", "online kurs", c.format.toLowerCase()].filter(Boolean) as string[],
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      locale: "uz_UZ",
+      url,
+      siteName: "Darslinker.uz",
+      title: `${c.title} — ${c.provider}`,
+      description: desc,
+      images: imageUrl ? [{ url: imageUrl, alt: c.title }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: c.title,
+      description: desc,
+      images: imageUrl ? [imageUrl] : undefined,
+    },
   };
 }
 
@@ -33,8 +60,57 @@ export default async function KursDetailPage({ params }: Props) {
   const cat = categories.find((c) => c.slug === kategoriya);
   const catName = cat?.name ?? kategoriya.replace(/-/g, " ");
 
+  // JSON-LD structured data — Google rich snippets uchun
+  const url = `${SITE_URL}/kurslar/${kategoriya}/${slug}`;
+  const imageAbs = course.imageUrl ? (course.imageUrl.startsWith("http") ? course.imageUrl : `${SITE_URL}${course.imageUrl}`) : undefined;
+  const priceAmount = course.priceFree ? 0 : Number(course.price.replace(/[^\d]/g, "")) || 0;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": course.title,
+    "description": course.description || `${course.title} — ${course.provider}`,
+    "provider": {
+      "@type": "Organization",
+      "name": course.provider,
+      "sameAs": SITE_URL,
+    },
+    ...(imageAbs && { "image": imageAbs }),
+    "url": url,
+    ...(course.location && { "locationCreated": course.location }),
+    "inLanguage": "uz",
+    "offers": {
+      "@type": "Offer",
+      "price": priceAmount,
+      "priceCurrency": "UZS",
+      "availability": "https://schema.org/InStock",
+      "url": url,
+      "category": course.priceFree ? "Free" : "Paid",
+    },
+    "courseMode": course.format === "Offline" ? "onsite" : course.format === "Online" ? "online" : "blended",
+    ...(course.duration && { "timeRequired": course.duration }),
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": course.rating,
+      "ratingCount": 1,
+      "bestRating": 5,
+    },
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": SITE_URL },
+      { "@type": "ListItem", "position": 2, "name": "Kurslar", "item": `${SITE_URL}/kurslar` },
+      { "@type": "ListItem", "position": 3, "name": catName, "item": `${SITE_URL}/kurslar/${kategoriya}` },
+      { "@type": "ListItem", "position": 4, "name": course.title, "item": url },
+    ],
+  };
+
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      {/* eslint-disable-next-line @next/next/no-head-element */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-8 md:py-12">
         {/* Back button */}
         <Link href="/kurslar" className="inline-flex items-center gap-2 text-[13px] text-[#7c8490] hover:text-[#16181a] font-medium mb-4 transition-colors">

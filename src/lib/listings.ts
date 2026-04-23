@@ -39,7 +39,7 @@ interface ListingFromDb {
   imageCMZoom: number;
   views: number;
   category: { name: string; slug: string } | null;
-  user: { name: string } | null;
+  user: { name: string; centerName?: string | null } | null;
 }
 
 export function listingToCourse(l: ListingFromDb): Course {
@@ -56,7 +56,7 @@ export function listingToCourse(l: ListingFromDb): Course {
     category: l.category?.name ?? "—",
     categorySlug: l.category?.slug ?? "",
     format: FORMAT_LABELS[l.format] ?? "Online",
-    provider: l.user?.name ?? "—",
+    provider: l.user?.centerName ?? l.user?.name ?? "—",
     location: l.location ?? "",
     price,
     priceFree: l.price === 0,
@@ -96,7 +96,7 @@ export async function getActiveListings(options?: { categorySlug?: string; limit
       id: true, title: true, slug: true, description: true, price: true,
       format: true, location: true, duration: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true,
       category: { select: { name: true, slug: true } },
-      user: { select: { name: true } },
+      user: { select: { name: true, centerName: true } },
     },
   });
   return listings.map(listingToCourse);
@@ -110,7 +110,7 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
       format: true, location: true, duration: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true,
       status: true, phone: true,
       category: { select: { name: true, slug: true } },
-      user: { select: { name: true } },
+      user: { select: { name: true, centerName: true } },
     },
   });
   if (!listing || listing.status !== "active") return null;
@@ -138,7 +138,7 @@ export async function getFeaturedListings(): Promise<Course[]> {
           format: true, location: true, duration: true, color: true, icon: true, imageUrl: true,
           imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true, status: true,
           category: { select: { name: true, slug: true } },
-          user: { select: { name: true } },
+          user: { select: { name: true, centerName: true } },
         },
       },
     },

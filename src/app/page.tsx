@@ -10,14 +10,42 @@ import { getActiveCategories, getActiveListings } from "@/lib/listings";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
+
 export default async function HomePage() {
   const [categories, courses] = await Promise.all([
     getActiveCategories(),
     getActiveListings({ limit: 12 }),
   ]);
 
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Darslinker.uz",
+    "alternateName": "Darslinker",
+    "url": SITE_URL,
+    "inLanguage": "uz",
+    "description": "O'zbekistondagi eng yaxshi online va offline kurslarni toping, solishtiring va to'g'ri tanlov qiling.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": `${SITE_URL}/kurslar?search={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
+  };
+  const organizationLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Darslinker.uz",
+    "url": SITE_URL,
+    "logo": `${SITE_URL}/icon-512.png`,
+    "description": "O'zbekistondagi o'quv markazlari va kurslarni yagona platformada birlashtiruvchi xizmat.",
+    "areaServed": { "@type": "Country", "name": "O'zbekiston" },
+  };
+
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }} />
       {/* HERO + SLIDER — konteyner ichida */}
       <div className="max-w-[1600px] mx-auto px-5 md:px-20">
         <div className="flex flex-col gap-5 pt-6 md:pt-8 pb-6">

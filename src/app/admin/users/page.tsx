@@ -9,6 +9,7 @@ type Role = "admin" | "provider" | "student";
 interface User {
   id: number;
   name: string;
+  centerName: string | null;
   phone: string;
   email: string | null;
   telegramChatId: string | null;
@@ -195,7 +196,12 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-[14px] font-semibold truncate" style={{ color: config.text }}>{u.name}</p>
+                    <p className="text-[14px] font-semibold truncate" style={{ color: config.text }}>
+                      {u.name}
+                      {u.role === "provider" && u.centerName && (
+                        <span className="font-normal" style={{ color: config.textMuted }}> — {u.centerName}</span>
+                      )}
+                    </p>
                     <span className="h-[20px] px-2 rounded-full text-[10px] font-bold flex items-center gap-1" style={{ backgroundColor: `${roleColor}22`, color: roleColor }}>
                       <Icon className="w-2.5 h-2.5" />
                       {ROLE_CONFIG[u.role].label}
@@ -240,18 +246,28 @@ export default function AdminUsersPage() {
                   {menuOpen === u.id && (
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                      <div className="absolute right-0 top-10 z-50 w-[180px] rounded-[10px] py-1 shadow-xl" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
-                        <button onClick={() => { setOpenUser(u); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] transition-colors" style={{ color: config.textMuted }}>
-                          <Eye className="w-3.5 h-3.5" /> Batafsil
-                        </button>
+                      <div className="absolute right-0 top-11 z-50 w-[200px] rounded-[12px] p-1.5 shadow-2xl" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+                        <MenuItem
+                          icon={Eye}
+                          label="Batafsil"
+                          color={config.text}
+                          onClick={() => { setOpenUser(u); setMenuOpen(null); }}
+                        />
                         {u.role === "provider" && (
-                          <button onClick={() => { setTopupUser(u); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] transition-colors" style={{ color: "#22c55e" }}>
-                            <Wallet className="w-3.5 h-3.5" /> Balans
-                          </button>
+                          <MenuItem
+                            icon={Wallet}
+                            label="Balans"
+                            color="#22c55e"
+                            onClick={() => { setTopupUser(u); setMenuOpen(null); }}
+                          />
                         )}
-                        <button onClick={() => toggleBlock(u)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] transition-colors" style={{ color: !u.banned ? "#ef4444" : "#22c55e" }}>
-                          {!u.banned ? <><Ban className="w-3.5 h-3.5" />Bloklash</> : <><CheckCircle2 className="w-3.5 h-3.5" />Ochish</>}
-                        </button>
+                        <div className="h-px my-1" style={{ backgroundColor: config.surfaceBorder }} />
+                        <MenuItem
+                          icon={!u.banned ? Ban : CheckCircle2}
+                          label={!u.banned ? "Bloklash" : "Blokdan chiqarish"}
+                          color={!u.banned ? "#ef4444" : "#22c55e"}
+                          onClick={() => toggleBlock(u)}
+                        />
                       </div>
                     </>
                   )}
@@ -281,6 +297,23 @@ export default function AdminUsersPage() {
         />
       )}
     </div>
+  );
+}
+
+function MenuItem({ icon: Icon, label, color, onClick }: { icon: typeof Eye; label: string; color: string; onClick: () => void }) {
+  const { config } = useAdminTheme();
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] text-[13px] font-medium transition-colors"
+      style={{ backgroundColor: hover ? config.hover : "transparent", color }}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      <span>{label}</span>
+    </button>
   );
 }
 
@@ -425,6 +458,9 @@ function UserDetailModal({ user, onClose, onToggleBlock, onDelete }: { user: Use
             </div>
             <div>
               <h2 className="text-[18px] font-bold" style={{ color: config.text }}>{user.name}</h2>
+              {user.role === "provider" && user.centerName && (
+                <p className="text-[12px] mt-0.5" style={{ color: config.textMuted }}>{user.centerName}</p>
+              )}
               <span className="inline-flex items-center gap-1 mt-1 h-[22px] px-2.5 rounded-full text-[11px] font-bold" style={{ backgroundColor: `${roleColor}22`, color: roleColor }}>
                 <Icon className="w-3 h-3" />
                 {ROLE_CONFIG[user.role].label}
