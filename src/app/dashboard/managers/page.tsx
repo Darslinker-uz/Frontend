@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, MoreHorizontal, Pencil, Trash2, Shield, Eye, FileText, Users, Wallet, Zap, BarChart3, Check, X, Send, Crown, User, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Shield, Eye, FileText, Users, Wallet, Zap, BarChart3, Check, X, Send, Crown, User, AlertCircle, Lock } from "lucide-react";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
 
 type Permission = "view_leads" | "manage_leads" | "view_listings" | "create_listings" | "edit_listings" | "boost" | "view_balance" | "topup" | "view_stats" | "manage_managers";
@@ -65,11 +65,31 @@ interface Manager {
   status: "aktiv" | "taklif_qilindi";
 }
 
-const initialManagers: Manager[] = [
-  { id: 1, name: "Aziz Karimov", phone: "+998 90 111 22 33", telegram: "@azizk", role: "admin", permissions: ROLE_PRESETS.admin.permissions, addedAt: "2026-03-10", status: "aktiv" },
-  { id: 2, name: "Nigora Saidova", phone: "+998 91 222 33 44", telegram: "@nigora_s", role: "sales", permissions: ROLE_PRESETS.sales.permissions, addedAt: "2026-03-25", status: "aktiv" },
-  { id: 3, name: "Sardor Qodirov", phone: "+998 93 333 44 55", role: "content", permissions: ROLE_PRESETS.content.permissions, addedAt: "2026-04-05", status: "taklif_qilindi" },
-];
+interface ApiManager {
+  id: number;
+  name: string;
+  phone: string;
+  telegramChatId: string | null;
+  canReply: boolean;
+  canManage: boolean;
+  active: boolean;
+  createdAt: string;
+}
+
+// Map API manager to UI shape. Role is derived from permission flags.
+function mapApiToUi(m: ApiManager): Manager {
+  const role: Role = m.canManage ? "admin" : "sales";
+  return {
+    id: m.id,
+    name: m.name,
+    phone: m.phone,
+    telegram: m.telegramChatId ? (m.telegramChatId.startsWith("@") ? m.telegramChatId : `@${m.telegramChatId}`) : undefined,
+    role,
+    permissions: ROLE_PRESETS[role].permissions,
+    addedAt: m.createdAt?.slice(0, 10) ?? "",
+    status: m.active ? "aktiv" : "taklif_qilindi",
+  };
+}
 
 const initials = (name: string) => name.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase();
 const avatarColor = (name: string) => {
@@ -83,137 +103,102 @@ function UserCog(props: any) {
 
 export default function ManagersPage() {
   const { config } = useDashboardTheme();
-  const [managers, setManagers] = useState<Manager[]>(initialManagers);
+  const [managers, setManagers] = useState<Manager[]>([]);
+  const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
   const [editor, setEditor] = useState<{ mode: "add" | "edit"; manager?: Manager } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Manager | null>(null);
 
-  const removeManager = () => {
+  const reload = async () => {
+    try {
+      const res = await fetch("/api/dashboard/managers", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json() as { managers: ApiManager[] };
+      setManagers(data.managers.map(mapApiToUi));
+    } catch (e) {
+      console.error("[managers] load failed", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { reload(); }, []);
+
+  const removeManager = async () => {
     if (!confirmDelete) return;
-    setManagers(prev => prev.filter(m => m.id !== confirmDelete.id));
+    const id = confirmDelete.id;
     setConfirmDelete(null);
+    try {
+      const res = await fetch(`/api/dashboard/managers/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setManagers(prev => prev.filter(m => m.id !== id));
+      }
+    } catch (e) {
+      console.error("[managers] delete failed", e);
+    }
+  };
+
+  const saveManager = async (m: Omit<Manager, "id" | "addedAt" | "status">) => {
+    // Role admin => canManage. Any other role (sales/content/finance/custom) => !canManage but canReply.
+    const canManage = m.role === "admin";
+    const canReply = true;
+    try {
+      if (editor?.mode === "add") {
+        const res = await fetch("/api/dashboard/managers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: m.name,
+            phone: m.phone,
+            telegramChatId: m.telegram || null,
+            canReply,
+            canManage,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json() as { manager: ApiManager };
+          setManagers(prev => [mapApiToUi(data.manager), ...prev]);
+        }
+      } else if (editor?.mode === "edit" && editor.manager) {
+        const res = await fetch(`/api/dashboard/managers/${editor.manager.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: m.name,
+            phone: m.phone,
+            telegramChatId: m.telegram || null,
+            canReply,
+            canManage,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json() as { manager: ApiManager };
+          setManagers(prev => prev.map(x => x.id === data.manager.id ? mapApiToUi(data.manager) : x));
+        }
+      }
+    } catch (e) {
+      console.error("[managers] save failed", e);
+    } finally {
+      setEditor(null);
+    }
   };
 
   return (
     <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>Menejerlar</h1>
-          <p className="text-[14px] mt-0.5" style={{ color: config.textMuted }}>Jamoaga menejer qo&apos;shing va huquqlarini belgilang</p>
-        </div>
-        <button onClick={() => setEditor({ mode: "add" })} className="h-[40px] px-4 rounded-[10px] text-[13px] font-medium flex items-center gap-2 hover:opacity-90" style={{ backgroundColor: config.accent, color: config.accentText }}>
-          <Plus className="w-4 h-4" /> Menejer qo&apos;shish
-        </button>
-      </div>
-
-      {/* Info card */}
-      <div className="rounded-[14px] p-4 mb-5 flex items-start gap-3" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
-        <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ backgroundColor: config.hover }}>
-          <AlertCircle className="w-4 h-4" style={{ color: config.textMuted }} />
-        </div>
-        <div>
-          <p className="text-[13px] font-medium" style={{ color: config.text }}>Menejer qanday ishlaydi?</p>
-          <p className="text-[12px] mt-0.5" style={{ color: config.textMuted }}>Siz menejerga taklif yuborasiz. U Telegram bot orqali kirib, belgilangan huquqlar bilan dashboard ga ulanadi.</p>
-        </div>
-      </div>
-
-      {/* Managers list */}
-      <div className="space-y-3">
-        {managers.map((m) => {
-          const role = ROLE_PRESETS[m.role];
-          return (
-            <div key={m.id} className="rounded-[14px] p-4 md:p-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
-              <div className="flex items-start gap-3">
-                <div className="w-11 h-11 rounded-[12px] flex items-center justify-center text-[14px] font-bold text-white shrink-0" style={{ backgroundColor: avatarColor(m.name) }}>
-                  {initials(m.name)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <p className="text-[15px] font-semibold" style={{ color: config.text }}>{m.name}</p>
-                    <span className="h-[20px] px-2 rounded-full text-[10px] font-bold flex items-center gap-1" style={{ backgroundColor: `${role.color}20`, color: role.color }}>
-                      {m.role === "admin" && <Crown className="w-2.5 h-2.5" />}
-                      {role.label}
-                    </span>
-                    {m.status === "taklif_qilindi" && (
-                      <span className="h-[20px] px-2 rounded-full text-[10px] font-medium bg-amber-500/20 text-amber-400">Taklif kutilmoqda</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 text-[12px] mb-2" style={{ color: config.textMuted }}>
-                    <span>{m.phone}</span>
-                    {m.telegram && <span>{m.telegram}</span>}
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px]" style={{ color: config.textDim }}>{m.permissions.length} ta huquq:</span>
-                    {m.permissions.slice(0, 3).map((p) => {
-                      const perm = PERMISSIONS.find(x => x.key === p);
-                      return perm ? <span key={p} className="text-[11px] px-2 py-0.5 rounded-full" style={{ color: config.textMuted, backgroundColor: config.hover }}>{perm.label}</span> : null;
-                    })}
-                    {m.permissions.length > 3 && <span className="text-[11px]" style={{ color: config.textDim }}>+{m.permissions.length - 3}</span>}
-                  </div>
-                </div>
-                <div className="relative">
-                  <button onClick={() => setMenuOpen(menuOpen === m.id ? null : m.id)} className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ backgroundColor: config.surface, color: config.textMuted }}>
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-                  {menuOpen === m.id && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(null)} />
-                      <div className="absolute right-0 top-10 z-50 w-[200px] rounded-[10px] shadow-xl py-1" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
-                        <button onClick={() => { setEditor({ mode: "edit", manager: m }); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px]" style={{ color: config.textMuted }}>
-                          <Pencil className="w-3.5 h-3.5" /> Tahrirlash
-                        </button>
-                        <div className="my-1" style={{ borderTop: `1px solid ${config.surfaceBorder}` }} />
-                        <button onClick={() => { setConfirmDelete(m); setMenuOpen(null); }} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-red-400/80 hover:text-red-400 hover:bg-red-500/[0.06]">
-                          <Trash2 className="w-3.5 h-3.5" /> Olib tashlash
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {managers.length === 0 && (
-          <div className="rounded-[14px] border border-dashed p-12 text-center" style={{ borderColor: config.surfaceBorder }}>
-            <p className="text-[14px]" style={{ color: config.textMuted }}>Hali menejer qo&apos;shilmagan</p>
+      <div className="max-w-[600px] mx-auto mt-8 md:mt-16">
+        <div className="rounded-[20px] p-8 md:p-12 text-center" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+          <div className="w-16 h-16 mx-auto mb-5 rounded-[18px] flex items-center justify-center" style={{ backgroundColor: config.hover }}>
+            <Lock className="w-7 h-7" style={{ color: config.textMuted }} />
           </div>
-        )}
-      </div>
-
-      {/* Editor modal */}
-      {editor && <ManagerEditor editor={editor} onClose={() => setEditor(null)} onSave={(m) => {
-        if (editor.mode === "add") {
-          setManagers(prev => [...prev, { ...m, id: Date.now(), addedAt: new Date().toISOString().slice(0, 10), status: "taklif_qilindi" }]);
-        } else if (editor.mode === "edit" && editor.manager) {
-          setManagers(prev => prev.map(x => x.id === editor.manager!.id ? { ...x, ...m } : x));
-        }
-        setEditor(null);
-      }} />}
-
-      {/* Delete confirm */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
-          <div className="relative rounded-[18px] p-6 max-w-[420px] w-full" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-11 h-11 rounded-[12px] bg-red-500/15 flex items-center justify-center shrink-0">
-                <Trash2 className="w-5 h-5 text-red-400" />
-              </div>
-              <div>
-                <h3 className="text-[17px] font-bold" style={{ color: config.text }}>Menejerni olib tashlash</h3>
-                <p className="text-[13px] mt-1" style={{ color: config.textMuted }}><span className="font-medium" style={{ color: config.text }}>{confirmDelete.name}</span> dashboard ga kirish huquqidan mahrum bo&apos;ladi. Bu amaliyotni qaytarish mumkin.</p>
-              </div>
-            </div>
-            <div className="flex gap-2 mt-5">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium" style={{ backgroundColor: config.hover, color: config.textMuted }}>Bekor</button>
-              <button onClick={removeManager} className="flex-1 h-[44px] rounded-[10px] bg-red-500 text-white text-[14px] font-medium hover:bg-red-500/90">Ha, olib tashlash</button>
-            </div>
-          </div>
+          <h1 className="text-[22px] md:text-[24px] font-bold mb-2" style={{ color: config.text }}>Menejerlar</h1>
+          <p className="text-[14px] mb-5" style={{ color: config.textMuted }}>
+            Jamoaga menejer qo&apos;shish va ruxsatlarni boshqarish imkoniyati ustida ishlanmoqda
+          </p>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold" style={{ backgroundColor: `${config.accent}22`, color: config.accent }}>
+            ✨ Tez kunda
+          </span>
         </div>
-      )}
+      </div>
     </div>
   );
 }

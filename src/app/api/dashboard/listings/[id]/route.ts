@@ -1,8 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { notifyListingPending } from "@/lib/bot-handler";
 
 interface Ctx { params: Promise<{ id: string }> }
+
+// Fields whose change requires re-moderation by admin.
+// Visual-only fields (status toggle, image position/zoom) don't trigger re-review.
+const REMODERATION_FIELDS = new Set([
+  "title",
+  "description",
+  "price",
+  "duration",
+  "location",
+  "imageUrl",
+]);
 
 // GET /api/dashboard/listings/:id — fetch a single listing owned by the current teacher
 export async function GET(_request: Request, { params }: Ctx) {
@@ -36,7 +48,10 @@ export async function PATCH(request: Request, { params }: Ctx) {
   const listingId = Number(id);
   if (!listingId) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const existing = await prisma.listing.findUnique({ where: { id: listingId }, select: { userId: true, status: true } });
+  const existing = await prisma.listing.findUnique({
+    where: { id: listingId },
+    select: { userId: true, status: true, title: true, categoryId: true, category: { select: { name: true } } },
+  });
   if (!existing || existing.userId !== userId) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const body = await request.json();
@@ -73,8 +88,29 @@ export async function PATCH(request: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
-  const listing = await prisma.listing.update({ where: { id: listingId }, data });
-  return NextResponse.json({ listing });
+  // If any content-critical field is changed on an active listing, send it back to moderation.
+  const hasContentChange = Object.keys(data).some(k => REMODERATION_FIELDS.has(k));
+  const shouldRemoderate = hasContentChange && existing.status === "active";
+  if (shouldRemoderate) {
+    data.status = "pending";
+    data.rejectReason = null;
+  }
+
+  const listing = await prisma.listing.update({ where: { id: listingId }, data, select: { id: true, title: true, price: true, createdAt: true, status: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, description: true } });
+
+  if (shouldRemoderate) {
+    const teacher = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+    notifyListingPending({
+      title: listing.title,
+      centerName: teacher?.name ?? "—",
+      category: existing.category?.name ?? "—",
+      price: listing.price,
+      listingId: listing.id,
+      createdAt: new Date(),
+    }).catch(e => console.error("[listing-edit-pending] telegram notify failed", e));
+  }
+
+  return NextResponse.json({ listing, remoderation: shouldRemoderate });
 }
 
 // DELETE /api/dashboard/listings/:id — delete own listing

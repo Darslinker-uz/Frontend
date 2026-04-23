@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { Bell, Lock, Send, FileText, Trash2, Check, Eye, EyeOff, AlertCircle, Languages, Mail, Smartphone, Zap, Wallet, MessageSquare, User, Palette } from "lucide-react";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
 import { THEMES, type AdminTheme } from "@/context/admin-theme-context";
+
+const ROLE_LABEL: Record<string, string> = {
+  admin: "Administrator",
+  provider: "Kurs egasi",
+  student: "O'quvchi",
+};
 
 function Toggle({ checked, onChange, config }: { checked: boolean; onChange: (v: boolean) => void; config: { accent: string; hover: string; accentText: string; textMuted: string } }) {
   return (
@@ -22,6 +29,22 @@ function Toggle({ checked, onChange, config }: { checked: boolean; onChange: (v:
 
 export default function SettingsPage() {
   const { theme, config, setTheme } = useDashboardTheme();
+  const { data: session, update: updateSession } = useSession();
+  const sessionUser = session?.user as { name?: string; role?: string; phone?: string } | undefined;
+
+  // Profil
+  const [name, setName] = useState("");
+  const [emailAddr, setEmailAddr] = useState("");
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  // Parol
+  const [currentPwd, setCurrentPwd] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [confirmPwd, setConfirmPwd] = useState("");
+  const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   // Xabarnomalar
   const [newLead, setNewLead] = useState(true);
@@ -35,7 +58,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState(false);
   const [push, setPush] = useState(true);
 
-  // Parol
+  // Parol visibility
   const [showOldPwd, setShowOldPwd] = useState(false);
   const [showNewPwd, setShowNewPwd] = useState(false);
 
@@ -44,6 +67,83 @@ export default function SettingsPage() {
 
   // Hisobni o'chirish
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/dashboard/profile", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json() as { user: { name: string; email: string | null; phone: string } };
+        if (cancelled) return;
+        setName(data.user.name ?? "");
+        setEmailAddr(data.user.email ?? "");
+      } catch (e) {
+        console.error("[settings] load profile failed", e);
+      } finally {
+        if (!cancelled) setProfileLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const saveProfile = async () => {
+    setProfileMsg(null);
+    if (!name.trim() || name.trim().length < 2) {
+      setProfileMsg({ kind: "err", text: "Ism juda qisqa" });
+      return;
+    }
+    setProfileSaving(true);
+    try {
+      const res = await fetch("/api/dashboard/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: emailAddr.trim() || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setProfileMsg({ kind: "err", text: data?.error ?? "Xatolik" });
+        return;
+      }
+      setProfileMsg({ kind: "ok", text: "Profil saqlandi" });
+      try { await updateSession({ name: name.trim() }); } catch {}
+    } catch {
+      setProfileMsg({ kind: "err", text: "Tarmoq xatosi" });
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const changePassword = async () => {
+    setPwdMsg(null);
+    if (!newPwd || newPwd.length < 6) {
+      setPwdMsg({ kind: "err", text: "Yangi parol kamida 6 belgi" });
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      setPwdMsg({ kind: "err", text: "Parollar mos emas" });
+      return;
+    }
+    setPwdSaving(true);
+    try {
+      const res = await fetch("/api/dashboard/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ current: currentPwd, new: newPwd, confirm: confirmPwd }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPwdMsg({ kind: "err", text: data?.error ?? "Xatolik" });
+        return;
+      }
+      setPwdMsg({ kind: "ok", text: "Parol yangilandi" });
+      setCurrentPwd(""); setNewPwd(""); setConfirmPwd("");
+    } catch {
+      setPwdMsg({ kind: "err", text: "Tarmoq xatosi" });
+    } finally {
+      setPwdSaving(false);
+    }
+  };
 
   return (
     <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
@@ -120,25 +220,61 @@ export default function SettingsPage() {
               <User className="h-6 w-6" style={{ color: config.textMuted }} />
             </div>
             <div>
-              <p className="text-[15px] font-semibold" style={{ color: config.text }}>Demo User</p>
-              <p className="text-[12px]" style={{ color: config.textDim }}>Kurs egasi</p>
+              <p className="text-[15px] font-semibold" style={{ color: config.text }}>
+                {sessionUser?.name ?? "Foydalanuvchi"}
+              </p>
+              <p className="text-[12px]" style={{ color: config.textDim }}>
+                {sessionUser?.role ? (ROLE_LABEL[sessionUser.role] ?? sessionUser.role) : ""}
+              </p>
             </div>
           </div>
 
           <div className="space-y-3">
             <div>
               <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Ism</label>
-              <input placeholder="Ismingiz" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
+              <input
+                value={profileLoading ? "" : name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={profileLoading ? "Yuklanmoqda..." : "Ismingiz"}
+                disabled={profileLoading}
+                className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none"
+                style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+              />
             </div>
             <div>
               <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Telefon</label>
-              <input disabled placeholder="+998 90 123 45 67" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/15" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}`, color: config.textDim }} />
+              <input
+                disabled
+                value={sessionUser?.phone ?? ""}
+                placeholder="+998 90 123 45 67"
+                className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/15"
+                style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}`, color: config.textDim }}
+              />
             </div>
             <div>
-              <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Telegram</label>
-              <input placeholder="@username" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
+              <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Email</label>
+              <input
+                value={profileLoading ? "" : emailAddr}
+                onChange={(e) => setEmailAddr(e.target.value)}
+                placeholder="you@example.com"
+                disabled={profileLoading}
+                className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none"
+                style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+              />
             </div>
-            <button className="h-[42px] px-5 rounded-[10px] text-[13px] font-medium hover:opacity-90 mt-2" style={{ backgroundColor: config.accent, color: config.accentText }}>Saqlash</button>
+            {profileMsg && (
+              <p className="text-[12px]" style={{ color: profileMsg.kind === "ok" ? "#22c55e" : "#ef4444" }}>
+                {profileMsg.text}
+              </p>
+            )}
+            <button
+              onClick={saveProfile}
+              disabled={profileSaving || profileLoading}
+              className="h-[42px] px-5 rounded-[10px] text-[13px] font-medium hover:opacity-90 mt-2 disabled:opacity-50"
+              style={{ backgroundColor: config.accent, color: config.accentText }}
+            >
+              {profileSaving ? "Saqlanmoqda..." : "Saqlash"}
+            </button>
           </div>
         </div>
 
@@ -234,19 +370,52 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-3">
             <div className="relative">
-              <input type={showOldPwd ? "text" : "password"} placeholder="Joriy parol" className="w-full h-[44px] px-4 pr-11 rounded-[10px] text-[14px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
+              <input
+                type={showOldPwd ? "text" : "password"}
+                value={currentPwd}
+                onChange={(e) => setCurrentPwd(e.target.value)}
+                placeholder="Joriy parol"
+                className="w-full h-[44px] px-4 pr-11 rounded-[10px] text-[14px] placeholder:text-white/20 focus:outline-none"
+                style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+              />
               <button onClick={() => setShowOldPwd(!showOldPwd)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: config.textDim }}>
                 {showOldPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
             <div className="relative">
-              <input type={showNewPwd ? "text" : "password"} placeholder="Yangi parol" className="w-full h-[44px] px-4 pr-11 rounded-[10px] text-[14px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
+              <input
+                type={showNewPwd ? "text" : "password"}
+                value={newPwd}
+                onChange={(e) => setNewPwd(e.target.value)}
+                placeholder="Yangi parol"
+                className="w-full h-[44px] px-4 pr-11 rounded-[10px] text-[14px] placeholder:text-white/20 focus:outline-none"
+                style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+              />
               <button onClick={() => setShowNewPwd(!showNewPwd)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: config.textDim }}>
                 {showNewPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <input type="password" placeholder="Yangi parolni takrorlang" className="w-full h-[44px] px-4 rounded-[10px] text-[14px] placeholder:text-white/20 focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
-            <button className="h-[42px] px-5 rounded-[10px] text-[13px] font-medium hover:opacity-90" style={{ backgroundColor: config.accent, color: config.accentText }}>Parolni saqlash</button>
+            <input
+              type="password"
+              value={confirmPwd}
+              onChange={(e) => setConfirmPwd(e.target.value)}
+              placeholder="Yangi parolni takrorlang"
+              className="w-full h-[44px] px-4 rounded-[10px] text-[14px] placeholder:text-white/20 focus:outline-none"
+              style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+            />
+            {pwdMsg && (
+              <p className="text-[12px]" style={{ color: pwdMsg.kind === "ok" ? "#22c55e" : "#ef4444" }}>
+                {pwdMsg.text}
+              </p>
+            )}
+            <button
+              onClick={changePassword}
+              disabled={pwdSaving}
+              className="h-[42px] px-5 rounded-[10px] text-[13px] font-medium hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: config.accent, color: config.accentText }}
+            >
+              {pwdSaving ? "Saqlanmoqda..." : "Parolni saqlash"}
+            </button>
           </div>
         </div>
 

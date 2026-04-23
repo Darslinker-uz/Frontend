@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { LayoutDashboard, FileText, Users, Wallet, LogOut, Settings, ExternalLink, Shield, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Wallet, LogOut, Settings, ExternalLink, Shield, User as UserIcon, Lock } from "lucide-react";
 import { LeadsProvider } from "@/context/leads-context";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { DashboardThemeProvider, useDashboardTheme } from "@/context/dashboard-theme-context";
 
-const navItems = [
+const navItems: { href: string; label: string; icon: typeof LayoutDashboard; soon?: boolean }[] = [
   { href: "/dashboard", label: "Bosh sahifa", icon: LayoutDashboard },
   { href: "/dashboard/listings", label: "E'lonlar", icon: FileText },
   { href: "/dashboard/leads", label: "Arizalar", icon: Users },
-  { href: "/dashboard/managers", label: "Menejerlar", icon: Shield },
+  { href: "/dashboard/managers", label: "Menejerlar", icon: Shield, soon: true },
   { href: "/dashboard/balance", label: "Balans", icon: Wallet },
   { href: "/dashboard/settings", label: "Sozlamalar", icon: Settings },
 ];
@@ -93,7 +93,8 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
                     }}
                   >
                     <Icon className="w-[18px] h-[18px]" />
-                    {item.label}
+                    <span className="flex-1">{item.label}</span>
+                    {item.soon && <Lock className="w-3.5 h-3.5 opacity-60" />}
                   </Link>
                 );
               })}
@@ -226,10 +227,13 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-[10px] transition-all"
+              className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-[10px] transition-all"
               style={{ color: isActive ? config.text : config.textDim }}
             >
               <Icon className="w-5 h-5" />
+              {item.soon && (
+                <Lock className="absolute top-1 right-1 w-2.5 h-2.5 opacity-60" />
+              )}
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           );

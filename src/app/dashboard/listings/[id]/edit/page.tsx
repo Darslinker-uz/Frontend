@@ -208,7 +208,14 @@ export default function EditListingPage() {
       </Link>
 
       <h1 className="text-[22px] md:text-[26px] font-bold mb-1" style={{ color: config.text }}>E&apos;lonni tahrirlash</h1>
-      <p className="text-[14px] mb-6" style={{ color: config.textMuted }}>O&apos;zgarishlardan so&apos;ng saqlashni unutmang</p>
+      <p className="text-[14px] mb-4" style={{ color: config.textMuted }}>O&apos;zgarishlardan so&apos;ng saqlashni unutmang</p>
+
+      <div className="rounded-[12px] p-3 mb-5 flex items-start gap-2.5" style={{ backgroundColor: "#f59e0b14", border: "1px solid #f59e0b33" }}>
+        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#f59e0b" }} />
+        <p className="text-[12px] leading-relaxed" style={{ color: "#f59e0b" }}>
+          <b>Diqqat:</b> Kurs nomi, tavsifi, narxi, davomiyligi, manzili yoki rasmi o&apos;zgartirilsa, e&apos;lon <b>admin tasdig&apos;iga qaytariladi</b> va tasdiq kelgunicha saytda ko&apos;rinmaydi.
+        </p>
+      </div>
 
       <div className="space-y-5">
         <div className="rounded-[16px] p-4 sm:p-5 space-y-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>

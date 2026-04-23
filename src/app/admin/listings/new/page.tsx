@@ -1,26 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, GripVertical, X, Check, Star, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Plus, GripVertical, X, Check, Star, ArrowRight, AlertCircle } from "lucide-react";
 import { GRADIENT_OPTIONS, ICON_OPTIONS } from "@/data/courses";
 import { useAdminTheme } from "@/context/admin-theme-context";
 
-const categoriyalar = ["IT & Dasturlash", "Dizayn", "Marketing", "Xorijiy tillar", "Biznes & Startap", "Akademik fanlar"];
 const formatlar = ["Onlayn", "Oflayn", "Gibrid", "Video"];
+const FORMAT_MAP: Record<string, "offline" | "online" | "video"> = {
+  Onlayn: "online",
+  Oflayn: "offline",
+  Gibrid: "offline",
+  Video: "video",
+};
+
+interface ProviderOption { id: number; name: string; phone: string }
+interface CategoryOption { id: number; name: string; slug: string }
 
 export default function AdminNewListingPage() {
   const { config } = useAdminTheme();
+  const router = useRouter();
+
+  const [providers, setProviders] = useState<ProviderOption[]>([]);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+
+  const [providerId, setProviderId] = useState<number | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+
   const [isFree, setIsFree] = useState(false);
   const [format, setFormat] = useState("");
   const [lessons, setLessons] = useState<string[]>([""]);
   const [gradient, setGradient] = useState(GRADIENT_OPTIONS[0]);
   const [icon, setIcon] = useState(ICON_OPTIONS[0]);
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [duration, setDuration] = useState("");
-  const [provider, setProvider] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [uRes, cRes] = await Promise.all([
+          fetch("/api/admin/users?role=provider", { cache: "no-store" }),
+          fetch("/api/categories", { cache: "no-store" }),
+        ]);
+        if (uRes.ok) {
+          const { users } = await uRes.json();
+          if (!cancelled) {
+            const list = (users as Array<{ id: number; name: string; phone: string; role: string }>)
+              .filter(u => u.role === "provider")
+              .map(u => ({ id: u.id, name: u.name, phone: u.phone }));
+            setProviders(list);
+          }
+        }
+        if (cRes.ok) {
+          const { categories: cats } = await cRes.json();
+          if (!cancelled) {
+            setCategories((cats as Array<{ id: number; name: string; slug: string }>).map(c => ({ id: c.id, name: c.name, slug: c.slug })));
+          }
+        }
+      } catch (e) {
+        console.error("[admin/new] load failed", e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const addLesson = () => setLessons([...lessons, ""]);
   const removeLesson = (i: number) => setLessons(lessons.filter((_, idx) => idx !== i));
@@ -37,6 +87,46 @@ export default function AdminNewListingPage() {
   const sectionStyle = {
     backgroundColor: config.surface,
     border: `1px solid ${config.surfaceBorder}`,
+  };
+
+  const selectedProvider = providers.find(p => p.id === providerId);
+  const selectedCategory = categories.find(c => c.id === categoryId);
+
+  const submit = async () => {
+    setError(null);
+    if (!title.trim() || title.length < 3) { setError("Kurs nomi kamida 3 belgi"); return; }
+    if (!providerId) { setError("Kurs egasini tanlang"); return; }
+    if (!categoryId) { setError("Kategoriyani tanlang"); return; }
+    if (!format) { setError("Formatni tanlang"); return; }
+    if (!isFree && !price) { setError("Narxni kiriting"); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/admin/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: providerId,
+          categoryId,
+          title,
+          description: description || null,
+          price: isFree ? 0 : Number(price.replace(/\D/g, "")) || 0,
+          format: FORMAT_MAP[format] ?? "online",
+          location: showLocation ? (location || null) : null,
+          duration: duration || null,
+          phone: selectedProvider?.phone || "",
+          color: gradient.id,
+          icon: icon.id,
+          status: "active",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data?.error ?? "Xatolik"); setSubmitting(false); return; }
+      router.push("/admin/listings");
+      router.refresh();
+    } catch {
+      setError("Tarmoq xatosi");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -61,14 +151,32 @@ export default function AdminNewListingPage() {
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Masalan: JavaScript Full-stack bootcamp" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] focus:outline-none" style={inputStyle} />
           </div>
           <div>
-            <label className="text-[12px] mb-1.5 block" style={labelStyle}>Kurs egasi / markaz *</label>
-            <input value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="Masalan: Najot Ta'lim" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] focus:outline-none" style={inputStyle} />
+            <label className="text-[12px] mb-1.5 block" style={labelStyle}>Kurs egasi *</label>
+            <select
+              value={providerId ?? ""}
+              onChange={(e) => setProviderId(e.target.value ? Number(e.target.value) : null)}
+              className="w-full h-[44px] px-3 rounded-[10px] text-[14px] focus:outline-none appearance-none"
+              style={inputStyle}
+            >
+              <option value="">Tanlang</option>
+              {providers.map((p) => (
+                <option key={p.id} value={p.id}>{p.name} · {p.phone}</option>
+              ))}
+            </select>
+            {providers.length === 0 && (
+              <p className="text-[11px] mt-1" style={{ color: config.textDim }}>Provider rolli foydalanuvchilar yuklanmoqda...</p>
+            )}
           </div>
           <div>
             <label className="text-[12px] mb-1.5 block" style={labelStyle}>Kategoriya *</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full h-[44px] px-3 rounded-[10px] text-[14px] focus:outline-none appearance-none" style={inputStyle}>
+            <select
+              value={categoryId ?? ""}
+              onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+              className="w-full h-[44px] px-3 rounded-[10px] text-[14px] focus:outline-none appearance-none"
+              style={inputStyle}
+            >
               <option value="">Tanlang</option>
-              {categoriyalar.map((c) => <option key={c} value={c}>{c}</option>)}
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -92,10 +200,21 @@ export default function AdminNewListingPage() {
             <label className="text-[12px] mb-1.5 block" style={labelStyle}>Davomiylik *</label>
             <input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="Masalan: 6 oy" className="w-full h-[44px] px-4 rounded-[10px] text-[15px] focus:outline-none" style={inputStyle} />
           </div>
+          <div>
+            <label className="text-[12px] mb-1.5 block" style={labelStyle}>Kurs tavsifi</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              placeholder="Kurs haqida qisqacha ma'lumot..."
+              className="w-full px-4 py-3 rounded-[10px] text-[15px] resize-none focus:outline-none"
+              style={inputStyle}
+            />
+          </div>
           {showLocation && (
             <div>
               <label className="text-[12px] mb-1.5 block" style={labelStyle}>Manzil *</label>
-              <input placeholder="Toshkent, Chilonzor tumani..." className="w-full h-[44px] px-4 rounded-[10px] text-[15px] focus:outline-none" style={inputStyle} />
+              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Toshkent, Chilonzor tumani..." className="w-full h-[44px] px-4 rounded-[10px] text-[15px] focus:outline-none" style={inputStyle} />
             </div>
           )}
         </div>
@@ -115,11 +234,11 @@ export default function AdminNewListingPage() {
             </svg>
             <div className="relative">
               <div className="flex items-center gap-2 mb-3">
-                <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{category || "Kategoriya"}</span>
+                <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{selectedCategory?.name || "Kategoriya"}</span>
                 {format && <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{format}</span>}
               </div>
               <h3 className="text-[17px] font-bold text-white leading-tight min-h-[44px]">{title || "Kurs nomi"}</h3>
-              <p className="text-[12px] text-white/35 mt-1">{provider || "Kurs egasi"}</p>
+              <p className="text-[12px] text-white/35 mt-1">{selectedProvider?.name || "Kurs egasi"}</p>
               <div className="flex items-center gap-2 mt-2 text-[11px] text-white/30">
                 <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-white/50 text-white/50" />5.0</span>
                 <span>{duration || "Davomiylik"}</span>
@@ -183,13 +302,8 @@ export default function AdminNewListingPage() {
 
         {/* TAVSIF VA DARS REJASI */}
         <div className="rounded-[16px] p-5 space-y-4" style={sectionStyle}>
-          <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Kurs haqida</h2>
+          <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Dars rejasi</h2>
           <div>
-            <label className="text-[12px] mb-1.5 block" style={labelStyle}>Tavsif</label>
-            <textarea rows={4} placeholder="Kurs haqida qisqacha ma'lumot..." className="w-full p-3 rounded-[10px] text-[14px] focus:outline-none resize-none" style={inputStyle} />
-          </div>
-          <div>
-            <label className="text-[12px] mb-1.5 block" style={labelStyle}>Dars rejasi</label>
             <div className="space-y-2">
               {lessons.map((lesson, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -212,8 +326,22 @@ export default function AdminNewListingPage() {
           </div>
         </div>
 
-        <button className="w-full h-[50px] rounded-[12px] text-[16px] font-medium" style={{ backgroundColor: config.accent, color: config.accentText }}>
-          E&apos;lonni yaratish
+        {error && (
+          <div
+            className="flex items-start gap-2 p-3 rounded-[10px]"
+            style={{ backgroundColor: "#ef444414", border: "1px solid #ef444433", color: "#ef4444" }}
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <p className="text-[13px]">{error}</p>
+          </div>
+        )}
+        <button
+          onClick={submit}
+          disabled={submitting}
+          className="w-full h-[50px] rounded-[12px] text-[16px] font-medium disabled:opacity-50"
+          style={{ backgroundColor: config.accent, color: config.accentText }}
+        >
+          {submitting ? "Yuborilmoqda..." : "E'lonni yaratish"}
         </button>
       </div>
     </div>

@@ -40,7 +40,7 @@ export function PhoneInput({ className, value: controlled, onChange, disabled }:
 
   return (
     <div className="relative">
-      <span className={`absolute left-4 top-1/2 -translate-y-1/2 text-[16px] font-medium ${className?.includes("text-white") ? "text-white/50" : "text-[#16181a]"}`}>+998</span>
+      <span className={`absolute left-4 top-1/2 -translate-y-1/2 text-[16px] font-medium ${className?.includes("text-white") ? "text-white/70" : "text-neutral-600 dark:text-neutral-400"}`}>+998</span>
       <input
         type="tel"
         name="phone"
@@ -71,7 +71,7 @@ export function TelegramInput({ className, value: controlled, onChange, disabled
 
   return (
     <div className="relative">
-      <span className={`absolute left-4 top-1/2 -translate-y-1/2 text-[16px] font-medium ${className?.includes("text-white") ? "text-white/50" : "text-[#16181a]"}`}>@</span>
+      <span className={`absolute left-4 top-1/2 -translate-y-1/2 text-[16px] font-medium ${className?.includes("text-white") ? "text-white/70" : "text-neutral-600 dark:text-neutral-400"}`}>@</span>
       <input
         type="text"
         name="telegram"

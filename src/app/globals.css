@@ -252,3 +252,17 @@
   0%, 100% { transform: scale(1.2); opacity: 0.5; }
   50% { transform: scale(0.6); opacity: 0.25; }
 }
+
+/* ==================== NATIVE SELECT DROPDOWN FIX ==================== */
+/* Default browser dropdown in dark mode shows white-on-white. Force readable colors. */
+select {
+  color-scheme: dark light;
+}
+select option {
+  background-color: #16181a;
+  color: #ffffff;
+}
+/* Date inputs in dark themes */
+input[type="date"] {
+  color-scheme: dark light;
+}

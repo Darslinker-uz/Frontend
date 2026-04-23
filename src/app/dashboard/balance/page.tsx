@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Wallet, ArrowUpRight, History, X, Check, CreditCard } from "lucide-react";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
 
@@ -22,6 +22,19 @@ export default function BalancePage() {
   const [amount, setAmount] = useState(100000);
   const [customInput, setCustomInput] = useState("");
   const [method, setMethod] = useState("payme");
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/dashboard/stats", { cache: "no-store" });
+        const data = await res.json();
+        if (!cancelled) setBalance(data?.user?.balance ?? 0);
+      } catch (e) { console.error(e); }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const handlePreset = (v: number) => {
     setAmount(v);
@@ -52,7 +65,7 @@ export default function BalancePage() {
               </div>
               <p className="text-[13px] text-white/40 mb-1">Joriy balans</p>
               <p className="text-[32px] font-bold text-white">
-                50,000 <span className="text-[16px] font-normal text-white/40">so&apos;m</span>
+                {formatPrice(balance)} <span className="text-[16px] font-normal text-white/40">so&apos;m</span>
               </p>
               <button
                 onClick={() => setTopupOpen(true)}
