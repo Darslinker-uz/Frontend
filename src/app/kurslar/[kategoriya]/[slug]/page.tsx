@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { getListingBySlug, getActiveCategories } from "@/lib/listings";
 import { CourseLeadForm } from "@/components/course-lead-form";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ kategoriya: string; slug: string }>;
 };

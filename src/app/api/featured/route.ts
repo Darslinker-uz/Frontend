@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/featured — active A-class boosts for homepage slider
 export async function GET() {
   const now = new Date();

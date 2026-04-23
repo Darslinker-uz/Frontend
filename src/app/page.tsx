@@ -7,6 +7,9 @@ import { HeroSearch } from "@/components/hero-search";
 import { HelpForm } from "@/components/help-form";
 import { getActiveCategories, getActiveListings } from "@/lib/listings";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function HomePage() {
   const [categories, courses] = await Promise.all([
     getActiveCategories(),

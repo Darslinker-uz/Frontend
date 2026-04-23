@@ -63,7 +63,7 @@ export function apiListingToCourse(l: ApiListing): Course {
     location: l.location ?? "",
     price,
     priceFree: l.price === 0,
-    rating: "4.7",
+    rating: "5.0",
     duration: l.duration ?? "—",
     description: l.description ?? "",
     gradient,

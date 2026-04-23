@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/listings
 // Query params: ?category=<slug>&format=offline|online|video&priceFree=true|false&city=<search>&search=<q>&limit=<n>
 export async function GET(request: Request) {
