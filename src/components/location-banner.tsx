@@ -206,7 +206,9 @@ export function LocationBanner({ region, district, fallback }: Props) {
                 <Loader2 className="w-3.5 h-3.5 animate-spin" /> Aniqlanyapti...
               </>
             ) : (
-              "OK"
+              <>
+                <MapPin className="w-3.5 h-3.5" /> OK
+              </>
             )}
           </button>
         </div>

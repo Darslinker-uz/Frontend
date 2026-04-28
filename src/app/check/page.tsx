@@ -287,7 +287,7 @@ function V5() {
           >
             {state === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
              state === "done" ? <><Check className="w-3.5 h-3.5" /> Topildi</> :
-             "OK"}
+             <><MapPin className="w-3.5 h-3.5" /> OK</>}
           </button>
         </div>
       </div>
