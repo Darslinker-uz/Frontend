@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { handleUpdate } from "@/lib/bot-handler";
 import type { TgUpdate } from "@/lib/telegram";
 
-// POST /api/bot/webhook — Telegram sends updates here in production
+// POST /api/bot/webhook — provider bot (@Darslinker_cbot) updates land here
 export async function POST(request: Request) {
   const expected = process.env.TELEGRAM_WEBHOOK_SECRET;
   const got = request.headers.get("x-telegram-bot-api-secret-token");
@@ -18,6 +18,6 @@ export async function POST(request: Request) {
   }
 
   // Fire and forget — Telegram expects fast response
-  handleUpdate(update).catch(e => console.error("[webhook]", e));
+  handleUpdate(update, "provider").catch(e => console.error("[webhook:provider]", e));
   return NextResponse.json({ ok: true });
 }

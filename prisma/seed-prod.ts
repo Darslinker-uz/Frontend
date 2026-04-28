@@ -40,27 +40,10 @@ async function main() {
     console.log(`  Admin allaqachon bor: ${existingAdmin.phone}`);
   }
 
-  // ==================== CATEGORIES ====================
-  const defaultCategories = [
-    { slug: "dasturlash", name: "IT & Dasturlash", description: "Python, JavaScript, React va boshqalar", icon: "code", color: "#3b82f6", order: 1, subcategories: ["JavaScript", "Python", "React", "Flutter", "Data Science", "Backend", "Frontend", "Mobile"] },
-    { slug: "sunyi-intellekt", name: "Sun'iy Intellekt", description: "Prompt engineering va AI vositalardan to'g'ri foydalanish", icon: "sparkles", color: "#a855f7", order: 2, subcategories: ["Prompt engineering", "ChatGPT", "Midjourney", "AI agent", "Machine Learning", "AI biznesda"] },
-    { slug: "marketing", name: "Marketing", description: "SEO, kontekst reklama, brending", icon: "megaphone", color: "#f59e0b", order: 3, subcategories: ["SEO", "Kontekst reklama", "Email marketing", "Brending", "Kontent marketing"] },
-    { slug: "smm", name: "SMM", description: "Ijtimoiy tarmoqlarda promotion va kontent", icon: "share", color: "#ec4899", order: 4, subcategories: ["Instagram SMM", "TikTok SMM", "Telegram", "YouTube", "Facebook Ads", "Reels/shorts"] },
-    { slug: "dizayn", name: "Dizayn", description: "UI/UX, Figma, Photoshop, Illustrator", icon: "palette", color: "#06b6d4", order: 5, subcategories: ["UI/UX", "Figma", "Photoshop", "Illustrator", "Grafik dizayn", "Motion dizayn"] },
-    { slug: "xorijiy-tillar", name: "Xorijiy tillar", description: "Ingliz, rus, koreys, arab tillari", icon: "languages", color: "#22c55e", order: 6, subcategories: ["Ingliz tili", "Rus tili", "Koreys tili", "Arab tili", "Nemis tili", "IELTS", "CEFR"] },
-    { slug: "biznes", name: "Biznes & Startap", description: "Tadbirkorlik, moliya, boshqaruv", icon: "briefcase", color: "#8b5cf6", order: 7, subcategories: ["Tadbirkorlik", "Moliya", "Boshqaruv", "Startup", "Investitsiya"] },
-    { slug: "akademik", name: "Akademik fanlar", description: "Matematika, fizika, kimyo", icon: "book", color: "#0ea5e9", order: 8, active: false, subcategories: ["Matematika", "Fizika", "Kimyo", "Biologiya", "Olimpiada"] },
-  ];
-
-  let createdCount = 0;
-  for (const c of defaultCategories) {
-    const existing = await prisma.category.findUnique({ where: { slug: c.slug } });
-    if (!existing) {
-      await prisma.category.create({ data: c });
-      createdCount++;
-    }
-  }
-  console.log(`✓ Kategoriyalar: ${createdCount} ta yangi, ${defaultCategories.length - createdCount} ta mavjud`);
+  // ==================== TAXONOMY ====================
+  // To'liq taxonomy uchun `npx tsx prisma/seed-taxonomy.ts` ishlatish tavsiya etiladi.
+  // Bu yerda admin yaratiladi xolos.
+  console.log("✓ Admin yaratish tugadi. Taxonomiya uchun: npx tsx prisma/seed-taxonomy.ts");
 
   console.log("\n✓ Production seed tugadi");
 }

@@ -5,12 +5,19 @@ import {
   editMessageText,
   normalizePhone,
   escHtml,
+  createTelegramClient,
   type TgUpdate,
+  type TelegramClient,
 } from "@/lib/telegram";
-import type { LeadStatus } from "@/generated/prisma";
+import type { LeadStatus, Role } from "@/generated/prisma";
 
 // ==================== HANDLER ====================
 // Shared update processor — used by both webhook and polling.
+// `mode` selects which bot the update came from:
+//   "provider" — @Darslinker_cbot, full CRM (lead callbacks, group ID, etc.)
+//   "student"  — @darslinkerbot, login-code only (used for rating + future student panel)
+
+export type BotMode = "provider" | "student";
 
 const CODE_TTL_MINUTES = 5;
 
@@ -19,47 +26,69 @@ function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-export async function handleUpdate(update: TgUpdate): Promise<void> {
+let _studentClient: TelegramClient | null = null;
+function getClient(mode: BotMode): TelegramClient {
+  if (mode === "student") {
+    if (!_studentClient) {
+      _studentClient = createTelegramClient(process.env.TELEGRAM_STUDENT_BOT_TOKEN);
+    }
+    return _studentClient;
+  }
+  // provider — reuse the default exported client (bound to TELEGRAM_BOT_TOKEN)
+  return {
+    sendMessage,
+    answerCallbackQuery,
+    editMessageText,
+    editMessageReplyMarkup: () => Promise.resolve(null),
+    getUpdates: () => Promise.resolve(null),
+    setWebhook: () => Promise.resolve(null),
+    deleteWebhook: () => Promise.resolve(null),
+  };
+}
+
+export async function handleUpdate(update: TgUpdate, mode: BotMode = "provider"): Promise<void> {
   try {
+    const client = getClient(mode);
     if (update.message) {
-      await handleMessage(update.message);
-    } else if (update.callback_query) {
+      await handleMessage(update.message, mode, client);
+    } else if (update.callback_query && mode === "provider") {
+      // Lead callbacks (Bog'landim) only exist in the provider bot.
       await handleCallback(update.callback_query);
     }
   } catch (e) {
-    console.error("[bot] handleUpdate error:", e);
+    console.error(`[bot:${mode}] handleUpdate error:`, e);
   }
 }
 
-async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
+async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMode, client: TelegramClient) {
   const chatId = msg.chat.id;
+  const role: Role = mode === "student" ? "student" : "provider";
 
-  // /groupid — for guruh orqali admin ID olish (any user in group can call)
-  if (msg.text === "/groupid" || msg.text === "/groupid@Darslinker_cbot") {
+  // /groupid — for guruh orqali admin ID olish (provider bot only)
+  if (mode === "provider" && (msg.text === "/groupid" || msg.text === "/groupid@Darslinker_cbot")) {
     const info = msg.chat.type === "private"
       ? `Bu shaxsiy chat.\nChat ID: <code>${chatId}</code>`
       : `Guruh turi: ${msg.chat.type}\n` +
         `Guruh nomi: ${escHtml(msg.chat.title ?? "—")}\n` +
         `Guruh ID: <code>${chatId}</code>\n\n` +
         `Ushbu ID'ni <code>.env</code>'ga qo'shing:\n<code>TELEGRAM_ADMIN_GROUP_ID=${chatId}</code>`;
-    await sendMessage(chatId, info, { parse_mode: "HTML", disable_web_page_preview: true });
+    await client.sendMessage(chatId, info, { parse_mode: "HTML", disable_web_page_preview: true });
     return;
   }
 
   // /start
   if (msg.text === "/start") {
-    await sendMessage(chatId,
-      "👋 <b>Darslinker CRM</b>'ga xush kelibsiz!\n\n" +
-      "Ro'yxatdan o'tish yoki saytga kirish uchun telefon raqamingizni ulashing.",
-      {
-        parse_mode: "HTML",
-        reply_markup: {
-          keyboard: [[{ text: "📱 Telefonni ulashish", request_contact: true }]],
-          resize_keyboard: true,
-          one_time_keyboard: true,
-        },
+    const greeting = mode === "student"
+      ? "👋 <b>Darslinker'ga xush kelibsiz!</b>\n\nKurslarni baholash va o'quvchi paneliga kirish uchun telefon raqamingizni ulashing."
+      : "👋 <b>Darslinker CRM</b>'ga xush kelibsiz!\n\nRo'yxatdan o'tish yoki saytga kirish uchun telefon raqamingizni ulashing.";
+    await client.sendMessage(chatId, greeting, {
+      parse_mode: "HTML",
+      reply_markup: {
+        keyboard: [[{ text: "📱 Telefonni ulashish", request_contact: true }]],
+        resize_keyboard: true,
+        one_time_keyboard: true,
       },
-    );
+    });
     return;
   }
 
@@ -68,7 +97,10 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
     const phone = normalizePhone(msg.contact.phone_number);
     const name = [msg.contact.first_name, msg.contact.last_name].filter(Boolean).join(" ") || "Foydalanuvchi";
 
-    // Upsert user — default role=provider (teacher) since bot is primarily for teachers
+    // Upsert user — role depends on which bot the message came from.
+    // If the same phone is already in DB with a different role, keep the existing role
+    // (someone could rate as a student first then become a provider, or vice versa —
+    // we don't auto-flip roles here; admin can change manually).
     const existing = await prisma.user.findUnique({ where: { phone } });
     if (existing) {
       await prisma.user.update({
@@ -81,8 +113,10 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
           name,
           phone,
           passwordHash: "", // bot-only for now
-          role: "provider",
+          role,
           telegramChatId: String(chatId),
+          // Onboarding only meaningful for providers (welcome page asks for centerName)
+          onboardingCompleted: role === "provider" ? false : true,
         },
       });
     }
@@ -99,12 +133,13 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
       data: { phone, code, chatId: String(chatId), expiresAt },
     });
 
-    await sendMessage(chatId,
+    const loginUrl = mode === "student" ? "darslinker.uz/student" : "darslinker.uz/center";
+    await client.sendMessage(chatId,
       `✅ Telefon qabul qilindi!\n\n` +
       `Saytga kirish uchun kod:\n\n` +
       `<code>${code}</code>\n\n` +
       `Kod ${CODE_TTL_MINUTES} daqiqa davomida amal qiladi.\n` +
-      `Bu kodni <b>darslinker.uz/auth</b> sahifasiga kiriting.`,
+      `Bu kodni <b>${loginUrl}</b> sahifasiga kiriting.`,
       {
         parse_mode: "HTML",
         reply_markup: { remove_keyboard: true },
@@ -116,7 +151,7 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
 
   // /help
   if (msg.text === "/help") {
-    await sendMessage(chatId,
+    await client.sendMessage(chatId,
       "ℹ️ <b>Yordam</b>\n\n" +
       "/start — Ro'yxatdan o'tish\n" +
       "/code — Yangi kod so'rash (agar avval ro'yxatdan o'tgan bo'lsangiz)",
@@ -131,7 +166,7 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
       where: { telegramChatId: String(chatId) },
     });
     if (!user) {
-      await sendMessage(chatId,
+      await client.sendMessage(chatId,
         "❌ Siz hali ro'yxatdan o'tmagansiz. /start bosing.",
       );
       return;
@@ -145,7 +180,7 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
     await prisma.authCode.create({
       data: { phone: user.phone, code, chatId: String(chatId), expiresAt },
     });
-    await sendMessage(chatId,
+    await client.sendMessage(chatId,
       `🔑 Yangi kod:\n\n<code>${code}</code>\n\n` +
       `${CODE_TTL_MINUTES} daqiqa amal qiladi.`,
       { parse_mode: "HTML", disable_web_page_preview: true },
@@ -154,7 +189,8 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
   }
 
   // Pending note for contacted lead — user is typing a note after pressing Bog'landim
-  if (msg.text && !msg.text.startsWith("/")) {
+  // (provider bot only — student bot doesn't manage leads)
+  if (mode === "provider" && msg.text && !msg.text.startsWith("/")) {
     const pending = await prisma.botPendingAction.findUnique({
       where: { chatId: String(chatId) },
     });
@@ -178,14 +214,14 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>) {
             reply_markup: undefined,
           });
         }
-        await sendMessage(chatId, "✓ Izoh saqlandi");
+        await client.sendMessage(chatId, "✓ Izoh saqlandi");
         return;
       }
     }
   }
 
   // Unknown message
-  await sendMessage(chatId,
+  await client.sendMessage(chatId,
     "Tushunmadim 🤔 /start yoki /help bosing.",
   );
 }
@@ -372,7 +408,7 @@ export async function notifyNewLead(params: {
   if (rest) {
     lines.push("", `💬 <b>Izoh:</b> ${escHtml(rest)}`);
   }
-  lines.push("", "Batafsil: darslinker.uz/dashboard/leads");
+  lines.push("", "Batafsil: darslinker.uz/center/leads");
   const sent = await sendMessage(params.teacherChatId, lines.join("\n"), {
     parse_mode: "HTML",
     disable_web_page_preview: true,
@@ -475,7 +511,7 @@ export async function notifyAdminGroup(params: {
   if (telegram) lines.push(`✈️ <b>Telegram:</b> ${escHtml(telegram)}`);
   lines.push(`🕐 <b>Vaqt:</b> ${escHtml(formatted)}`);
   if (rest) lines.push("", `💬 <b>Izoh:</b> ${escHtml(rest)}`);
-  lines.push("", "Panel: darslinker.uz/admin/leads");
+  lines.push("", "Panel: darslinker.uz/admode/leads");
 
   await sendMessage(groupId, lines.join("\n"), {
     parse_mode: "HTML",
@@ -506,7 +542,7 @@ export async function notifyHelpLead(params: {
     `🕐 <b>Vaqt:</b> ${escHtml(formatTashkent(params.createdAt ?? new Date()))}`,
   ];
   if (params.message) lines.push("", `📝 <b>Xabar:</b> ${escHtml(params.message)}`);
-  lines.push("", "Panel: darslinker.uz/admin/leads?tab=yordam");
+  lines.push("", "Panel: darslinker.uz/admode/leads?tab=yordam");
   await notifySuperAdmin(lines.join("\n"));
 }
 
@@ -536,7 +572,7 @@ export async function notifyPartnerApplication(params: {
   if (params.telegram) lines.push(`✈️ <b>Telegram:</b> ${escHtml(params.telegram)}`);
   lines.push(`🕐 <b>Vaqt:</b> ${escHtml(formatTashkent(params.createdAt ?? new Date()))}`);
   if (params.message) lines.push("", `📝 <b>Xabar:</b> ${escHtml(params.message)}`);
-  lines.push("", "Panel: darslinker.uz/admin/leads?tab=hamkorlik");
+  lines.push("", "Panel: darslinker.uz/admode/leads?tab=hamkorlik");
   await notifySuperAdmin(lines.join("\n"));
 }
 
@@ -578,7 +614,7 @@ export async function notifyListingRejected(params: {
     "",
     "Kamchiliklarni tuzatib, e'lonni qaytadan yuboring.",
     "",
-    "Panel: darslinker.uz/dashboard/listings",
+    "Panel: darslinker.uz/center/listings",
   ].join("\n");
   await sendMessage(params.teacherChatId, text, {
     parse_mode: "HTML",
@@ -605,7 +641,7 @@ export async function notifyListingPending(params: {
     `💰 <b>Narx:</b> ${escHtml(priceText)}`,
     `🕐 <b>Vaqt:</b> ${escHtml(formatTashkent(params.createdAt ?? new Date()))}`,
     "",
-    `Ko'rish: darslinker.uz/admin/listings/${params.listingId}/edit`,
+    `Ko'rish: darslinker.uz/admode/listings/${params.listingId}/edit`,
   ];
   await notifySuperAdmin(lines.join("\n"));
 }
@@ -631,7 +667,7 @@ export async function notifyBoostPending(params: {
     `💰 <b>Summa:</b> ${new Intl.NumberFormat("uz-UZ").format(params.totalPaid)} so'm`,
     `🕐 <b>Vaqt:</b> ${escHtml(formatTashkent(params.createdAt ?? new Date()))}`,
     "",
-    `Ko'rish: darslinker.uz/admin/boosts`,
+    `Ko'rish: darslinker.uz/admode/boosts`,
   ];
   await notifySuperAdmin(lines.join("\n"));
 }

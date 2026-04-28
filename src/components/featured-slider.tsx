@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, Star, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
 import { GRADIENT_OPTIONS, ICON_OPTIONS } from "@/data/courses";
 
@@ -46,7 +46,6 @@ interface Slide {
   subtitle: string;
   price: string;
   duration: string;
-  rating: string;
   gradient: string;
   iconPath: string;
   imageUrl: string | null;
@@ -71,7 +70,6 @@ function toSlide(l: ApiFeatured): Slide {
     subtitle: l.user.centerName ?? l.user.name,
     price: l.price === 0 ? "Bepul" : `${new Intl.NumberFormat("uz-UZ").format(l.price)} so'm`,
     duration: l.duration ?? "—",
-    rating: "5.0",
     gradient,
     iconPath,
     imageUrl: l.imageUrl,
@@ -207,10 +205,12 @@ export function FeaturedSlider() {
                       <p className="text-[9px] md:text-[10px] text-white/40 mb-0.5">Davomiylik</p>
                       <p className="text-[14px] md:text-[17px] font-bold text-white">{slide.duration}</p>
                     </div>
-                    <div className="px-3 md:px-4 py-2 md:py-2.5 rounded-[10px] md:rounded-[14px] bg-white/10">
-                      <p className="text-[9px] md:text-[10px] text-white/40 mb-0.5">Reyting</p>
-                      <p className="text-[14px] md:text-[17px] font-bold text-white flex items-center gap-1"><Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-white text-white" />{slide.rating}</p>
-                    </div>
+                    {slide.format && (
+                      <div className="px-3 md:px-4 py-2 md:py-2.5 rounded-[10px] md:rounded-[14px] bg-white/10">
+                        <p className="text-[9px] md:text-[10px] text-white/40 mb-0.5">Format</p>
+                        <p className="text-[14px] md:text-[17px] font-bold text-white">{slide.format}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

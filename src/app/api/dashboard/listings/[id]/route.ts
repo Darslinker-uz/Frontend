@@ -14,6 +14,11 @@ const REMODERATION_FIELDS = new Set([
   "duration",
   "location",
   "imageUrl",
+  "lessons",
+  "schedule",
+  "discount",
+  "teacherName",
+  "teacherExperience",
 ]);
 
 // GET /api/dashboard/listings/:id — fetch a single listing owned by the current teacher
@@ -29,7 +34,14 @@ export async function GET(_request: Request, { params }: Ctx) {
   const listing = await prisma.listing.findUnique({
     where: { id: listingId },
     include: {
-      category: { select: { id: true, name: true, slug: true } },
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          group: { select: { id: true, name: true, slug: true } },
+        },
+      },
       user: { select: { id: true, name: true, centerName: true } },
     },
   });
@@ -69,6 +81,16 @@ export async function PATCH(request: Request, { params }: Ctx) {
   for (const k of ["title", "description", "price", "duration", "location", "color", "icon", "imageUrl"] as const) {
     if (body[k] !== undefined) data[k] = body[k];
   }
+  if (body.region !== undefined) data.region = body.region ? String(body.region).trim().slice(0, 100) || null : null;
+  if (body.district !== undefined) data.district = body.district ? String(body.district).trim().slice(0, 100) || null : null;
+  if (body.categoryId !== undefined) {
+    const newCatId = Number(body.categoryId);
+    if (newCatId) {
+      const cat = await prisma.category.findUnique({ where: { id: newCatId }, select: { id: true, active: true } });
+      if (!cat || !cat.active) return NextResponse.json({ error: "Yo'nalish topilmadi yoki faol emas" }, { status: 400 });
+      data.categoryId = newCatId;
+    }
+  }
   if (body.imagePosX !== undefined) data.imagePosX = Math.max(0, Math.min(100, Number(body.imagePosX)));
   if (body.imagePosY !== undefined) data.imagePosY = Math.max(0, Math.min(100, Number(body.imagePosY)));
   if (body.imageAPosX !== undefined) data.imageAPosX = Math.max(0, Math.min(100, Number(body.imageAPosX)));
@@ -84,6 +106,43 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.imageAMZoom !== undefined) data.imageAMZoom = Math.max(100, Math.min(300, Number(body.imageAMZoom)));
   if (body.imageCZoom !== undefined) data.imageCZoom = Math.max(100, Math.min(300, Number(body.imageCZoom)));
   if (body.imageCMZoom !== undefined) data.imageCMZoom = Math.max(100, Math.min(300, Number(body.imageCMZoom)));
+  if (Array.isArray(body.lessons)) {
+    data.lessons = body.lessons.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 200).slice(0, 30);
+  }
+
+  // New detail fields (opt-in via undefined check)
+  if (body.language !== undefined) {
+    const v = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
+    data.language = v;
+  }
+  if (body.level !== undefined) {
+    data.level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
+  }
+  if (body.studentLimit !== undefined) {
+    const n = Number(body.studentLimit);
+    data.studentLimit = !Number.isFinite(n) || n <= 0 ? null : Math.min(10000, Math.floor(n));
+  }
+  if (body.paymentType !== undefined) {
+    data.paymentType = body.paymentType ? String(body.paymentType).trim().slice(0, 50) || null : null;
+  }
+  if (body.schedule !== undefined) {
+    data.schedule = body.schedule ? String(body.schedule).trim().slice(0, 200) || null : null;
+  }
+  if (body.teacherName !== undefined) {
+    data.teacherName = body.teacherName ? String(body.teacherName).trim().slice(0, 100) || null : null;
+  }
+  if (body.teacherExperience !== undefined) {
+    data.teacherExperience = body.teacherExperience ? String(body.teacherExperience).trim().slice(0, 1000) || null : null;
+  }
+  if (body.certificate !== undefined) {
+    data.certificate = body.certificate === true || body.certificate === "true" || body.certificate === "ha";
+  }
+  if (body.demoLesson !== undefined) {
+    data.demoLesson = body.demoLesson === true || body.demoLesson === "true" || body.demoLesson === "ha";
+  }
+  if (body.discount !== undefined) {
+    data.discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
+  }
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });

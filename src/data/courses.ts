@@ -3,14 +3,19 @@ export interface Course {
   title: string;
   category: string;
   categorySlug: string;
+  groupName?: string;
+  groupSlug?: string;
   format: "Online" | "Offline" | "Video" | "Bootcamp";
   provider: string;
   location: string;
+  region?: string | null;
+  district?: string | null;
   price: string;
   priceFree: boolean;
   rating: string;
   duration: string;
   description: string;
+  lessons?: string[];
   gradient: string;
   iconPath: string;
   imageUrl?: string | null;
@@ -29,7 +34,24 @@ export interface Course {
   imageAMZoom?: number;
   imageCZoom?: number;
   imageCMZoom?: number;
+  language?: string;
+  level?: string;
+  studentLimit?: number;
+  schedule?: string;
+  certificate?: boolean;
+  demoLesson?: boolean;
+  discount?: string;
+  teacherName?: string;
+  teacherExperience?: string;
+  paymentType?: string;
+  phone?: string;
+  ratingAvg?: number;
+  ratingCount?: number;
 }
+
+// Reyting kamida shu sondan boshlab umumiy ko'rinadi.
+// Pastida — yashirin: spamga moyil, statistik ahamiyatsiz.
+export const MIN_RATINGS_TO_SHOW = 50;
 
 // ============ RANGLAR VA IKONLAR TANLOVI ============
 

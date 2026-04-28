@@ -20,7 +20,17 @@ export async function GET(_request: Request, { params }: Ctx) {
     where: { id: listingId },
     include: {
       user: { select: { id: true, name: true, centerName: true, phone: true, telegramChatId: true } },
-      category: { select: { id: true, name: true, slug: true, color: true } },
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          color: true,
+          pendingApproval: true,
+          proposedById: true,
+          group: { select: { id: true, name: true, slug: true } },
+        },
+      },
       _count: { select: { leads: true, boosts: true, reviews: true } },
     },
   });
@@ -47,6 +57,8 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.price !== undefined) data.price = Number(body.price);
   if (body.format !== undefined) data.format = body.format;
   if (body.location !== undefined) data.location = body.location;
+  if (body.region !== undefined) data.region = body.region ? String(body.region).trim().slice(0, 100) || null : null;
+  if (body.district !== undefined) data.district = body.district ? String(body.district).trim().slice(0, 100) || null : null;
   if (body.duration !== undefined) data.duration = body.duration;
   if (body.phone !== undefined) data.phone = body.phone;
   if (body.color !== undefined) data.color = body.color;
@@ -69,6 +81,43 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.imageAMZoom !== undefined) data.imageAMZoom = Math.max(100, Math.min(300, Number(body.imageAMZoom)));
   if (body.imageCZoom !== undefined) data.imageCZoom = Math.max(100, Math.min(300, Number(body.imageCZoom)));
   if (body.imageCMZoom !== undefined) data.imageCMZoom = Math.max(100, Math.min(300, Number(body.imageCMZoom)));
+  if (Array.isArray(body.lessons)) {
+    data.lessons = body.lessons.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 200).slice(0, 30);
+  }
+
+  // New detail fields (opt-in via undefined check)
+  if (body.language !== undefined) {
+    const v = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
+    data.language = v;
+  }
+  if (body.level !== undefined) {
+    data.level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
+  }
+  if (body.studentLimit !== undefined) {
+    const n = Number(body.studentLimit);
+    data.studentLimit = !Number.isFinite(n) || n <= 0 ? null : Math.min(10000, Math.floor(n));
+  }
+  if (body.paymentType !== undefined) {
+    data.paymentType = body.paymentType ? String(body.paymentType).trim().slice(0, 50) || null : null;
+  }
+  if (body.schedule !== undefined) {
+    data.schedule = body.schedule ? String(body.schedule).trim().slice(0, 200) || null : null;
+  }
+  if (body.teacherName !== undefined) {
+    data.teacherName = body.teacherName ? String(body.teacherName).trim().slice(0, 100) || null : null;
+  }
+  if (body.teacherExperience !== undefined) {
+    data.teacherExperience = body.teacherExperience ? String(body.teacherExperience).trim().slice(0, 1000) || null : null;
+  }
+  if (body.certificate !== undefined) {
+    data.certificate = body.certificate === true || body.certificate === "true" || body.certificate === "ha";
+  }
+  if (body.demoLesson !== undefined) {
+    data.demoLesson = body.demoLesson === true || body.demoLesson === "true" || body.demoLesson === "ha";
+  }
+  if (body.discount !== undefined) {
+    data.discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
+  }
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
@@ -85,7 +134,17 @@ export async function PATCH(request: Request, { params }: Ctx) {
     data,
     include: {
       user: { select: { id: true, name: true, centerName: true, phone: true, telegramChatId: true } },
-      category: { select: { id: true, name: true, slug: true, color: true } },
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          color: true,
+          pendingApproval: true,
+          proposedById: true,
+          group: { select: { id: true, name: true, slug: true } },
+        },
+      },
     },
   });
 

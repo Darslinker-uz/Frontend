@@ -1,29 +1,51 @@
 import Link from "next/link";
+import { getActiveCategoryGroups } from "@/lib/listings";
 
-const footerLinks = {
-  Kategoriyalar: [
-    { href: "/kurslar/dasturlash", label: "Dasturlash" },
-    { href: "/kurslar/dizayn", label: "Dizayn" },
-    { href: "/kurslar/marketing", label: "Marketing" },
-    { href: "/kurslar/ingliz-tili", label: "Ingliz tili" },
-    { href: "/kurslar/rus-tili", label: "Rus tili" },
-  ],
-  Platforma: [
-    { href: "/kurslar", label: "Barcha kurslar" },
-    { href: "/dashboard/listings/new", label: "Hamkorlik qilish" },
-    { href: "/kurslar?format=online", label: "Onlayn kurslar" },
-    { href: "/kurslar?format=offline", label: "Oflayn kurslar" },
-    { href: "/blog", label: "Maqolalar" },
-  ],
-};
+const platformLinks = [
+  { href: "/kurslar", label: "Barcha kurslar" },
+  { href: "/kurslar?format=online", label: "Onlayn kurslar" },
+  { href: "/kurslar?format=offline", label: "Oflayn kurslar" },
+  { href: "/manba", label: "Manba" },
+  { href: "/blog", label: "Maqolalar" },
+  { href: "/center/listings/new", label: "Hamkorlik qilish" },
+];
 
-export function Footer() {
+export async function Footer() {
+  // Guruhlar va eng mashhur yo'nalishlarni server'dan olamiz. Xato yuzaga
+  // kelsa (DB tushib qolgan vaziyat) — fallback'siz bo'sh ro'yxat bilan
+  // ishlaydi, footer baribir xatosiz render bo'ladi.
+  let groups: Awaited<ReturnType<typeof getActiveCategoryGroups>> = [];
+  try {
+    groups = await getActiveCategoryGroups();
+  } catch {
+    groups = [];
+  }
+
+  // Top yo'nalishlar — faqat aktiv kursi bor (count > 0) yo'nalishlar.
+  // Har guruhdan eng ko'p e'lonli 2 ta, keyin umumiy bo'yicha tartiblab 12 ta tanlaymiz.
+  const allCats = groups
+    .flatMap((g) =>
+      g.categories
+        .filter((c) => c.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 2)
+        .map((c) => ({ name: c.name, slug: c.slug, count: c.count })),
+    )
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12);
+
+  // Guruhlar — admin nazoratida (kursi bor-yo'qligiga qaramay), 7 tasini ko'rsatamiz.
+  const topGroups = groups
+    .slice()
+    .sort((a, b) => b.listingsCount - a.listingsCount)
+    .slice(0, 7);
+
   return (
     <footer className="mt-auto bg-white border-t border-[#e4e7ea]">
-      <div className="max-w-[1060px] mx-auto px-5 py-14">
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-10">
+      <div className="max-w-[1280px] mx-auto px-5 py-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-4 lg:col-span-4">
+          <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-block">
               <span className="text-[18px] font-bold tracking-tight text-[#16181a]">
                 darslinker.uz
@@ -34,29 +56,84 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Link columns */}
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div
-              key={title}
-              className="col-span-1 md:col-span-2 lg:col-span-2"
-            >
-              <h3 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-4">
-                {title}
-              </h3>
-              <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.href}>
+          {/* Yo'nalishlar */}
+          <div className="col-span-1">
+            <h3 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-4">
+              Yo&apos;nalishlar
+            </h3>
+            <ul className="space-y-2.5">
+              {allCats.length > 0 ? (
+                allCats.map((cat) => (
+                  <li key={cat.slug}>
                     <Link
-                      href={link.href}
+                      href={`/kurslar/${cat.slug}`}
                       className="text-[14px] text-[#16181a]/70 hover:text-[#16181a] transition-colors"
                     >
-                      {link.label}
+                      {cat.name}
                     </Link>
                   </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+                ))
+              ) : (
+                <li>
+                  <Link
+                    href="/kurslar"
+                    className="text-[14px] text-[#16181a]/70 hover:text-[#16181a] transition-colors"
+                  >
+                    Barcha kurslar
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {/* Yo'nalish guruhlari */}
+          <div className="col-span-1">
+            <h3 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-4">
+              Guruhlar
+            </h3>
+            <ul className="space-y-2.5">
+              {topGroups.length > 0 ? (
+                topGroups.map((g) => (
+                  <li key={g.slug}>
+                    <Link
+                      href={`/kurslar/g/${g.slug}`}
+                      className="text-[14px] text-[#16181a]/70 hover:text-[#16181a] transition-colors"
+                    >
+                      {g.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li>
+                  <Link
+                    href="/kurslar"
+                    className="text-[14px] text-[#16181a]/70 hover:text-[#16181a] transition-colors"
+                  >
+                    Kurslar
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {/* Platforma */}
+          <div className="col-span-2 md:col-span-1">
+            <h3 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-4">
+              Platforma
+            </h3>
+            <ul className="space-y-2.5">
+              {platformLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-[14px] text-[#16181a]/70 hover:text-[#16181a] transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className="border-t border-[#e4e7ea] mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">

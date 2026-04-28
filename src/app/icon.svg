@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <g transform="translate(25,32) rotate(45)">
-    <rect x="-14" y="-14" width="28" height="28" rx="6" fill="#7ea2d4" fill-opacity="0.2"/>
+  <g transform="translate(27.52, 32) rotate(45)">
+    <rect x="-10.464" y="-10.464" width="20.928" height="20.928" rx="2.24" fill="#7ea2d4" fill-opacity="0.2"/>
   </g>
-  <g transform="translate(31,32) rotate(45)">
-    <rect x="-14" y="-14" width="28" height="28" rx="6" fill="#7ea2d4" fill-opacity="0.5"/>
+  <g transform="translate(32, 32) rotate(45)">
+    <rect x="-10.464" y="-10.464" width="20.928" height="20.928" rx="2.24" fill="#7ea2d4" fill-opacity="0.5"/>
   </g>
-  <g transform="translate(37,32) rotate(45)">
-    <rect x="-14" y="-14" width="28" height="28" rx="6" fill="#7ea2d4"/>
+  <g transform="translate(36.48, 32) rotate(45)">
+    <rect x="-10.464" y="-10.464" width="20.928" height="20.928" rx="2.24" fill="#7ea2d4"/>
   </g>
 </svg>

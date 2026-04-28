@@ -7,10 +7,13 @@ interface Ctx { params: Promise<{ slug: string }> }
 export async function GET(_request: Request, { params }: Ctx) {
   const { slug } = await params;
 
-  const listing = await prisma.listing.findUnique({
-    where: { slug },
+  const listing = await prisma.listing.findFirst({
+    where: {
+      slug,
+      category: { active: true, pendingApproval: false },
+    },
     include: {
-      category: { select: { id: true, name: true, slug: true, color: true } },
+      category: { select: { id: true, name: true, slug: true, color: true, group: { select: { id: true, name: true, slug: true } } } },
       user: { select: { id: true, name: true, centerName: true, phone: true } },
       _count: { select: { leads: true, reviews: true } },
     },

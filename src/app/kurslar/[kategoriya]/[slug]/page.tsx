@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Clock, Star, BookOpen, Award, Users, Globe, CreditCard } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Star, BookOpen, Award, Users, Globe, CreditCard, Gift, Calendar, GraduationCap, Wallet, Tag } from "lucide-react";
 import { notFound } from "next/navigation";
-import { getListingBySlug, getActiveCategories } from "@/lib/listings";
+import { getListingBySlug, getActiveCategories, getActiveListings, getRecentComments } from "@/lib/listings";
 import { CourseLeadForm } from "@/components/course-lead-form";
+import { RatingForm } from "@/components/rating-form";
+import { RatingComments } from "@/components/rating-comments";
+import { MIN_RATINGS_TO_SHOW } from "@/data/courses";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +60,18 @@ export default async function KursDetailPage({ params }: Props) {
   if (!result) notFound();
   const { course, id: listingId } = result;
 
+  // Sharhlar — faqat reyting publik chegarasidan o'tgan bo'lsa yuklaymiz.
+  // Faqat izoh qoldirgan foydalanuvchilar ko'rsatiladi (yulduzlar emas).
+  const comments = (course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW
+    ? await getRecentComments(listingId, 200)
+    : [];
+
+  // Cross-linking: shu kategoriyadagi boshqa kurslar (joriy listing'dan tashqari).
+  const relatedAll = course.categorySlug
+    ? await getActiveListings({ categorySlug: course.categorySlug, limit: 7 })
+    : [];
+  const related = relatedAll.filter((c) => c.slug !== course.slug).slice(0, 6);
+
   const cat = categories.find((c) => c.slug === kategoriya);
   const catName = cat?.name ?? kategoriya.replace(/-/g, " ");
 
@@ -64,6 +79,8 @@ export default async function KursDetailPage({ params }: Props) {
   const url = `${SITE_URL}/kurslar/${kategoriya}/${slug}`;
   const imageAbs = course.imageUrl ? (course.imageUrl.startsWith("http") ? course.imageUrl : `${SITE_URL}${course.imageUrl}`) : undefined;
   const priceAmount = course.priceFree ? 0 : Number(course.price.replace(/[^\d]/g, "")) || 0;
+
+  // Course schema — kurs uchun asosiy struktura
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Course",
@@ -77,7 +94,8 @@ export default async function KursDetailPage({ params }: Props) {
     ...(imageAbs && { "image": imageAbs }),
     "url": url,
     ...(course.location && { "locationCreated": course.location }),
-    "inLanguage": "uz",
+    "inLanguage": course.language ?? "uz",
+    // S2 — Offer + PriceSpecification
     "offers": {
       "@type": "Offer",
       "price": priceAmount,
@@ -85,25 +103,96 @@ export default async function KursDetailPage({ params }: Props) {
       "availability": "https://schema.org/InStock",
       "url": url,
       "category": course.priceFree ? "Free" : "Paid",
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "price": priceAmount,
+        "priceCurrency": "UZS",
+        "valueAddedTaxIncluded": true,
+      },
     },
     "courseMode": course.format === "Offline" ? "onsite" : course.format === "Online" ? "online" : "blended",
     ...(course.duration && { "timeRequired": course.duration }),
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": course.rating,
-      "ratingCount": 1,
-      "bestRating": 5,
-    },
+    // S3 — instructor (Person)
+    ...(course.teacherName && {
+      "instructor": {
+        "@type": "Person",
+        "name": course.teacherName,
+        ...(course.teacherExperience && { "description": course.teacherExperience }),
+      },
+    }),
+    ...((course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": (course.ratingAvg ?? 0).toFixed(1),
+        "ratingCount": course.ratingCount,
+        "bestRating": 5,
+        "worstRating": 1,
+      },
+    }),
   };
+
+  // F — VideoObject (faqat video formatdagi kurslar uchun)
+  const isVideo = course.format === "Video";
+  const videoLd = (isVideo && imageAbs) ? {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": course.title,
+    "description": course.description || `${course.title} — ${course.provider}`,
+    "thumbnailUrl": [imageAbs],
+    "uploadDate": new Date().toISOString().split("T")[0],
+    ...(course.duration && { "duration": course.duration }),
+    "url": url,
+    "publisher": {
+      "@type": "Organization",
+      "name": "Darslinker.uz",
+      "logo": { "@type": "ImageObject", "url": `${SITE_URL}/icon-512.png` },
+    },
+    "inLanguage": course.language ?? "uz",
+  } : null;
+
+  // S1 — LocalBusiness (faqat offline kurslar uchun, manzil bo'lsa)
+  const isOffline = course.format === "Offline";
+  const hasAddress = Boolean(course.region || course.location);
+  const localBusinessLd = (isOffline && hasAddress) ? {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": course.provider,
+    "url": url,
+    ...(imageAbs && { "image": imageAbs }),
+    ...(course.phone && { "telephone": course.phone }),
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "UZ",
+      ...(course.region && { "addressRegion": course.region }),
+      ...(course.district && { "addressLocality": course.district }),
+      ...(course.location && { "streetAddress": course.location }),
+    },
+    ...(course.region && {
+      "areaServed": { "@type": "AdministrativeArea", "name": course.region },
+    }),
+    ...((course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": (course.ratingAvg ?? 0).toFixed(1),
+        "ratingCount": course.ratingCount,
+        "bestRating": 5,
+        "worstRating": 1,
+      },
+    }),
+  } : null;
+  const breadcrumbItems: { "@type": "ListItem"; position: number; name: string; item: string }[] = [
+    { "@type": "ListItem", position: 1, name: "Bosh sahifa", item: SITE_URL },
+    { "@type": "ListItem", position: 2, name: "Kurslar", item: `${SITE_URL}/kurslar` },
+  ];
+  if (course.groupName && course.groupSlug) {
+    breadcrumbItems.push({ "@type": "ListItem", position: breadcrumbItems.length + 1, name: course.groupName, item: `${SITE_URL}/kurslar/g/${course.groupSlug}` });
+  }
+  breadcrumbItems.push({ "@type": "ListItem", position: breadcrumbItems.length + 1, name: catName, item: `${SITE_URL}/kurslar/${kategoriya}` });
+  breadcrumbItems.push({ "@type": "ListItem", position: breadcrumbItems.length + 1, name: course.title, item: url });
   const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Bosh sahifa", "item": SITE_URL },
-      { "@type": "ListItem", "position": 2, "name": "Kurslar", "item": `${SITE_URL}/kurslar` },
-      { "@type": "ListItem", "position": 3, "name": catName, "item": `${SITE_URL}/kurslar/${kategoriya}` },
-      { "@type": "ListItem", "position": 4, "name": course.title, "item": url },
-    ],
+    itemListElement: breadcrumbItems,
   };
 
   return (
@@ -111,14 +200,26 @@ export default async function KursDetailPage({ params }: Props) {
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      {localBusinessLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
+      )}
+      {videoLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoLd) }} />
+      )}
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-8 md:py-12">
         {/* Back button */}
         <Link href="/kurslar" className="inline-flex items-center gap-2 text-[13px] text-[#7c8490] hover:text-[#16181a] font-medium mb-4 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Kurslarga qaytish
         </Link>
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-[13px] mb-8">
+        {/* Breadcrumb — guruh > yo'nalish > kurs */}
+        <div className="flex items-center gap-2 text-[13px] mb-8 flex-wrap">
           <Link href="/kurslar" className="text-[#7ea2d4] hover:text-[#5b87c0] transition-colors">Kurslar</Link>
+          {course.groupName && course.groupSlug && (
+            <>
+              <span className="text-[#16181a]/20">/</span>
+              <Link href={`/kurslar/g/${course.groupSlug}`} className="text-[#7ea2d4] hover:text-[#5b87c0] transition-colors">{course.groupName}</Link>
+            </>
+          )}
           <span className="text-[#16181a]/20">/</span>
           <Link href={`/kurslar/${kategoriya}`} className="text-[#7ea2d4] hover:text-[#5b87c0] transition-colors">{catName}</Link>
           <span className="text-[#16181a]/20">/</span>
@@ -152,15 +253,21 @@ export default async function KursDetailPage({ params }: Props) {
                 <h1 className="text-[24px] md:text-[32px] font-bold text-white leading-tight">{course.title}</h1>
                 <p className="text-[14px] text-white/50 mt-2">{course.provider}</p>
                 <div className="flex flex-wrap items-center gap-4 mt-4">
-                  <div className="flex items-center gap-1.5 text-[13px] text-white/60">
-                    <Star className="w-4 h-4 fill-white/60 text-white/60" />{course.rating}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[13px] text-white/60">
-                    <MapPin className="w-4 h-4" />{course.location}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[13px] text-white/60">
-                    <Clock className="w-4 h-4" />{course.duration}
-                  </div>
+                  {course.location && (
+                    <div className="flex items-center gap-1.5 text-[13px] text-white/60">
+                      <MapPin className="w-4 h-4" />{course.location}
+                    </div>
+                  )}
+                  {course.duration && course.duration !== "—" && (
+                    <div className="flex items-center gap-1.5 text-[13px] text-white/60">
+                      <Clock className="w-4 h-4" />{course.duration}
+                    </div>
+                  )}
+                  {(course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && (
+                    <div className="flex items-center gap-1.5 text-[13px] text-white/80">
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />{(course.ratingAvg ?? 0).toFixed(1)} <span className="text-white/40">· {course.ratingCount} baholash</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -170,6 +277,50 @@ export default async function KursDetailPage({ params }: Props) {
               <h2 className="text-[18px] font-bold text-[#16181a] mb-3">Kurs haqida</h2>
               <p className="text-[15px] text-[#7c8490] leading-relaxed">{course.description}</p>
             </div>
+
+            {/* Reyting bloki */}
+            <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                  <h2 className="text-[18px] font-bold text-[#16181a] mb-1">Reytinglar</h2>
+                  {(course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW ? (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <Star key={n} className={`w-4 h-4 ${(course.ratingAvg ?? 0) >= n - 0.25 ? "fill-amber-400 text-amber-400" : "text-[#d4d7db]"}`} />
+                        ))}
+                      </div>
+                      <span className="text-[16px] font-bold text-[#16181a]">{(course.ratingAvg ?? 0).toFixed(1)}</span>
+                      <span className="text-[13px] text-[#7c8490]">· {course.ratingCount} baholash</span>
+                    </div>
+                  ) : (course.ratingCount ?? 0) > 0 ? (
+                    <p className="text-[13px] text-[#7c8490] mt-1">
+                      O&apos;rtacha reyting kamida {MIN_RATINGS_TO_SHOW} ta baholashdan keyin ko&apos;rinadi ({course.ratingCount}/{MIN_RATINGS_TO_SHOW})
+                    </p>
+                  ) : (
+                    <p className="text-[13px] text-[#7c8490] mt-1">Hali baholanmagan — birinchi bo&apos;lib baho bering!</p>
+                  )}
+                </div>
+                <RatingForm listingId={listingId} />
+              </div>
+
+              <RatingComments comments={comments.map((c) => ({ ...c, createdAt: c.createdAt.toISOString() }))} />
+            </div>
+
+            {/* Chegirma/aksiya — faqat discount bo'lsa */}
+            {course.discount && (
+              <div className="rounded-[18px] bg-gradient-to-r from-[#fef9c3] to-[#fde68a] border border-[#fcd34d] p-5 md:p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-[12px] bg-white/70 flex items-center justify-center shrink-0">
+                    <Gift className="w-5 h-5 text-[#a16207]" />
+                  </div>
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#a16207] uppercase tracking-wide">Maxsus taklif</p>
+                    <p className="text-[16px] md:text-[17px] font-bold text-[#713f12] leading-snug mt-0.5">{course.discount}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Ma'lumotlar grid */}
             <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
@@ -204,20 +355,11 @@ export default async function KursDetailPage({ params }: Props) {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
-                    <Star className="w-4 h-4 text-[#7ea2d4]" />
-                  </div>
-                  <div>
-                    <p className="text-[11px] text-[#7c8490]">Reyting</p>
-                    <p className="text-[14px] font-bold text-[#16181a]">{course.rating}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
                     <Globe className="w-4 h-4 text-[#7ea2d4]" />
                   </div>
                   <div>
                     <p className="text-[11px] text-[#7c8490]">Til</p>
-                    <p className="text-[14px] font-bold text-[#16181a]">O&apos;zbek</p>
+                    <p className="text-[14px] font-bold text-[#16181a]">{course.language === "ru" ? "Rus tili" : course.language === "en" ? "Ingliz tili" : "O'zbek"}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -226,35 +368,84 @@ export default async function KursDetailPage({ params }: Props) {
                   </div>
                   <div>
                     <p className="text-[11px] text-[#7c8490]">Sertifikat</p>
-                    <p className="text-[14px] font-bold text-[#16181a]">Beriladi</p>
+                    <p className="text-[14px] font-bold text-[#16181a]">{course.certificate ? "Beriladi" : "Yo'q"}</p>
                   </div>
                 </div>
+                {course.level && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <GraduationCap className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-[#7c8490]">Daraja</p>
+                      <p className="text-[14px] font-bold text-[#16181a]">{course.level}</p>
+                    </div>
+                  </div>
+                )}
+                {course.schedule && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <Calendar className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-[#7c8490]">Dars jadvali</p>
+                      <p className="text-[14px] font-bold text-[#16181a]">{course.schedule}</p>
+                    </div>
+                  </div>
+                )}
+                {course.paymentType && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <Wallet className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-[#7c8490]">To&apos;lov turi</p>
+                      <p className="text-[14px] font-bold text-[#16181a]">{course.paymentType}</p>
+                    </div>
+                  </div>
+                )}
+                {course.demoLesson && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <Tag className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-[#7c8490]">Demo dars</p>
+                      <p className="text-[14px] font-bold text-[#16181a]">Mavjud</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Dars rejasi */}
-            <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
-              <h2 className="text-[18px] font-bold text-[#16181a] mb-5">Dars rejasi</h2>
-              <div className="space-y-3">
-                {["Asoslar va kirish", "Amaliy mashqlar", "Loyiha ishlash", "Yakuniy loyiha va sertifikat"].map((modul, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-[12px] bg-[#f0f2f3]">
-                    <span className="w-7 h-7 rounded-full bg-[#7ea2d4]/15 flex items-center justify-center shrink-0 text-[12px] font-bold text-[#7ea2d4]">{i + 1}</span>
-                    <span className="text-[14px] text-[#16181a]">{modul}</span>
-                  </div>
-                ))}
+            {/* Dars rejasi — faqat teacher kiritgan bo'lsa ko'rsatiladi */}
+            {course.lessons && course.lessons.length > 0 && (
+              <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
+                <h2 className="text-[18px] font-bold text-[#16181a] mb-5">Dars rejasi</h2>
+                <div className="space-y-3">
+                  {course.lessons.map((modul, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-[12px] bg-[#f0f2f3]">
+                      <span className="w-7 h-7 rounded-full bg-[#7ea2d4]/15 flex items-center justify-center shrink-0 text-[12px] font-bold text-[#7ea2d4]">{i + 1}</span>
+                      <span className="text-[14px] text-[#16181a]">{modul}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* O'qituvchi */}
             <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
               <h2 className="text-[18px] font-bold text-[#16181a] mb-4">O&apos;qituvchi</h2>
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-[#7ea2d4]/15 flex items-center justify-center shrink-0">
                   <Users className="w-5 h-5 text-[#7ea2d4]" />
                 </div>
                 <div>
-                  <p className="text-[15px] font-semibold text-[#16181a]">{course.provider}</p>
+                  <p className="text-[15px] font-semibold text-[#16181a]">{course.teacherName || course.provider}</p>
                   <p className="text-[13px] text-[#7c8490]">{course.location}</p>
+                  {course.teacherExperience && (
+                    <p className="text-[13px] text-[#7c8490] leading-relaxed mt-2">{course.teacherExperience}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -269,9 +460,6 @@ export default async function KursDetailPage({ params }: Props) {
                   <span className="text-[28px] font-bold text-[#16181a]">{course.priceFree ? "Bepul" : `${course.price}`}</span>
                   {!course.priceFree && <span className="text-[14px] text-[#7c8490]">so&apos;m</span>}
                 </div>
-                <span className="inline-flex px-2.5 py-1 rounded-full bg-green-50 text-[12px] font-medium text-green-600 mt-2">
-                  Bo&apos;sh joy bor
-                </span>
               </div>
 
               {/* Ariza form */}
@@ -283,6 +471,43 @@ export default async function KursDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Shu kategoriyadagi boshqa kurslar — cross-linking */}
+        {related.length > 0 && (
+          <section className="mt-12">
+            <div className="flex items-end justify-between gap-4 mb-5">
+              <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a]">Shu kategoriyadagi boshqa kurslar</h2>
+              <Link href={`/kurslar/${kategoriya}`} className="text-[13px] text-[#7ea2d4] hover:text-[#5b87c0] font-semibold whitespace-nowrap transition-colors">
+                Barcha {catName} kurslari &rarr;
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {related.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`/kurslar/${c.categorySlug}/${c.slug}`}
+                  className={`relative overflow-hidden rounded-[16px] bg-gradient-to-br ${c.gradient} p-5 flex flex-col min-h-[150px] group transition-transform hover:-translate-y-0.5`}
+                >
+                  {c.imageUrl && (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={c.imageUrl} alt={c.title} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `${c.imageCPosX ?? 50}% ${c.imageCPosY ?? 50}%`, transform: `scale(${(c.imageCZoom ?? 100) / 100})`, transformOrigin: `${c.imageCPosX ?? 50}% ${c.imageCPosY ?? 50}%` }} />
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
+                    </>
+                  )}
+                  <div className="relative z-[1] flex-1">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold mb-2">{c.format}</span>
+                    <h3 className="text-[15px] font-bold text-white leading-snug">{c.title}</h3>
+                    <p className="text-[12px] text-white/50 mt-1 line-clamp-1">{c.provider}{c.location ? ` · ${c.location}` : ""}</p>
+                  </div>
+                  <div className="relative z-[1] mt-3 text-[13px] font-bold text-white">
+                    {c.priceFree ? "Bepul" : `${c.price} so'm`}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Orqaga */}
         <div className="mt-10">

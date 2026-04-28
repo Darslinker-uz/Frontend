@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Star, ArrowRight } from "lucide-react";
-import { type Course } from "@/data/courses";
+import { ArrowRight, Star } from "lucide-react";
+import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
 import { CourseFilter } from "@/components/course-filter";
+import { LocationBanner } from "@/components/location-banner";
+
+interface LocationFilterInfo {
+  region: string | null;
+  district: string | null;
+  fallback: { from: "district" | "region"; to: "region" | "all"; nearby: number; expanded: number } | null;
+}
 
 function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
   return (
@@ -30,10 +37,14 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
           </div>
           <h3 className="text-[17px] font-bold text-white leading-tight">{course.title}</h3>
           <p className="text-[12px] text-white/35 mt-1">{course.provider} · {course.location}</p>
-          <div className="flex items-center gap-2 mt-2 text-[11px] text-white/30">
-            <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-white/50 text-white/50" />{course.rating}</span>
-            <span>{course.duration}</span>
-          </div>
+          {(course.duration && course.duration !== "—") || (course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW ? (
+            <div className="flex items-center gap-2 mt-2 text-[11px] text-white/40">
+              {(course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && (
+                <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{(course.ratingAvg ?? 0).toFixed(1)} <span className="text-white/30">({course.ratingCount})</span></span>
+              )}
+              {course.duration && course.duration !== "—" && <span>{course.duration}</span>}
+            </div>
+          ) : null}
         </div>
         <div className="relative z-[2] mx-3 mb-3 rounded-[12px] bg-white/[0.1] border border-white/[0.08] px-4 py-2.5 flex items-center justify-between">
           <span className="text-[14px] font-bold text-white">{course.priceFree ? "Bepul" : `${course.price} so'm`}</span>
@@ -60,7 +71,9 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
   );
 }
 
-function KurslarContent({ initialCourses }: { initialCourses: Course[] }) {
+const EMPTY_LOCATION_FILTER: LocationFilterInfo = { region: null, district: null, fallback: null };
+
+function KurslarContent({ initialCourses, locationFilter }: { initialCourses: Course[]; locationFilter: LocationFilterInfo }) {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
   const initialFormat = searchParams.get("format") || "";
@@ -76,6 +89,11 @@ function KurslarContent({ initialCourses }: { initialCourses: Course[] }) {
 
   return (
     <>
+      <LocationBanner
+        region={locationFilter.region}
+        district={locationFilter.district}
+        fallback={locationFilter.fallback}
+      />
       <div className="md:flex">
         <CourseFilter key={`${initialSearch}-${initialFormat}`} courses={initialCourses} onFilter={handleFilter} initialSearch={initialSearch} initialFormat={initialFormat}>
           <CourseGrid courses={filtered} filterKey={filterKey} />
@@ -88,10 +106,10 @@ function KurslarContent({ initialCourses }: { initialCourses: Course[] }) {
   );
 }
 
-export function KurslarClient({ initialCourses }: { initialCourses: Course[] }) {
+export function KurslarClient({ initialCourses, locationFilter }: { initialCourses: Course[]; locationFilter?: LocationFilterInfo }) {
   return (
     <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{initialCourses.slice(0, 6).map((c, i) => <CourseCard key={c.slug} course={c} index={i} />)}</div>}>
-      <KurslarContent initialCourses={initialCourses} />
+      <KurslarContent initialCourses={initialCourses} locationFilter={locationFilter ?? EMPTY_LOCATION_FILTER} />
     </Suspense>
   );
 }

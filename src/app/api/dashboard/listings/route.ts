@@ -21,7 +21,7 @@ export async function GET() {
     where: { userId },
     orderBy: { createdAt: "desc" },
     include: {
-      category: { select: { id: true, name: true, slug: true, color: true } },
+      category: { select: { id: true, name: true, slug: true, color: true, pendingApproval: true, group: { select: { id: true, name: true, slug: true } } } },
       user: { select: { id: true, name: true, centerName: true } },
       _count: { select: { leads: true, boosts: true } },
     },
@@ -46,12 +46,17 @@ export async function POST(request: Request) {
   }
 
   const title = String(body.title ?? "").trim();
-  const categoryName = String(body.category ?? "").trim();
+  const categoryId = body.categoryId !== undefined ? Number(body.categoryId) : null;
+  // Yangi yo'nalish so'rovi: foydalanuvchi guruhni tanlaydi va yo'nalish nomini qo'lda yozadi.
+  const proposedCategoryName = body.proposedCategoryName ? String(body.proposedCategoryName).trim().slice(0, 60) : "";
+  const proposedGroupId = body.proposedGroupId !== undefined ? Number(body.proposedGroupId) : null;
   const formatLabel = String(body.format ?? "").trim();
   const price = body.priceFree ? 0 : Number(body.price) || 0;
   const duration = body.duration ? String(body.duration).trim() : null;
   const description = body.description ? String(body.description).trim() : null;
   const location = body.location ? String(body.location).trim() : null;
+  const region = body.region ? String(body.region).trim().slice(0, 100) || null : null;
+  const district = body.district ? String(body.district).trim().slice(0, 100) || null : null;
   const color = body.color ? String(body.color) : null;
   const icon = body.icon ? String(body.icon) : null;
   const imageUrl = body.imageUrl ? String(body.imageUrl) : null;
@@ -70,16 +75,73 @@ export async function POST(request: Request) {
   const imageAMZoom = body.imageAMZoom !== undefined ? Math.max(100, Math.min(300, Number(body.imageAMZoom))) : 100;
   const imageCZoom = body.imageCZoom !== undefined ? Math.max(100, Math.min(300, Number(body.imageCZoom))) : 100;
   const imageCMZoom = body.imageCMZoom !== undefined ? Math.max(100, Math.min(300, Number(body.imageCMZoom))) : 100;
+  const lessons = Array.isArray(body.lessons)
+    ? body.lessons.map(x => String(x).trim()).filter(s => s.length > 0 && s.length <= 200).slice(0, 30)
+    : [];
+
+  // New fields (10 course detail fields)
+  const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
+  const level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
+  const studentLimitRaw = Number(body.studentLimit);
+  const studentLimit = !Number.isFinite(studentLimitRaw) || studentLimitRaw <= 0 ? null : Math.min(10000, Math.floor(studentLimitRaw));
+  const paymentType = body.paymentType ? String(body.paymentType).trim().slice(0, 50) || null : null;
+  const schedule = body.schedule ? String(body.schedule).trim().slice(0, 200) || null : null;
+  const teacherName = body.teacherName ? String(body.teacherName).trim().slice(0, 100) || null : null;
+  const teacherExperience = body.teacherExperience ? String(body.teacherExperience).trim().slice(0, 1000) || null : null;
+  const certificate = body.certificate === true || body.certificate === "true" || body.certificate === "ha";
+  const demoLesson = body.demoLesson === true || body.demoLesson === "true" || body.demoLesson === "ha";
+  const discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
 
   if (!title || title.length < 3) return NextResponse.json({ error: "Kurs nomi kamida 3 belgi" }, { status: 400 });
-  if (!categoryName) return NextResponse.json({ error: "Kategoriya majburiy" }, { status: 400 });
   if (!formatLabel) return NextResponse.json({ error: "Format majburiy" }, { status: 400 });
+  if (!categoryId && !proposedCategoryName) {
+    return NextResponse.json({ error: "Yo'nalish tanlash yoki yangisini so'rash majburiy" }, { status: 400 });
+  }
+  if (!categoryId && proposedCategoryName && !proposedGroupId) {
+    return NextResponse.json({ error: "Yangi yo'nalish uchun guruhni tanlang" }, { status: 400 });
+  }
 
   const format = FORMAT_MAP[formatLabel];
   if (!format) return NextResponse.json({ error: "Format noto'g'ri" }, { status: 400 });
 
-  const category = await prisma.category.findFirst({ where: { name: categoryName } });
-  if (!category) return NextResponse.json({ error: "Kategoriya topilmadi" }, { status: 400 });
+  // Mavjud yo'nalish yoki yangisini yaratish
+  let category: { id: number; name: string; active: boolean } | null = null;
+  if (categoryId) {
+    category = await prisma.category.findUnique({ where: { id: categoryId }, select: { id: true, name: true, active: true } });
+    if (!category || !category.active) {
+      return NextResponse.json({ error: "Yo'nalish topilmadi yoki faol emas" }, { status: 400 });
+    }
+  } else {
+    // Yangi yo'nalish so'rovi — pendingApproval=true bilan yaratamiz
+    const group = await prisma.categoryGroup.findUnique({ where: { id: proposedGroupId! }, select: { id: true, active: true } });
+    if (!group || !group.active) return NextResponse.json({ error: "Guruh topilmadi" }, { status: 400 });
+
+    if (proposedCategoryName.length < 2) {
+      return NextResponse.json({ error: "Yo'nalish nomi kamida 2 belgi" }, { status: 400 });
+    }
+    // Slug generatsiya — agar to'qnashsa, suffix qo'shamiz
+    const baseSlug = proposedCategoryName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 50);
+    const slugCandidate = baseSlug || `pending-${Date.now()}`;
+    const exists = await prisma.category.findFirst({ where: { slug: slugCandidate } });
+    const finalSlug = exists ? `${slugCandidate}-${Math.random().toString(36).slice(2, 6)}` : slugCandidate;
+
+    const newCat = await prisma.category.create({
+      data: {
+        groupId: group.id,
+        name: proposedCategoryName,
+        slug: finalSlug,
+        pendingApproval: true,
+        active: false, // tasdiqlangungacha yashirin
+        proposedById: userId,
+      },
+      select: { id: true, name: true, active: true },
+    });
+    category = newCat;
+  }
 
   const slug = title
     .toLowerCase()
@@ -97,6 +159,8 @@ export async function POST(request: Request) {
       price,
       format,
       location,
+      region,
+      district,
       duration,
       phone: user?.phone ?? "",
       color,
@@ -117,6 +181,17 @@ export async function POST(request: Request) {
       imageAMZoom,
       imageCZoom,
       imageCMZoom,
+      lessons,
+      language,
+      level,
+      studentLimit,
+      paymentType,
+      schedule,
+      teacherName,
+      teacherExperience,
+      certificate,
+      demoLesson,
+      discount,
       status: "pending", // requires admin approval
     },
   });

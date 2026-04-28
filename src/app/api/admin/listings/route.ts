@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     orderBy: { createdAt: "desc" },
     include: {
       user: { select: { id: true, name: true, centerName: true, phone: true, telegramChatId: true } },
-      category: { select: { id: true, name: true, slug: true, color: true } },
+      category: { select: { id: true, name: true, slug: true, color: true, pendingApproval: true, group: { select: { id: true, name: true, slug: true } } } },
       _count: { select: { leads: true, boosts: true } },
     },
   });
@@ -46,6 +46,19 @@ export async function POST(request: Request) {
   const clampZoom = (v: unknown, def = 100) =>
     v !== undefined && v !== null ? Math.max(100, Math.min(300, Number(v))) : def;
 
+  // New detail fields (10)
+  const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
+  const level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
+  const studentLimitRaw = Number(body.studentLimit);
+  const studentLimit = !Number.isFinite(studentLimitRaw) || studentLimitRaw <= 0 ? null : Math.min(10000, Math.floor(studentLimitRaw));
+  const paymentType = body.paymentType ? String(body.paymentType).trim().slice(0, 50) || null : null;
+  const schedule = body.schedule ? String(body.schedule).trim().slice(0, 200) || null : null;
+  const teacherName = body.teacherName ? String(body.teacherName).trim().slice(0, 100) || null : null;
+  const teacherExperience = body.teacherExperience ? String(body.teacherExperience).trim().slice(0, 1000) || null : null;
+  const certificate = body.certificate === true || body.certificate === "true" || body.certificate === "ha";
+  const demoLesson = body.demoLesson === true || body.demoLesson === "true" || body.demoLesson === "ha";
+  const discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
+
   const listing = await prisma.listing.create({
     data: {
       userId: Number(body.userId),
@@ -57,7 +70,18 @@ export async function POST(request: Request) {
       format: body.format,
       location: body.location ?? null,
       duration: body.duration ?? null,
-      language: body.language ?? "uz",
+      region: body.region ? String(body.region).trim().slice(0, 100) || null : null,
+      district: body.district ? String(body.district).trim().slice(0, 100) || null : null,
+      language,
+      level,
+      studentLimit,
+      paymentType,
+      schedule,
+      teacherName,
+      teacherExperience,
+      certificate,
+      demoLesson,
+      discount,
       phone: body.phone,
       imageUrl: body.imageUrl ?? null,
       imagePosX: clampPos(body.imagePosX),
@@ -77,11 +101,14 @@ export async function POST(request: Request) {
       imageCMZoom: clampZoom(body.imageCMZoom),
       color: body.color ?? null,
       icon: body.icon ?? null,
+      lessons: Array.isArray(body.lessons)
+        ? body.lessons.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 200).slice(0, 30)
+        : [],
       status: body.status ?? "active", // admin qo'shganda darhol aktiv
     },
     include: {
       user: { select: { id: true, name: true, centerName: true, phone: true } },
-      category: { select: { id: true, name: true, slug: true, color: true } },
+      category: { select: { id: true, name: true, slug: true, color: true, pendingApproval: true, group: { select: { id: true, name: true, slug: true } } } },
     },
   });
 

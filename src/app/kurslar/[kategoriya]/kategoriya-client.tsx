@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Star, ArrowRight } from "lucide-react";
-import { type Course } from "@/data/courses";
+import { ArrowRight, Star } from "lucide-react";
+import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
 import { CourseFilter } from "@/components/course-filter";
 
 function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
@@ -30,10 +30,14 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
           </div>
           <h3 className="text-[17px] font-bold text-white leading-tight">{course.title}</h3>
           <p className="text-[12px] text-white/35 mt-1">{course.provider} · {course.location}</p>
-          <div className="flex items-center gap-2 mt-2 text-[11px] text-white/30">
-            <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-white/50 text-white/50" />{course.rating}</span>
-            <span>{course.duration}</span>
-          </div>
+          {(course.duration && course.duration !== "—") || (course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW ? (
+            <div className="flex items-center gap-2 mt-2 text-[11px] text-white/40">
+              {(course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && (
+                <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{(course.ratingAvg ?? 0).toFixed(1)} <span className="text-white/30">({course.ratingCount})</span></span>
+              )}
+              {course.duration && course.duration !== "—" && <span>{course.duration}</span>}
+            </div>
+          ) : null}
         </div>
         <div className="relative z-[2] mx-3 mb-3 rounded-[12px] bg-white/[0.1] border border-white/[0.08] px-4 py-2.5 flex items-center justify-between">
           <span className="text-[14px] font-bold text-white">{course.priceFree ? "Bepul" : `${course.price} so'm`}</span>

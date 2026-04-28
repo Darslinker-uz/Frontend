@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, Star, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 
 const SLIDE_DURATION = 3000;
 
@@ -119,7 +119,6 @@ function SlideContent({ slide }: { slide: typeof demoSlides[0] }) {
       <div className="flex items-center gap-4 mt-6 mb-5">
         <div className="px-3 py-2 rounded-[12px] bg-white/10 backdrop-blur-sm"><p className="text-[10px] text-white/40">Narx</p><p className="text-[15px] font-bold text-white">{slide.price}</p></div>
         <div className="px-3 py-2 rounded-[12px] bg-white/10 backdrop-blur-sm"><p className="text-[10px] text-white/40">Davomiylik</p><p className="text-[15px] font-bold text-white">{slide.duration}</p></div>
-        <div className="px-3 py-2 rounded-[12px] bg-white/10 backdrop-blur-sm"><p className="text-[10px] text-white/40">Reyting</p><p className="text-[15px] font-bold text-white flex items-center gap-1"><Star className="w-3 h-3 fill-white text-white" />{slide.rating}</p></div>
       </div>
       <div className="flex items-center gap-3">
         <button className="h-[40px] px-5 rounded-[10px] bg-white text-[#16181a] text-[13px] font-semibold">Murojaat qilish</button>

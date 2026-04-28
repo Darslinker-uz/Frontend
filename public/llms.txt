@@ -1,0 +1,52 @@
+# Darslinker.uz
+
+> Darslinker.uz — O'zbekistondagi online va offline o'quv kurslarini bir joydan topish, narx va sifat bo'yicha solishtirish va to'g'ri tanlovni qilish uchun yagona aggregator platformasi. Dasturlash, chet tillari, IELTS, dizayn, marketing va o'nlab boshqa yo'nalishlardagi minglab o'quv markazlari va o'qituvchilar bir interfeysda jamlangan. Foydalanuvchilar uchun xizmat butunlay bepul.
+
+Loyiha O'zbekistondagi ta'lim bozoriga mo'ljallangan. Asosiy til — o'zbek (uz_UZ). Geografik qamrov: O'zbekistonning barcha 14 viloyati. Kurslarning haqiqiyligi va sifati o'quvchilar tomonidan Telegram bot orqali tasdiqlangan reyting va sharhlar bilan ta'minlanadi.
+
+## Ana sahifalar
+
+- [Bosh sahifa](https://darslinker.uz/): Platforma haqida umumiy ma'lumot, mashhur kurslar, yo'nalishlar va FAQ.
+- [Barcha kurslar](https://darslinker.uz/kurslar): To'liq katalog — yo'nalish, format (online/offline), narx va viloyat bo'yicha filtrlash.
+- [Manba](https://darslinker.uz/manba): Bilim hubi — lug'atlar, qo'llanmalar, sharhlar va savol-javoblar.
+- [Blog](https://darslinker.uz/blog): Ta'lim, kasb va karera mavzusidagi tahliliy maqolalar.
+- [Hamkorlik](https://darslinker.uz/hamkorlik): O'quv markazlar uchun platformaga qo'shilish ma'lumoti.
+
+## Kurs kategoriyalari (yo'nalishlar)
+
+Kurslar 7 ta katta guruh va 92 ta yo'nalishga bo'lingan:
+
+- [Dasturlash](https://darslinker.uz/kurslar/g/dasturlash): Web, mobile, data science, AI, oyin dasturlash.
+- [Chet tillari](https://darslinker.uz/kurslar/g/chet-tillari): Ingliz, koreys, rus, xitoy, arab, nemis va boshqalar.
+- [Imtihonlar](https://darslinker.uz/kurslar/g/imtihonlar): IELTS, CEFR, TOPIK, SAT, GRE va shu kabilar.
+- [Dizayn](https://darslinker.uz/kurslar/g/dizayn): UI/UX, grafik dizayn, motion, 3D.
+- [Marketing va biznes](https://darslinker.uz/kurslar/g/marketing-biznes): SMM, kontent marketing, biznes asoslari.
+- [Ijodiy](https://darslinker.uz/kurslar/g/ijodiy): Musiqa, kalligrafiya, suratga olish, video montaj.
+- [Boshqa](https://darslinker.uz/kurslar/g/boshqa): Diniy, kasbiy va boshqa nichli yo'nalishlar.
+
+## URL strukturasi
+
+- `/kurslar/g/{guruh-slug}` — guruh sahifasi (masalan, dasturlash)
+- `/kurslar/{yonalish-slug}` — yo'nalish sahifasi (masalan, ingliz-tili)
+- `/kurslar/g/{guruh-slug}/{viloyat-slug}` — guruh + viloyat (masalan, chet-tillari/toshkent)
+- `/kurslar/{yonalish-slug}/joy/{viloyat-slug}` — yo'nalish + viloyat
+- `/kurslar/{yonalish-slug}/{kurs-slug}` — alohida kurs sahifasi (e'lon detail)
+- `/manba/{slug}` — Manba maqola
+- `/blog/{slug}` — blog post
+
+## Tezkor ma'lumotlar (FAQ)
+
+- **Xizmat narxi:** O'quvchilar uchun butunlay bepul. To'lov to'g'ridan-to'g'ri o'quv markaz bilan kelishiladi.
+- **Format turlari:** Offline (markaz binosida), Online (Zoom/Telegram), Video (yozilgan kurs).
+- **Reyting tizimi:** Faqat Telegram bot orqali tasdiqlangan haqiqiy o'quvchilar reyting va sharh qoldira oladi. Spam yoki saxta sharhlar mumkin emas.
+- **Geografiya:** Toshkent, Samarqand, Buxoro, Andijon, Farg'ona, Namangan, Qashqadaryo, Surxondaryo, Xorazm, Navoiy, Jizzax, Sirdaryo, Qoraqalpog'iston — 14 viloyat.
+- **O'quv markazlar uchun:** Platformaga `/hamkorlik` sahifasidan ariza qoldirib qo'shilish mumkin. Kurs joylash dastlabki davrda bepul.
+
+## Texnik ma'lumotlar AI agentlar uchun
+
+- Sayt server-rendered (Next.js App Router) — barcha public sahifalar HTML'da to'liq kontent bilan keladi.
+- Strukturali ma'lumotlar: Course, BreadcrumbList, ItemList, FAQPage, BlogPosting, Organization, EducationalOrganization, AggregateRating, Offer + PriceSpecification, Person (instructor), VideoObject, HowTo, QAPage, DefinedTerm, Speakable.
+- Sitemap: https://darslinker.uz/sitemap.xml — dinamik, taksonomiya + viloyat kombinatsiyalari + e'lonlar + maqolalar.
+- **To'liq sayt mazmuni** (kategoriya, maqola, kurslar): https://darslinker.uz/llms-full.txt
+- AI bot allowlist: GPTBot, ClaudeBot, PerplexityBot, CCBot, Google-Extended — robots.txt da aniq ruxsat berilgan.
+- Til: o'zbek (uz_UZ). Hreflang `uz` + `x-default` o'rnatilgan. Bilingual `uz/ru` kelajakda rejalashtirilgan.

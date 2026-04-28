@@ -40,7 +40,7 @@ export default function StartPage() {
               <Link href="/start/kurslar" className="inline-flex items-center justify-center gap-2 h-[44px] md:h-[48px] px-6 md:px-7 rounded-full bg-white text-[#16181a] text-[14px] font-semibold hover:bg-white/90 transition-colors w-full sm:w-auto">
                 Boshlash <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/auth" className="inline-flex items-center justify-center gap-2 h-[44px] md:h-[48px] px-6 md:px-7 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[14px] font-semibold hover:bg-white/25 transition-colors w-full sm:w-auto">
+              <Link href="/center" className="inline-flex items-center justify-center gap-2 h-[44px] md:h-[48px] px-6 md:px-7 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[14px] font-semibold hover:bg-white/25 transition-colors w-full sm:w-auto">
                 Kirish
               </Link>
             </div>

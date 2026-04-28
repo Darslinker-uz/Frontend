@@ -33,7 +33,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           phone: user.phone,
           role: user.role,
-        } as { id: string; name: string; phone: string; role: string };
+          onboardingCompleted: user.onboardingCompleted,
+        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean };
       },
     }),
     Credentials({
@@ -41,12 +42,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         phone: { label: "Telefon", type: "tel" },
         code: { label: "Kod", type: "text" },
+        expectedRole: { label: "Expected role", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.phone || !credentials?.code) return null;
 
         const phone = normalizePhone(String(credentials.phone));
         const code = String(credentials.code).trim();
+        const expectedRole = credentials?.expectedRole ? String(credentials.expectedRole) : null;
 
         const authCode = await prisma.authCode.findFirst({
           where: {
@@ -61,6 +64,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const user = await prisma.user.findUnique({ where: { phone } });
         if (!user || user.banned) return null;
+        // Gate by role — /center accepts only providers, /student accepts only students.
+        // Admins always sign in via the password flow, so they never end up here.
+        if (expectedRole && user.role !== expectedRole) return null;
 
         await prisma.authCode.update({
           where: { id: authCode.id },
@@ -76,7 +82,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           phone: user.phone,
           role: user.role,
-        } as { id: string; name: string; phone: string; role: string };
+          onboardingCompleted: user.onboardingCompleted,
+        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean };
       },
     }),
   ],

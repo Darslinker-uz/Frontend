@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit, Kalam, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { MainShell } from "@/components/layout/main-shell";
+import { Footer } from "@/components/layout/footer";
 import { Providers } from "@/components/providers";
 
 const outfit = Outfit({
@@ -41,15 +42,45 @@ export const metadata: Metadata = {
     siteName: "Darslinker.uz",
     title: "Darslinker.uz — Kurslarni toping va solishtiring",
     description: "O'zbekistondagi eng yaxshi online va offline kurslarni toping, solishtiring va to'g'ri tanlov qiling.",
+    images: [
+      {
+        url: "/og-image.png?v=4",
+        width: 1200,
+        height: 1200,
+        alt: "Darslinker.uz",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Darslinker.uz — Kurslarni toping va solishtiring",
     description: "O'zbekistondagi eng yaxshi kurslar",
+    images: ["/og-image.png?v=4"],
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/icon.svg?v=4", type: "image/svg+xml" },
+      { url: "/favicon-32.png?v=4", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16.png?v=4", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "/icon-512.png?v=4",
+    apple: "/apple-touch-icon.png?v=4",
+  },
+  alternates: {
+    canonical: SITE_URL,
+    languages: {
+      "uz": SITE_URL,
+      "x-default": SITE_URL,
+    },
+  },
+  // Search Console / Webmaster tasdiqlash. Tokenni .env'ga qo'shing.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    yandex: process.env.YANDEX_VERIFICATION,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+      : undefined,
   },
 };
 
@@ -65,7 +96,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-outfit)]">
         <Providers>
-          <MainShell>{children}</MainShell>
+          <MainShell footer={<Footer />}>{children}</MainShell>
         </Providers>
       </body>
     </html>

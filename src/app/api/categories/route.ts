@@ -3,9 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/categories — public, active only
+// GET /api/categories
+//   Returns the full taxonomy: groups -> categories nested.
+//   Used by listing forms (group + category cascade dropdowns) and the public
+//   /kurslar filter UI.
 export async function GET() {
-  const categories = await prisma.category.findMany({
+  const groups = await prisma.categoryGroup.findMany({
     where: { active: true },
     orderBy: { order: "asc" },
     select: {
@@ -15,10 +18,19 @@ export async function GET() {
       description: true,
       icon: true,
       color: true,
-      subcategories: true,
-      _count: { select: { listings: { where: { status: "active" } } } },
+      categories: {
+        where: { active: true },
+        orderBy: { order: "asc" },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          _count: { select: { listings: { where: { status: "active" } } } },
+        },
+      },
     },
   });
 
-  return NextResponse.json({ categories });
+  return NextResponse.json({ groups });
 }

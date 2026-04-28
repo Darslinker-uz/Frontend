@@ -21,6 +21,7 @@ export interface ApiListing {
   format: "offline" | "online" | "video";
   location: string | null;
   duration: string | null;
+  lessons?: string[];
   color: string | null;
   icon: string | null;
   imageUrl: string | null;
@@ -40,7 +41,21 @@ export interface ApiListing {
   imageCZoom?: number;
   imageCMZoom?: number;
   views: number;
-  category: { id: number; name: string; slug: string; color: string | null };
+  language?: string;
+  level?: string | null;
+  studentLimit?: number | null;
+  schedule?: string | null;
+  certificate?: boolean;
+  demoLesson?: boolean;
+  discount?: string | null;
+  teacherName?: string | null;
+  teacherExperience?: string | null;
+  paymentType?: string | null;
+  ratingAvg?: number;
+  ratingCount?: number;
+  region?: string | null;
+  district?: string | null;
+  category: { id: number; name: string; slug: string; color: string | null; group?: { id: number; name: string; slug: string } | null };
   user: { id: number; name: string; centerName?: string | null };
   _count?: { leads: number };
 }
@@ -58,14 +73,19 @@ export function apiListingToCourse(l: ApiListing): Course {
     title: l.title,
     category: l.category?.name ?? "—",
     categorySlug: l.category?.slug ?? "",
+    groupName: l.category?.group?.name,
+    groupSlug: l.category?.group?.slug,
     format: FORMAT_LABELS[l.format] ?? "Online",
     provider: l.user?.centerName ?? l.user?.name ?? "—",
     location: l.location ?? "",
+    region: l.region ?? null,
+    district: l.district ?? null,
     price,
     priceFree: l.price === 0,
     rating: "5.0",
     duration: l.duration ?? "—",
     description: l.description ?? "",
+    lessons: l.lessons ?? [],
     gradient,
     iconPath,
     imageUrl: l.imageUrl,
@@ -84,5 +104,17 @@ export function apiListingToCourse(l: ApiListing): Course {
     imageAMZoom: l.imageAMZoom ?? 100,
     imageCZoom: l.imageCZoom ?? 100,
     imageCMZoom: l.imageCMZoom ?? 100,
+    language: l.language ?? "uz",
+    level: l.level ?? undefined,
+    studentLimit: l.studentLimit ?? undefined,
+    schedule: l.schedule ?? undefined,
+    certificate: l.certificate ?? false,
+    demoLesson: l.demoLesson ?? false,
+    discount: l.discount ?? undefined,
+    teacherName: l.teacherName ?? undefined,
+    teacherExperience: l.teacherExperience ?? undefined,
+    paymentType: l.paymentType ?? undefined,
+    ratingAvg: l.ratingAvg ?? 0,
+    ratingCount: l.ratingCount ?? 0,
   };
 }

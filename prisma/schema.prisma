@@ -16,6 +16,20 @@ enum Role {
   admin
 }
 
+// Kontent turlari (Manba + Blog)
+enum ArticleType {
+  lugat       // "X nima?" — atama tushuntirish
+  qollanma    // "Qanday qilish kerak" — step-by-step
+  sharh       // "Top X" yoki qiyosiy maqola
+  savol       // FAQ — savol-javob
+  blog        // Erkin format blog post
+}
+
+enum ArticleStatus {
+  draft       // qoralama (admin panelda ko'rinadi, publik emas)
+  published   // saytda chiqqan
+}
+
 enum ListingFormat {
   offline
   online
@@ -108,13 +122,15 @@ model User {
   telegramChatId  String?  @map("telegram_chat_id")
   balance         Int      @default(0)
   banned          Boolean  @default(false)
+  onboardingCompleted Boolean @default(false) @map("onboarding_completed")
   createdAt       DateTime @default(now()) @map("created_at")
   lastActiveAt    DateTime @default(now()) @map("last_active_at")
 
-  listings    Listing[]
-  payments    Payment[]
-  balanceLogs BalanceLog[]
-  managers    Manager[]
+  listings           Listing[]
+  payments           Payment[]
+  balanceLogs        BalanceLog[]
+  managers           Manager[]
+  proposedCategories Category[] @relation("ProposedCategories")
 
   @@map("users")
 }
@@ -135,18 +151,45 @@ model Manager {
   @@map("managers")
 }
 
-model Category {
-  id            Int       @id @default(autoincrement())
-  name          String
-  slug          String    @unique
-  description   String?
-  icon          String?
-  color         String?
-  active        Boolean   @default(true)
-  order         Int       @default(0)
-  subcategories String[]
-  listings      Listing[]
+model CategoryGroup {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  slug        String     @unique
+  description String?
+  icon        String?
+  color       String?
+  active      Boolean    @default(true)
+  order       Int        @default(0)
+  categories  Category[]
+  articles    Article[]
 
+  @@map("category_groups")
+}
+
+model Category {
+  id              Int       @id @default(autoincrement())
+  groupId         Int       @map("group_id")
+  name            String
+  slug            String    @unique
+  description     String?
+  icon            String?
+  color           String?
+  active          Boolean   @default(true)
+  // O'qituvchi yangi yo'nalish so'raganda — yo'nalish DB'ga yoziladi lekin
+  // pendingApproval=true bo'lgani uchun publik sahifalarda ko'rinmaydi.
+  // Admin tasdiqlasa false bo'ladi va yo'nalish faollashadi.
+  pendingApproval Boolean   @default(false) @map("pending_approval")
+  proposedById    Int?      @map("proposed_by_id")
+  order           Int       @default(0)
+
+  group     CategoryGroup @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  proposer  User?         @relation("ProposedCategories", fields: [proposedById], references: [id], onDelete: SetNull)
+  listings  Listing[]
+  articles  Article[]
+
+  @@unique([groupId, slug])
+  @@index([groupId])
+  @@index([pendingApproval])
   @@map("categories")
 }
 
@@ -160,8 +203,20 @@ model Listing {
   price           Int
   format          ListingFormat
   location        String?
+  region          String?
+  district        String?
   language        String          @default("uz")
   duration        String?
+  lessons         String[]        @default([])
+  level           String?
+  studentLimit    Int?            @map("student_limit")
+  schedule        String?
+  certificate     Boolean         @default(false)
+  demoLesson      Boolean         @default(false) @map("demo_lesson")
+  discount        String?
+  teacherName     String?         @map("teacher_name")
+  teacherExperience String?       @map("teacher_experience")
+  paymentType     String?         @map("payment_type")
   startDate       DateTime?       @map("start_date")
   admissionStatus AdmissionStatus @default(open) @map("admission_status")
   phone           String
@@ -194,6 +249,7 @@ model Listing {
   leads    Lead[]
   reviews  Review[]
   boosts   Boost[]
+  ratings  Rating[]
 
   @@index([status])
   @@index([categoryId])
@@ -344,4 +400,96 @@ model BalanceLog {
 
   @@index([userId])
   @@map("balance_logs")
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  listingId Int      @map("listing_id")
+  phone     String
+  chatId    String?  @map("chat_id")
+  stars     Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, phone])
+  @@index([listingId])
+  @@index([phone])
+  @@map("ratings")
+}
+
+// ===================================================================
+// Manba — bilim maqolalari (lug'at + qo'llanma + sharh + FAQ).
+// SEO va AEO uchun kontent ekosistemasi.
+// ===================================================================
+model Article {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  title       String
+  excerpt     String?       // SEO description / qisqacha tavsif
+  content     String        // Markdown matn
+  type        ArticleType
+  coverImage  String?       @map("cover_image")
+  author      String?       // Muallif nomi (blog uchun ko'p ishlatiladi)
+  readTime    String?       @map("read_time") // "5 daqiqa" — qo'lda yoki avtomatik hisoblansa
+  status      ArticleStatus @default(draft)
+  views       Int           @default(0)
+  // Cross-linking taxonomiyaga (ixtiyoriy)
+  categoryId  Int?          @map("category_id")
+  groupId     Int?          @map("group_id")
+  publishedAt DateTime?     @map("published_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  category Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  group    CategoryGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([status])
+  @@index([categoryId])
+  @@index([groupId])
+  @@map("articles")
+}
+
+// ===================================================================
+// Region — Viloyat ro'yxati admin nazoratida.
+// Listing.region (text) qoladi; Region.name bilan match qilamiz.
+// `featured` flag — navbar megamenu "Mashhur shaharlar" ostida ko'rinishi uchun.
+// `active` — viloyatni butunlay yashirish (kerak bo'lsa).
+// ===================================================================
+model Region {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  slug      String   @unique
+  active    Boolean  @default(true)
+  featured  Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([active])
+  @@index([featured])
+  @@map("regions")
+}
+
+// ===================================================================
+// FAQ — admin tomonidan boshqariladigan savol-javoblar.
+// `page` field — qaysi sahifada chiqishi (hozir "home").
+// `order` — drag-drop tartib.
+// ===================================================================
+model Faq {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String
+  page      String   @default("home")
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([active])
+  @@index([page])
+  @@map("faqs")
 }

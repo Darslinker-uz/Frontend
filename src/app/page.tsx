@@ -5,7 +5,8 @@ import { FeaturedSlider } from "@/components/featured-slider";
 import { CoursesSlider } from "@/components/courses-slider";
 import { HeroSearch } from "@/components/hero-search";
 import { HelpForm } from "@/components/help-form";
-import { getActiveCategories, getActiveListings } from "@/lib/listings";
+import { getActiveCategoryGroups, getActiveListings } from "@/lib/listings";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,9 +14,14 @@ export const revalidate = 0;
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
 export default async function HomePage() {
-  const [categories, courses] = await Promise.all([
-    getActiveCategories(),
+  const [groups, courses, dbFaqs] = await Promise.all([
+    getActiveCategoryGroups(),
     getActiveListings({ limit: 12 }),
+    prisma.faq.findMany({
+      where: { active: true, page: "home" },
+      orderBy: [{ order: "asc" }, { id: "asc" }],
+      select: { id: true, question: true, answer: true },
+    }),
   ]);
 
   const websiteLd = {
@@ -36,16 +42,49 @@ export default async function HomePage() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Darslinker.uz",
+    "alternateName": ["Darslinker", "DarsLinker"],
     "url": SITE_URL,
     "logo": `${SITE_URL}/icon-512.png`,
     "description": "O'zbekistondagi o'quv markazlari va kurslarni yagona platformada birlashtiruvchi xizmat.",
     "areaServed": { "@type": "Country", "name": "O'zbekiston" },
+    "sameAs": [
+      "https://t.me/darslinker",
+      "https://www.instagram.com/darslinker",
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "url": "https://t.me/DarslinkerSupport",
+      "availableLanguage": ["Uzbek", "uz"],
+    },
+  };
+
+  // FAQ admin tomonidan boshqariladi (/admode/faq).
+  // Bo'sh bo'lsa, sektion ko'rinmaydi.
+  const faqs = dbFaqs.map((f) => ({ q: f.question, a: f.answer }));
+
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((f) => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+    })),
+    // H — Speakable: ovozli assistantlar uchun (Google Assistant, voice search)
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": ["h1", "h2", "h3", "summary"],
+    },
   };
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }} />
+      {faqs.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      )}
       {/* HERO + SLIDER — konteyner ichida */}
       <div className="max-w-[1600px] mx-auto px-5 md:px-20">
         <div className="flex flex-col gap-5 pt-6 md:pt-8 pb-6">
@@ -65,15 +104,15 @@ export default async function HomePage() {
             <p className="text-[16px] md:text-[22px] text-[#7c8490] mt-2 font-light">O&apos;zingizga qiziq bo&apos;lgan yo&apos;nalishni tanlang</p>
             <div className="mt-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {categories.map((cat) => (
-                  <Link key={cat.name} href={`/kurslar/${cat.slug}`} className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] lg:rounded-[20px] md:p-5 lg:p-6 xl:p-7 md:h-[150px] lg:h-[180px] xl:h-[200px] hover:bg-[#26282c] transition-all block">
-                    <span className="hidden md:block absolute top-5 left-5 lg:top-6 lg:left-6 xl:top-7 xl:left-7 text-[20px] lg:text-[24px] xl:text-[26px] font-bold text-white leading-tight max-w-[55%]">{cat.name}</span>
-                    <span className="hidden md:block absolute bottom-5 left-5 lg:bottom-6 lg:left-6 xl:bottom-7 xl:left-7 text-[12px] lg:text-[13px] xl:text-[14px] text-white/80 line-clamp-1 max-w-[55%]">{cat.desc}</span>
-                    <span className="hidden md:block absolute right-4 lg:right-6 xl:right-7 top-1/2 -translate-y-1/2 text-[38px] lg:text-[48px] xl:text-[52px] font-bold text-white/15 leading-none">{cat.count}</span>
+                {groups.map((g) => (
+                  <Link key={g.slug} href={`/kurslar/g/${g.slug}`} className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] lg:rounded-[20px] md:p-5 lg:p-6 xl:p-7 md:h-[150px] lg:h-[180px] xl:h-[200px] hover:bg-[#26282c] transition-all block">
+                    <span className="hidden md:block absolute top-5 left-5 lg:top-6 lg:left-6 xl:top-7 xl:left-7 text-[20px] lg:text-[24px] xl:text-[26px] font-bold text-white leading-tight max-w-[55%]">{g.name}</span>
+                    <span className="hidden md:block absolute bottom-5 left-5 lg:bottom-6 lg:left-6 xl:bottom-7 xl:left-7 text-[12px] lg:text-[13px] xl:text-[14px] text-white/80 line-clamp-1 max-w-[55%]">{g.desc}</span>
+                    <span className="hidden md:block absolute right-4 lg:right-6 xl:right-7 top-1/2 -translate-y-1/2 text-[38px] lg:text-[48px] xl:text-[52px] font-bold text-white/15 leading-none">{g.listingsCount}</span>
                     <div className="relative md:hidden px-4 py-4 h-[85px] flex flex-col justify-between items-start text-left">
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[44px] font-bold text-white/15 leading-none">{cat.count}</span>
-                      <span className="relative text-[21px] font-bold text-white leading-tight">{cat.name}</span>
-                      <span className="relative text-[11px] text-white/80">{cat.desc}</span>
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[44px] font-bold text-white/15 leading-none">{g.listingsCount}</span>
+                      <span className="relative text-[21px] font-bold text-white leading-tight">{g.name}</span>
+                      <span className="relative text-[11px] text-white/80">{g.desc}</span>
                     </div>
                   </Link>
                 ))}
@@ -114,6 +153,28 @@ export default async function HomePage() {
               ))}
             </div>
           </section>
+
+          {faqs.length > 0 && (
+            <section aria-label="Ko'p so'raladigan savollar" className="bg-white rounded-[20px] p-6 md:p-10 border border-[#e4e7ea]">
+              <h2 className="text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">
+                Ko&apos;p so&apos;raladigan savollar
+              </h2>
+              <p className="text-[15px] md:text-[17px] text-[#7c8490] mt-2 font-light">
+                Darslinker.uz haqida eng ko&apos;p so&apos;raladigan savollar va javoblari
+              </p>
+              <div className="mt-6 divide-y divide-[#e4e7ea]">
+                {faqs.map((f, i) => (
+                  <details key={i} className="group py-4">
+                    <summary className="flex items-center justify-between gap-4 cursor-pointer list-none">
+                      <h3 className="text-[15px] md:text-[17px] font-semibold text-[#16181a] leading-snug">{f.q}</h3>
+                      <span className="shrink-0 w-7 h-7 rounded-full border border-[#e4e7ea] flex items-center justify-center text-[#7c8490] group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p className="text-[14px] md:text-[15px] text-[#16181a]/70 leading-relaxed mt-3">{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="bg-[#e8eaed] rounded-[20px] p-8 md:p-10">
             <div className="flex items-center justify-between gap-4">

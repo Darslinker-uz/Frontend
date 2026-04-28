@@ -3,13 +3,20 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Navbar } from "./navbar";
-import { Footer } from "./footer";
 import { PageTransition } from "@/components/page-transition";
 
-export function MainShell({ children }: { children: React.ReactNode }) {
+export function MainShell({
+  children,
+  footer,
+}: {
+  children: React.ReactNode;
+  footer: React.ReactNode;
+}) {
   const pathname = usePathname();
-  const isDashboard = pathname.startsWith("/dashboard");
-  const isAdmin = pathname.startsWith("/admin");
+  // Provider app shell lives under /center/* (home, listings, …) — its own sidebar layout.
+  // The bare /center route is the public login page and keeps the standard navbar/footer.
+  const isDashboard = pathname.startsWith("/center/");
+  const isAdmin = pathname.startsWith("/admode");
   const isAuth = pathname === "/auth";
 
   // Dashboard da body qora bo'lishi kerak. Admin'da AdminThemeProvider o'zi body'ni
@@ -38,7 +45,7 @@ export function MainShell({ children }: { children: React.ReactNode }) {
     <>
       <Navbar />
       <main className="flex-1"><PageTransition>{children}</PageTransition></main>
-      <Footer />
+      {footer}
     </>
   );
 }

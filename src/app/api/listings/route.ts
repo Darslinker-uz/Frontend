@@ -14,8 +14,11 @@ export async function GET(request: Request) {
   const search = searchParams.get("search");
   const limit = searchParams.get("limit");
 
-  const where: Record<string, unknown> = { status: "active" };
-  if (categorySlug) where.category = { slug: categorySlug };
+  const where: Record<string, unknown> = {
+    status: "active",
+    // Pending yo'nalishli e'lonlarni ko'rsatmaymiz
+    category: { active: true, pendingApproval: false, ...(categorySlug ? { slug: categorySlug } : {}) },
+  };
   if (format) where.format = format;
   if (priceFree === "true") where.price = 0;
   if (city) where.location = { contains: city, mode: "insensitive" };
@@ -38,7 +41,10 @@ export async function GET(request: Request) {
       price: true,
       format: true,
       location: true,
+      region: true,
+      district: true,
       duration: true,
+      lessons: true,
       phone: true,
       imageUrl: true,
       imagePosX: true,
@@ -60,11 +66,32 @@ export async function GET(request: Request) {
       icon: true,
       views: true,
       createdAt: true,
-      category: { select: { id: true, name: true, slug: true, color: true } },
+      language: true,
+      level: true,
+      studentLimit: true,
+      schedule: true,
+      certificate: true,
+      demoLesson: true,
+      discount: true,
+      teacherName: true,
+      teacherExperience: true,
+      paymentType: true,
+      category: { select: { id: true, name: true, slug: true, color: true, group: { select: { id: true, name: true, slug: true } } } },
       user: { select: { id: true, name: true, centerName: true } },
       _count: { select: { leads: true } },
+      ratings: { select: { stars: true } },
     },
   });
 
-  return NextResponse.json({ listings });
+  // Aggregate rating to keep client mappers simple.
+  const withAggregates = listings.map((l) => {
+    const rs = l.ratings ?? [];
+    const ratingCount = rs.length;
+    const ratingAvg = ratingCount > 0 ? Number((rs.reduce((a, r) => a + r.stars, 0) / ratingCount).toFixed(2)) : 0;
+    const { ratings: _omit, ...rest } = l;
+    void _omit;
+    return { ...rest, ratingAvg, ratingCount };
+  });
+
+  return NextResponse.json({ listings: withAggregates });
 }

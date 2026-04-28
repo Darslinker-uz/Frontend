@@ -1,9 +1,10 @@
 // Minimal Telegram Bot API client for darslinker.uz
+// Supports multiple bots — the default exports use TELEGRAM_BOT_TOKEN (provider bot @Darslinker_cbot).
+// For the student bot use `createTelegramClient(process.env.TELEGRAM_STUDENT_BOT_TOKEN!)`.
 
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const BASE = TOKEN ? `https://api.telegram.org/bot${TOKEN}` : "";
+const DEFAULT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-if (!TOKEN && process.env.NODE_ENV !== "test") {
+if (!DEFAULT_TOKEN && process.env.NODE_ENV !== "test") {
   console.warn("TELEGRAM_BOT_TOKEN is not set — bot calls will fail silently");
 }
 
@@ -62,87 +63,66 @@ type Keyboard = {
   remove_keyboard?: boolean;
 };
 
-async function call<T>(method: string, body: Record<string, unknown>): Promise<T | null> {
-  if (!TOKEN) return null;
-  try {
-    const res = await fetch(`${BASE}/${method}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (!data.ok) {
-      console.error(`Telegram ${method} failed:`, data.description);
+export interface TelegramClient {
+  sendMessage: (chatId: number | string, text: string, opts?: { reply_markup?: Keyboard; parse_mode?: "HTML" | "MarkdownV2"; disable_web_page_preview?: boolean }) => Promise<TgMessage | null>;
+  answerCallbackQuery: (id: string, text?: string) => Promise<unknown>;
+  editMessageText: (chatId: number | string, messageId: number, text: string, opts?: { reply_markup?: Keyboard; parse_mode?: "HTML" | "MarkdownV2"; disable_web_page_preview?: boolean }) => Promise<unknown>;
+  editMessageReplyMarkup: (chatId: number | string, messageId: number, replyMarkup?: Keyboard) => Promise<unknown>;
+  getUpdates: (offset?: number, timeout?: number) => Promise<TgUpdate[] | null>;
+  setWebhook: (url: string, secretToken?: string) => Promise<unknown>;
+  deleteWebhook: () => Promise<unknown>;
+}
+
+export function createTelegramClient(token: string | undefined): TelegramClient {
+  const BASE = token ? `https://api.telegram.org/bot${token}` : "";
+
+  async function call<T>(method: string, body: Record<string, unknown>): Promise<T | null> {
+    if (!token) return null;
+    try {
+      const res = await fetch(`${BASE}/${method}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        console.error(`Telegram ${method} failed:`, data.description);
+        return null;
+      }
+      return data.result as T;
+    } catch (e) {
+      console.error(`Telegram ${method} error:`, e);
       return null;
     }
-    return data.result as T;
-  } catch (e) {
-    console.error(`Telegram ${method} error:`, e);
-    return null;
   }
+
+  return {
+    sendMessage: (chatId, text, opts) =>
+      call<TgMessage>("sendMessage", { chat_id: chatId, text, ...opts }),
+    answerCallbackQuery: (id, text) =>
+      call("answerCallbackQuery", { callback_query_id: id, text }),
+    editMessageText: (chatId, messageId, text, opts) =>
+      call("editMessageText", { chat_id: chatId, message_id: messageId, text, ...opts }),
+    editMessageReplyMarkup: (chatId, messageId, replyMarkup) =>
+      call("editMessageReplyMarkup", { chat_id: chatId, message_id: messageId, reply_markup: replyMarkup }),
+    getUpdates: (offset, timeout = 25) =>
+      call<TgUpdate[]>("getUpdates", { offset, timeout, allowed_updates: ["message", "callback_query"] }),
+    setWebhook: (url, secretToken) =>
+      call("setWebhook", { url, secret_token: secretToken, allowed_updates: ["message", "callback_query"] }),
+    deleteWebhook: () => call("deleteWebhook", { drop_pending_updates: true }),
+  };
 }
 
-export function sendMessage(
-  chatId: number | string,
-  text: string,
-  opts?: {
-    reply_markup?: Keyboard;
-    parse_mode?: "HTML" | "MarkdownV2";
-    disable_web_page_preview?: boolean;
-  },
-) {
-  return call<TgMessage>("sendMessage", {
-    chat_id: chatId,
-    text,
-    ...opts,
-  });
-}
+// Default client = provider bot (@Darslinker_cbot). Pre-existing imports continue working.
+const defaultClient = createTelegramClient(DEFAULT_TOKEN);
 
-export function answerCallbackQuery(id: string, text?: string) {
-  return call("answerCallbackQuery", { callback_query_id: id, text });
-}
-
-export function editMessageText(
-  chatId: number | string,
-  messageId: number,
-  text: string,
-  opts?: {
-    reply_markup?: Keyboard;
-    parse_mode?: "HTML" | "MarkdownV2";
-    disable_web_page_preview?: boolean;
-  },
-) {
-  return call("editMessageText", {
-    chat_id: chatId,
-    message_id: messageId,
-    text,
-    ...opts,
-  });
-}
-
-export function editMessageReplyMarkup(
-  chatId: number | string,
-  messageId: number,
-  replyMarkup?: Keyboard,
-) {
-  return call("editMessageReplyMarkup", {
-    chat_id: chatId,
-    message_id: messageId,
-    reply_markup: replyMarkup,
-  });
-}
-
-export function getUpdates(offset?: number, timeout = 25) {
-  return call<TgUpdate[]>("getUpdates", { offset, timeout, allowed_updates: ["message", "callback_query"] });
-}
-
-export function setWebhook(url: string, secretToken?: string) {
-  return call("setWebhook", { url, secret_token: secretToken, allowed_updates: ["message", "callback_query"] });
-}
-
-export function deleteWebhook() {
-  return call("deleteWebhook", { drop_pending_updates: true });
-}
+export const sendMessage = defaultClient.sendMessage;
+export const answerCallbackQuery = defaultClient.answerCallbackQuery;
+export const editMessageText = defaultClient.editMessageText;
+export const editMessageReplyMarkup = defaultClient.editMessageReplyMarkup;
+export const getUpdates = defaultClient.getUpdates;
+export const setWebhook = defaultClient.setWebhook;
+export const deleteWebhook = defaultClient.deleteWebhook;
 
 // Escape helper for HTML parse mode
 export function escHtml(s: string) {

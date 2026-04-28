@@ -13,10 +13,17 @@ export async function PATCH(request: Request, { params }: Ctx) {
 
   const body = await request.json();
   const data: Record<string, unknown> = {};
-  for (const k of ["name", "slug", "description", "icon", "color", "active", "order"] as const) {
+  for (const k of ["name", "slug", "description", "icon", "color", "active", "order", "pendingApproval"] as const) {
     if (body[k] !== undefined) data[k] = body[k];
   }
-  if (Array.isArray(body.subcategories)) data.subcategories = body.subcategories;
+  if (body.groupId !== undefined) data.groupId = Number(body.groupId);
+
+  // Convenience: agar admin "approve" qilsa, ikkalasini ham bir vaqtda flip qilamiz
+  if (body.approve === true) {
+    data.pendingApproval = false;
+    data.active = true;
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }

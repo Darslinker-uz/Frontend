@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getActiveListings, getActiveCategories } from "@/lib/listings";
+import { getActiveRegions } from "@/lib/regions";
 import { KategoriyaClient } from "./kategoriya-client";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    keywords: [cat.name, `${cat.name} kursi`, `${cat.name} kurslari`, `${cat.name} o'quv markaz`, ...cat.subcategories, "o'zbekiston", "toshkent"],
+    keywords: [cat.name, `${cat.name} kursi`, `${cat.name} kurslari`, `${cat.name} o'quv markaz`, cat.groupName, "o'zbekiston", "toshkent"].filter(Boolean) as string[],
     alternates: { canonical: url },
     openGraph: {
       type: "website",
@@ -56,6 +59,18 @@ export default async function KategoriyaPage({ params }: Props) {
 
   const scoped = allCourses.filter(c => c.categorySlug === kategoriya);
   const url = `${SITE_URL}/kurslar/${kategoriya}`;
+
+  // Viloyat bo'yicha hisoblash — har viloyat uchun e'lon soni
+  const regionsCount = scoped.reduce<Record<string, number>>((acc, c) => {
+    if (c.region) acc[c.region] = (acc[c.region] ?? 0) + 1;
+    return acc;
+  }, {});
+  const allRegions = await getActiveRegions();
+  const popularRegions = allRegions
+    .map(r => ({ ...r, count: regionsCount[r.name] ?? 0 }))
+    .filter(r => r.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
 
   const itemListLd = {
     "@context": "https://schema.org",
@@ -87,6 +102,32 @@ export default async function KategoriyaPage({ params }: Props) {
       <div className="max-w-[1600px] mx-auto px-5 md:px-20 py-5">
         <h1 className="text-[24px] md:text-[28px] font-bold text-[#16181a] mb-4 md:hidden">{cat.name}</h1>
         <h1 className="sr-only">{cat.name} kurslari — {scoped.length} ta aktiv kurs</h1>
+
+        {cat.desc && (
+          <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-5 md:p-6 mb-5">
+            <p className="text-[14px] md:text-[15px] text-[#16181a]/75 leading-relaxed">{cat.desc}</p>
+          </div>
+        )}
+
+        {popularRegions.length > 0 && (
+          <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-5 md:p-6 mb-5">
+            <h2 className="text-[16px] md:text-[18px] font-bold text-[#16181a] mb-3">Viloyat bo&apos;yicha</h2>
+            <div className="flex flex-wrap gap-2">
+              {popularRegions.map((r) => (
+                <Link
+                  key={r.slug}
+                  href={`/kurslar/${kategoriya}/joy/${r.slug}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[12px] text-[#16181a] transition-colors"
+                >
+                  <MapPin className="w-3 h-3 text-[#7ea2d4]" />
+                  {r.name}
+                  <span className="text-[#7c8490]">({r.count})</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         <KategoriyaClient kategoriya={kategoriya} allCourses={allCourses} />
       </div>
     </div>
