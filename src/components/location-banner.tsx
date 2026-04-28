@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { MapPin, X, Loader2 } from "lucide-react";
 import { detectLocation } from "@/lib/geolocation";
 
 const COOKIE_NAME = "loc_pref";
 const COOKIE_DAYS = 30;
+const SHOW_DELAY_MS = 3000;     // banner 3s kechikib chiqadi
+const AUTO_DISMISS_S = 15;       // 15s davomida ko'rinadi, keyin avtomatik yopiladi
 
 interface FallbackInfo {
   from: "district" | "region";
@@ -42,18 +44,44 @@ export function LocationBanner({ region, district, fallback }: Props) {
   const [showInitial, setShowInitial] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Auto-dismiss countdown: 1 (full) → 0 (empty) ring around X
+  const [remaining, setRemaining] = useState(1);
+  const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Birinchi tashrif banner: cookie yo'q va URL'da region filter yo'q bo'lsa
+  // Birinchi tashrif banner: cookie yo'q va URL'da region filter yo'q bo'lsa.
+  // 3s kechikib chiqadi (foydalanuvchi sahifani o'qib bo'lguncha kutadi).
   useEffect(() => {
     const hasCookie = getCookie(COOKIE_NAME);
     const hasFilter = region || district;
-    if (!hasCookie && !hasFilter) {
-      // Geolocation API mavjudligini tekshirish (browser support)
-      if (typeof navigator !== "undefined" && "geolocation" in navigator) {
-        setShowInitial(true);
-      }
+    if (!hasCookie && !hasFilter && typeof navigator !== "undefined" && "geolocation" in navigator) {
+      showTimer.current = setTimeout(() => setShowInitial(true), SHOW_DELAY_MS);
     }
+    return () => {
+      if (showTimer.current) clearTimeout(showTimer.current);
+      if (countdownInterval.current) clearInterval(countdownInterval.current);
+    };
   }, [region, district]);
+
+  // Banner ko'ringandan keyin 15s countdown — auto-dismiss
+  useEffect(() => {
+    if (!showInitial) return;
+    setRemaining(1);
+    const startTime = Date.now();
+    countdownInterval.current = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000;
+      const left = Math.max(0, AUTO_DISMISS_S - elapsed);
+      setRemaining(left / AUTO_DISMISS_S);
+      if (left <= 0) {
+        if (countdownInterval.current) clearInterval(countdownInterval.current);
+        setCookie(COOKIE_NAME, "skip", COOKIE_DAYS);
+        setShowInitial(false);
+      }
+    }, 100);
+    return () => {
+      if (countdownInterval.current) clearInterval(countdownInterval.current);
+    };
+  }, [showInitial]);
 
   const requestLocation = () => {
     setRequesting(true);
@@ -153,16 +181,38 @@ export function LocationBanner({ region, district, fallback }: Props) {
     );
   }
 
-  // 3) Birinchi tashrif banner — Map preview card (V5)
+  // 3) Birinchi tashrif banner — soft fade + scale animatsiya + X atrofida ring countdown
   if (showInitial) {
+    const ringR = 14;
+    const ringC = 2 * Math.PI * ringR;
     return (
-      <div className="mb-5 rounded-[18px] bg-white border border-[#e4e7ea] overflow-hidden relative">
+      <div
+        className="fixed bottom-3 left-3 right-3 md:bottom-6 md:left-0 md:right-0 md:mx-auto md:w-[440px] z-[80] rounded-[18px] bg-white border border-[#e4e7ea] shadow-2xl overflow-hidden animate-[softFadeScale_0.45s_cubic-bezier(0.34,1.4,0.64,1)_both]"
+      >
+        <style>{`
+          @keyframes softFadeScale {
+            from { transform: translateY(40px) scale(0.95); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
+          }
+        `}</style>
         <button
           onClick={dismiss}
           aria-label="Yopish"
-          className="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/70 hover:bg-white flex items-center justify-center text-[#16181a]/60 hover:text-[#16181a] transition-colors"
+          className="absolute top-2.5 right-2.5 z-10 w-9 h-9 flex items-center justify-center group"
         >
-          <X className="w-4 h-4" />
+          <svg className="absolute inset-0" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r={ringR} stroke="#e4e7ea" strokeWidth="2" fill="white" />
+            <circle
+              cx="18" cy="18" r={ringR}
+              stroke="#4a7ab5" strokeWidth="2" fill="none"
+              strokeLinecap="round"
+              strokeDasharray={ringC}
+              strokeDashoffset={ringC * (1 - remaining)}
+              transform="rotate(-90 18 18)"
+              style={{ transition: "stroke-dashoffset 100ms linear" }}
+            />
+          </svg>
+          <X className="w-4 h-4 text-[#16181a]/60 group-hover:text-[#16181a] transition-colors relative z-10" />
         </button>
 
         {/* Mini xarita */}
@@ -191,7 +241,7 @@ export function LocationBanner({ region, district, fallback }: Props) {
 
         <div className="p-4 md:p-5">
           <h3 className="text-[15px] md:text-[16px] font-bold text-[#16181a]">
-            Sizning hududingizdagi kurslar
+            Sizning hududingizdagi kurslarni ko&apos;rsataylikmi?
           </h3>
           <p className="text-[12px] md:text-[13px] text-[#7c8490] mt-1 leading-relaxed">
             Joylashuvni aniqlasak, eng yaqin o&apos;quv markazlarni topamiz

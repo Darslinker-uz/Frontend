@@ -1,67 +1,73 @@
 "use client";
 
-import { useState } from "react";
-import {
-  MapPin, X, ArrowRight, Navigation, Compass, Loader2, Check,
-  Sparkles, Globe, Target,
-} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { MapPin, X, Loader2, RotateCcw } from "lucide-react";
 
-// 10 ta lokatsiya so'rash UI varianti — desktop va mobil uchun real komponentlar.
-// Foydalanuvchi qaysi varianti yoqishini ko'rib aytadi.
+// 10 ta variant: 3s kechikish + 15s sanagich + har hil chiqish animatsyasi.
+// Replay tugmasi animatsyani qaytadan ko'rsatadi.
+
+const SHOW_DELAY_MS = 3000;
+const COUNTDOWN_S = 15;
 
 export default function CheckPage() {
   return (
     <div className="bg-[#f0f2f3] min-h-screen pb-20">
+      <style>{`
+        @keyframes a1 { from { transform: translateY(120%); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+        @keyframes a2 { 0% { transform: translateY(120%); opacity: 0 } 60% { transform: translateY(-10%); opacity: 1 } 80% { transform: translateY(4%) } 100% { transform: translateY(0) } }
+        @keyframes a3 { from { transform: translateY(40px) scale(0.95); opacity: 0 } to { transform: translateY(0) scale(1); opacity: 1 } }
+        @keyframes a4 { from { transform: scale(0.5); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+        @keyframes a5 { from { transform: translate(60%, 60%); opacity: 0 } to { transform: translate(0, 0); opacity: 1 } }
+        @keyframes a6 { from { transform: translate(-60%, 60%); opacity: 0 } to { transform: translate(0, 0); opacity: 1 } }
+        @keyframes a7 { from { transform: translateY(-120%); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+        @keyframes a8 { 0% { transform: scale(0.8); opacity: 0 } 60% { transform: scale(1.06); opacity: 1 } 100% { transform: scale(1) } }
+        @keyframes a9 { from { transform: rotateX(-80deg); opacity: 0; transform-origin: bottom } to { transform: rotateX(0); opacity: 1; transform-origin: bottom } }
+        @keyframes a10 { from { transform: translateY(80%) rotate(-6deg); opacity: 0 } to { transform: translateY(0) rotate(0); opacity: 1 } }
+
+        @keyframes shimmer { 0% { background-position: -200% 0 } 100% { background-position: 200% 0 } }
+      `}</style>
+
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-12">
         <div className="mb-8 md:mb-10">
           <h1 className="text-[26px] md:text-[36px] font-bold text-[#16181a] tracking-[-0.02em]">
-            Lokatsiya so&apos;rash UI variantlari
+            Animatsya + countdown variantlari
           </h1>
-          <p className="text-[14px] md:text-[16px] text-[#7c8490] mt-2 max-w-[680px]">
-            10 ta variant — har biri desktop va mobil uchun mos. &quot;Ha&quot; tugmalari namuna uchun, real GPS so&apos;ramaydi.
-            Sizga yoqqanini raqami bilan ayting (1-10).
+          <p className="text-[14px] md:text-[16px] text-[#7c8490] mt-2 max-w-[700px]">
+            Har biri 3 soniyadan keyin chiqadi, 15 soniya sanaydi. Animatsya har xil — qaysisi yoqsa raqamini ayting.
+            Yuqori burchakdagi <RotateCcw className="inline w-3.5 h-3.5" /> tugma animatsyani qaytadan ko&apos;rsatadi.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <VariantCard num={1} name="Inline top banner" desc="Sahifa yuqorisida nozik chiziq. Hozirgi varyant.">
-            <V1 />
+          <VariantCard num={1} name="Slide up + Top bar" desc="Pastdan oddiy + yuqorida progress." anim="a1">
+            <Banner Component={CountdownTopBar} animKey="a1" />
           </VariantCard>
-
-          <VariantCard num={2} name="Bottom sheet (mobil-style)" desc="Pastdan chiqadi, telegrafdek katta CTA.">
-            <V2 />
+          <VariantCard num={2} name="Bounce up + Bottom bar" desc="Sakrashli + tugmalar ostida progress." anim="a2">
+            <Banner Component={CountdownBottomBar} animKey="a2" />
           </VariantCard>
-
-          <VariantCard num={3} name="Center modal + illustratsiya" desc="Premium feel, xarita rasmi bilan.">
-            <V3 />
+          <VariantCard num={3} name="Soft fade + Ring around X" desc="Yumshoq fade + X atrofida halka." anim="a3">
+            <Banner Component={CountdownRing} animKey="a3" />
           </VariantCard>
-
-          <VariantCard num={4} name="Side toast (o&apos;ng)" desc="Yon tomondan suzib chiqadi, fokus buzmaydi.">
-            <V4 />
+          <VariantCard num={4} name="Zoom + Number badge" desc="O'rtadan kattalashadi + raqam." anim="a4">
+            <Banner Component={CountdownBadge} animKey="a4" />
           </VariantCard>
-
-          <VariantCard num={5} name="Map preview card" desc="Xarita sxemasi bilan vizual karta.">
-            <V5 />
+          <VariantCard num={5} name="Slide right+up + Pie" desc="Diagonal o'ng-yuqoridan + pie." anim="a5">
+            <Banner Component={CountdownPie} animKey="a5" />
           </VariantCard>
-
-          <VariantCard num={6} name="Compact pill (kichik)" desc="Filter panelda kichkina pin tugma.">
-            <V6 />
+          <VariantCard num={6} name="Slide left+up + Color border" desc="Diagonal chap-yuqoridan + rangli border." anim="a6">
+            <Banner Component={CountdownBorderShift} animKey="a6" />
           </VariantCard>
-
-          <VariantCard num={7} name="Hero banner (rangli)" desc="Katta rangli banner, eng ko&apos;rinarli.">
-            <V7 />
+          <VariantCard num={7} name="Drop from top + Pulsing orb" desc="Yuqoridan tushadi + pulsatsiya." anim="a7">
+            <Banner Component={CountdownOrb} animKey="a7" />
           </VariantCard>
-
-          <VariantCard num={8} name="Floating action button" desc="Material-style FAB pastda o&apos;ng burchakda.">
-            <V8 />
+          <VariantCard num={8} name="Spring scale + Text countdown" desc="Springli kattalashish + matn." anim="a8">
+            <Banner Component={CountdownText} animKey="a8" />
           </VariantCard>
-
-          <VariantCard num={9} name="Notification card" desc="Tizim xabarnomasi shaklida.">
-            <V9 />
+          <VariantCard num={9} name="3D flip up + Below progress" desc="3D yuqoriga aylanadi + indikator." anim="a9">
+            <Banner Component={CountdownBelowButtons} animKey="a9" />
           </VariantCard>
-
-          <VariantCard num={10} name="Inline filter row" desc="Filter chip qatoriga integrlangan.">
-            <V10 />
+          <VariantCard num={10} name="Tilted slide + Shimmer" desc="Burilgan slide + shimmer." anim="a10">
+            <Banner Component={CountdownShimmer} animKey="a10" />
           </VariantCard>
         </div>
       </div>
@@ -69,422 +75,304 @@ export default function CheckPage() {
   );
 }
 
-// ───────────────────────── Wrapper ─────────────────────────
+// ───────────────────────── Wrappers ─────────────────────────
 
-function VariantCard({ num, name, desc, children }: { num: number; name: string; desc: string; children: React.ReactNode }) {
+function VariantCard({ num, name, desc, children }: { num: number; name: string; desc: string; anim: string; children: React.ReactNode }) {
+  const [key, setKey] = useState(0);
   return (
     <div className="rounded-[18px] bg-white border border-[#e4e7ea] overflow-hidden">
       <div className="px-5 py-3.5 border-b border-[#e4e7ea] flex items-center gap-3">
         <span className="w-7 h-7 rounded-full bg-[#16181a] text-white text-[13px] font-bold flex items-center justify-center shrink-0">{num}</span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className="text-[15px] font-bold text-[#16181a] truncate">{name}</h3>
           <p className="text-[12px] text-[#7c8490] truncate">{desc}</p>
         </div>
+        <button
+          onClick={() => setKey(k => k + 1)}
+          aria-label="Replay"
+          title="Animatsyani qaytadan ko'rsatish"
+          className="w-9 h-9 rounded-full bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[#16181a]/70 flex items-center justify-center shrink-0 transition-colors"
+        >
+          <RotateCcw className="w-4 h-4" />
+        </button>
       </div>
-      <div className="p-4 md:p-5 bg-[#fafbfc] min-h-[200px] flex items-start justify-center">
+      <div key={key} className="relative bg-[#fafbfc] min-h-[280px] flex items-end justify-center overflow-hidden">
         {children}
       </div>
     </div>
   );
 }
 
-function useMock() {
-  const [state, setState] = useState<"idle" | "loading" | "done">("idle");
-  const handle = () => {
-    setState("loading");
-    setTimeout(() => setState("done"), 1200);
-    setTimeout(() => setState("idle"), 2500);
+interface CountdownProps {
+  visible: boolean;
+  remaining: number;
+  remainingS: number;
+  onYes: () => void;
+  onNo: () => void;
+  animKey: string;
+}
+
+function Banner({ Component, animKey }: { Component: (p: CountdownProps) => React.ReactNode; animKey: string }) {
+  const [show, setShow] = useState(false);
+  const [remaining, setRemaining] = useState(1);
+  const [remainingS, setRemainingS] = useState(COUNTDOWN_S);
+  const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const interval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const start = () => {
+    setShow(false);
+    setRemaining(1);
+    setRemainingS(COUNTDOWN_S);
+
+    showTimer.current = setTimeout(() => {
+      setShow(true);
+      const startTime = Date.now();
+      interval.current = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const left = Math.max(0, COUNTDOWN_S - elapsed);
+        setRemaining(left / COUNTDOWN_S);
+        setRemainingS(Math.ceil(left));
+        if (left <= 0) {
+          setShow(false);
+          if (interval.current) clearInterval(interval.current);
+        }
+      }, 100);
+    }, SHOW_DELAY_MS);
   };
-  return { state, handle };
+
+  useEffect(() => {
+    start();
+    return () => {
+      if (showTimer.current) clearTimeout(showTimer.current);
+      if (interval.current) clearInterval(interval.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const close = () => {
+    setShow(false);
+    if (interval.current) clearInterval(interval.current);
+  };
+
+  return Component({ visible: show, remaining, remainingS, onYes: close, onNo: close, animKey });
 }
 
-// ───────────────────────── Variant 1: Inline top banner ─────────────────────────
+// ───────────────────────── Shared inner content ─────────────────────────
 
-function V1() {
-  const { state, handle } = useMock();
-  return (
-    <div className="w-full">
-      <div className="rounded-[14px] border border-[#16181a]/10 bg-white px-4 py-3 flex items-center gap-3 shadow-sm">
-        <div className="w-9 h-9 rounded-full bg-[#7ea2d4]/15 flex items-center justify-center shrink-0">
-          <MapPin className="w-4 h-4 text-[#4a7ab5]" />
-        </div>
-        <div className="flex-1 text-[13px] text-[#16181a]/80 leading-snug">
-          Joylashuvingizga eng yaqin kurslarni ko&apos;rsataymimi?
-        </div>
-        <button
-          onClick={handle}
-          disabled={state !== "idle"}
-          className="h-[36px] px-4 rounded-[10px] bg-[#16181a] text-white text-[12.5px] font-semibold flex items-center gap-1.5 disabled:opacity-50"
-        >
-          {state === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : state === "done" ? <Check className="w-3.5 h-3.5" /> : "Ha"}
-        </button>
-        <button className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[#7c8490] hover:bg-[#f0f2f3]">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
+function shellStyle(animKey: string): React.CSSProperties {
+  return {
+    animation: `${animKey} 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both`,
+  };
 }
 
-// ───────────────────────── Variant 2: Bottom sheet ─────────────────────────
+const SHELL_BASE = "absolute bottom-3 left-3 right-3 md:bottom-4 md:left-1/2 md:right-auto md:w-[360px] md:-translate-x-1/2 rounded-[16px] bg-white border border-[#e4e7ea] shadow-2xl overflow-hidden";
 
-function V2() {
-  const { state, handle } = useMock();
+function MapAndContent() {
   return (
-    <div className="w-full max-w-[420px]">
-      <div className="relative rounded-t-[24px] bg-white shadow-[0_-8px_32px_rgba(0,0,0,0.08)] border border-[#e4e7ea] border-b-0 overflow-hidden">
-        <div className="w-12 h-1 bg-[#e4e7ea] rounded-full mx-auto mt-2" />
-        <div className="p-5 md:p-6">
-          <div className="w-14 h-14 rounded-[18px] bg-gradient-to-br from-[#7ea2d4] to-[#4a7ab5] flex items-center justify-center mx-auto mb-4">
-            <MapPin className="w-7 h-7 text-white" />
-          </div>
-          <h4 className="text-[18px] font-bold text-[#16181a] text-center leading-tight">
-            Yaqin atrofdagi kurslar
-          </h4>
-          <p className="text-[13px] text-[#7c8490] text-center mt-1.5 leading-relaxed">
-            Joylashuvingizni aniqlasak, sizga eng mos kurslarni topamiz
-          </p>
-          <div className="mt-5 flex flex-col gap-2">
-            <button
-              onClick={handle}
-              disabled={state !== "idle"}
-              className="w-full h-[48px] rounded-[12px] bg-[#16181a] text-white text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {state === "loading" ? <Loader2 className="w-4 h-4 animate-spin" /> :
-               state === "done" ? <Check className="w-4 h-4" /> :
-               <><Navigation className="w-4 h-4" /> Joylashuvni ulashish</>}
-            </button>
-            <button className="w-full h-[44px] rounded-[12px] text-[13px] text-[#7c8490] font-medium hover:bg-[#f0f2f3]">
-              Hozir emas
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────── Variant 3: Center modal ─────────────────────────
-
-function V3() {
-  const { state, handle } = useMock();
-  return (
-    <div className="w-full max-w-[400px]">
-      <div className="rounded-[20px] bg-white border border-[#e4e7ea] shadow-2xl overflow-hidden">
-        {/* Decorative top */}
-        <div className="relative h-[100px] bg-gradient-to-br from-[#dee8f5] via-[#c8dbed] to-[#a3c0db] flex items-center justify-center overflow-hidden">
-          <svg className="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 200 100" preserveAspectRatio="none">
-            <path d="M0,50 Q50,20 100,50 T200,50 L200,100 L0,100 Z" fill="white" />
-          </svg>
-          <div className="relative w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center">
-            <MapPin className="w-7 h-7 text-[#4a7ab5]" />
-          </div>
-          <div className="absolute top-3 right-3">
-            <button className="w-8 h-8 rounded-full bg-white/40 hover:bg-white flex items-center justify-center text-[#16181a]/60">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        <div className="px-6 pt-5 pb-6 text-center">
-          <h4 className="text-[19px] font-bold text-[#16181a] tracking-tight">
-            Joylashuvga ruxsat
-          </h4>
-          <p className="text-[13px] text-[#7c8490] mt-2 leading-relaxed">
-            Sizning shaharingizdagi va atrofdagi eng yaxshi kurslarni topamiz
-          </p>
-          <button
-            onClick={handle}
-            disabled={state !== "idle"}
-            className="mt-5 w-full h-[48px] rounded-[12px] bg-[#16181a] text-white text-[14px] font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {state === "loading" ? <Loader2 className="w-4 h-4 animate-spin" /> :
-             state === "done" ? <><Check className="w-4 h-4" /> Topildi!</> :
-             "Ruxsat berish"}
-          </button>
-          <button className="mt-2 text-[12px] text-[#7c8490] hover:text-[#16181a]">
-            Keyinroq
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────── Variant 4: Side toast ─────────────────────────
-
-function V4() {
-  const { state, handle } = useMock();
-  return (
-    <div className="w-full max-w-[340px]">
-      <div className="rounded-[14px] bg-[#16181a] text-white p-4 shadow-2xl border border-white/10 flex items-start gap-3">
-        <div className="w-9 h-9 rounded-[10px] bg-white/10 flex items-center justify-center shrink-0">
-          <Compass className="w-4 h-4" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold leading-snug">
-            Yaqin kurslarni topamizmi?
-          </p>
-          <p className="text-[11px] text-white/60 mt-0.5 leading-snug">
-            Joylashuvingizni aniqlash kerak
-          </p>
-          <div className="mt-2.5 flex items-center gap-2">
-            <button
-              onClick={handle}
-              disabled={state !== "idle"}
-              className="h-[30px] px-3 rounded-[8px] bg-white text-[#16181a] text-[12px] font-semibold flex items-center gap-1 disabled:opacity-50"
-            >
-              {state === "loading" ? <Loader2 className="w-3 h-3 animate-spin" /> :
-               state === "done" ? <Check className="w-3 h-3" /> :
-               "Ha"}
-            </button>
-            <button className="h-[30px] px-3 rounded-[8px] text-[12px] text-white/70 hover:bg-white/10 font-medium">
-              Yo&apos;q
-            </button>
-          </div>
-        </div>
-        <button className="text-white/40 hover:text-white shrink-0">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────── Variant 5: Map preview card ─────────────────────────
-
-function V5() {
-  const { state, handle } = useMock();
-  return (
-    <div className="w-full max-w-[380px]">
-      <div className="rounded-[18px] bg-white border border-[#e4e7ea] overflow-hidden">
-        {/* Mini map */}
-        <div className="relative h-[120px] bg-[#dde6ef] overflow-hidden">
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 380 120">
-            <path d="M-20,40 Q90,15 180,50 T420,30" stroke="#a3bdd7" strokeWidth="2" fill="none" opacity="0.6" />
-            <path d="M-20,75 Q120,90 250,70 T420,80" stroke="#a3bdd7" strokeWidth="2" fill="none" opacity="0.5" />
-            <circle cx="80" cy="55" r="3" fill="#7ea2d4" opacity="0.5" />
-            <circle cx="180" cy="80" r="3" fill="#7ea2d4" opacity="0.5" />
-            <circle cx="280" cy="40" r="3" fill="#7ea2d4" opacity="0.5" />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-[#4a7ab5]/20 animate-ping" />
-              <div className="relative w-10 h-10 rounded-full bg-[#4a7ab5] flex items-center justify-center shadow-xl">
-                <MapPin className="w-5 h-5 text-white fill-current" />
-              </div>
+    <>
+      <div className="relative h-[100px] bg-[#dde6ef] overflow-hidden">
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 380 100" preserveAspectRatio="xMidYMid slice">
+          <path d="M-20,30 Q90,5 180,40 T420,20" stroke="#a3bdd7" strokeWidth="2" fill="none" opacity="0.6" />
+          <path d="M-20,65 Q120,80 250,60 T420,70" stroke="#a3bdd7" strokeWidth="2" fill="none" opacity="0.5" />
+          <circle cx="80" cy="45" r="2.5" fill="#7ea2d4" opacity="0.5" />
+          <circle cx="180" cy="70" r="2.5" fill="#7ea2d4" opacity="0.5" />
+          <circle cx="280" cy="30" r="2.5" fill="#7ea2d4" opacity="0.5" />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-[#4a7ab5]/30 animate-ping" />
+            <div className="relative w-9 h-9 rounded-full bg-[#4a7ab5] flex items-center justify-center shadow-xl">
+              <MapPin className="w-4 h-4 text-white fill-current" />
             </div>
           </div>
         </div>
-        <div className="p-4">
-          <h4 className="text-[15px] font-bold text-[#16181a]">Sizning hududingizdagi kurslar</h4>
-          <p className="text-[12px] text-[#7c8490] mt-1 leading-relaxed">
-            Joylashuvni aniqlasak, eng yaqin o&apos;quv markazlarni topamiz
-          </p>
-          <div className="mt-3 flex items-center gap-2">
-            <button
-              disabled={state !== "idle"}
-              className="flex-1 h-[40px] rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[#7c8490] hover:text-[#16181a] text-[13px] font-semibold transition-colors disabled:opacity-50"
-            >
-              Yo&apos;q
-            </button>
-            <button
-              onClick={handle}
-              disabled={state !== "idle"}
-              className="flex-1 h-[40px] rounded-[10px] bg-[#4a7ab5] hover:bg-[#3a5a8c] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
-            >
-              {state === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
-               state === "done" ? <><Check className="w-3.5 h-3.5" /> Topildi</> :
-               "Ha"}
-            </button>
-          </div>
-        </div>
+      </div>
+      <div className="px-4 pt-3 pb-1">
+        <h3 className="text-[14px] font-bold text-[#16181a]">
+          Sizning hududingizdagi kurslarni ko&apos;rsataylikmi?
+        </h3>
+      </div>
+    </>
+  );
+}
+
+function ButtonRow({ onNo, onYes }: { onNo: () => void; onYes: () => void }) {
+  return (
+    <div className="px-4 pt-2 pb-3 flex items-center gap-2">
+      <button onClick={onNo} className="flex-1 h-[36px] rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[#7c8490] text-[12.5px] font-semibold">Yo&apos;q</button>
+      <button onClick={onYes} className="flex-1 h-[36px] rounded-[10px] bg-[#4a7ab5] hover:bg-[#3a5a8c] text-white text-[12.5px] font-semibold">Ha</button>
+    </div>
+  );
+}
+
+function CloseX({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/70 hover:bg-white flex items-center justify-center text-[#16181a]/60">
+      <X className="w-3.5 h-3.5" />
+    </button>
+  );
+}
+
+// ───────────────────────── 10 ta variant ─────────────────────────
+
+function CountdownTopBar({ visible, remaining, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
+  return (
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <div className="absolute top-0 left-0 right-0 h-1 bg-[#e4e7ea] z-10">
+        <div className="h-full bg-[#4a7ab5] transition-all duration-100 ease-linear" style={{ width: `${remaining * 100}%` }} />
+      </div>
+      <CloseX onClick={onNo} />
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
+    </div>
+  );
+}
+
+function CountdownBottomBar({ visible, remaining, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
+  return (
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <CloseX onClick={onNo} />
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
+      <div className="h-0.5 bg-[#e4e7ea]">
+        <div className="h-full bg-[#4a7ab5] transition-all duration-100 ease-linear" style={{ width: `${remaining * 100}%` }} />
       </div>
     </div>
   );
 }
 
-// ───────────────────────── Variant 6: Compact pill ─────────────────────────
-
-function V6() {
-  const { state, handle } = useMock();
+function CountdownRing({ visible, remaining, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
+  const c = 2 * Math.PI * 11;
   return (
-    <div className="w-full">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[12px] text-[#7c8490] font-medium">Filter:</span>
-        <span className="px-3 h-[32px] rounded-full bg-[#f0f2f3] text-[12px] flex items-center gap-1 text-[#16181a]/70">
-          Format: Online <X className="w-3 h-3 cursor-pointer" />
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <button onClick={onNo} className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center">
+        <svg className="absolute inset-0" viewBox="0 0 28 28">
+          <circle cx="14" cy="14" r="11" stroke="#e4e7ea" strokeWidth="2" fill="white" />
+          <circle cx="14" cy="14" r="11" stroke="#4a7ab5" strokeWidth="2" fill="none" strokeDasharray={c} strokeDashoffset={c * (1 - remaining)} transform="rotate(-90 14 14)" style={{ transition: "stroke-dashoffset 100ms linear" }} />
+        </svg>
+        <X className="w-3.5 h-3.5 text-[#16181a]/60 relative z-10" />
+      </button>
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
+    </div>
+  );
+}
+
+function CountdownBadge({ visible, remainingS, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
+  return (
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <CloseX onClick={onNo} />
+      <div className="absolute top-2 left-2 z-10 h-6 min-w-[24px] px-2 rounded-full bg-[#16181a] text-white text-[11px] font-bold flex items-center justify-center">{remainingS}s</div>
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
+    </div>
+  );
+}
+
+function CountdownPie({ visible, remaining, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
+  const angle = remaining * 360;
+  const r = 11;
+  const x = 14 + r * Math.sin((angle * Math.PI) / 180);
+  const y = 14 - r * Math.cos((angle * Math.PI) / 180);
+  const largeArc = angle > 180 ? 1 : 0;
+  return (
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <CloseX onClick={onNo} />
+      <div className="absolute top-2 left-2 z-10 w-7 h-7">
+        <svg viewBox="0 0 28 28">
+          <circle cx="14" cy="14" r="11" fill="#e4e7ea" />
+          <path d={`M 14 14 L 14 3 A 11 11 0 ${largeArc} 1 ${x} ${y} Z`} fill="#4a7ab5" />
+        </svg>
+      </div>
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
+    </div>
+  );
+}
+
+function CountdownBorderShift({ visible, remaining, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
+  const color = remaining > 0.66 ? "#22c55e" : remaining > 0.33 ? "#f59e0b" : "#ef4444";
+  return (
+    <div className={SHELL_BASE} style={{ ...shellStyle(animKey), border: `2px solid ${color}`, transition: "border-color 300ms" }}>
+      <CloseX onClick={onNo} />
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
+    </div>
+  );
+}
+
+function CountdownOrb({ visible, remainingS, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
+  return (
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <CloseX onClick={onNo} />
+      <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5">
+        <span className="relative flex w-2 h-2">
+          <span className="absolute inline-flex w-full h-full rounded-full bg-[#4a7ab5] opacity-75 animate-ping" />
+          <span className="relative inline-flex w-2 h-2 rounded-full bg-[#4a7ab5]" />
         </span>
-        <button
-          onClick={handle}
-          disabled={state !== "idle"}
-          className="h-[32px] px-3 rounded-full bg-[#16181a] text-white text-[12px] font-semibold flex items-center gap-1.5 disabled:opacity-50"
-        >
-          {state === "loading" ? <Loader2 className="w-3 h-3 animate-spin" /> :
-           state === "done" ? <><Check className="w-3 h-3" /> Topildi</> :
-           <><MapPin className="w-3 h-3" /> Yaqin atrofda</>}
-        </button>
-        <button className="h-[32px] px-3 rounded-full border border-dashed border-[#16181a]/20 text-[12px] text-[#7c8490] hover:border-[#16181a]/40">
-          + Boshqa filter
-        </button>
+        <span className="text-[11px] font-bold text-[#16181a]/70">{remainingS}s</span>
       </div>
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
     </div>
   );
 }
 
-// ───────────────────────── Variant 7: Hero banner (rangli) ─────────────────────────
-
-function V7() {
-  const { state, handle } = useMock();
+function CountdownText({ visible, remainingS, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
   return (
-    <div className="w-full">
-      <div className="relative rounded-[18px] overflow-hidden bg-gradient-to-br from-[#4a7ab5] via-[#5b87c0] to-[#7ea2d4] p-5 md:p-6 text-white">
-        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute -bottom-12 -left-8 w-40 h-40 rounded-full bg-white/10 blur-3xl" />
-        <div className="relative flex items-center gap-4">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-[14px] bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
-            <Sparkles className="w-6 h-6 md:w-7 md:h-7" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-[16px] md:text-[18px] font-bold leading-tight">
-              Sizga yaqin kurslarni topib beramiz
-            </h4>
-            <p className="text-[12px] md:text-[13px] text-white/85 mt-1 leading-snug">
-              Joylashuvga ruxsat bering — bir necha soniyada eng mos kurslar paydo bo&apos;ladi
-            </p>
-          </div>
-          <button
-            onClick={handle}
-            disabled={state !== "idle"}
-            className="hidden md:flex h-[44px] px-5 rounded-[12px] bg-white text-[#16181a] text-[13px] font-bold items-center gap-2 hover:bg-white/95 disabled:opacity-50 shrink-0"
-          >
-            {state === "loading" ? <Loader2 className="w-4 h-4 animate-spin" /> :
-             state === "done" ? <Check className="w-4 h-4" /> :
-             <>Boshlash <ArrowRight className="w-4 h-4" /></>}
-          </button>
-        </div>
-        <button
-          onClick={handle}
-          disabled={state !== "idle"}
-          className="md:hidden mt-4 w-full h-[42px] rounded-[12px] bg-white text-[#16181a] text-[13px] font-bold flex items-center justify-center gap-2 disabled:opacity-50"
-        >
-          {state === "loading" ? <Loader2 className="w-4 h-4 animate-spin" /> :
-           state === "done" ? <Check className="w-4 h-4" /> :
-           <>Boshlash <ArrowRight className="w-4 h-4" /></>}
-        </button>
-      </div>
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <CloseX onClick={onNo} />
+      <MapAndContent />
+      <p className="px-4 pb-1 text-[10.5px] text-[#7c8490] font-medium">
+        Avtomatik yopiladi: <span className="text-[#4a7ab5] font-bold">{remainingS}s</span>
+      </p>
+      <ButtonRow onNo={onNo} onYes={onYes} />
     </div>
   );
 }
 
-// ───────────────────────── Variant 8: Floating action button ─────────────────────────
-
-function V8() {
-  const { state, handle } = useMock();
-  const [expanded, setExpanded] = useState(false);
+function CountdownBelowButtons({ visible, remaining, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
   return (
-    <div className="w-full h-[200px] relative bg-[#f0f2f3] rounded-[12px] border border-dashed border-[#e4e7ea] flex items-center justify-center">
-      <span className="text-[12px] text-[#7c8490]">Sahifa kontenti shu yerda...</span>
-      <div className="absolute bottom-4 right-4">
-        {expanded && (
-          <div className="absolute bottom-[60px] right-0 w-[260px] rounded-[14px] bg-white border border-[#e4e7ea] shadow-2xl p-4">
-            <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-r border-b border-[#e4e7ea] rotate-45" />
-            <h5 className="text-[13px] font-bold text-[#16181a]">Yaqin atrofda</h5>
-            <p className="text-[12px] text-[#7c8490] mt-1 leading-snug">Joylashuvga ko&apos;ra mos kurslarni ko&apos;rasiz</p>
-            <button
-              onClick={handle}
-              disabled={state !== "idle"}
-              className="mt-3 w-full h-[36px] rounded-[8px] bg-[#16181a] text-white text-[12px] font-semibold disabled:opacity-50"
-            >
-              {state === "loading" ? "Aniqlanyapti..." : state === "done" ? "Topildi ✓" : "Ruxsat berish"}
-            </button>
-          </div>
-        )}
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="w-12 h-12 rounded-full bg-[#16181a] text-white shadow-2xl flex items-center justify-center hover:scale-105 transition-transform"
-        >
-          {expanded ? <X className="w-5 h-5" /> : <MapPin className="w-5 h-5" />}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────── Variant 9: Notification card ─────────────────────────
-
-function V9() {
-  const { state, handle } = useMock();
-  return (
-    <div className="w-full max-w-[380px]">
-      <div className="rounded-[14px] bg-white border border-[#e4e7ea] p-4 shadow-md">
-        <div className="flex items-start gap-3">
-          <div className="relative shrink-0">
-            <div className="w-10 h-10 rounded-full bg-[#7ea2d4]/15 flex items-center justify-center">
-              <Target className="w-5 h-5 text-[#4a7ab5]" />
-            </div>
-            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#ef4444] border-2 border-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline justify-between gap-2">
-              <h5 className="text-[13px] font-bold text-[#16181a]">Darslinker.uz</h5>
-              <span className="text-[11px] text-[#7c8490] shrink-0">Hozir</span>
-            </div>
-            <p className="text-[13px] text-[#16181a]/80 mt-0.5 leading-snug">
-              Yaqin atrofdagi kurslarni ko&apos;rsatish uchun joylashuvga ruxsat bering
-            </p>
-            <div className="mt-2.5 flex items-center gap-2">
-              <button
-                onClick={handle}
-                disabled={state !== "idle"}
-                className="h-[32px] px-3 rounded-[8px] bg-[#16181a] text-white text-[12px] font-semibold flex items-center gap-1 disabled:opacity-50"
-              >
-                {state === "loading" ? <Loader2 className="w-3 h-3 animate-spin" /> :
-                 state === "done" ? <Check className="w-3 h-3" /> :
-                 "Ruxsat berish"}
-              </button>
-              <button className="h-[32px] px-3 rounded-[8px] text-[12px] text-[#7c8490] hover:bg-[#f0f2f3] font-medium">
-                Yo&apos;q
-              </button>
-            </div>
-          </div>
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <CloseX onClick={onNo} />
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
+      <div className="px-4 pb-2.5">
+        <div className="h-1 rounded-full bg-[#e4e7ea] overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-[#4a7ab5] to-[#7ea2d4] transition-all duration-100 ease-linear" style={{ width: `${remaining * 100}%` }} />
         </div>
       </div>
     </div>
   );
 }
 
-// ───────────────────────── Variant 10: Inline filter row ─────────────────────────
-
-function V10() {
-  const { state, handle } = useMock();
+function CountdownShimmer({ visible, remaining, onYes, onNo, animKey }: CountdownProps) {
+  if (!visible) return null;
   return (
-    <div className="w-full">
-      <div className="rounded-[14px] bg-white border border-[#e4e7ea] p-3.5">
-        <div className="flex items-center gap-2 mb-2">
-          <h5 className="text-[12px] font-bold text-[#16181a]/60 uppercase tracking-wider">Tezkor filter</h5>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button className="h-[34px] px-3 rounded-[10px] bg-[#f0f2f3] text-[12.5px] text-[#16181a] font-medium hover:bg-[#e4e7ea]">
-            <Globe className="w-3.5 h-3.5 inline mr-1.5" /> Online
-          </button>
-          <button className="h-[34px] px-3 rounded-[10px] bg-[#f0f2f3] text-[12.5px] text-[#16181a] font-medium hover:bg-[#e4e7ea]">
-            Bepul
-          </button>
-          <button className="h-[34px] px-3 rounded-[10px] bg-[#f0f2f3] text-[12.5px] text-[#16181a] font-medium hover:bg-[#e4e7ea]">
-            Bootcamp
-          </button>
-          <span className="h-5 w-px bg-[#e4e7ea] mx-1" />
-          <button
-            onClick={handle}
-            disabled={state !== "idle"}
-            className="h-[34px] px-3 rounded-[10px] bg-gradient-to-r from-[#4a7ab5] to-[#7ea2d4] text-white text-[12.5px] font-semibold flex items-center gap-1.5 disabled:opacity-50"
-          >
-            {state === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
-             state === "done" ? <><Check className="w-3.5 h-3.5" /> Aniqlandi</> :
-             <><MapPin className="w-3.5 h-3.5" /> Yaqin atrofda</>}
-          </button>
-        </div>
+    <div className={SHELL_BASE} style={shellStyle(animKey)}>
+      <div className="absolute top-0 left-0 right-0 h-[3px] z-10 bg-[#e4e7ea] overflow-hidden">
+        <div
+          className="h-full transition-all duration-100 ease-linear"
+          style={{
+            width: `${remaining * 100}%`,
+            backgroundImage: "linear-gradient(90deg, #4a7ab5 0%, #a3c0db 50%, #4a7ab5 100%)",
+            backgroundSize: "200% 100%",
+            animation: "shimmer 1.5s linear infinite",
+          }}
+        />
       </div>
+      <CloseX onClick={onNo} />
+      <MapAndContent />
+      <ButtonRow onNo={onNo} onYes={onYes} />
     </div>
   );
 }
