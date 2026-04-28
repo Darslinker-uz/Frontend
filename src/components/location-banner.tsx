@@ -196,21 +196,28 @@ export function LocationBanner({ region, district, fallback }: Props) {
           <p className="text-[12px] md:text-[13px] text-[#7c8490] mt-1 leading-relaxed">
             Joylashuvni aniqlasak, eng yaqin o&apos;quv markazlarni topamiz
           </p>
-          <button
-            onClick={requestLocation}
-            disabled={requesting}
-            className="mt-3 w-full md:w-auto h-[40px] px-4 rounded-[10px] bg-[#4a7ab5] hover:bg-[#3a5a8c] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
-          >
-            {requesting ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" /> Aniqlanyapti...
-              </>
-            ) : (
-              <>
-                <MapPin className="w-3.5 h-3.5" /> OK
-              </>
-            )}
-          </button>
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              onClick={dismiss}
+              disabled={requesting}
+              className="flex-1 h-[40px] rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[#7c8490] hover:text-[#16181a] text-[13px] font-semibold transition-colors disabled:opacity-50"
+            >
+              Yo&apos;q
+            </button>
+            <button
+              onClick={requestLocation}
+              disabled={requesting}
+              className="flex-1 h-[40px] rounded-[10px] bg-[#4a7ab5] hover:bg-[#3a5a8c] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
+            >
+              {requesting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Aniqlanyapti...
+                </>
+              ) : (
+                "Ha"
+              )}
+            </button>
+          </div>
         </div>
       </div>
     );

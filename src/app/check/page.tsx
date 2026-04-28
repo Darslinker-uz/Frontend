@@ -280,15 +280,23 @@ function V5() {
           <p className="text-[12px] text-[#7c8490] mt-1 leading-relaxed">
             Joylashuvni aniqlasak, eng yaqin o&apos;quv markazlarni topamiz
           </p>
-          <button
-            onClick={handle}
-            disabled={state !== "idle"}
-            className="mt-3 w-full h-[40px] rounded-[10px] bg-[#4a7ab5] hover:bg-[#3a5a8c] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
-          >
-            {state === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
-             state === "done" ? <><Check className="w-3.5 h-3.5" /> Topildi</> :
-             <><MapPin className="w-3.5 h-3.5" /> OK</>}
-          </button>
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              disabled={state !== "idle"}
+              className="flex-1 h-[40px] rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[#7c8490] hover:text-[#16181a] text-[13px] font-semibold transition-colors disabled:opacity-50"
+            >
+              Yo&apos;q
+            </button>
+            <button
+              onClick={handle}
+              disabled={state !== "idle"}
+              className="flex-1 h-[40px] rounded-[10px] bg-[#4a7ab5] hover:bg-[#3a5a8c] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors"
+            >
+              {state === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
+               state === "done" ? <><Check className="w-3.5 h-3.5" /> Topildi</> :
+               "Ha"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
