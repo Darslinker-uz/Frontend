@@ -152,16 +152,18 @@ model Manager {
 }
 
 model CategoryGroup {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
-  slug        String     @unique
-  description String?
-  icon        String?
-  color       String?
-  active      Boolean    @default(true)
-  order       Int        @default(0)
-  categories  Category[]
-  articles    Article[]
+  id              Int        @id @default(autoincrement())
+  name            String     @unique
+  slug            String     @unique
+  description     String?
+  icon            String?
+  color           String?
+  active          Boolean    @default(true)
+  // Bosh sahifaning "Yo'nalishlar" katta grid'ida ko'rinadimi (alohida toggle)
+  showOnHomepage  Boolean    @default(true) @map("show_on_homepage")
+  order           Int        @default(0)
+  categories      Category[]
+  articles        Article[]
 
   @@map("category_groups")
 }

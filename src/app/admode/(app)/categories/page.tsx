@@ -15,6 +15,7 @@ import {
   AlertCircle,
   MoreHorizontal,
   GripVertical,
+  Star,
 } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
 
@@ -41,6 +42,7 @@ interface ApiGroup {
   icon: string | null;
   color: string | null;
   active: boolean;
+  showOnHomepage: boolean;
   order: number;
   categories: ApiCategory[];
 }
@@ -168,6 +170,28 @@ export default function AdminCategoriesPage() {
       await jsonFetch(`/api/admin/category-groups/${g.id}`, {
         method: "PATCH",
         body: JSON.stringify({ active: !g.active }),
+      });
+    } catch (e) {
+      console.error(e);
+      setGroups(prev);
+      setTopError(e instanceof Error ? e.message : "Xatolik");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // Toggle group's showOnHomepage flag — bosh sahifa grid'ida ko'rinadimi
+  const toggleGroupHomepage = async (g: ApiGroup) => {
+    const key = `g-home-${g.id}`;
+    setBusyId(key);
+    const prev = groups;
+    setGroups((p) =>
+      p.map((x) => (x.id === g.id ? { ...x, showOnHomepage: !x.showOnHomepage } : x))
+    );
+    try {
+      await jsonFetch(`/api/admin/category-groups/${g.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ showOnHomepage: !g.showOnHomepage }),
       });
     } catch (e) {
       console.error(e);
@@ -548,6 +572,11 @@ export default function AdminCategoriesPage() {
                         <EyeOff className="w-2.5 h-2.5" /> Yashirilgan
                       </span>
                     )}
+                    {g.showOnHomepage && (
+                      <span className="h-[24px] px-2 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-600 flex items-center gap-1" title="Bosh sahifada ko'rsatiladi">
+                        ⭐ Bosh sahifa
+                      </span>
+                    )}
                     <div className="relative shrink-0 ml-1">
                       <button
                         onClick={() =>
@@ -588,6 +617,15 @@ export default function AdminCategoriesPage() {
                               onClick={() => {
                                 setOpenMenu(null);
                                 toggleGroupActive(g);
+                              }}
+                            />
+                            <MenuItem
+                              icon={Star}
+                              label={g.showOnHomepage ? "Bosh sahifadan olib tashlash" : "Bosh sahifaga qo'shish"}
+                              color={g.showOnHomepage ? "#f59e0b" : config.text}
+                              onClick={() => {
+                                setOpenMenu(null);
+                                toggleGroupHomepage(g);
                               }}
                             />
                             <div

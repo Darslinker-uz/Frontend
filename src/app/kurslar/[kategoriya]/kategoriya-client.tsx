@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Star } from "lucide-react";
 import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
-import { CourseFilter } from "@/components/course-filter";
+import { CourseFilter, type FilterGroup, type FilterRegion } from "@/components/course-filter";
 
 function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
   return (
@@ -64,7 +64,7 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
   );
 }
 
-export function KategoriyaClient({ kategoriya, allCourses }: { kategoriya: string; allCourses: Course[] }) {
+export function KategoriyaClient({ kategoriya, allCourses, groups = [], regions = [] }: { kategoriya: string; allCourses: Course[]; groups?: FilterGroup[]; regions?: FilterRegion[] }) {
   const router = useRouter();
   const initialScoped = allCourses.filter(c => c.categorySlug === kategoriya);
   const [filtered, setFiltered] = useState<Course[]>(initialScoped);
@@ -80,7 +80,14 @@ export function KategoriyaClient({ kategoriya, allCourses }: { kategoriya: strin
   return (
     <>
       <div className="md:flex">
-        <CourseFilter courses={allCourses} onFilter={handleFilter} initialCategory={kategoriya} onClearCategory={() => router.push("/kurslar")}>
+        <CourseFilter
+          courses={allCourses}
+          groups={groups}
+          regions={regions}
+          onFilter={handleFilter}
+          initialCategory={kategoriya}
+          onClearCategory={() => router.push("/kurslar")}
+        >
           <CourseGrid courses={filtered} filterKey={filterKey} />
         </CourseFilter>
       </div>

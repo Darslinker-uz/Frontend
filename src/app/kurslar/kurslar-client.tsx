@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, Star } from "lucide-react";
 import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
-import { CourseFilter } from "@/components/course-filter";
+import { CourseFilter, type FilterGroup, type FilterRegion } from "@/components/course-filter";
 import { LocationBanner } from "@/components/location-banner";
 
 interface LocationFilterInfo {
@@ -73,7 +73,7 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
 
 const EMPTY_LOCATION_FILTER: LocationFilterInfo = { region: null, district: null, fallback: null };
 
-function KurslarContent({ initialCourses, locationFilter }: { initialCourses: Course[]; locationFilter: LocationFilterInfo }) {
+function KurslarContent({ initialCourses, locationFilter, groups, regions }: { initialCourses: Course[]; locationFilter: LocationFilterInfo; groups: FilterGroup[]; regions: FilterRegion[] }) {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
   const initialFormat = searchParams.get("format") || "";
@@ -95,7 +95,15 @@ function KurslarContent({ initialCourses, locationFilter }: { initialCourses: Co
         fallback={locationFilter.fallback}
       />
       <div className="md:flex">
-        <CourseFilter key={`${initialSearch}-${initialFormat}`} courses={initialCourses} onFilter={handleFilter} initialSearch={initialSearch} initialFormat={initialFormat}>
+        <CourseFilter
+          key={`${initialSearch}-${initialFormat}`}
+          courses={initialCourses}
+          groups={groups}
+          regions={regions}
+          onFilter={handleFilter}
+          initialSearch={initialSearch}
+          initialFormat={initialFormat}
+        >
           <CourseGrid courses={filtered} filterKey={filterKey} />
         </CourseFilter>
       </div>
@@ -106,10 +114,10 @@ function KurslarContent({ initialCourses, locationFilter }: { initialCourses: Co
   );
 }
 
-export function KurslarClient({ initialCourses, locationFilter }: { initialCourses: Course[]; locationFilter?: LocationFilterInfo }) {
+export function KurslarClient({ initialCourses, locationFilter, groups = [], regions = [] }: { initialCourses: Course[]; locationFilter?: LocationFilterInfo; groups?: FilterGroup[]; regions?: FilterRegion[] }) {
   return (
     <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 gap-4">{initialCourses.slice(0, 6).map((c, i) => <CourseCard key={c.slug} course={c} index={i} />)}</div>}>
-      <KurslarContent initialCourses={initialCourses} locationFilter={locationFilter ?? EMPTY_LOCATION_FILTER} />
+      <KurslarContent initialCourses={initialCourses} locationFilter={locationFilter ?? EMPTY_LOCATION_FILTER} groups={groups} regions={regions} />
     </Suspense>
   );
 }

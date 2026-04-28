@@ -1,37 +1,60 @@
 import "dotenv/config";
-import { getUpdates, deleteWebhook } from "../src/lib/telegram";
+import { createTelegramClient } from "../src/lib/telegram";
 import { handleUpdate } from "../src/lib/bot-handler";
 
-// ==================== LOCAL DEV POLLER ====================
+// ==================== LOCAL DEV POLLER (BOTH BOTS) ====================
 // Usage: npm run bot
 //
-// Polling mode — the script fetches updates from Telegram every few seconds
-// and dispatches them to the shared handler. No public URL required.
+// Lokal dev'da Telegram webhook'larini o'rnatib bo'lmaydi (HTTPS kerak),
+// shuning uchun ikkita bot'dan ham updates'larni polling rejimida olamiz:
+//   - Provider bot (@Darslinker_cbot) → "provider" mode
+//   - Student bot  (@darslinkerbot)   → "student" mode
 
-async function main() {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  if (!token) {
-    console.error("❌ TELEGRAM_BOT_TOKEN is not set in .env");
-    process.exit(1);
+interface BotConfig {
+  label: string;
+  token: string | undefined;
+  mode: "provider" | "student";
+}
+
+const bots: BotConfig[] = [
+  { label: "@Darslinker_cbot (provider)", token: process.env.TELEGRAM_BOT_TOKEN, mode: "provider" },
+  { label: "@darslinkerbot (student)",    token: process.env.TELEGRAM_STUDENT_BOT_TOKEN, mode: "student" },
+];
+
+async function pollBot(b: BotConfig) {
+  if (!b.token) {
+    console.warn(`⚠️  ${b.label}: token .env'da yo'q, o'tkazib yuborildi`);
+    return;
   }
+  const client = createTelegramClient(b.token);
 
-  // Make sure webhook is cleared, otherwise getUpdates returns 409.
-  await deleteWebhook();
-  console.log("🤖 Bot polling started. Press Ctrl+C to stop.");
+  // Webhook'ni o'chirib qo'yamiz, aks holda getUpdates 409 qaytaradi
+  await client.deleteWebhook();
+  console.log(`🤖 ${b.label}: polling boshlandi`);
 
   let offset = 0;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const updates = await getUpdates(offset, 25);
-    if (!updates) {
-      await new Promise(r => setTimeout(r, 3000));
-      continue;
-    }
-    for (const u of updates) {
-      offset = Math.max(offset, u.update_id + 1);
-      await handleUpdate(u);
+    try {
+      const updates = await client.getUpdates(offset, 25);
+      if (!updates) {
+        await new Promise(r => setTimeout(r, 3000));
+        continue;
+      }
+      for (const u of updates) {
+        offset = Math.max(offset, u.update_id + 1);
+        await handleUpdate(u, b.mode);
+      }
+    } catch (e) {
+      console.error(`[${b.label}] poll error:`, e);
+      await new Promise(r => setTimeout(r, 5000));
     }
   }
+}
+
+async function main() {
+  // Ikkala bot'ni parallel polling — ikkala Promise hech qachon resolve bo'lmaydi
+  await Promise.all(bots.map(pollBot));
 }
 
 main().catch(e => {

@@ -31,6 +31,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.icon !== undefined) data.icon = body.icon ? String(body.icon) : null;
   if (body.color !== undefined) data.color = body.color ? String(body.color) : null;
   if (body.active !== undefined) data.active = Boolean(body.active);
+  if (body.showOnHomepage !== undefined) data.showOnHomepage = Boolean(body.showOnHomepage);
   if (body.order !== undefined) data.order = Number(body.order) || 0;
 
   if (Object.keys(data).length === 0) {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getActiveListings, getActiveCategories } from "@/lib/listings";
+import { getActiveListings, getActiveCategories, getActiveCategoryGroups } from "@/lib/listings";
 import { findRegionBySlugDb, getActiveRegions } from "@/lib/regions";
 import { KategoriyaClient } from "../../kategoriya-client";
 
@@ -47,8 +47,18 @@ export default async function KategoriyaViloyatPage({ params }: Props) {
   if (!cat || !region) notFound();
 
   // SEO landing — faqat shu viloyatdagi offline kurslar (online'larni global aralashtirmaymiz)
-  const courses = await getActiveListings({ categorySlug: cat.slug, region: region.name, includeRemote: false });
+  const [courses, groupsAll] = await Promise.all([
+    getActiveListings({ categorySlug: cat.slug, region: region.name, includeRemote: false }),
+    getActiveCategoryGroups(),
+  ]);
   const url = `${SITE_URL}/kurslar/${kategoriya}/joy/${viloyat}`;
+
+  // Filter komponenti uchun props
+  const filterGroups = groupsAll.map(g => ({
+    name: g.name,
+    slug: g.slug,
+    categories: g.categories.filter(c => c.count > 0).map(c => ({ name: c.name, slug: c.slug, count: c.count })),
+  })).filter(g => g.categories.length > 0);
 
   // Tumanlar bo'yicha hisoblash
   const districtCounts = courses.reduce<Record<string, number>>((acc, c) => {
@@ -145,7 +155,12 @@ export default async function KategoriyaViloyatPage({ params }: Props) {
         )}
 
         <h2 className="sr-only">{region.name} bo&apos;yicha kurslar ro&apos;yxati</h2>
-        <KategoriyaClient kategoriya={kategoriya} allCourses={courses} />
+        <KategoriyaClient
+          kategoriya={kategoriya}
+          allCourses={courses}
+          groups={filterGroups}
+          regions={allRegions.map(r => ({ name: r.name, slug: r.slug }))}
+        />
 
         {otherRegions.length > 0 && (
           <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-5 md:p-6 mt-6">

@@ -76,24 +76,46 @@ export interface TelegramClient {
 export function createTelegramClient(token: string | undefined): TelegramClient {
   const BASE = token ? `https://api.telegram.org/bot${token}` : "";
 
-  async function call<T>(method: string, body: Record<string, unknown>): Promise<T | null> {
+  // 3 ta urinish (kichik backoff bilan) — birinchi marta cold-start yoki transient
+  // network bilan bog'liq xato bo'lsa, keyingi urinishlar muvaffaqiyatli bo'ladi.
+  async function call<T>(method: string, body: Record<string, unknown>, retries = 3): Promise<T | null> {
     if (!token) return null;
-    try {
-      const res = await fetch(`${BASE}/${method}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        console.error(`Telegram ${method} failed:`, data.description);
-        return null;
+    let lastError: unknown = null;
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10_000);
+        const res = await fetch(`${BASE}/${method}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        if (!data.ok) {
+          // Telegram API'ning aniq xatosi (masalan, chat_id noto'g'ri) — qayta urinish foydasiz
+          console.error(`Telegram ${method} failed (attempt ${attempt}):`, data.description);
+          if (data.error_code && (data.error_code === 400 || data.error_code === 403)) {
+            return null;
+          }
+          lastError = new Error(data.description || `HTTP ${res.status}`);
+        } else {
+          return data.result as T;
+        }
+      } catch (e) {
+        lastError = e;
+        console.error(`Telegram ${method} error (attempt ${attempt}/${retries}):`, e);
       }
-      return data.result as T;
-    } catch (e) {
-      console.error(`Telegram ${method} error:`, e);
-      return null;
+      // Backoff: 200ms, 600ms
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, attempt * 300));
+      }
     }
+    if (lastError) {
+      console.error(`Telegram ${method} all ${retries} attempts failed:`, lastError);
+    }
+    return null;
   }
 
   return {

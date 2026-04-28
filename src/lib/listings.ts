@@ -277,9 +277,12 @@ export async function getActiveCategories() {
 }
 
 // Guruhlar (top-level taxonomy) — bosh sahifa va megamenu uchun.
-export async function getActiveCategoryGroups() {
+export async function getActiveCategoryGroups(opts?: { homepageOnly?: boolean }) {
   const groups = await prisma.categoryGroup.findMany({
-    where: { active: true },
+    where: {
+      active: true,
+      ...(opts?.homepageOnly ? { showOnHomepage: true } : {}),
+    },
     orderBy: { order: "asc" },
     select: {
       name: true,
@@ -287,6 +290,7 @@ export async function getActiveCategoryGroups() {
       description: true,
       icon: true,
       color: true,
+      showOnHomepage: true,
       _count: { select: { categories: { where: { active: true } } } },
       categories: {
         where: { active: true },
@@ -305,6 +309,7 @@ export async function getActiveCategoryGroups() {
     desc: g.description ?? "",
     icon: g.icon,
     color: g.color,
+    showOnHomepage: g.showOnHomepage,
     categoriesCount: g._count.categories,
     listingsCount: g.categories.reduce((sum, c) => sum + c._count.listings, 0),
     categories: g.categories.map(c => ({

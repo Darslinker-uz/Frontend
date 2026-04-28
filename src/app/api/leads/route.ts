@@ -56,13 +56,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Siz bu kursga avval ariza yuborgansiz" }, { status: 409 });
   }
 
+  // Lead yaratamiz, keyin bot xabarini yuboramiz. Agar provider'ga xabar
+  // yetib bormasa — leadni o'chirib, foydalanuvchidan qayta urinishni so'raymiz.
+  // (telegramChatId yo'q bo'lsa — provider bot bilan ulanmagan, leadni saqlaymiz
+  // lekin admin guruhga xabar yuboriladi)
   const lead = await prisma.lead.create({
     data: { listingId, name, phone, message, status: "new_lead" },
   });
 
-  // Fire-and-forget notification to the teacher's Telegram
+  let providerOk = true;
   if (listing.user.telegramChatId) {
-    notifyNewLead({
+    providerOk = await notifyNewLead({
       leadId: lead.id,
       teacherChatId: listing.user.telegramChatId,
       studentName: name,
@@ -70,10 +74,23 @@ export async function POST(request: Request) {
       course: listing.title,
       message,
       createdAt: lead.createdAt,
-    }).catch(e => console.error("[lead] telegram notify failed", e));
+    }).catch(e => {
+      console.error("[lead] provider notify failed", e);
+      return false;
+    });
   }
 
-  // Fire-and-forget notification to admin monitoring group
+  // Provider'ga xabar yetib bormagan (lekin telegramChatId mavjud edi) →
+  // lead'ni o'chirib, foydalanuvchidan qayta urinishni so'raymiz.
+  if (listing.user.telegramChatId && !providerOk) {
+    await prisma.lead.delete({ where: { id: lead.id } }).catch(() => {});
+    return NextResponse.json(
+      { error: "Bot xabari yuborilmadi. Iltimos, qayta urining." },
+      { status: 503 }
+    );
+  }
+
+  // Admin guruhi notify — fire-and-forget (yetib bormasa ham foydalanuvchiga ta'sir qilmaydi)
   notifyAdminGroup({
     centerName: listing.user.centerName ?? listing.user.name,
     course: listing.title,

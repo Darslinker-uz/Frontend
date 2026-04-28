@@ -426,6 +426,9 @@ export async function notifyNewLead(params: {
       },
     }).catch(e => console.error("[lead] persist bot msg failed", e));
   }
+
+  // Caller'ga muvaffaqiyat yoki xato sifatida qaytariladi
+  return Boolean(sent?.message_id);
 }
 
 // Sync the bot message for a lead after CRM status/note change

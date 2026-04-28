@@ -35,6 +35,12 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
         setStatus("duplicate");
         return;
       }
+      if (res.status === 503) {
+        // Bot xabari yuborilmadi — qayta urinish kerak (idle holatga qaytariladi)
+        setError(data?.error ?? "Bot xabari yuborilmadi. Qayta urining.");
+        setStatus("idle");
+        return;
+      }
       if (!res.ok) {
         setError(data?.error ?? "Xatolik yuz berdi");
         setStatus("error");

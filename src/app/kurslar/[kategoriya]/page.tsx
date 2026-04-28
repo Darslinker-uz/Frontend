@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
-import { getActiveListings, getActiveCategories } from "@/lib/listings";
+import { getActiveListings, getActiveCategories, getActiveCategoryGroups } from "@/lib/listings";
 import { getActiveRegions } from "@/lib/regions";
 import { KategoriyaClient } from "./kategoriya-client";
 
@@ -50,12 +50,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function KategoriyaPage({ params }: Props) {
   const { kategoriya } = await params;
-  const [allCourses, categories] = await Promise.all([
+  const [allCourses, categories, groupsAll, regionsAll] = await Promise.all([
     getActiveListings(),
     getActiveCategories(),
+    getActiveCategoryGroups(),
+    getActiveRegions(),
   ]);
   const cat = categories.find(c => c.slug === kategoriya);
   if (!cat) notFound();
+
+  // Filter komponenti uchun (Guruh → Yo'nalish, kursi bor bo'lganlari)
+  const filterGroups = groupsAll.map(g => ({
+    name: g.name,
+    slug: g.slug,
+    categories: g.categories.filter(c => c.count > 0).map(c => ({ name: c.name, slug: c.slug, count: c.count })),
+  })).filter(g => g.categories.length > 0);
+  const filterRegions = regionsAll.map(r => ({ name: r.name, slug: r.slug }));
 
   const scoped = allCourses.filter(c => c.categorySlug === kategoriya);
   const url = `${SITE_URL}/kurslar/${kategoriya}`;
@@ -65,8 +75,7 @@ export default async function KategoriyaPage({ params }: Props) {
     if (c.region) acc[c.region] = (acc[c.region] ?? 0) + 1;
     return acc;
   }, {});
-  const allRegions = await getActiveRegions();
-  const popularRegions = allRegions
+  const popularRegions = regionsAll
     .map(r => ({ ...r, count: regionsCount[r.name] ?? 0 }))
     .filter(r => r.count > 0)
     .sort((a, b) => b.count - a.count)
@@ -128,7 +137,12 @@ export default async function KategoriyaPage({ params }: Props) {
           </div>
         )}
 
-        <KategoriyaClient kategoriya={kategoriya} allCourses={allCourses} />
+        <KategoriyaClient
+          kategoriya={kategoriya}
+          allCourses={allCourses}
+          groups={filterGroups}
+          regions={filterRegions}
+        />
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getActiveListings, getActiveCategoryGroups } from "@/lib/listings";
+import { getActiveRegions } from "@/lib/regions";
 import { KurslarClient } from "./kurslar-client";
 
 export const dynamic = "force-dynamic";
@@ -66,10 +67,23 @@ export default async function KurslarPage({ searchParams }: Props) {
   const regionFilter = sp.region?.toString();
   const districtFilter = sp.district?.toString();
 
-  const [allCourses, groups] = await Promise.all([
+  const [allCourses, groups, regionsAll] = await Promise.all([
     getActiveListings(),
     getActiveCategoryGroups(),
+    getActiveRegions(),
   ]);
+
+  // Filter komponenti uchun (Guruh → Yo'nalish, kursi bor yo'nalishlar bilan + count)
+  const filterGroups = groups.map(g => ({
+    name: g.name,
+    slug: g.slug,
+    categories: g.categories
+      .filter(c => c.count > 0)
+      .map(c => ({ name: c.name, slug: c.slug, count: c.count })),
+  })).filter(g => g.categories.length > 0);
+
+  // Filter uchun viloyatlar (faqat aktiv)
+  const filterRegions = regionsAll.map(r => ({ name: r.name, slug: r.slug }));
 
   // Guruh filtri
   const selectedGroup = guruhSlug ? groups.find(g => g.slug === guruhSlug) : null;
@@ -165,6 +179,8 @@ export default async function KurslarPage({ searchParams }: Props) {
         )}
         <KurslarClient
           initialCourses={courses}
+          groups={filterGroups}
+          regions={filterRegions}
           locationFilter={{
             region: regionFilter ?? null,
             district: districtFilter ?? null,

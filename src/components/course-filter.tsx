@@ -2,42 +2,27 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Search, SlidersHorizontal, ChevronRight, X } from "lucide-react";
-import { categories, type Course } from "@/data/courses";
+import { type Course } from "@/data/courses";
 
 const PRICE_MAX = 2000000;
 const PRICE_STEP = 50000;
 const PRICE_TOTAL_STEPS = PRICE_MAX / PRICE_STEP;
-const FORMATS = ["Onlayn", "Oflayn", "Gibrid", "Video"];
+const FORMATS = ["Onlayn", "Oflayn", "Video"];
 
-// O'zbekiston viloyatlari va shaharlari
-const REGIONS: { name: string; cities: string[] }[] = [
-  { name: "Toshkent shahri", cities: ["Toshkent"] },
-  { name: "Toshkent viloyati", cities: ["Chirchiq", "Angren", "Olmaliq", "Bekobod", "Ohangaron"] },
-  { name: "Samarqand", cities: ["Samarqand", "Kattaqo'rg'on", "Urgut"] },
-  { name: "Buxoro", cities: ["Buxoro", "Kogon", "G'ijduvon"] },
-  { name: "Andijon", cities: ["Andijon", "Asaka", "Xonobod"] },
-  { name: "Farg'ona", cities: ["Farg'ona", "Marg'ilon", "Quva"] },
-  { name: "Namangan", cities: ["Namangan", "Chust", "Pop"] },
-  { name: "Qashqadaryo", cities: ["Qarshi", "Shahrisabz"] },
-  { name: "Surxondaryo", cities: ["Termiz", "Denov"] },
-  { name: "Xorazm", cities: ["Urganch", "Xiva"] },
-  { name: "Navoiy", cities: ["Navoiy", "Zarafshon"] },
-  { name: "Jizzax", cities: ["Jizzax", "Gallaorol"] },
-  { name: "Sirdaryo", cities: ["Guliston", "Yangiyer"] },
-  { name: "Qoraqalpog'iston", cities: ["Nukus", "Mo'ynoq"] },
-];
+// Server'dan keladigan struktura — DB taksonomiya
+export interface FilterGroup {
+  name: string;
+  slug: string;
+  categories: { name: string; slug: string; count: number }[];
+}
+export interface FilterRegion {
+  name: string;
+  slug: string;
+}
 
 function formatPrice(v: number) {
   if (v === 0) return "0";
   return v.toLocaleString("uz-UZ").replace(/\s/g, ",");
-}
-
-function Checkbox({ checked, onClick }: { checked: boolean; onClick: () => void }) {
-  return (
-    <button onClick={onClick} className={`w-[18px] h-[18px] rounded border-2 flex items-center justify-center shrink-0 transition-all ${checked ? "bg-[#7ea2d4] border-[#7ea2d4]" : "border-[#d0d5dd] hover:border-[#7ea2d4]/50"}`}>
-      {checked && <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 6l3 3 5-5" /></svg>}
-    </button>
-  );
 }
 
 function PriceRangeSlider({ minVal, maxVal, onMinChange, onMaxChange }: { minVal: number; maxVal: number; onMinChange: (v: number) => void; onMaxChange: (v: number) => void }) {
@@ -71,23 +56,23 @@ function PriceRangeSlider({ minVal, maxVal, onMinChange, onMaxChange }: { minVal
 
 interface FilterState {
   search: string;
-  categorySlug: string | null;
-  subcategories: string[];
+  groupSlug: string | null;       // tanlangan guruh (yo'nalishlar guruhi)
+  categorySlug: string | null;    // tanlangan yo'nalish (kategoriya)
   format: string | null;
   priceMin: number;
   priceMax: number;
-  region: string | null;
-  city: string | null;
+  region: string | null;          // viloyat nomi (DB Region.name)
 }
 
-function getActiveTags(f: FilterState): { label: string; clear: () => FilterState }[] {
+function getActiveTags(f: FilterState, groups: FilterGroup[]): { label: string; clear: () => FilterState }[] {
   const tags: { label: string; clear: () => FilterState }[] = [];
-  if (f.categorySlug) {
-    const cat = categories.find(c => c.slug === f.categorySlug);
-    if (cat) tags.push({ label: cat.name, clear: () => ({ ...f, categorySlug: null, subcategories: [] }) });
+  if (f.groupSlug) {
+    const group = groups.find(g => g.slug === f.groupSlug);
+    if (group) tags.push({ label: group.name, clear: () => ({ ...f, groupSlug: null, categorySlug: null }) });
   }
-  for (const sub of f.subcategories) {
-    tags.push({ label: sub, clear: () => ({ ...f, subcategories: f.subcategories.filter(s => s !== sub) }) });
+  if (f.categorySlug) {
+    const cat = groups.flatMap(g => g.categories).find(c => c.slug === f.categorySlug);
+    if (cat) tags.push({ label: cat.name, clear: () => ({ ...f, categorySlug: null }) });
   }
   if (f.format) {
     tags.push({ label: f.format, clear: () => ({ ...f, format: null }) });
@@ -98,33 +83,30 @@ function getActiveTags(f: FilterState): { label: string; clear: () => FilterStat
     tags.push({ label: `${minP === 0 ? "0" : formatPrice(minP)} — ${formatPrice(maxP)}${maxP === PRICE_MAX ? "+" : ""} so'm`, clear: () => ({ ...f, priceMin: 0, priceMax: PRICE_TOTAL_STEPS }) });
   }
   if (f.region) {
-    tags.push({ label: f.region, clear: () => ({ ...f, region: null, city: null }) });
-  }
-  if (f.city) {
-    tags.push({ label: f.city, clear: () => ({ ...f, city: null }) });
+    tags.push({ label: f.region, clear: () => ({ ...f, region: null }) });
   }
   return tags;
 }
 
-const defaultFilter: FilterState = { search: "", categorySlug: null, subcategories: [], format: null, priceMin: 0, priceMax: PRICE_TOTAL_STEPS, region: null, city: null };
+const defaultFilter: FilterState = { search: "", groupSlug: null, categorySlug: null, format: null, priceMin: 0, priceMax: PRICE_TOTAL_STEPS, region: null };
 
-function FilterContent({ filter, setFilter }: { filter: FilterState; setFilter: (f: FilterState) => void }) {
-  const openCatIdx = filter.categorySlug ? categories.findIndex(c => c.slug === filter.categorySlug) : -1;
+function FilterContent({ filter, setFilter, groups, regions }: { filter: FilterState; setFilter: (f: FilterState) => void; groups: FilterGroup[]; regions: FilterRegion[] }) {
+  // Tanlangan guruh ochiladi (kategoriyalari ko'rsatiladi)
+  const openGroupSlug = filter.groupSlug;
 
-  const toggleCat = (i: number) => {
-    const cat = categories[i];
-    if (filter.categorySlug === cat.slug) {
-      setFilter({ ...filter, categorySlug: null, subcategories: [] });
+  const toggleGroup = (slug: string) => {
+    if (filter.groupSlug === slug) {
+      setFilter({ ...filter, groupSlug: null, categorySlug: null });
     } else {
-      setFilter({ ...filter, categorySlug: cat.slug, subcategories: [] });
+      setFilter({ ...filter, groupSlug: slug, categorySlug: null });
     }
   };
 
-  const toggleSub = (sub: string) => {
-    if (filter.subcategories.includes(sub)) {
-      setFilter({ ...filter, subcategories: filter.subcategories.filter(s => s !== sub) });
+  const toggleCategory = (slug: string) => {
+    if (filter.categorySlug === slug) {
+      setFilter({ ...filter, categorySlug: null });
     } else {
-      setFilter({ ...filter, subcategories: [...filter.subcategories, sub] });
+      setFilter({ ...filter, categorySlug: slug });
     }
   };
 
@@ -134,36 +116,47 @@ function FilterContent({ filter, setFilter }: { filter: FilterState; setFilter: 
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Kategoriya</p>
-        <div className="space-y-0.5">
-          {categories.map((c, i) => (
-            <div key={c.slug}>
-              <button onClick={() => toggleCat(i)} className={`w-full text-left px-3 py-2.5 rounded-[10px] text-[14px] font-medium flex items-center justify-between transition-all ${openCatIdx === i ? "bg-[#7ea2d4]/10 text-[#4a7ab5] border-l-2 border-[#7ea2d4]" : "text-[#7c8490] hover:bg-[#f0f2f3]"}`}>
-                <span className="flex items-center gap-2">
-                  <ChevronRight className={`w-4 h-4 transition-transform ${openCatIdx === i ? "rotate-90 text-[#7ea2d4]" : "opacity-30"}`} />
-                  {c.name}
-                </span>
-                <span className={`text-[12px] ${openCatIdx === i ? "text-[#7ea2d4]/60" : "text-[#7c8490]/40"}`}>{c.count}</span>
-              </button>
-              {openCatIdx === i && c.subcategories && (
-                <div className="ml-8 mt-1 mb-2 space-y-1">
-                  <label className="flex items-center gap-2.5 py-1.5 cursor-pointer" onClick={() => setFilter({ ...filter, subcategories: [] })}>
-                    <Checkbox checked={filter.subcategories.length === 0} onClick={() => {}} />
-                    <span className="text-[13px] text-[#16181a]/70 font-medium">Barchasi</span>
-                  </label>
-                  {c.subcategories.map((s) => (
-                    <label key={s} className="flex items-center gap-2.5 py-1.5 cursor-pointer" onClick={() => toggleSub(s)}>
-                      <Checkbox checked={filter.subcategories.includes(s)} onClick={() => {}} />
-                      <span className="text-[13px] text-[#16181a]/70">{s}</span>
-                    </label>
-                  ))}
+      {/* GURUH → YO'NALISH (Variant B taksonomiya) */}
+      {groups.length > 0 && (
+        <div>
+          <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Yo&apos;nalishlar</p>
+          <div className="space-y-0.5">
+            {groups.map((g) => {
+              const open = openGroupSlug === g.slug;
+              const totalCount = g.categories.reduce((s, c) => s + c.count, 0);
+              return (
+                <div key={g.slug}>
+                  <button onClick={() => toggleGroup(g.slug)} className={`w-full text-left px-3 py-2.5 rounded-[10px] text-[14px] font-medium flex items-center justify-between transition-all ${open ? "bg-[#7ea2d4]/10 text-[#4a7ab5] border-l-2 border-[#7ea2d4]" : "text-[#7c8490] hover:bg-[#f0f2f3]"}`}>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <ChevronRight className={`w-4 h-4 transition-transform shrink-0 ${open ? "rotate-90 text-[#7ea2d4]" : "opacity-30"}`} />
+                      <span className="truncate">{g.name}</span>
+                    </span>
+                    <span className={`text-[12px] shrink-0 ml-2 ${open ? "text-[#7ea2d4]/60" : "text-[#7c8490]/40"}`}>{totalCount}</span>
+                  </button>
+                  {open && g.categories.length > 0 && (
+                    <div className="ml-8 mt-1 mb-2 space-y-0.5">
+                      {g.categories.map((c) => {
+                        const selected = filter.categorySlug === c.slug;
+                        return (
+                          <button
+                            key={c.slug}
+                            onClick={() => toggleCategory(c.slug)}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-[8px] text-[13px] flex items-center justify-between transition-colors ${selected ? "bg-[#7ea2d4]/15 text-[#4a7ab5] font-semibold" : "text-[#16181a]/70 hover:bg-[#f0f2f3]"}`}
+                          >
+                            <span className="truncate">{c.name}</span>
+                            <span className="text-[11px] text-[#7c8490]/50 shrink-0 ml-2">{c.count}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
+
       <div>
         <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Format</p>
         <div className="flex flex-wrap gap-2">
@@ -172,27 +165,22 @@ function FilterContent({ filter, setFilter }: { filter: FilterState; setFilter: 
           ))}
         </div>
       </div>
-      <div>
-        <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Joylashuv</p>
-        <select
-          value={filter.region ?? ""}
-          onChange={(e) => setFilter({ ...filter, region: e.target.value || null, city: null })}
-          className="w-full h-[42px] px-3 rounded-[10px] bg-[#f0f2f3] border border-[#e4e7ea] text-[14px] text-[#16181a] focus:outline-none focus:border-[#7ea2d4] mb-2"
-        >
-          <option value="">Barcha viloyatlar</option>
-          {REGIONS.map((r) => <option key={r.name} value={r.name}>{r.name}</option>)}
-        </select>
-        {filter.region && (
+
+      {/* VILOYAT (DB-driven) */}
+      {regions.length > 0 && (
+        <div>
+          <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Joylashuv</p>
           <select
-            value={filter.city ?? ""}
-            onChange={(e) => setFilter({ ...filter, city: e.target.value || null })}
+            value={filter.region ?? ""}
+            onChange={(e) => setFilter({ ...filter, region: e.target.value || null })}
             className="w-full h-[42px] px-3 rounded-[10px] bg-[#f0f2f3] border border-[#e4e7ea] text-[14px] text-[#16181a] focus:outline-none focus:border-[#7ea2d4]"
           >
-            <option value="">Barcha shaharlar</option>
-            {REGIONS.find(r => r.name === filter.region)?.cities.map((c) => <option key={c} value={c}>{c}</option>)}
+            <option value="">Barcha viloyatlar</option>
+            {regions.map((r) => <option key={r.slug} value={r.name}>{r.name}</option>)}
           </select>
-        )}
-      </div>
+        </div>
+      )}
+
       <div>
         <p className="text-[12px] font-semibold text-[#16181a] uppercase tracking-wider mb-3">Narx</p>
         <PriceRangeSlider minVal={filter.priceMin} maxVal={filter.priceMax} onMinChange={(v) => setFilter({ ...filter, priceMin: v })} onMaxChange={(v) => setFilter({ ...filter, priceMax: v })} />
@@ -207,15 +195,15 @@ export function applyFilter(courses: Course[], filter: FilterState): Course[] {
     const q = filter.search.toLowerCase();
     result = result.filter(c => c.title.toLowerCase().includes(q) || c.provider.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
   }
+  // Yo'nalish (kategoriya) tanlangan bo'lsa — aniq yo'nalish bo'yicha
   if (filter.categorySlug) {
     result = result.filter(c => c.categorySlug === filter.categorySlug);
-  }
-  if (filter.subcategories.length > 0) {
-    const subs = filter.subcategories.map(s => s.toLowerCase());
-    result = result.filter(c => subs.some(sub => c.title.toLowerCase().includes(sub) || c.category.toLowerCase().includes(sub)));
+  } else if (filter.groupSlug) {
+    // Faqat guruh tanlangan bo'lsa — guruh ichidagi barcha yo'nalishlar
+    result = result.filter(c => c.groupSlug === filter.groupSlug);
   }
   if (filter.format) {
-    const fMap: Record<string, string> = { "Onlayn": "Online", "Oflayn": "Offline", "Gibrid": "Bootcamp", "Video": "Video" };
+    const fMap: Record<string, string> = { "Onlayn": "Online", "Oflayn": "Offline", "Video": "Video" };
     result = result.filter(c => c.format === fMap[filter.format!]);
   }
   const minPrice = filter.priceMin * PRICE_STEP;
@@ -227,19 +215,28 @@ export function applyFilter(courses: Course[], filter: FilterState): Course[] {
       return p >= minPrice && (maxPrice === PRICE_MAX || p <= maxPrice);
     });
   }
-  // Shahar tanlangan bo'lsa — aniq shahar; yo'q bo'lsa viloyat ichidagi barcha shaharlar
-  if (filter.city) {
-    result = result.filter(c => c.location === filter.city);
-  } else if (filter.region) {
-    const region = REGIONS.find(r => r.name === filter.region);
-    if (region) result = result.filter(c => region.cities.includes(c.location));
+  // Viloyat filter — Listing.region (text) ni Region.name bilan to'g'ridan-to'g'ri solishtirish
+  if (filter.region) {
+    result = result.filter(c => c.region === filter.region);
   }
   return result;
 }
 
-const URL_FORMAT_MAP: Record<string, string> = { "online": "Onlayn", "offline": "Oflayn", "gibrid": "Gibrid", "video": "Video" };
+const URL_FORMAT_MAP: Record<string, string> = { "online": "Onlayn", "offline": "Oflayn", "video": "Video" };
 
-export function CourseFilter({ courses, onFilter, children, initialCategory, initialSearch, initialFormat, onClearCategory }: { courses: Course[]; onFilter: (filtered: Course[]) => void; children?: React.ReactNode; initialCategory?: string; initialSearch?: string; initialFormat?: string; onClearCategory?: () => void }) {
+interface CourseFilterProps {
+  courses: Course[];
+  groups: FilterGroup[];
+  regions: FilterRegion[];
+  onFilter: (filtered: Course[]) => void;
+  children?: React.ReactNode;
+  initialCategory?: string;
+  initialSearch?: string;
+  initialFormat?: string;
+  onClearCategory?: () => void;
+}
+
+export function CourseFilter({ courses, groups, regions, onFilter, children, initialCategory, initialSearch, initialFormat, onClearCategory }: CourseFilterProps) {
   const [filter, setFilter] = useState<FilterState>(() => {
     const base = { ...defaultFilter };
     if (initialCategory) base.categorySlug = initialCategory;
@@ -260,7 +257,7 @@ export function CourseFilter({ courses, onFilter, children, initialCategory, ini
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const tags = getActiveTags(filter);
+  const tags = getActiveTags(filter, groups);
   const hasFilter = tags.length > 0;
   const filtered = applyFilter(courses, filter);
 
@@ -341,7 +338,7 @@ export function CourseFilter({ courses, onFilter, children, initialCategory, ini
             <button onClick={() => setFilterOpen(false)} className="w-9 h-9 rounded-full bg-[#f0f2f3] flex items-center justify-center"><X className="w-5 h-5 text-[#7c8490]" /></button>
           </div>
           <div className="overflow-y-auto p-5" style={{ height: "calc(100vh - 140px)" }}>
-            <FilterContent filter={filter} setFilter={setFilter} />
+            <FilterContent filter={filter} setFilter={setFilter} groups={groups} regions={regions} />
             {/* Tanlangan filtr teglari */}
             {tags.length > 0 && (
               <div className="mt-6 pt-5 border-t border-[#e4e7ea]">
@@ -373,7 +370,7 @@ export function CourseFilter({ courses, onFilter, children, initialCategory, ini
           </button>
           <div className="flex-1 overflow-y-auto rounded-[16px] bg-white border border-[#e4e7ea]" style={{ scrollbarWidth: "none" }}>
             <div className="p-4">
-              <FilterContent filter={filter} setFilter={updateFilter} />
+              <FilterContent filter={filter} setFilter={updateFilter} groups={groups} regions={regions} />
             </div>
           </div>
         </div>

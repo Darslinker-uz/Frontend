@@ -5,6 +5,7 @@ import { FeaturedSlider } from "@/components/featured-slider";
 import { CoursesSlider } from "@/components/courses-slider";
 import { HeroSearch } from "@/components/hero-search";
 import { HelpForm } from "@/components/help-form";
+import { FaqList } from "@/components/faq-item";
 import { getActiveCategoryGroups, getActiveListings } from "@/lib/listings";
 import { prisma } from "@/lib/prisma";
 
@@ -15,7 +16,8 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
 export default async function HomePage() {
   const [groups, courses, dbFaqs] = await Promise.all([
-    getActiveCategoryGroups(),
+    // Bosh sahifa grid'i — admin'da `showOnHomepage` flag bilan boshqariladi
+    getActiveCategoryGroups({ homepageOnly: true }),
     getActiveListings({ limit: 12 }),
     prisma.faq.findMany({
       where: { active: true, page: "home" },
@@ -162,16 +164,8 @@ export default async function HomePage() {
               <p className="text-[15px] md:text-[17px] text-[#7c8490] mt-2 font-light">
                 Darslinker.uz haqida eng ko&apos;p so&apos;raladigan savollar va javoblari
               </p>
-              <div className="mt-6 divide-y divide-[#e4e7ea]">
-                {faqs.map((f, i) => (
-                  <details key={i} className="group py-4">
-                    <summary className="flex items-center justify-between gap-4 cursor-pointer list-none">
-                      <h3 className="text-[15px] md:text-[17px] font-semibold text-[#16181a] leading-snug">{f.q}</h3>
-                      <span className="shrink-0 w-7 h-7 rounded-full border border-[#e4e7ea] flex items-center justify-center text-[#7c8490] group-open:rotate-45 transition-transform">+</span>
-                    </summary>
-                    <p className="text-[14px] md:text-[15px] text-[#16181a]/70 leading-relaxed mt-3">{f.a}</p>
-                  </details>
-                ))}
+              <div className="mt-6">
+                <FaqList items={faqs} />
               </div>
             </section>
           )}
