@@ -67,12 +67,13 @@ async function main() {
     data: { name: "Admin Main", phone: "+998901110000", passwordHash: hash("admin123"), role: "admin" },
   });
 
+  // telegramChatId — faqat botdan kelgan raqamli chat id; @username Telegram API'da chat_id emas (sendMessage "chat not found").
   const teachers = await Promise.all([
-    prisma.user.create({ data: { name: "Najot Ta'lim", phone: "+998711234567", passwordHash: hash("pass"), role: "provider", telegramChatId: "@najot_talim", balance: 2_500_000 } }),
-    prisma.user.create({ data: { name: "Everest School", phone: "+998712345678", passwordHash: hash("pass"), role: "provider", telegramChatId: "@everest_sch", balance: 1_800_000 } }),
+    prisma.user.create({ data: { name: "Najot Ta'lim", phone: "+998711234567", passwordHash: hash("pass"), role: "provider", balance: 2_500_000 } }),
+    prisma.user.create({ data: { name: "Everest School", phone: "+998712345678", passwordHash: hash("pass"), role: "provider", balance: 1_800_000 } }),
     prisma.user.create({ data: { name: "Marketing Pro", phone: "+998903456789", passwordHash: hash("pass"), role: "provider", balance: 950_000 } }),
-    prisma.user.create({ data: { name: "IT Park Academy", phone: "+998714567890", passwordHash: hash("pass"), role: "provider", telegramChatId: "@itpark", balance: 0, banned: true } }),
-    prisma.user.create({ data: { name: "Sarvar Nazarov", phone: "+998935678901", passwordHash: hash("pass"), role: "provider", telegramChatId: "@sarvar_n", balance: 200_000 } }),
+    prisma.user.create({ data: { name: "IT Park Academy", phone: "+998714567890", passwordHash: hash("pass"), role: "provider", balance: 0, banned: true } }),
+    prisma.user.create({ data: { name: "Sarvar Nazarov", phone: "+998935678901", passwordHash: hash("pass"), role: "provider", balance: 200_000 } }),
   ]);
 
   const students = await Promise.all([

@@ -15,6 +15,8 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
   const [telegram, setTelegram] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
+  /** Telegram bot markazga xabar yubora olmadi — ariza baribir saqlandi */
+  const [telegramNotifyWarn, setTelegramNotifyWarn] = useState(false);
 
   const submit = async () => {
     setError(null);
@@ -35,17 +37,12 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
         setStatus("duplicate");
         return;
       }
-      if (res.status === 503) {
-        // Bot xabari yuborilmadi — qayta urinish kerak (idle holatga qaytariladi)
-        setError(data?.error ?? "Bot xabari yuborilmadi. Qayta urining.");
-        setStatus("idle");
-        return;
-      }
       if (!res.ok) {
         setError(data?.error ?? "Xatolik yuz berdi");
         setStatus("error");
         return;
       }
+      setTelegramNotifyWarn(Boolean(data?.telegramNotifyFailed));
       setStatus("success");
     } catch {
       setError("Tarmoq xatosi, qayta urining");
@@ -65,6 +62,11 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
         <p className="text-[12px] text-[#7c8490] mt-1">
           {status === "success" ? "Markaz tez orada siz bilan bog'lanadi" : "Tez orada javob olasiz"}
         </p>
+        {status === "success" && telegramNotifyWarn && (
+          <p className="text-[11px] text-amber-800/90 mt-2 px-1">
+            Ariza saqlandi. Markazga Telegram orqali xabar vaqtincha yetmadi — ular siz bilan telefon raqamingiz bo&apos;yicha bog&apos;lanadi.
+          </p>
+        )}
       </div>
     );
   }

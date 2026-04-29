@@ -56,17 +56,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Siz bu kursga avval ariza yuborgansiz" }, { status: 409 });
   }
 
-  // Lead yaratamiz, keyin bot xabarini yuboramiz. Agar provider'ga xabar
-  // yetib bormasa — leadni o'chirib, foydalanuvchidan qayta urinishni so'raymiz.
-  // (telegramChatId yo'q bo'lsa — provider bot bilan ulanmagan, leadni saqlaymiz
-  // lekin admin guruhga xabar yuboriladi)
+  // Lead yaratamiz, keyin provider Telegramiga xabar. Xabar yuborilmasa ham lead
+  // saqlanadi (o'quvchi uchun 201); admin guruhga xabar alohida yuboriladi.
+  // telegramChatId yo'q bo'lsa — bot bilan ulanmagan markaz, faqat admin copy (agar sozlangan).
   const lead = await prisma.lead.create({
     data: { listingId, name, phone, message, status: "new_lead" },
   });
 
-  let providerOk = true;
+  let telegramNotifyFailed = false;
   if (listing.user.telegramChatId) {
-    providerOk = await notifyNewLead({
+    const providerOk = await notifyNewLead({
       leadId: lead.id,
       teacherChatId: listing.user.telegramChatId,
       studentName: name,
@@ -78,16 +77,13 @@ export async function POST(request: Request) {
       console.error("[lead] provider notify failed", e);
       return false;
     });
-  }
-
-  // Provider'ga xabar yetib bormagan (lekin telegramChatId mavjud edi) →
-  // lead'ni o'chirib, foydalanuvchidan qayta urinishni so'raymiz.
-  if (listing.user.telegramChatId && !providerOk) {
-    await prisma.lead.delete({ where: { id: lead.id } }).catch(() => {});
-    return NextResponse.json(
-      { error: "Bot xabari yuborilmadi. Iltimos, qayta urining." },
-      { status: 503 }
-    );
+    if (!providerOk) {
+      telegramNotifyFailed = true;
+      console.error("[lead] Telegram xabar yuborilmadi (chat_id noto'g'ri yoki bot ulanmagan) — lead saqlanadi", {
+        leadId: lead.id,
+        listingId,
+      });
+    }
   }
 
   // Admin guruhi notify — fire-and-forget (yetib bormasa ham foydalanuvchiga ta'sir qilmaydi)
@@ -100,5 +96,8 @@ export async function POST(request: Request) {
     createdAt: lead.createdAt,
   }).catch(e => console.error("[lead] admin group notify failed", e));
 
-  return NextResponse.json({ lead }, { status: 201 });
+  return NextResponse.json(
+    { lead, ...(telegramNotifyFailed ? { telegramNotifyFailed: true as const } : {}) },
+    { status: 201 }
+  );
 }
