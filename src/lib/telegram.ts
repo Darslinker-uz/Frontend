@@ -78,13 +78,19 @@ export function createTelegramClient(token: string | undefined): TelegramClient 
 
   // 3 ta urinish (kichik backoff bilan) — birinchi marta cold-start yoki transient
   // network bilan bog'liq xato bo'lsa, keyingi urinishlar muvaffaqiyatli bo'ladi.
-  async function call<T>(method: string, body: Record<string, unknown>, retries = 3): Promise<T | null> {
+  // getUpdates long-poll: Telegram `timeout` soniya kutadi — abort muddati shundan uzun bo'lishi kerak.
+  async function call<T>(
+    method: string,
+    body: Record<string, unknown>,
+    retries = 3,
+    requestTimeoutMs = 10_000
+  ): Promise<T | null> {
     if (!token) return null;
     let lastError: unknown = null;
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 10_000);
+        const timeout = setTimeout(() => controller.abort(), requestTimeoutMs);
         const res = await fetch(`${BASE}/${method}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -127,8 +133,15 @@ export function createTelegramClient(token: string | undefined): TelegramClient 
       call("editMessageText", { chat_id: chatId, message_id: messageId, text, ...opts }),
     editMessageReplyMarkup: (chatId, messageId, replyMarkup) =>
       call("editMessageReplyMarkup", { chat_id: chatId, message_id: messageId, reply_markup: replyMarkup }),
-    getUpdates: (offset, timeout = 25) =>
-      call<TgUpdate[]>("getUpdates", { offset, timeout, allowed_updates: ["message", "callback_query"] }),
+    getUpdates: (offset, pollTimeoutSec = 25) => {
+      const requestMs = Math.max(45_000, (pollTimeoutSec + 20) * 1000);
+      return call<TgUpdate[]>(
+        "getUpdates",
+        { offset, timeout: pollTimeoutSec, allowed_updates: ["message", "callback_query"] },
+        3,
+        requestMs
+      );
+    },
     setWebhook: (url, secretToken) =>
       call("setWebhook", { url, secret_token: secretToken, allowed_updates: ["message", "callback_query"] }),
     deleteWebhook: () => call("deleteWebhook", { drop_pending_updates: true }),

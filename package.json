@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/clean-prisma-output.mjs && prisma generate && next build",
     "start": "next start",
+    "start:with-bots": "node scripts/start-with-bots.cjs",
     "lint": "eslint",
     "postinstall": "node scripts/clean-prisma-output.mjs && prisma generate",
     "db:seed": "tsx prisma/seed.ts",
