@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  async redirects() {
+    // Brauzerlar odatda /favicon.ico so‘raydi; metadata faqat svg/png yo‘llarini ko‘rsatadi.
+    return [{ source: "/favicon.ico", destination: "/icon.svg", permanent: false }];
+  },
   async headers() {
     return [
       {
