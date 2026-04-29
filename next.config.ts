@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import path from "node:path";
 
 const nextConfig: NextConfig = {
+  // darslinker.uz orqali next dev (reverse proxy) — HMR / _next dev resurslari uchun
+  allowedDevOrigins: ["darslinker.uz", "www.darslinker.uz"],
   turbopack: {
     root: path.join(__dirname),
   },
