@@ -117,6 +117,21 @@ export default function AdminUsersPage() {
     }
   };
 
+  const clearUserTelegram = async (user: User) => {
+    try {
+      const r = await fetch(`/api/admin/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ telegramChatId: null }),
+      });
+      if (!r.ok) return;
+      setUsers(p => p.map(u => (u.id === user.id ? { ...u, telegramChatId: null } : u)));
+      setOpenUser(ou => (ou && ou.id === user.id ? { ...ou, telegramChatId: null } : ou));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const topup = async (userId: number, amount: number, note: string) => {
     const res = await fetch(`/api/admin/users/${userId}/topup`, {
       method: "POST",
@@ -293,7 +308,13 @@ export default function AdminUsersPage() {
       )}
 
       {openUser && (
-        <UserDetailModal user={openUser} onClose={() => setOpenUser(null)} onToggleBlock={() => toggleBlock(openUser)} onDelete={() => deleteUser(openUser.id)} />
+        <UserDetailModal
+          user={openUser}
+          onClose={() => setOpenUser(null)}
+          onToggleBlock={() => toggleBlock(openUser)}
+          onDelete={() => deleteUser(openUser.id)}
+          onClearTelegram={() => clearUserTelegram(openUser)}
+        />
       )}
 
       {topupUser && (
@@ -468,8 +489,21 @@ function TopUpModal({ user, onClose, onSubmit }: { user: User; onClose: () => vo
   );
 }
 
-function UserDetailModal({ user, onClose, onToggleBlock, onDelete }: { user: User; onClose: () => void; onToggleBlock: () => void; onDelete: () => void }) {
+function UserDetailModal({
+  user,
+  onClose,
+  onToggleBlock,
+  onDelete,
+  onClearTelegram,
+}: {
+  user: User;
+  onClose: () => void;
+  onToggleBlock: () => void;
+  onDelete: () => void;
+  onClearTelegram: () => void | Promise<void>;
+}) {
   const { config } = useAdminTheme();
+  const [clearingTg, setClearingTg] = useState(false);
   const Icon = ROLE_CONFIG[user.role].icon;
   const roleColor = ROLE_CONFIG[user.role].color;
   const isLight = config.id === "light" || config.id === "cream";
@@ -512,8 +546,27 @@ function UserDetailModal({ user, onClose, onToggleBlock, onDelete }: { user: Use
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: config.textMuted }}>
                     <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
                   </svg>
-                  {user.telegramChatId}
+                  <span className="break-all">{user.telegramChatId}</span>
                 </div>
+              )}
+              {user.role === "provider" && user.telegramChatId && (
+                <button
+                  type="button"
+                  disabled={clearingTg}
+                  onClick={async () => {
+                    if (!confirm("Telegram chat ID tozalanadi. Markaz keyin bot orqali qayta ulashi kerak. Davom etasizmi?")) return;
+                    setClearingTg(true);
+                    try {
+                      await onClearTelegram();
+                    } finally {
+                      setClearingTg(false);
+                    }
+                  }}
+                  className="mt-2 w-full h-[40px] rounded-[10px] text-[12px] font-medium border transition-opacity disabled:opacity-50"
+                  style={{ borderColor: config.surfaceBorder, color: "#b45309", backgroundColor: "#fffbeb" }}
+                >
+                  {clearingTg ? "Tozalanmoqda..." : "Telegram ID ni tozalash (noto'g'ri id / chat not found)"}
+                </button>
               )}
             </div>
           </div>
