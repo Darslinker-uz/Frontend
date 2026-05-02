@@ -2,28 +2,38 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, FileText, MessageSquare, CreditCard, Zap, FolderTree, BarChart3, Settings,
   LogOut, ExternalLink, ShieldAlert, Star, BookOpen, MapPin, HelpCircle,
 } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { AdminThemeProvider, useAdminTheme } from "@/context/admin-theme-context";
+import { type Permissions, hasPermission, type PermissionKey } from "@/lib/permissions";
 
-const navItems = [
-  { href: "/admode/home", label: "Bosh sahifa", icon: LayoutDashboard },
-  { href: "/admode/users", label: "Foydalanuvchilar", icon: Users },
-  { href: "/admode/listings", label: "E'lonlar", icon: FileText },
-  { href: "/admode/leads", label: "Leadlar", icon: MessageSquare },
-  { href: "/admode/payments", label: "To'lovlar", icon: CreditCard },
-  { href: "/admode/boosts", label: "Boostlar", icon: Zap },
-  { href: "/admode/ratings", label: "Reytinglar", icon: Star },
-  { href: "/admode/categories", label: "Kategoriyalar", icon: FolderTree },
-  { href: "/admode/regions", label: "Viloyatlar", icon: MapPin },
-  { href: "/admode/kontent", label: "Kontent", icon: BookOpen },
-  { href: "/admode/faq", label: "FAQ", icon: HelpCircle },
-  { href: "/admode/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/admode/settings", label: "Sozlamalar", icon: Settings },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  // Assistant'lar uchun bu ruxsat kerak. Admin har doim hammasi.
+  // null = bosh sahifa kabi har doim ko'rinadi
+  perm: PermissionKey | null;
+}
+
+const navItems: NavItem[] = [
+  { href: "/admode/home", label: "Bosh sahifa", icon: LayoutDashboard, perm: null },
+  { href: "/admode/users", label: "Foydalanuvchilar", icon: Users, perm: "user.view" },
+  { href: "/admode/listings", label: "E'lonlar", icon: FileText, perm: "listing.view" },
+  { href: "/admode/leads", label: "Leadlar", icon: MessageSquare, perm: "lead.view" },
+  { href: "/admode/payments", label: "To'lovlar", icon: CreditCard, perm: "payment.view" },
+  { href: "/admode/boosts", label: "Boostlar", icon: Zap, perm: "boost.view" },
+  { href: "/admode/ratings", label: "Reytinglar", icon: Star, perm: null },
+  { href: "/admode/categories", label: "Kategoriyalar", icon: FolderTree, perm: "taxonomy.edit" },
+  { href: "/admode/regions", label: "Viloyatlar", icon: MapPin, perm: "region.edit" },
+  { href: "/admode/kontent", label: "Kontent", icon: BookOpen, perm: "content.view" },
+  { href: "/admode/faq", label: "FAQ", icon: HelpCircle, perm: "faq.edit" },
+  { href: "/admode/analytics", label: "Analytics", icon: BarChart3, perm: "analytics.view" },
+  { href: "/admode/settings", label: "Sozlamalar", icon: Settings, perm: null },
 ];
 
 function AdminShell({ children }: { children: React.ReactNode }) {
@@ -31,8 +41,32 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { config } = useAdminTheme();
   const [confirmExit, setConfirmExit] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+  const [permissions, setPermissions] = useState<Permissions | null>(null);
+
+  // Joriy foydalanuvchining permissions'ni olish (admin → ALL, assistant → kodda)
+  useEffect(() => {
+    fetch("/api/me/permissions", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) {
+          setRole(data.role);
+          setPermissions(data.permissions);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Sidebar nav items'ni filterlash
+  const visibleNavItems = navItems.filter((item) => {
+    if (item.perm === null) return true; // har doim ko'rinadi
+    if (role === "admin") return true;   // admin hammasi
+    if (!permissions) return false;      // hali yuklanmagan — ko'rsatmaymiz (admin uchun ham bir lahza)
+    return hasPermission(permissions, item.perm);
+  });
 
   const isLight = config.id === "light";
+  const isAssistant = role === "assistant";
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: config.bg }}>
@@ -53,15 +87,15 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             </span>
             <span
               className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded"
-              style={{ backgroundColor: config.accent, color: config.accentText }}
+              style={{ backgroundColor: isAssistant ? "#7ea2d4" : config.accent, color: isAssistant ? "white" : config.accentText }}
             >
-              Admin
+              {isAssistant ? "Yordamchi" : "Admin"}
             </span>
           </div>
 
           {/* Nav */}
           <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (
@@ -138,7 +172,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-2 py-1.5 flex items-center justify-around"
         style={{ backgroundColor: config.sidebar, borderTop: `1px solid ${config.sidebarBorder}` }}
       >
-        {navItems.slice(0, 5).map((item) => {
+        {visibleNavItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (

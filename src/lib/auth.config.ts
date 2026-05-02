@@ -42,9 +42,13 @@ export const authConfig: NextAuthConfig = {
       // Admin auth pages — always accessible (legacy redirect handled by route file)
       if (pathname === "/admode" || pathname === "/admin/auth") return true;
 
-      // Admin pages — require admin role, else send to /admode
+      // Asadmin login — assistant uchun alohida login sahifa, doim ochiq
+      if (pathname === "/asadmin" || pathname === "/asadmin/login") return true;
+
+      // Admin pages — require admin OR assistant role, else send to /admode
+      // Permission gates'lar har sahifa ichida (assistant uchun cheklangan)
       if (pathname.startsWith("/admode/")) {
-        if (!isLoggedIn || role !== "admin") {
+        if (!isLoggedIn || (role !== "admin" && role !== "assistant")) {
           return Response.redirect(new URL("/admode", origin));
         }
         return true;

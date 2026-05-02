@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 
 // GET /api/admin/listings?status=pending|active|paused|rejected
 export async function GET(request: Request) {
-  const deny = await requireAdmin();
+  const deny = await requirePermission("listing.view");
   if (deny) return deny;
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status") as "pending" | "active" | "paused" | "rejected" | null;
@@ -22,9 +22,9 @@ export async function GET(request: Request) {
   return NextResponse.json({ listings });
 }
 
-// POST /api/admin/listings — admin yangi e'lon qo'shadi
+// POST /api/admin/listings — admin yoki ruxsatli assistant yangi e'lon qo'shadi
 export async function POST(request: Request) {
-  const deny = await requireAdmin();
+  const deny = await requirePermission("listing.create");
   if (deny) return deny;
   const body = await request.json();
 

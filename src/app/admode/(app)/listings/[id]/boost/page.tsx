@@ -27,6 +27,16 @@ export default function AdminBoostPage() {
   const router = useRouter();
   const listingId = Number(params.id);
 
+  // Joriy foydalanuvchi roli — assistant bo'lsa "Boost so'rash" (pending), admin bo'lsa "Bepul boost"
+  const [role, setRole] = useState<string | null>(null);
+  useEffect(() => {
+    fetch("/api/me/permissions", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d) setRole(d.role); })
+      .catch(() => {});
+  }, []);
+  const isAssistant = role === "assistant";
+
   const [listing, setListing] = useState<ListingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedClass, setSelectedClass] = useState<ClassType | null>("A");
@@ -113,9 +123,13 @@ export default function AdminBoostPage() {
         <ArrowLeft className="w-4 h-4" /> Orqaga
       </Link>
 
-      <h1 className="text-[22px] md:text-[26px] font-bold mb-1" style={{ color: config.text }}>E&apos;lonni boost qilish</h1>
+      <h1 className="text-[22px] md:text-[26px] font-bold mb-1" style={{ color: config.text }}>
+        {isAssistant ? "Boost so'rovi yuborish" : "E'lonni boost qilish"}
+      </h1>
       <p className="text-[14px] mb-5" style={{ color: config.textMuted }}>
-        Admin sifatida bu e&apos;lonni bepul boost qiling — to&apos;g&apos;ridan-to&apos;g&apos;ri active holatga o&apos;tadi
+        {isAssistant
+          ? "Boost so'rovi yuboriladi. Super admin tasdiqlagandan keyin aktivlashtiriladi."
+          : "Admin sifatida bu e'lonni bepul boost qiling — to'g'ridan-to'g'ri active holatga o'tadi"}
       </p>
 
       {/* Listing info */}
@@ -128,9 +142,16 @@ export default function AdminBoostPage() {
       </div>
 
       {/* Free grant notice */}
-      <div className="rounded-[12px] p-3 mb-5 flex items-center gap-2.5" style={{ backgroundColor: "#22c55e15", border: "1px solid #22c55e33", color: "#22c55e" }}>
+      <div className="rounded-[12px] p-3 mb-5 flex items-center gap-2.5" style={isAssistant
+        ? { backgroundColor: "#f59e0b15", border: "1px solid #f59e0b33", color: "#f59e0b" }
+        : { backgroundColor: "#22c55e15", border: "1px solid #22c55e33", color: "#22c55e" }
+      }>
         <Gift className="w-4 h-4 shrink-0" />
-        <p className="text-[12.5px]">Bepul admin boost — provider balansidan yechilmaydi va darhol active bo&apos;ladi.</p>
+        <p className="text-[12.5px]">
+          {isAssistant
+            ? "Boost so'rovi: super admin tasdiqlagandan keyin active bo'ladi."
+            : "Bepul admin boost — provider balansidan yechilmaydi va darhol active bo'ladi."}
+        </p>
       </div>
 
       {/* Boost type */}
@@ -238,7 +259,10 @@ export default function AdminBoostPage() {
         style={{ backgroundColor: config.accent, color: config.accentText }}
       >
         <Zap className="w-5 h-5" />
-        {done ? "Boost qo'yildi ✓" : submitting ? "Yuborilmoqda..." : "Bepul boost qilish"}
+        {done
+          ? (isAssistant ? "So'rov yuborildi ✓" : "Boost qo'yildi ✓")
+          : submitting ? "Yuborilmoqda..."
+          : (isAssistant ? "So'rov yuborish" : "Bepul boost qilish")}
       </button>
 
       <p className="text-[11px] text-center mt-3" style={{ color: config.textDim }}>

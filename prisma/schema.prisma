@@ -14,6 +14,7 @@ enum Role {
   student
   provider
   admin
+  assistant
 }
 
 // Kontent turlari (Manba + Blog)

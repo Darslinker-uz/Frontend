@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 
 // GET /api/admin/users?role=admin|teacher|student
 export async function GET(request: Request) {
-  const deny = await requireAdmin();
+  const deny = await requirePermission("user.view");
   if (deny) return deny;
 
   const { searchParams } = new URL(request.url);

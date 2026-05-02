@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-admin";
+import { auth } from "@/lib/auth";
 
 // GET /api/admin/categories — full taxonomy with active+inactive (for admin UI)
+// Assistant'lar ham ko'ra olishi kerak (listing form'da cascade dropdown uchun).
 export async function GET() {
-  const deny = await requireAdmin();
-  if (deny) return deny;
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  if (!session?.user || (role !== "admin" && role !== "assistant")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const groups = await prisma.categoryGroup.findMany({
     orderBy: { order: "asc" },
     include: {

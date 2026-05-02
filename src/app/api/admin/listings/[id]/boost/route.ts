@@ -1,17 +1,36 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { auth } from "@/lib/auth";
+import { getCurrentUserPermissions } from "@/lib/require-permission";
+import { hasPermission } from "@/lib/permissions";
 import { notifyBoostApproved } from "@/lib/bot-handler";
 
 interface Ctx { params: Promise<{ id: string }> }
 
 // POST /api/admin/listings/:id/boost
-// Admin tomonidan e'lonni bepul boost qilish — pending statusini tashlab,
-// to'g'ridan-to'g'ri active. Hech kimning balansidan yechilmaydi.
-// body: { type: "a_class" | "b_class", daysTotal: number, startAt?: ISOString, note?: string }
+// Admin: e'lonni bepul boost qilish — darhol active, balansdan yechilmaydi
+// Assistant: boost so'rovi yuborish — status=pending, admin keyinchalik tasdiqlaydi
+// body: { type: "a_class" | "b_class", daysTotal: number, startAt?: ISOString }
 export async function POST(request: Request, { params }: Ctx) {
-  const deny = await requireAdmin();
-  if (deny) return deny;
+  // Auth + permission tekshiruvi
+  const session = await auth();
+  const user = session?.user as { id?: string; role?: string } | undefined;
+  if (!user || !user.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const ctx = await getCurrentUserPermissions();
+  if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  // Admin → bepul grant; Assistant → boost.request bo'lsa pending; aks holda 403
+  let isAssistantRequest = false;
+  if (ctx.role === "admin") {
+    // OK — bepul grant
+  } else if (ctx.role === "assistant" && hasPermission(ctx.permissions, "boost.request")) {
+    isAssistantRequest = true;
+  } else {
+    return NextResponse.json({ error: "Bu amalga ruxsat yo'q" }, { status: 403 });
+  }
 
   const { id } = await params;
   const listingId = Number(id);
@@ -54,13 +73,14 @@ export async function POST(request: Request, { params }: Ctx) {
       totalPaid: 0,
       startDate,
       endDate,
-      status: "active",
-      reviewedAt: now,
+      status: isAssistantRequest ? "pending" : "active",
+      reviewedAt: isAssistantRequest ? null : now,
     },
   });
 
-  // Provider'ga xabar berish (huddi tasdiqlanganday)
-  if (listing.user.telegramChatId) {
+  // Admin grant — provider'ga darhol "tasdiqlandi" xabar.
+  // Assistant request — provider'ga xabar yubormaymiz (pending, admin tasdiqlamagan).
+  if (!isAssistantRequest && listing.user.telegramChatId) {
     notifyBoostApproved({
       teacherChatId: listing.user.telegramChatId,
       listingTitle: listing.title,
@@ -69,5 +89,5 @@ export async function POST(request: Request, { params }: Ctx) {
     }).catch((e) => console.error("[admin/boost-grant] notify failed", e));
   }
 
-  return NextResponse.json({ boost }, { status: 201 });
+  return NextResponse.json({ boost, pending: isAssistantRequest }, { status: 201 });
 }

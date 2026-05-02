@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notifyListingApproved, notifyListingRejected } from "@/lib/bot-handler";
 import type { ListingStatus } from "@/generated/prisma";
 import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 
 interface Ctx { params: Promise<{ id: string }> }
 
@@ -10,7 +11,7 @@ const ALLOWED_STATUS: ListingStatus[] = ["pending", "active", "paused", "rejecte
 
 // GET /api/admin/listings/:id — bitta e'lon batafsil
 export async function GET(_request: Request, { params }: Ctx) {
-  const deny = await requireAdmin();
+  const deny = await requirePermission("listing.view");
   if (deny) return deny;
   const { id } = await params;
   const listingId = Number(id);
@@ -40,9 +41,9 @@ export async function GET(_request: Request, { params }: Ctx) {
 }
 
 // PATCH /api/admin/listings/:id — approve / reject / pause / edit
+// Status o'zgartirish (approve/reject) → listing.approve kerak
+// Boshqa maydonlarni tahrirlash → listing.edit kerak
 export async function PATCH(request: Request, { params }: Ctx) {
-  const deny = await requireAdmin();
-  if (deny) return deny;
   const { id } = await params;
   const listingId = Number(id);
   if (!listingId) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
@@ -50,7 +51,17 @@ export async function PATCH(request: Request, { params }: Ctx) {
   const body = await request.json();
   const data: Record<string, unknown> = {};
 
-  if (body.status && ALLOWED_STATUS.includes(body.status)) data.status = body.status;
+  // Status o'zgartirilmoqdami? Agar ha — listing.approve kerak
+  const isStatusChange = body.status && ALLOWED_STATUS.includes(body.status);
+  if (isStatusChange) {
+    const deny = await requirePermission("listing.approve");
+    if (deny) return deny;
+  } else {
+    const deny = await requirePermission("listing.edit");
+    if (deny) return deny;
+  }
+
+  if (isStatusChange) data.status = body.status;
   if (body.rejectReason !== undefined) data.rejectReason = body.rejectReason;
   if (body.title !== undefined) data.title = body.title;
   if (body.description !== undefined) data.description = body.description;

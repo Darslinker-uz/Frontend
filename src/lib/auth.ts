@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { normalizePhone } from "@/lib/telegram";
 import { authConfig } from "@/lib/auth.config";
+import { getAssistant } from "@/lib/assistants";
 
 const sha256 = (s: string) => crypto.createHash("sha256").update(s).digest("hex");
 
@@ -34,6 +35,52 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           phone: user.phone,
           role: user.role,
           onboardingCompleted: user.onboardingCompleted,
+        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean };
+      },
+    }),
+    Credentials({
+      id: "assistant-password",
+      name: "Assistant password",
+      credentials: {
+        phone: { label: "Telefon", type: "tel" },
+        password: { label: "Parol", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.phone || !credentials?.password) return null;
+        const phone = normalizePhone(String(credentials.phone));
+        const password = String(credentials.password);
+
+        // Hardcoded ASSISTANTS dict'iga tekshiruv
+        const assistant = getAssistant(phone);
+        if (!assistant) return null;
+        if (assistant.passwordHash !== sha256(password)) return null;
+
+        // DB'da User yozuvi (find_or_create) — session uchun kerak
+        // Role conflict tekshiruvi: agar boshqa rol bilan bo'lsa, kirishga ruxsat bermaymiz
+        const existing = await prisma.user.findUnique({ where: { phone } });
+        if (existing && existing.role !== "assistant") return null;
+        if (existing && existing.banned) return null;
+
+        const user = existing ?? await prisma.user.create({
+          data: {
+            name: assistant.name,
+            phone,
+            passwordHash: assistant.passwordHash,
+            role: "assistant",
+            onboardingCompleted: true,
+          },
+        });
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastActiveAt: new Date(), name: assistant.name },
+        });
+
+        return {
+          id: String(user.id),
+          name: assistant.name,
+          phone: user.phone,
+          role: user.role,
+          onboardingCompleted: true,
         } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean };
       },
     }),
