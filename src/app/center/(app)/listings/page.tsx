@@ -84,7 +84,7 @@ export default function ListingsPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/dashboard/listings", { cache: "no-store" });
+        const res = await fetch("/api/dashboard/listings", { cache: "no-store", credentials: "same-origin" });
         const data: { listings: ApiListing[] } = await res.json();
         if (!cancelled) setListings((data.listings ?? []).map(fromApi));
       } catch (e) { console.error(e); }
@@ -115,6 +115,7 @@ export default function ListingsPage() {
     try {
       const res = await fetch(`/api/dashboard/listings/${target.id}`, {
         method: "PATCH",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: apiStatus }),
       });
@@ -133,7 +134,7 @@ export default function ListingsPage() {
     setListings(prev => prev.filter(l => l.id !== id));
     setConfirmDelete(null);
     try {
-      const res = await fetch(`/api/dashboard/listings/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/dashboard/listings/${id}`, { method: "DELETE", credentials: "same-origin" });
       if (!res.ok) setListings(prevList);
     } catch {
       setListings(prevList);

@@ -3,6 +3,24 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { notifyListingPending } from "@/lib/bot-handler";
 
+/** Sessiya + DB: faqat kurs egasi (provider) yoki admin e'lon yaratishi / dashboard API. */
+async function requireListingAuthor() {
+  const session = await auth();
+  const rawId = (session?.user as { id?: string })?.id;
+  const userId = Number(rawId);
+  if (!session?.user || !rawId || Number.isNaN(userId) || userId <= 0) {
+    return { ok: false as const, res: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  }
+  const dbUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, phone: true, banned: true },
+  });
+  if (!dbUser || dbUser.banned || (dbUser.role !== "provider" && dbUser.role !== "admin")) {
+    return { ok: false as const, res: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  }
+  return { ok: true as const, userId, phone: dbUser.phone };
+}
+
 // Maps from UI-friendly format labels to DB enum
 const FORMAT_MAP: Record<string, "offline" | "online" | "video" | "hybrid"> = {
   "Onlayn": "online",
@@ -31,12 +49,9 @@ export async function GET() {
 
 // POST /api/dashboard/listings — create new listing (goes to pending moderation)
 export async function POST(request: Request) {
-  const session = await auth();
-  const user = session?.user as { id?: string; role?: string; phone?: string } | undefined;
-  const userId = Number(user?.id);
-  if (!userId || (user?.role !== "provider" && user?.role !== "admin")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await requireListingAuthor();
+  if (!authz.ok) return authz.res;
+  const { userId, phone: authorPhone } = authz;
 
   let body: Record<string, unknown>;
   try {
@@ -162,7 +177,7 @@ export async function POST(request: Request) {
       region,
       district,
       duration,
-      phone: user?.phone ?? "",
+      phone: authorPhone,
       color,
       icon,
       imageUrl,

@@ -32,8 +32,8 @@ export default function BoostSelectPage() {
     (async () => {
       try {
         const [lRes, bRes] = await Promise.all([
-          fetch("/api/dashboard/listings", { cache: "no-store" }),
-          fetch("/api/dashboard/boost", { cache: "no-store" }),
+          fetch("/api/dashboard/listings", { cache: "no-store", credentials: "same-origin" }),
+          fetch("/api/dashboard/boost", { cache: "no-store", credentials: "same-origin" }),
         ]);
         const lData: { listings: ApiListing[] } = await lRes.json();
         const bData: { boosts: BoostRow[] } = await bRes.json();

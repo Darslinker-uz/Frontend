@@ -45,8 +45,8 @@ export default function BoostPage() {
     (async () => {
       try {
         const [lRes, sRes] = await Promise.all([
-          fetch(`/api/dashboard/listings/${listingId}`, { cache: "no-store" }),
-          fetch("/api/dashboard/stats", { cache: "no-store" }),
+          fetch(`/api/dashboard/listings/${listingId}`, { cache: "no-store", credentials: "same-origin" }),
+          fetch("/api/dashboard/stats", { cache: "no-store", credentials: "same-origin" }),
         ]);
         const lData = await lRes.json();
         const sData: { user?: BalanceData } = await sRes.json();
@@ -76,6 +76,7 @@ export default function BoostPage() {
       if (startDate === "later" && laterDate) body.startAt = new Date(laterDate).toISOString();
       const res = await fetch("/api/dashboard/boost", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });

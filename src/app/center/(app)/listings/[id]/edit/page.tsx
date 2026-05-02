@@ -153,7 +153,7 @@ export default function EditListingPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`/api/dashboard/listings/${listingId}`, { cache: "no-store" });
+        const res = await fetch(`/api/dashboard/listings/${listingId}`, { cache: "no-store", credentials: "same-origin" });
         if (res.status === 404) { if (!cancelled) setNotFound(true); return; }
         const data: { listing: ApiListing } = await res.json();
         if (cancelled) return;
@@ -215,6 +215,7 @@ export default function EditListingPage() {
       const location = showLocation && city ? `${city}${region ? " · " + region : ""}` : null;
       const res = await fetch(`/api/dashboard/listings/${listingId}`, {
         method: "PATCH",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,

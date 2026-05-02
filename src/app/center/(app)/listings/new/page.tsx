@@ -132,6 +132,7 @@ export default function NewListingPage() {
       const location = showLocation && city ? `${city}${region ? " · " + region : ""}` : null;
       const res = await fetch("/api/dashboard/listings", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
