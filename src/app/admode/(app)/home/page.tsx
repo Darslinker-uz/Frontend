@@ -57,16 +57,33 @@ export default function AdminHomePage() {
   const { config } = useAdminTheme();
   const [data, setData] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/admin/dashboard-stats", { cache: "no-store" });
-        const d: Stats = await res.json();
-        if (!cancelled) setData(d);
-      } catch (e) { console.error(e); }
-      finally { if (!cancelled) setLoading(false); }
+        const res = await fetch("/api/admin/dashboard-stats", { cache: "no-store", credentials: "same-origin" });
+        const raw = await res.json();
+        if (!res.ok) {
+          const msg = typeof raw?.error === "string" ? raw.error : `HTTP ${res.status}`;
+          if (!cancelled) {
+            setLoadError(res.status === 403 ? "Ruxsat yo‘q (faqat admin panel foydalanuvchilari)" : msg);
+            setData(null);
+          }
+          return;
+        }
+        if (!cancelled) {
+          setLoadError(null);
+          setData(raw as Stats);
+        }
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) {
+          setLoadError("Statistikani yuklab bo‘lmadi");
+          setData(null);
+        }
+      } finally { if (!cancelled) setLoading(false); }
     })();
     return () => { cancelled = true; };
   }, []);
@@ -91,6 +108,12 @@ export default function AdminHomePage() {
         <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>Admin panel</h1>
         <p className="text-[14px] mt-0.5" style={{ color: config.textMuted }}>Platforma umumiy holati</p>
       </div>
+
+      {loadError && (
+        <div className="mb-4 rounded-[14px] px-4 py-3 text-[13px]" style={{ backgroundColor: "rgba(239,68,68,0.12)", color: "#b91c1c", border: "1px solid rgba(239,68,68,0.35)" }}>
+          {loadError}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
