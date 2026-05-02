@@ -58,6 +58,8 @@ function AdminNewListingPageInner() {
   const [providerOpen, setProviderOpen] = useState(false);
   const [groupId, setGroupId] = useState<number | "">("");
   const [categoryId, setCategoryId] = useState<number | "">("");
+  const [requestNewCategory, setRequestNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const [isFree, setIsFree] = useState(false);
   const [format, setFormat] = useState("");
@@ -156,7 +158,16 @@ function AdminNewListingPageInner() {
   const submit = async () => {
     setError(null);
     if (!providerId) { setError("O'qituvchini tanlang"); return; }
-    if (!categoryId) { setError("Yo'nalishni tanlang"); return; }
+    if (requestNewCategory) {
+      if (!groupId) { setError("Avval guruhni tanlang"); return; }
+      if (!newCategoryName.trim() || newCategoryName.trim().length < 2) {
+        setError("Yangi yo'nalish nomini kiriting");
+        return;
+      }
+    } else if (!categoryId) {
+      setError("Yo'nalishni tanlang");
+      return;
+    }
     if (!title.trim() || title.trim().length < 3) { setError("Kurs nomini kiriting"); return; }
     if (!format) { setError("Formatni tanlang"); return; }
     if (!isFree && price < 10000) { setError("Narx 10,000 so'mdan kam bo'lmasin"); return; }
@@ -169,7 +180,9 @@ function AdminNewListingPageInner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: providerId,
-          categoryId: categoryId || null,
+          categoryId: requestNewCategory ? null : (categoryId || null),
+          proposedCategoryName: requestNewCategory ? newCategoryName.trim() : undefined,
+          proposedGroupId: requestNewCategory ? Number(groupId) : undefined,
           region: region || null,
           district: city || null,
           title,
@@ -489,15 +502,42 @@ function AdminNewListingPageInner() {
             <div>
               <label className={labelClass} style={labelStyle}>Yo&apos;nalish *</label>
               <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : "")}
+                value={requestNewCategory ? "__request__" : categoryId}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "__request__") {
+                    setRequestNewCategory(true);
+                    setCategoryId("");
+                  } else {
+                    setRequestNewCategory(false);
+                    setNewCategoryName("");
+                    setCategoryId(v ? Number(v) : "");
+                  }
+                }}
                 disabled={!groupId}
                 className={selectClass}
                 style={selectStyle}
               >
                 <option value="">{groupId ? "Tanlang" : "Avval guruhni tanlang"}</option>
                 {availableCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {groupId && <option value="__request__">✨ Yangi yo&apos;nalish so&apos;rash</option>}
               </select>
+              {requestNewCategory && (
+                <div className="mt-2 rounded-[10px] p-3" style={{ backgroundColor: "#f59e0b15", border: "1px solid #f59e0b40" }}>
+                  <p className="text-[12px] font-medium mb-1.5" style={{ color: "#a16207" }}>Yangi yo&apos;nalish nomi</p>
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value.slice(0, 60))}
+                    placeholder="Masalan: Quran o'qish, Aviomexanik, Kalligrafiya..."
+                    className={inputClass}
+                    style={inputStyle}
+                  />
+                  <p className="text-[11px] mt-1.5" style={{ color: "#a16207" }}>
+                    Admin yaratganda darhol ko&apos;rinadi. Assistant uchun super admin tasdig&apos;idan keyin chiqadi.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

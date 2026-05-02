@@ -35,11 +35,49 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
-  const required = ["userId", "categoryId", "title", "price", "format", "phone"] as const;
+  // Validatsiya: categoryId YOKI proposedCategoryName + proposedGroupId
+  const hasProposed = Boolean(body.proposedCategoryName && body.proposedGroupId);
+  const required = (hasProposed
+    ? ["userId", "title", "price", "format", "phone"]
+    : ["userId", "categoryId", "title", "price", "format", "phone"]) as readonly string[];
   for (const k of required) {
     if (body[k] === undefined || body[k] === null || body[k] === "") {
       return NextResponse.json({ error: `Missing field: ${k}` }, { status: 400 });
     }
+  }
+
+  // Yangi yo'nalish so'rash holati: avval pending Category yaratamiz
+  let categoryId = body.categoryId ? Number(body.categoryId) : 0;
+  if (hasProposed) {
+    const proposedName = String(body.proposedCategoryName).trim().slice(0, 80);
+    const proposedGroupId = Number(body.proposedGroupId);
+    if (proposedName.length < 2) {
+      return NextResponse.json({ error: "Yo'nalish nomi qisqa" }, { status: 400 });
+    }
+    // Slug avtomatik
+    let proposedSlug = proposedName
+      .toLowerCase()
+      .replace(/[''ʻ`]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 60);
+    if (!proposedSlug) proposedSlug = `category-${Date.now()}`;
+    // To'qnashuv tekshiruvi
+    const existsSlug = await prisma.category.findUnique({ where: { slug: proposedSlug } });
+    if (existsSlug) proposedSlug = `${proposedSlug}-${Math.random().toString(36).slice(2, 5)}`;
+
+    // Admin yaratganda — darhol tasdiqlangan; assistant uchun — pending
+    const newCategory = await prisma.category.create({
+      data: {
+        groupId: proposedGroupId,
+        name: proposedName,
+        slug: proposedSlug,
+        active: true,
+        pendingApproval: isAssistant,
+        proposedById: session?.user ? Number((session.user as { id?: string }).id) : null,
+      },
+    });
+    categoryId = newCategory.id;
   }
 
   const slug = (body.slug ?? body.title)
@@ -69,7 +107,7 @@ export async function POST(request: Request) {
   const listing = await prisma.listing.create({
     data: {
       userId: Number(body.userId),
-      categoryId: Number(body.categoryId),
+      categoryId,
       title: body.title,
       slug,
       description: body.description ?? null,
