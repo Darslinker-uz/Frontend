@@ -30,7 +30,7 @@ export default function AdminBoostPage() {
   // Joriy foydalanuvchi roli — assistant bo'lsa "Boost so'rash" (pending), admin bo'lsa "Bepul boost"
   const [role, setRole] = useState<string | null>(null);
   useEffect(() => {
-    fetch("/api/me/permissions", { cache: "no-store" })
+    fetch("/api/me/permissions", { cache: "no-store", credentials: "same-origin" })
       .then((r) => r.ok ? r.json() : null)
       .then((d) => { if (d) setRole(d.role); })
       .catch(() => {});

@@ -46,7 +46,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   // Joriy foydalanuvchining permissions'ni olish (admin → ALL, assistant → kodda)
   useEffect(() => {
-    fetch("/api/me/permissions", { cache: "no-store" })
+    fetch("/api/me/permissions", { cache: "no-store", credentials: "same-origin" })
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data) {

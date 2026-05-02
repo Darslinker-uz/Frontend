@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, MoreHorizontal, Shield, GraduationCap, User as UserIcon, Ban, CheckCircle2, Trash2, Eye, Phone, Calendar, X, Wallet, Plus, Minus, FilePlus2 } from "lucide-react";
+import { Search, MoreHorizontal, Shield, GraduationCap, User as UserIcon, UserCog, Ban, CheckCircle2, Trash2, Eye, Phone, Calendar, X, Wallet, Plus, Minus, FilePlus2 } from "lucide-react";
 import Link from "next/link";
 import { useAdminTheme } from "@/context/admin-theme-context";
 
-type Role = "admin" | "provider" | "student";
+type Role = "admin" | "provider" | "student" | "assistant";
 
 interface User {
   id: number;
@@ -28,6 +28,7 @@ const ROLE_CONFIG: Record<Role, { label: string; icon: typeof Shield; color: str
   admin: { label: "Admin", icon: Shield, color: "#a855f7" },
   provider: { label: "Kurs egasi", icon: GraduationCap, color: "#3b82f6" },
   student: { label: "O'quvchi", icon: UserIcon, color: "#22c55e" },
+  assistant: { label: "Yordamchi", icon: UserCog, color: "#7ea2d4" },
 };
 
 const initials = (n: string) => n.split(" ").map(x => x[0]).slice(0, 2).join("").toUpperCase();
@@ -87,6 +88,7 @@ export default function AdminUsersPage() {
     admin: users.filter(u => u.role === "admin").length,
     provider: users.filter(u => u.role === "provider").length,
     student: users.filter(u => u.role === "student").length,
+    assistant: users.filter(u => u.role === "assistant").length,
   };
 
   const toggleBlock = async (user: User) => {
@@ -171,6 +173,7 @@ export default function AdminUsersPage() {
           { key: "provider" as const, label: "Kurs egalari", count: counts.provider },
           { key: "student" as const, label: "O'quvchilar", count: counts.student },
           { key: "admin" as const, label: "Adminlar", count: counts.admin },
+          { key: "assistant" as const, label: "Yordamchilar", count: counts.assistant },
         ].map((t) => {
           const isActive = tab === t.key;
           return (

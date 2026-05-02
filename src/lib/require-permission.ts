@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getAssistant } from "@/lib/assistants";
 import { hasPermission, ALL_PERMISSIONS, type PermissionKey, type Permissions } from "@/lib/permissions";
+import { normalizePhone } from "@/lib/telegram";
 
 // Server-side helper — admin yoki kerakli ruxsatga ega assistant'ni talab qiladi.
 // API route'lar uchun: agar 401/403 qaytsa, NextResponse qaytariladi; mos kelsa null.
@@ -25,10 +26,17 @@ export async function requirePermission(key: PermissionKey): Promise<NextRespons
   if (user.role !== "assistant") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const phone = user.phone ?? null;
+  let phone = user.phone?.trim() || null;
+  if (!phone) {
+    const row = await prisma.user.findUnique({
+      where: { id: Number(user.id) },
+      select: { phone: true },
+    });
+    phone = row?.phone ?? null;
+  }
   if (!phone) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const assistant = getAssistant(phone);
+  const assistant = getAssistant(normalizePhone(phone));
   if (!assistant) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   if (!hasPermission(assistant.permissions, key)) {
@@ -48,9 +56,19 @@ export async function getCurrentUserPermissions(): Promise<{ role: string; permi
   if (user.role === "admin") {
     return { role: "admin", permissions: ALL_PERMISSIONS };
   }
-  if (user.role === "assistant" && user.phone) {
-    const assistant = getAssistant(user.phone);
-    if (assistant) return { role: "assistant", permissions: assistant.permissions };
+  if (user.role === "assistant") {
+    let phone = user.phone?.trim();
+    if (!phone) {
+      const row = await prisma.user.findUnique({
+        where: { id: Number(user.id) },
+        select: { phone: true },
+      });
+      phone = row?.phone;
+    }
+    if (phone) {
+      const assistant = getAssistant(normalizePhone(phone));
+      if (assistant) return { role: "assistant", permissions: assistant.permissions };
+    }
   }
   return null;
 }
@@ -72,7 +90,3 @@ export async function requireAdminOnly(): Promise<NextResponse | null> {
 // — agar oldingi kod requireAdmin'ni ishlatsa va assistant ham kerakli ruxsatga ega bo'lsa.
 // Yangi kod uchun requirePermission ishlatish tavsiya etiladi.
 export { requirePermission as requireAuthOrPermission };
-
-// Eslatma — `prisma` import edilgan, lekin bu yerda ishlatilmaydi.
-// Kelajakdagi DB'ga bog'liq tekshiruvlar uchun mavjud qoldiriladi.
-void prisma;

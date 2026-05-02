@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   if (deny) return deny;
 
   const { searchParams } = new URL(request.url);
-  const role = searchParams.get("role") as "admin" | "provider" | "student" | null;
+  const role = searchParams.get("role") as "admin" | "provider" | "student" | "assistant" | null;
 
   const users = await prisma.user.findMany({
     where: role ? { role } : undefined,
