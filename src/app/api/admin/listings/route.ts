@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { requirePermission } from "@/lib/require-permission";
 
 // GET /api/admin/listings?status=pending|active|paused|rejected
@@ -23,9 +24,15 @@ export async function GET(request: Request) {
 }
 
 // POST /api/admin/listings — admin yoki ruxsatli assistant yangi e'lon qo'shadi
+// Admin → darhol active. Assistant → status=pending (super admin tasdiqlaydi)
 export async function POST(request: Request) {
   const deny = await requirePermission("listing.create");
   if (deny) return deny;
+
+  const session = await auth();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const isAssistant = role === "assistant";
+
   const body = await request.json();
 
   const required = ["userId", "categoryId", "title", "price", "format", "phone"] as const;
@@ -104,7 +111,9 @@ export async function POST(request: Request) {
       lessons: Array.isArray(body.lessons)
         ? body.lessons.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 200).slice(0, 30)
         : [],
-      status: body.status ?? "active", // admin qo'shganda darhol aktiv
+      // Admin: body.status yoki "active" (default).
+      // Assistant: doim "pending" — super admin tasdiqlaydi (override mumkin emas)
+      status: isAssistant ? "pending" : (body.status ?? "active"),
     },
     include: {
       user: { select: { id: true, name: true, centerName: true, phone: true } },
