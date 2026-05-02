@@ -36,19 +36,44 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   // Validatsiya: categoryId YOKI proposedCategoryName + proposedGroupId
-  const hasProposed = Boolean(body.proposedCategoryName && body.proposedGroupId);
-  const required = (hasProposed
-    ? ["userId", "title", "price", "format", "phone"]
-    : ["userId", "categoryId", "title", "price", "format", "phone"]) as readonly string[];
-  for (const k of required) {
+  const hasProposedCategory = Boolean(body.proposedCategoryName && body.proposedGroupId);
+  // Yangi markaz ham bo'lishi mumkin: userId YOKI proposedCenterName
+  const hasProposedCenter = Boolean(body.proposedCenterName);
+
+  const requiredBase: string[] = ["title", "price", "format"];
+  if (!hasProposedCenter) requiredBase.unshift("userId");
+  if (!hasProposedCategory) requiredBase.push("categoryId");
+  for (const k of requiredBase) {
     if (body[k] === undefined || body[k] === null || body[k] === "") {
       return NextResponse.json({ error: `Missing field: ${k}` }, { status: 400 });
     }
   }
 
+  // Yangi markaz qo'shish: placeholder User yaratamiz
+  let userId = body.userId ? Number(body.userId) : 0;
+  if (hasProposedCenter) {
+    const centerName = String(body.proposedCenterName).trim().slice(0, 120);
+    if (centerName.length < 2) {
+      return NextResponse.json({ error: "Markaz nomi qisqa" }, { status: 400 });
+    }
+    // Placeholder phone — keyinchalik admin haqiqiy raqam bilan almashtiradi
+    const placeholderPhone = `pending-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const newUser = await prisma.user.create({
+      data: {
+        name: centerName,
+        centerName,
+        phone: placeholderPhone,
+        passwordHash: "",
+        role: "provider",
+        onboardingCompleted: false,
+      },
+    });
+    userId = newUser.id;
+  }
+
   // Yangi yo'nalish so'rash holati: avval pending Category yaratamiz
   let categoryId = body.categoryId ? Number(body.categoryId) : 0;
-  if (hasProposed) {
+  if (hasProposedCategory) {
     const proposedName = String(body.proposedCategoryName).trim().slice(0, 80);
     const proposedGroupId = Number(body.proposedGroupId);
     if (proposedName.length < 2) {
@@ -106,7 +131,7 @@ export async function POST(request: Request) {
 
   const listing = await prisma.listing.create({
     data: {
-      userId: Number(body.userId),
+      userId,
       categoryId,
       title: body.title,
       slug,
@@ -127,7 +152,7 @@ export async function POST(request: Request) {
       certificate,
       demoLesson,
       discount,
-      phone: body.phone,
+      phone: body.phone ?? "",
       imageUrl: body.imageUrl ?? null,
       imagePosX: clampPos(body.imagePosX),
       imagePosY: clampPos(body.imagePosY),

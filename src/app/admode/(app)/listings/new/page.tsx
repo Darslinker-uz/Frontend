@@ -56,6 +56,8 @@ function AdminNewListingPageInner() {
   const [providerId, setProviderId] = useState<number | null>(null);
   const [providerSearch, setProviderSearch] = useState("");
   const [providerOpen, setProviderOpen] = useState(false);
+  const [addingNewCenter, setAddingNewCenter] = useState(false);
+  const [newCenterName, setNewCenterName] = useState("");
   const [groupId, setGroupId] = useState<number | "">("");
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [requestNewCategory, setRequestNewCategory] = useState(false);
@@ -150,14 +152,24 @@ function AdminNewListingPageInner() {
   const selectedGroup = taxonomy.find(g => g.id === groupId);
   const availableCategories = selectedGroup?.categories ?? [];
   const selectedCategory = availableCategories.find(c => c.id === categoryId) ?? null;
-  const providerName = selectedProvider?.centerName ?? selectedProvider?.name ?? "O'qituvchi";
+  const providerName = addingNewCenter && newCenterName.trim()
+    ? newCenterName.trim()
+    : (selectedProvider?.centerName ?? selectedProvider?.name ?? "O'quv markaz");
 
   const showLocation = format === "Oflayn" || format === "Gibrid";
   const showSchedule = format !== "Video" && format !== "";
 
   const submit = async () => {
     setError(null);
-    if (!providerId) { setError("O'qituvchini tanlang"); return; }
+    if (addingNewCenter) {
+      if (!newCenterName.trim() || newCenterName.trim().length < 2) {
+        setError("Yangi markaz nomini kiriting");
+        return;
+      }
+    } else if (!providerId) {
+      setError("O'quv markazni tanlang");
+      return;
+    }
     if (requestNewCategory) {
       if (!groupId) { setError("Avval guruhni tanlang"); return; }
       if (!newCategoryName.trim() || newCategoryName.trim().length < 2) {
@@ -179,7 +191,8 @@ function AdminNewListingPageInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: providerId,
+          userId: addingNewCenter ? null : providerId,
+          proposedCenterName: addingNewCenter ? newCenterName.trim() : undefined,
           categoryId: requestNewCategory ? null : (categoryId || null),
           proposedCategoryName: requestNewCategory ? newCategoryName.trim() : undefined,
           proposedGroupId: requestNewCategory ? Number(groupId) : undefined,
@@ -403,11 +416,37 @@ function AdminNewListingPageInner() {
       <div className="space-y-5">
         {/* O'QITUVCHI VA KATEGORIYA */}
         <div className="rounded-[16px] p-4 sm:p-5 space-y-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
-          <h2 className="text-[15px] font-bold" style={{ color: config.text }}>O&apos;qituvchi va kategoriya</h2>
+          <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Markaz va kategoriya</h2>
           <div>
-            <label className={labelClass} style={labelStyle}>O&apos;qituvchi (provider) *</label>
+            <label className={labelClass} style={labelStyle}>O&apos;quv markaz *</label>
             <div className="relative">
-              {selectedProvider ? (
+              {addingNewCenter ? (
+                <div className="rounded-[10px] p-3" style={{ backgroundColor: "#f59e0b15", border: "1px solid #f59e0b40" }}>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <p className="text-[12px] font-medium" style={{ color: "#a16207" }}>Yangi markaz nomi</p>
+                    <button
+                      type="button"
+                      onClick={() => { setAddingNewCenter(false); setNewCenterName(""); }}
+                      className="text-[11px] font-medium hover:underline"
+                      style={{ color: "#a16207" }}
+                    >
+                      Bekor qilish
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={newCenterName}
+                    onChange={(e) => setNewCenterName(e.target.value.slice(0, 120))}
+                    placeholder="Masalan: BrightSchool, IT-park kurslari..."
+                    className={inputClass}
+                    style={inputStyle}
+                    autoFocus
+                  />
+                  <p className="text-[11px] mt-1.5" style={{ color: "#a16207" }}>
+                    Telefon raqam va Telegram bot keyin biriktiriladi.
+                  </p>
+                </div>
+              ) : selectedProvider ? (
                 <div className="flex items-center gap-2 h-[44px] px-3 rounded-[10px]" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}` }}>
                   <div className="flex-1 min-w-0">
                     <p className="text-[14px] font-medium truncate" style={{ color: config.text }}>
@@ -442,10 +481,10 @@ function AdminNewListingPageInner() {
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: config.textDim }} />
                 </>
               )}
-              {providerOpen && !selectedProvider && (
+              {providerOpen && !selectedProvider && !addingNewCenter && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setProviderOpen(false)} />
-                  <div className="absolute left-0 right-0 top-[48px] z-50 max-h-[280px] overflow-y-auto rounded-[10px] p-1 shadow-2xl" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+                  <div className="absolute left-0 right-0 top-[48px] z-50 max-h-[320px] overflow-y-auto rounded-[10px] p-1 shadow-2xl" style={{ backgroundColor: config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
                     {(() => {
                       const q = providerSearch.trim().toLowerCase();
                       const list = q
@@ -455,36 +494,55 @@ function AdminNewListingPageInner() {
                             p.phone.includes(q)
                           )
                         : providers;
-                      if (list.length === 0) {
-                        return <p className="text-[12px] px-3 py-2" style={{ color: config.textDim }}>Topilmadi</p>;
-                      }
-                      return list.map(p => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => { setProviderId(p.id); setProviderOpen(false); setProviderSearch(""); }}
-                          className="w-full text-left px-2.5 py-2 rounded-[8px] hover:opacity-100 transition-colors"
-                          style={{ color: config.text, backgroundColor: "transparent" }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = config.hover}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-                        >
-                          <p className="text-[13px] font-medium truncate">
-                            {p.centerName ?? p.name}
-                            {p.centerName && (
-                              <span className="font-normal" style={{ color: config.textMuted }}> ({p.name})</span>
-                            )}
-                          </p>
-                          <p className="text-[11px]" style={{ color: config.textDim }}>{p.phone}</p>
-                        </button>
-                      ));
+                      return (
+                        <>
+                          {list.length === 0 ? (
+                            <p className="text-[12px] px-3 py-2" style={{ color: config.textDim }}>Topilmadi</p>
+                          ) : (
+                            list.map(p => (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => { setProviderId(p.id); setProviderOpen(false); setProviderSearch(""); }}
+                                className="w-full text-left px-2.5 py-2 rounded-[8px] hover:opacity-100 transition-colors"
+                                style={{ color: config.text, backgroundColor: "transparent" }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = config.hover}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                              >
+                                <p className="text-[13px] font-medium truncate">
+                                  {p.centerName ?? p.name}
+                                  {p.centerName && (
+                                    <span className="font-normal" style={{ color: config.textMuted }}> ({p.name})</span>
+                                  )}
+                                </p>
+                                <p className="text-[11px]" style={{ color: config.textDim }}>{p.phone}</p>
+                              </button>
+                            ))
+                          )}
+                          <div className="my-1 h-px" style={{ backgroundColor: config.surfaceBorder }} />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAddingNewCenter(true);
+                              setNewCenterName(providerSearch);
+                              setProviderOpen(false);
+                              setProviderSearch("");
+                            }}
+                            className="w-full text-left px-2.5 py-2 rounded-[8px] flex items-center gap-2 transition-colors"
+                            style={{ color: "#f59e0b", backgroundColor: "transparent" }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f59e0b15"}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span className="text-[13px] font-medium">Yangi markaz qo&apos;shish</span>
+                          </button>
+                        </>
+                      );
                     })()}
                   </div>
                 </>
               )}
             </div>
-            {!loadingLookups && providers.length === 0 && (
-              <p className="text-[11px] mt-1" style={{ color: config.textDim }}>Provider rolli foydalanuvchi topilmadi</p>
-            )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
