@@ -661,7 +661,11 @@ function AdminNewListingPageInner() {
 
         {/* O'QITUVCHI */}
         <div className="rounded-[16px] p-4 sm:p-5 space-y-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
-          <h2 className="text-[15px] font-bold" style={{ color: config.text }}>O&apos;qituvchi haqida</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-[15px] font-bold" style={{ color: config.text }}>O&apos;qituvchi haqida</h2>
+            <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ backgroundColor: config.hover, color: config.textDim }}>ixtiyoriy</span>
+          </div>
+          <p className="text-[12px]" style={{ color: config.textMuted }}>To&apos;ldirilmasa, e&apos;lon sahifasida ushbu bo&apos;lim ko&apos;rinmaydi.</p>
           <div>
             <label className={labelClass} style={labelStyle}>Ism</label>
             <input value={teacherName} onChange={(e) => setTeacherName(e.target.value)} placeholder="Ism familiya" className={inputClass} style={inputStyle} />

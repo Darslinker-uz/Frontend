@@ -437,22 +437,28 @@ export default async function KursDetailPage({ params }: Props) {
               </div>
             )}
 
-            {/* O'qituvchi */}
-            <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
-              <h2 className="text-[18px] font-bold text-[#16181a] mb-4">O&apos;qituvchi</h2>
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#7ea2d4]/15 flex items-center justify-center shrink-0">
-                  <Users className="w-5 h-5 text-[#7ea2d4]" />
-                </div>
-                <div>
-                  <p className="text-[15px] font-semibold text-[#16181a]">{course.teacherName || course.provider}</p>
-                  <p className="text-[13px] text-[#7c8490]">{course.location}</p>
-                  {course.teacherExperience && (
-                    <p className="text-[13px] text-[#7c8490] leading-relaxed mt-2">{course.teacherExperience}</p>
-                  )}
+            {/* O'qituvchi — faqat ma'lumot kiritilgan bo'lsa ko'rsatamiz */}
+            {(course.teacherName || course.teacherExperience) && (
+              <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
+                <h2 className="text-[18px] font-bold text-[#16181a] mb-4">O&apos;qituvchi</h2>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#7ea2d4]/15 flex items-center justify-center shrink-0">
+                    <Users className="w-5 h-5 text-[#7ea2d4]" />
+                  </div>
+                  <div>
+                    {course.teacherName && (
+                      <p className="text-[15px] font-semibold text-[#16181a]">{course.teacherName}</p>
+                    )}
+                    {course.location && (
+                      <p className="text-[13px] text-[#7c8490]">{course.location}</p>
+                    )}
+                    {course.teacherExperience && (
+                      <p className="text-[13px] text-[#7c8490] leading-relaxed mt-2">{course.teacherExperience}</p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Sidebar — ariza form */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 
 interface Props {
@@ -45,20 +45,37 @@ export function PriceScroll({
   const v = clamp(value || min, min, max, step);
   const pct = ((v - min) / (max - min)) * 100;
 
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+
   useEffect(() => {
     const el = displayRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      if (editing) return;
       e.preventDefault();
       const delta = e.deltaY > 0 ? -step : step;
       onChange(clamp(v + delta, min, max, step));
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, [v, min, max, step, onChange]);
+  }, [v, min, max, step, onChange, editing]);
 
   const dec = () => onChange(clamp(v - step, min, max, step));
   const inc = () => onChange(clamp(v + step, min, max, step));
+
+  const startEdit = () => {
+    setDraft(String(v));
+    setEditing(true);
+  };
+  const finishEdit = () => {
+    const n = Number(draft.replace(/[^\d]/g, ""));
+    if (Number.isFinite(n) && n > 0) {
+      onChange(clamp(n, min, max, step));
+    }
+    setEditing(false);
+    setDraft("");
+  };
 
   return (
     <div className="rounded-[10px] p-3" style={{ backgroundColor: bg, border: `1px solid ${border}` }}>
@@ -77,10 +94,34 @@ export function PriceScroll({
           <Minus className="w-4 h-4" />
         </button>
 
-        <div className="flex-1 text-center cursor-ns-resize" title="Scroll qiling">
-          <div className="text-[20px] font-bold leading-tight tabular-nums" style={{ color: text }}>
-            {format(v)}
-          </div>
+        <div className="flex-1 text-center" title="Scroll qiling yoki bosib kiriting">
+          {editing ? (
+            <input
+              type="text"
+              autoFocus
+              inputMode="numeric"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value.replace(/[^\d\s,.]/g, ""))}
+              onBlur={finishEdit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { e.preventDefault(); finishEdit(); }
+                if (e.key === "Escape") { setEditing(false); setDraft(""); }
+              }}
+              className="w-full text-center bg-transparent text-[20px] font-bold leading-tight tabular-nums focus:outline-none"
+              style={{ color: text }}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={startEdit}
+              className="w-full text-center cursor-text"
+              aria-label="Narxni qo'lda kiritish"
+            >
+              <div className="text-[20px] font-bold leading-tight tabular-nums" style={{ color: text }}>
+                {format(v)}
+              </div>
+            </button>
+          )}
           <div className="text-[11px]" style={{ color: textMuted }}>so&apos;m</div>
         </div>
 
