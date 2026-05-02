@@ -4,10 +4,11 @@ import { GRADIENT_OPTIONS, ICON_OPTIONS, type Course } from "@/data/courses";
 const DEFAULT_GRADIENT = GRADIENT_OPTIONS[0].value;
 const DEFAULT_ICON_PATH = ICON_OPTIONS[0].path;
 
-const FORMAT_LABELS: Record<"offline" | "online" | "video", Course["format"]> = {
+const FORMAT_LABELS: Record<"offline" | "online" | "video" | "hybrid", Course["format"]> = {
   offline: "Offline",
   online: "Online",
   video: "Video",
+  hybrid: "Gibrid",
 };
 
 interface ListingFromDb {
@@ -16,7 +17,7 @@ interface ListingFromDb {
   slug: string;
   description: string | null;
   price: number;
-  format: "offline" | "online" | "video";
+  format: "offline" | "online" | "video" | "hybrid";
   location: string | null;
   region: string | null;
   district: string | null;

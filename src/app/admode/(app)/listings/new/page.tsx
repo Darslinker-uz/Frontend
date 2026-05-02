@@ -11,10 +11,10 @@ import { PriceScroll } from "@/components/price-scroll";
 import { REGIONS } from "@/data/regions";
 
 const formatlar = ["Onlayn", "Oflayn", "Gibrid", "Video"];
-const FORMAT_MAP: Record<string, "offline" | "online" | "video"> = {
+const FORMAT_MAP: Record<string, "offline" | "online" | "video" | "hybrid"> = {
   Onlayn: "online",
   Oflayn: "offline",
-  Gibrid: "offline",
+  Gibrid: "hybrid",
   Video: "video",
 };
 const tillar: { code: string; label: string }[] = [

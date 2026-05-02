@@ -109,7 +109,7 @@ export default function NewListingPage() {
   const selectedCategory = availableCategories.find(c => c.id === categoryId) ?? null;
   const categoryDisplayName = selectedCategory?.name ?? "Yo'nalish";
 
-  const showLocation = format === "Oflayn";
+  const showLocation = format === "Oflayn" || format === "Gibrid";
   const showSchedule = format !== "Video" && format !== "";
 
   const submit = async () => {

@@ -7,7 +7,7 @@ import { type Course } from "@/data/courses";
 const PRICE_MAX = 2000000;
 const PRICE_STEP = 50000;
 const PRICE_TOTAL_STEPS = PRICE_MAX / PRICE_STEP;
-const FORMATS = ["Onlayn", "Oflayn", "Video"];
+const FORMATS = ["Onlayn", "Oflayn", "Gibrid", "Video"];
 
 // Server'dan keladigan struktura — DB taksonomiya
 export interface FilterGroup {
@@ -203,8 +203,16 @@ export function applyFilter(courses: Course[], filter: FilterState): Course[] {
     result = result.filter(c => c.groupSlug === filter.groupSlug);
   }
   if (filter.format) {
-    const fMap: Record<string, string> = { "Onlayn": "Online", "Oflayn": "Offline", "Video": "Video" };
-    result = result.filter(c => c.format === fMap[filter.format!]);
+    // Variant 2 (inkluziv): Gibrid kurslar Onlayn va Oflayn filterlarida ham chiqadi
+    if (filter.format === "Onlayn") {
+      result = result.filter(c => c.format === "Online" || c.format === "Gibrid");
+    } else if (filter.format === "Oflayn") {
+      result = result.filter(c => c.format === "Offline" || c.format === "Gibrid");
+    } else if (filter.format === "Gibrid") {
+      result = result.filter(c => c.format === "Gibrid");
+    } else if (filter.format === "Video") {
+      result = result.filter(c => c.format === "Video");
+    }
   }
   const minPrice = filter.priceMin * PRICE_STEP;
   const maxPrice = filter.priceMax * PRICE_STEP;

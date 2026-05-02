@@ -5,7 +5,7 @@ export interface Course {
   categorySlug: string;
   groupName?: string;
   groupSlug?: string;
-  format: "Online" | "Offline" | "Video" | "Bootcamp";
+  format: "Online" | "Offline" | "Video" | "Bootcamp" | "Gibrid";
   provider: string;
   location: string;
   region?: string | null;

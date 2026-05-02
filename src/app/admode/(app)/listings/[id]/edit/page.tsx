@@ -10,11 +10,11 @@ import { ImageUpload } from "@/components/image-upload";
 import { PriceScroll } from "@/components/price-scroll";
 import { REGIONS } from "@/data/regions";
 
-const FORMAT_TO_UI: Record<string, string> = { offline: "Oflayn", online: "Onlayn", video: "Video" };
-const UI_TO_FORMAT: Record<string, "offline" | "online" | "video"> = {
+const FORMAT_TO_UI: Record<string, string> = { offline: "Oflayn", online: "Onlayn", video: "Video", hybrid: "Gibrid" };
+const UI_TO_FORMAT: Record<string, "offline" | "online" | "video" | "hybrid"> = {
   Onlayn: "online",
   Oflayn: "offline",
-  Gibrid: "offline",
+  Gibrid: "hybrid",
   Video: "video",
 };
 

@@ -34,6 +34,7 @@ enum ListingFormat {
   offline
   online
   video
+  hybrid
 }
 
 enum ListingStatus {

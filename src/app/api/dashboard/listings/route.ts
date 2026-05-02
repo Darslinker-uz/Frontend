@@ -4,10 +4,10 @@ import { auth } from "@/lib/auth";
 import { notifyListingPending } from "@/lib/bot-handler";
 
 // Maps from UI-friendly format labels to DB enum
-const FORMAT_MAP: Record<string, "offline" | "online" | "video"> = {
+const FORMAT_MAP: Record<string, "offline" | "online" | "video" | "hybrid"> = {
   "Onlayn": "online",
   "Oflayn": "offline",
-  "Gibrid": "offline",
+  "Gibrid": "hybrid",
   "Video": "video",
 };
 

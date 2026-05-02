@@ -110,7 +110,11 @@ export default async function KursDetailPage({ params }: Props) {
         "valueAddedTaxIncluded": true,
       },
     },
-    "courseMode": course.format === "Offline" ? "onsite" : course.format === "Online" ? "online" : "blended",
+    "courseMode":
+      course.format === "Offline" ? "onsite" :
+      course.format === "Online" ? "online" :
+      course.format === "Gibrid" ? "blended" :
+      "online",
     ...(course.duration && { "timeRequired": course.duration }),
     // S3 — instructor (Person)
     ...(course.teacherName && {
