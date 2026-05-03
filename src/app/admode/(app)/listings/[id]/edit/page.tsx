@@ -82,6 +82,7 @@ interface ApiListing {
   category: { id: number; name: string; slug: string; pendingApproval?: boolean; group?: { id: number; name: string; slug: string } | null };
   user: { id: number; name: string; centerName: string | null; phone: string };
   language: string;
+  languages?: string[];
   level: string | null;
   levels?: string[];
   branches?: { region: string | null; district: string | null; address: string | null; sortOrder: number }[];
@@ -152,7 +153,7 @@ export default function AdminEditListingPage() {
   const [lessons, setLessons] = useState<string[]>([""]);
   const [activeVariant, setActiveVariant] = useState<"a-desktop" | "a-mobile" | "b" | "c-desktop" | "c-mobile">("a-desktop");
   // 10 new detail fields
-  const [language, setLanguage] = useState("uz");
+  const [languages, setLanguages] = useState<string[]>(["uz"]);
   const [levels, setLevels] = useState<string[]>([]);
   const [paymentType, setPaymentType] = useState(tolovTuri[0]);
   const [schedule, setSchedule] = useState("");
@@ -255,7 +256,7 @@ export default function AdminEditListingPage() {
         setImageCZoom(l.imageCZoom ?? 100);
         setImageCMZoom(l.imageCMZoom ?? 100);
         setLessons(l.lessons && l.lessons.length > 0 ? l.lessons : [""]);
-        setLanguage(l.language ?? "uz");
+        setLanguages(l.languages && l.languages.length > 0 ? l.languages : (l.language ? [l.language] : ["uz"]));
         setLevels(l.levels && l.levels.length > 0 ? l.levels : (l.level ? [l.level] : []));
         setPaymentType(l.paymentType ?? tolovTuri[0]);
         setSchedule(l.schedule ?? "");
@@ -332,7 +333,8 @@ export default function AdminEditListingPage() {
           imageCZoom,
           imageCMZoom,
           lessons: lessons.map(s => s.trim()).filter(s => s.length > 0),
-          language,
+          language: languages[0] || "uz",
+          languages,
           level: levels[0] || null,
           levels,
           paymentType: paymentType || null,
@@ -785,12 +787,31 @@ export default function AdminEditListingPage() {
               <input value={schedule} onChange={(e) => setSchedule(e.target.value)} placeholder="Du-Ju, 14:00-16:00" className={inputClass} style={inputStyle} />
             </div>
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <div>
-              <label className={labelClass} style={labelStyle}>Til</label>
-              <select value={language} onChange={(e) => setLanguage(e.target.value)} className={selectClass} style={selectStyle}>
-                {tillar.map((t) => <option key={t.code} value={t.code}>{t.label}</option>)}
-              </select>
+              <label className={labelClass} style={labelStyle}>Dars tili</label>
+              <div className="flex flex-wrap gap-1.5">
+                {tillar.map((t) => {
+                  const checked = languages.includes(t.code);
+                  return (
+                    <button
+                      key={t.code}
+                      type="button"
+                      onClick={() => setLanguages(checked ? languages.filter(l => l !== t.code) : [...languages, t.code])}
+                      className="px-3 h-[36px] rounded-[8px] text-[12px] font-medium transition-all flex items-center gap-1.5"
+                      style={{
+                        backgroundColor: checked ? config.accent : config.hover,
+                        color: checked ? config.accentText : config.textMuted,
+                        border: `1px solid ${checked ? config.accent : config.surfaceBorder}`,
+                      }}
+                    >
+                      {checked && <Check className="w-3.5 h-3.5" />}
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: config.textDim }}>Bir nechta til tanlanishi mumkin</p>
             </div>
             <div>
               <label className={labelClass} style={labelStyle}>Darajalar</label>

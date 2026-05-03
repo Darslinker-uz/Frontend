@@ -35,6 +35,7 @@ export interface Course {
   imageCZoom?: number;
   imageCMZoom?: number;
   language?: string;
+  languages?: string[];
   level?: string;
   levels?: string[];
   branches?: { region: string | null; district: string | null; address: string | null }[];

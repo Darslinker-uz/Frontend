@@ -99,7 +99,7 @@ function AdminNewListingPageInner() {
   const [lessons, setLessons] = useState<string[]>([""]);
   const [activeVariant, setActiveVariant] = useState<"a-desktop" | "a-mobile" | "b" | "c-desktop" | "c-mobile">("a-desktop");
   // 10 new detail fields
-  const [language, setLanguage] = useState("uz");
+  const [languages, setLanguages] = useState<string[]>(["uz"]);
   const [levels, setLevels] = useState<string[]>([]);
   const [paymentType, setPaymentType] = useState(tolovTuri[0]);
   const [schedule, setSchedule] = useState("");
@@ -243,7 +243,9 @@ function AdminNewListingPageInner() {
           icon: icon.id,
           lessons: lessons.map(s => s.trim()).filter(s => s.length > 0),
           status: "active",
-          language,
+          // Eski bitta til — birinchisi (backward compat)
+          language: languages[0] || "uz",
+          languages,
           // Eski yagona daraja — birinchisi (backward compat)
           level: levels[0] || null,
           levels,
@@ -768,12 +770,31 @@ function AdminNewListingPageInner() {
               <input value={schedule} onChange={(e) => setSchedule(e.target.value)} placeholder="Du-Ju, 14:00-16:00" className={inputClass} style={inputStyle} />
             </div>
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <div>
-              <label className={labelClass} style={labelStyle}>Til</label>
-              <select value={language} onChange={(e) => setLanguage(e.target.value)} className={selectClass} style={selectStyle}>
-                {tillar.map((t) => <option key={t.code} value={t.code}>{t.label}</option>)}
-              </select>
+              <label className={labelClass} style={labelStyle}>Dars tili</label>
+              <div className="flex flex-wrap gap-1.5">
+                {tillar.map((t) => {
+                  const checked = languages.includes(t.code);
+                  return (
+                    <button
+                      key={t.code}
+                      type="button"
+                      onClick={() => setLanguages(checked ? languages.filter(l => l !== t.code) : [...languages, t.code])}
+                      className="px-3 h-[36px] rounded-[8px] text-[12px] font-medium transition-all flex items-center gap-1.5"
+                      style={{
+                        backgroundColor: checked ? config.accent : config.hover,
+                        color: checked ? config.accentText : config.textMuted,
+                        border: `1px solid ${checked ? config.accent : config.surfaceBorder}`,
+                      }}
+                    >
+                      {checked && <Check className="w-3.5 h-3.5" />}
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: config.textDim }}>Bir nechta til tanlanishi mumkin</p>
             </div>
             <div>
               <label className={labelClass} style={labelStyle}>Darajalar</label>

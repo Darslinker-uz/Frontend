@@ -210,6 +210,7 @@ model Listing {
   region          String?
   district        String?
   language        String          @default("uz")
+  languages       String[]        @default([])
   duration        String?
   lessons         String[]        @default([])
   level           String?

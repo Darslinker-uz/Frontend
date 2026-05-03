@@ -118,6 +118,9 @@ export async function POST(request: Request) {
 
   // New detail fields (10)
   const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
+  const languages: string[] = Array.isArray(body.languages)
+    ? body.languages.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 10).slice(0, 6)
+    : [];
   const level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
   const levels: string[] = Array.isArray(body.levels)
     ? body.levels.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 50).slice(0, 6)
@@ -160,6 +163,7 @@ export async function POST(request: Request) {
       region: body.region ? String(body.region).trim().slice(0, 100) || null : null,
       district: body.district ? String(body.district).trim().slice(0, 100) || null : null,
       language,
+      languages,
       level,
       levels,
       studentLimit,

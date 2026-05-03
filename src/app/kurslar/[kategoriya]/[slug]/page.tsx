@@ -80,6 +80,19 @@ export default async function KursDetailPage({ params }: Props) {
   const imageAbs = course.imageUrl ? (course.imageUrl.startsWith("http") ? course.imageUrl : `${SITE_URL}${course.imageUrl}`) : undefined;
   const priceAmount = course.priceFree ? 0 : Number(course.price.replace(/[^\d]/g, "")) || 0;
 
+  // Tillar va filiallar — yangi (multi) yoki eski (single) qaytadan tiklash
+  const langCodes: string[] = (course.languages && course.languages.length > 0)
+    ? course.languages
+    : (course.language ? [course.language] : ["uz"]);
+  const inLanguageValue: string | string[] = langCodes.length === 1 ? langCodes[0] : langCodes;
+
+  type AddressInfo = { region: string | null; district: string | null; address: string | null };
+  const addresses: AddressInfo[] = (course.branches && course.branches.length > 0)
+    ? course.branches
+    : ((course.region || course.district || course.location)
+      ? [{ region: course.region ?? null, district: course.district ?? null, address: course.location ?? null }]
+      : []);
+
   // Course schema — kurs uchun asosiy struktura
   const jsonLd = {
     "@context": "https://schema.org",
@@ -94,7 +107,7 @@ export default async function KursDetailPage({ params }: Props) {
     ...(imageAbs && { "image": imageAbs }),
     "url": url,
     ...(course.location && { "locationCreated": course.location }),
-    "inLanguage": course.language ?? "uz",
+    "inLanguage": inLanguageValue,
     // S2 — Offer + PriceSpecification
     "offers": {
       "@type": "Offer",
@@ -151,39 +164,40 @@ export default async function KursDetailPage({ params }: Props) {
       "name": "Darslinker.uz",
       "logo": { "@type": "ImageObject", "url": `${SITE_URL}/icon-512.png` },
     },
-    "inLanguage": course.language ?? "uz",
+    "inLanguage": inLanguageValue,
   } : null;
 
-  // S1 — LocalBusiness (faqat offline kurslar uchun, manzil bo'lsa)
+  // S1 — LocalBusiness — har bir filial uchun alohida entry (faqat offline kurslar)
   const isOffline = course.format === "Offline";
-  const hasAddress = Boolean(course.region || course.location);
-  const localBusinessLd = (isOffline && hasAddress) ? {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    "name": course.provider,
-    "url": url,
-    ...(imageAbs && { "image": imageAbs }),
-    ...(course.phone && { "telephone": course.phone }),
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "UZ",
-      ...(course.region && { "addressRegion": course.region }),
-      ...(course.district && { "addressLocality": course.district }),
-      ...(course.location && { "streetAddress": course.location }),
-    },
-    ...(course.region && {
-      "areaServed": { "@type": "AdministrativeArea", "name": course.region },
-    }),
-    ...((course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && {
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": (course.ratingAvg ?? 0).toFixed(1),
-        "ratingCount": course.ratingCount,
-        "bestRating": 5,
-        "worstRating": 1,
-      },
-    }),
-  } : null;
+  const localBusinessLds = (isOffline && addresses.length > 0)
+    ? addresses.map((a) => ({
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": course.provider,
+        "url": url,
+        ...(imageAbs && { "image": imageAbs }),
+        ...(course.phone && { "telephone": course.phone }),
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "UZ",
+          ...(a.region && { "addressRegion": a.region }),
+          ...(a.district && { "addressLocality": a.district }),
+          ...(a.address && { "streetAddress": a.address }),
+        },
+        ...(a.region && {
+          "areaServed": { "@type": "AdministrativeArea", "name": a.region },
+        }),
+        ...((course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && {
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": (course.ratingAvg ?? 0).toFixed(1),
+            "ratingCount": course.ratingCount,
+            "bestRating": 5,
+            "worstRating": 1,
+          },
+        }),
+      }))
+    : [];
   const breadcrumbItems: { "@type": "ListItem"; position: number; name: string; item: string }[] = [
     { "@type": "ListItem", position: 1, name: "Bosh sahifa", item: SITE_URL },
     { "@type": "ListItem", position: 2, name: "Kurslar", item: `${SITE_URL}/kurslar` },
@@ -204,9 +218,9 @@ export default async function KursDetailPage({ params }: Props) {
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-      {localBusinessLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
-      )}
+      {localBusinessLds.map((ld, i) => (
+        <script key={`lb-${i}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      ))}
       {videoLd && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoLd) }} />
       )}
@@ -361,9 +375,14 @@ export default async function KursDetailPage({ params }: Props) {
                   <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
                     <Globe className="w-4 h-4 text-[#7ea2d4]" />
                   </div>
-                  <div>
-                    <p className="text-[11px] text-[#7c8490]">Til</p>
-                    <p className="text-[14px] font-bold text-[#16181a]">{course.language === "ru" ? "Rus tili" : course.language === "en" ? "Ingliz tili" : "O'zbek"}</p>
+                  <div className="min-w-0">
+                    <p className="text-[11px] text-[#7c8490]">Dars tili</p>
+                    <p className="text-[14px] font-bold text-[#16181a]">
+                      {(course.languages && course.languages.length > 0
+                        ? course.languages
+                        : (course.language ? [course.language] : ["uz"])
+                      ).map(c => c === "ru" ? "Rus" : c === "en" ? "Ingliz" : "O'zbek").join(", ")}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

@@ -67,6 +67,7 @@ export async function GET(request: Request) {
       views: true,
       createdAt: true,
       language: true,
+      languages: true,
       level: true,
       levels: true,
       studentLimit: true,

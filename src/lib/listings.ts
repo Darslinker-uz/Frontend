@@ -36,6 +36,7 @@ interface ListingFromDb {
   imageUrl: string | null;
   branches?: ListingBranch[];
   levels?: string[];
+  languages?: string[];
   imagePosX: number;
   imagePosY: number;
   imageAPosX: number;
@@ -120,6 +121,9 @@ export function listingToCourse(l: ListingFromDb): Course {
     imageCZoom: l.imageCZoom,
     imageCMZoom: l.imageCMZoom,
     language: l.language ?? "uz",
+    languages: l.languages && l.languages.length > 0
+      ? l.languages
+      : (l.language ? [l.language] : []),
     level: l.level ?? undefined,
     levels: l.levels && l.levels.length > 0
       ? l.levels
@@ -190,7 +194,7 @@ export async function getActiveListings(options?: {
     select: {
       id: true, title: true, slug: true, description: true, price: true,
       format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true,
-      language: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
+      language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
       branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
       user: { select: { name: true, centerName: true } },
@@ -210,7 +214,7 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
     select: {
       id: true, title: true, slug: true, description: true, price: true,
       format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true,
-      language: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
+      language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
       branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       status: true, phone: true,
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
@@ -242,7 +246,7 @@ export async function getFeaturedListings(): Promise<Course[]> {
           id: true, title: true, slug: true, description: true, price: true,
           format: true, location: true, region: true, district: true, duration: true, color: true, icon: true, imageUrl: true,
           imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true, status: true, lessons: true,
-          language: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
+          language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
       branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
           category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
           user: { select: { name: true, centerName: true } },

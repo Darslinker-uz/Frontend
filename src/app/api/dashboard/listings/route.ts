@@ -96,6 +96,9 @@ export async function POST(request: Request) {
 
   // New fields (10 course detail fields)
   const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
+  const languages: string[] = Array.isArray(body.languages)
+    ? body.languages.map(x => String(x).trim()).filter(s => s.length > 0 && s.length <= 10).slice(0, 6)
+    : [];
   const level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
   const levels: string[] = Array.isArray(body.levels)
     ? body.levels.map(x => String(x).trim()).filter(s => s.length > 0 && s.length <= 50).slice(0, 6)
@@ -217,6 +220,7 @@ export async function POST(request: Request) {
       imageCMZoom,
       lessons,
       language,
+      languages,
       level,
       levels,
       studentLimit,

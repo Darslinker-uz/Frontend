@@ -25,7 +25,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           status: "active",
           category: { active: true, pendingApproval: false },
         },
-        select: { slug: true, updatedAt: true, region: true, category: { select: { slug: true } } },
+        select: {
+          slug: true,
+          updatedAt: true,
+          region: true, // legacy fallback
+          branches: { select: { region: true } },
+          category: { select: { slug: true } },
+        },
       }),
       prisma.article.findMany({
         where: { status: "published" },
@@ -55,11 +61,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
+    // E'lonning barcha unikal regionlari (yangi filiallar + eski region fallback)
+    const listingRegions = (l: typeof listings[number]): string[] => {
+      const set = new Set<string>();
+      if (l.region) set.add(l.region);
+      for (const b of l.branches ?? []) {
+        if (b.region) set.add(b.region);
+      }
+      return Array.from(set);
+    };
+
     // Tier-3: Yo'nalish + viloyat (faqat e'lon bor bo'lgan kombinatsiyalar)
     const categoryRegionPairs = new Set<string>();
     for (const l of listings) {
-      if (l.region) {
-        const r = regionByName.get(l.region);
+      for (const regionName of listingRegions(l)) {
+        const r = regionByName.get(regionName);
         if (r) categoryRegionPairs.add(`${l.category.slug}|${r.slug}`);
       }
     }
@@ -75,10 +91,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Tier-3: Guruh + viloyat
     const groupRegionPairs = new Set<string>();
     for (const l of listings) {
-      if (l.region) {
-        const r = regionByName.get(l.region);
-        const cat = categories.find(c => c.slug === l.category.slug);
-        if (r && cat) groupRegionPairs.add(`${cat.group.slug}|${r.slug}`);
+      const cat = categories.find(c => c.slug === l.category.slug);
+      if (!cat) continue;
+      for (const regionName of listingRegions(l)) {
+        const r = regionByName.get(regionName);
+        if (r) groupRegionPairs.add(`${cat.group.slug}|${r.slug}`);
       }
     }
     const groupRegionRoutes: MetadataRoute.Sitemap = Array.from(groupRegionPairs).map(pair => {

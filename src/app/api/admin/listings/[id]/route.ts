@@ -102,6 +102,9 @@ export async function PATCH(request: Request, { params }: Ctx) {
     const v = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
     data.language = v;
   }
+  if (Array.isArray(body.languages)) {
+    data.languages = body.languages.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 10).slice(0, 6);
+  }
   if (body.level !== undefined) {
     data.level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
   }
