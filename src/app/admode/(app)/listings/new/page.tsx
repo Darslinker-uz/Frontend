@@ -299,7 +299,7 @@ function AdminNewListingPageInner() {
               <svg className="absolute right-6 bottom-6 w-[120px] h-[120px] text-white/[0.12]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
             </>
           )}
-          <div className="relative z-[2] p-5 pt-6 flex flex-col h-full">
+          <div className="relative z-[2] p-5 pt-6 flex flex-col h-full txt-shadow-overlay">
             <div className="flex flex-wrap items-center gap-1.5 mb-4">
               <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/20 text-white text-[11px] font-semibold backdrop-blur-sm">{categoryDisplayName}</span>
               {format && <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/10 text-white/70 text-[11px] font-medium">{format}</span>}
@@ -345,7 +345,7 @@ function AdminNewListingPageInner() {
               <svg className="absolute right-5 bottom-24 w-[90px] h-[90px] text-white/[0.06]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"><path d={icon.path} /></svg>
             </>
           )}
-          <div className="relative z-[2] p-6 md:p-7 flex-1 flex flex-col">
+          <div className="relative z-[2] p-6 md:p-7 flex-1 flex flex-col txt-shadow-overlay">
             <div className="flex items-center gap-2 mb-5">
               <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[12px] font-semibold">{categoryDisplayName}</span>
               {format && <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-[12px]">{format}</span>}
@@ -377,7 +377,7 @@ function AdminNewListingPageInner() {
         ) : (
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
         )}
-        <div className="relative z-[2] p-5 flex-1">
+        <div className="relative z-[2] p-5 flex-1 txt-shadow-overlay">
           <div className="flex items-center gap-2 mb-3">
             <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{categoryDisplayName}</span>
             {format && <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{format}</span>}

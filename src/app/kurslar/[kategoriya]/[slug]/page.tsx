@@ -249,7 +249,7 @@ export default async function KursDetailPage({ params }: Props) {
                   <svg className="absolute right-6 bottom-6 w-[100px] h-[100px] text-white/[0.08]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"><path d={course.iconPath} /></svg>
                 </>
               )}
-              <div className="relative">
+              <div className="relative txt-shadow-overlay">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[12px] font-semibold">{course.category}</span>
                   <span className="px-3 py-1 rounded-full bg-white/10 text-white/70 text-[12px]">{course.format}</span>
@@ -505,12 +505,12 @@ export default async function KursDetailPage({ params }: Props) {
                       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
                     </>
                   )}
-                  <div className="relative z-[1] flex-1">
+                  <div className="relative z-[1] flex-1 txt-shadow-overlay">
                     <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold mb-2">{c.format}</span>
                     <h3 className="text-[15px] font-bold text-white leading-snug">{c.title}</h3>
                     <p className="text-[12px] text-white/50 mt-1 line-clamp-1">{c.provider}{c.location ? ` · ${c.location}` : ""}</p>
                   </div>
-                  <div className="relative z-[1] mt-3 text-[13px] font-bold text-white">
+                  <div className="relative z-[1] mt-3 text-[13px] font-bold text-white txt-shadow-overlay">
                     {c.priceFree ? "Bepul" : `${c.price} so'm`}
                   </div>
                 </Link>

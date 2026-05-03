@@ -23,7 +23,7 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
         )}
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
-        <div className="relative z-[2] p-5 flex-1">
+        <div className="relative z-[2] p-5 flex-1 txt-shadow-overlay">
           <div className="flex items-center gap-2 mb-3">
             <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{course.category}</span>
             <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{course.format}</span>
@@ -39,7 +39,7 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
             </div>
           ) : null}
         </div>
-        <div className="relative z-[2] mx-3 mb-3 rounded-[12px] bg-white/[0.1] border border-white/[0.08] px-4 py-2.5 flex items-center justify-between">
+        <div className="relative z-[2] mx-3 mb-3 rounded-[12px] bg-white/[0.1] border border-white/[0.08] px-4 py-2.5 flex items-center justify-between txt-shadow-overlay">
           <span className="text-[14px] font-bold text-white">{course.priceFree ? "Bepul" : `${course.price} so'm`}</span>
           <ArrowRight className="w-4 h-4 text-white/30" />
         </div>

@@ -185,7 +185,7 @@ export function FeaturedSlider() {
               )}
 
               <Link href={`/kurslar/${slide.categorySlug}/${slide.slug}`} className="absolute inset-0 z-[2]" />
-              <div className="relative flex min-h-[300px] md:min-h-[340px]">
+              <div className="relative flex min-h-[300px] md:min-h-[340px] txt-shadow-overlay">
                 <div className="flex-1 p-5 pt-6 pb-[70px] md:p-10 md:pb-20 lg:p-12 lg:pb-20 flex flex-col">
                   <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-4 md:mb-6">
                     <span className="inline-flex items-center px-2.5 md:px-3 py-1 rounded-full bg-white/20 text-white text-[11px] md:text-[12px] font-semibold backdrop-blur-sm">{slide.category}</span>
