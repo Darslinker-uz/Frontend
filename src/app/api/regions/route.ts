@@ -31,17 +31,35 @@ export async function GET(request: Request) {
     return NextResponse.json({ regions });
   }
 
-  // Listing.region (text) bilan match qilamiz — Region.name bilan teng
-  const counts = await prisma.listing.groupBy({
-    by: ["region"],
-    where: {
-      status: "active",
-      region: { in: regions.map((r) => r.name) },
-      category: { active: true, pendingApproval: false },
-    },
-    _count: { _all: true },
-  });
-  const countMap = new Map(counts.map((c) => [c.region, c._count._all]));
+  // Yangi: 'branches' jadvalidan + eski 'listings.region' fallback'dan,
+  // har bir e'lon har bir viloyatida bir martagina hisoblanishi uchun dedupe qilamiz.
+  const regionNames = regions.map((r) => r.name);
+  const [legacyListings, branchRows] = await Promise.all([
+    prisma.listing.findMany({
+      where: {
+        status: "active",
+        region: { in: regionNames },
+        category: { active: true, pendingApproval: false },
+      },
+      select: { id: true, region: true },
+    }),
+    prisma.listingLocation.findMany({
+      where: {
+        region: { in: regionNames },
+        listing: { status: "active", category: { active: true, pendingApproval: false } },
+      },
+      select: { listingId: true, region: true },
+    }),
+  ]);
+
+  const perRegion = new Map<string, Set<number>>(regionNames.map((n) => [n, new Set<number>()]));
+  for (const l of legacyListings) {
+    if (l.region) perRegion.get(l.region)?.add(l.id);
+  }
+  for (const b of branchRows) {
+    if (b.region) perRegion.get(b.region)?.add(b.listingId);
+  }
+  const countMap = new Map(Array.from(perRegion.entries()).map(([k, v]) => [k, v.size]));
 
   const enriched = regions.map((r) => ({
     ...r,

@@ -94,12 +94,18 @@ export default async function KurslarPage({ searchParams }: Props) {
   // Lokatsiya filter — online/video doim qoldiriladi (har joydan kirish mumkin).
   // Agar district berilgan va shu tumanda 5 dan kam offline kurs bo'lsa,
   // avtomatik viloyat darajasiga kengaytiriladi.
+  // YANGI: ko'p filialli e'lonlar — har qanday filial mos kelsa chiqsin (inclusive).
+  const matchesRegion = (c: typeof baseCourses[number], reg: string) =>
+    c.region === reg || (c.branches?.some(b => b.region === reg) ?? false);
+  const matchesDistrict = (c: typeof baseCourses[number], dist: string) =>
+    c.district === dist || (c.branches?.some(b => b.district === dist) ?? false);
+
   let courses = baseCourses;
   let fallbackInfo: { from: "district" | "region"; to: "region" | "all"; nearby: number; expanded: number } | null = null;
 
   if (districtFilter && regionFilter) {
     const districtMatch = baseCourses.filter(c =>
-      (c.district === districtFilter && c.region === regionFilter) ||
+      (matchesDistrict(c, districtFilter) && matchesRegion(c, regionFilter)) ||
       c.format === "Online" || c.format === "Video"
     );
     const districtOffline = districtMatch.filter(c => c.format !== "Online" && c.format !== "Video");
@@ -107,7 +113,7 @@ export default async function KurslarPage({ searchParams }: Props) {
     if (districtOffline.length < MIN_RESULTS_BEFORE_FALLBACK) {
       // Tumanda kam → viloyatga kengaytirish
       const regionMatch = baseCourses.filter(c =>
-        c.region === regionFilter || c.format === "Online" || c.format === "Video"
+        matchesRegion(c, regionFilter) || c.format === "Online" || c.format === "Video"
       );
       courses = regionMatch;
       fallbackInfo = {
@@ -121,7 +127,7 @@ export default async function KurslarPage({ searchParams }: Props) {
     }
   } else if (regionFilter) {
     courses = baseCourses.filter(c =>
-      c.region === regionFilter || c.format === "Online" || c.format === "Video"
+      matchesRegion(c, regionFilter) || c.format === "Online" || c.format === "Video"
     );
   }
 

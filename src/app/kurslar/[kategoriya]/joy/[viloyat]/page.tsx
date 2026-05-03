@@ -60,9 +60,14 @@ export default async function KategoriyaViloyatPage({ params }: Props) {
     categories: g.categories.filter(c => c.count > 0).map(c => ({ name: c.name, slug: c.slug, count: c.count })),
   })).filter(g => g.categories.length > 0);
 
-  // Tumanlar bo'yicha hisoblash
+  // Tumanlar bo'yicha hisoblash — ko'p filialli e'lon har bir filial tumanida hisobga olinadi
   const districtCounts = courses.reduce<Record<string, number>>((acc, c) => {
-    if (c.district) acc[c.district] = (acc[c.district] ?? 0) + 1;
+    const dists = new Set<string>();
+    if (c.district) dists.add(c.district);
+    for (const b of c.branches ?? []) {
+      if (b.district) dists.add(b.district);
+    }
+    for (const d of dists) acc[d] = (acc[d] ?? 0) + 1;
     return acc;
   }, {});
   const popularDistricts = region.districts
@@ -73,7 +78,14 @@ export default async function KategoriyaViloyatPage({ params }: Props) {
   // Boshqa viloyatlardagi shu kategoriya
   const allByCategory = await getActiveListings({ categorySlug: cat.slug });
   const otherRegionsCounts = allByCategory.reduce<Record<string, number>>((acc, c) => {
-    if (c.region && c.region !== region.name) acc[c.region] = (acc[c.region] ?? 0) + 1;
+    const regs = new Set<string>();
+    if (c.region) regs.add(c.region);
+    for (const b of c.branches ?? []) {
+      if (b.region) regs.add(b.region);
+    }
+    for (const r of regs) {
+      if (r !== region.name) acc[r] = (acc[r] ?? 0) + 1;
+    }
     return acc;
   }, {});
   const allRegions = await getActiveRegions();

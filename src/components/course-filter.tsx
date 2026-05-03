@@ -223,9 +223,14 @@ export function applyFilter(courses: Course[], filter: FilterState): Course[] {
       return p >= minPrice && (maxPrice === PRICE_MAX || p <= maxPrice);
     });
   }
-  // Viloyat filter — Listing.region (text) ni Region.name bilan to'g'ridan-to'g'ri solishtirish
+  // Viloyat filter — yangi 'branches' va eski 'region' ikkalasi tekshiriladi (inclusive).
+  // Onlayn/Video doim chiqadi (joy talab qilmaydi).
   if (filter.region) {
-    result = result.filter(c => c.region === filter.region);
+    result = result.filter(c =>
+      c.format === "Online" || c.format === "Video" ||
+      c.region === filter.region ||
+      (c.branches?.some(b => b.region === filter.region) ?? false)
+    );
   }
   return result;
 }
