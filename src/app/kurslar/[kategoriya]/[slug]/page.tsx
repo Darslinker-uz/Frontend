@@ -255,6 +255,7 @@ export default async function KursDetailPage({ params }: Props) {
                   <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover hidden md:block" style={{ objectPosition: `${course.imageAPosX ?? 50}% ${course.imageAPosY ?? 50}%`, transform: `scale(${(course.imageAZoom ?? 100) / 100})`, transformOrigin: `${course.imageAPosX ?? 50}% ${course.imageAPosY ?? 50}%` }} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover md:hidden" style={{ objectPosition: `${course.imageAMPosX ?? 50}% ${course.imageAMPosY ?? 50}%`, transform: `scale(${(course.imageAMZoom ?? 100) / 100})`, transformOrigin: `${course.imageAMPosX ?? 50}% ${course.imageAMPosY ?? 50}%` }} />
+                  <div className="absolute inset-0 bg-black/15" />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
                 </>
               ) : (
@@ -263,7 +264,7 @@ export default async function KursDetailPage({ params }: Props) {
                   <svg className="absolute right-6 bottom-6 w-[100px] h-[100px] text-white/[0.08]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round"><path d={course.iconPath} /></svg>
                 </>
               )}
-              <div className="relative txt-shadow-overlay">
+              <div className="relative">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[12px] font-semibold">{course.category}</span>
                   <span className="px-3 py-1 rounded-full bg-white/10 text-white/70 text-[12px]">{course.format}</span>
@@ -547,15 +548,16 @@ export default async function KursDetailPage({ params }: Props) {
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={c.imageUrl} alt={c.title} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `${c.imageCPosX ?? 50}% ${c.imageCPosY ?? 50}%`, transform: `scale(${(c.imageCZoom ?? 100) / 100})`, transformOrigin: `${c.imageCPosX ?? 50}% ${c.imageCPosY ?? 50}%` }} />
+                      <div className="absolute inset-0 bg-black/15" />
                       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
                     </>
                   )}
-                  <div className="relative z-[1] flex-1 txt-shadow-overlay">
+                  <div className="relative z-[1] flex-1">
                     <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold mb-2">{c.format}</span>
                     <h3 className="text-[15px] font-bold text-white leading-snug">{c.title}</h3>
                     <p className="text-[12px] text-white/50 mt-1 line-clamp-1">{c.provider}{c.location ? ` · ${c.location}` : ""}</p>
                   </div>
-                  <div className="relative z-[1] mt-3 text-[13px] font-bold text-white txt-shadow-overlay">
+                  <div className="relative z-[1] mt-3 text-[13px] font-bold text-white">
                     {c.priceFree ? "Bepul" : `${c.price} so'm`}
                   </div>
                 </Link>

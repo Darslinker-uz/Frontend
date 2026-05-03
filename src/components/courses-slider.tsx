@@ -12,6 +12,7 @@ function CourseCard({ c }: { c: Course }) {
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={c.imageUrl} alt={c.title} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `${c.imagePosX ?? 50}% ${c.imagePosY ?? 50}%`, transform: `scale(${(c.imageZoom ?? 100) / 100})`, transformOrigin: `${c.imagePosX ?? 50}% ${c.imagePosY ?? 50}%` }} />
+          <div className="absolute inset-0 bg-black/15" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
         </>
       ) : (
@@ -21,7 +22,7 @@ function CourseCard({ c }: { c: Course }) {
         </>
       )}
       <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
-      <div className="relative z-[2] p-6 md:p-7 flex-1 flex flex-col txt-shadow-overlay">
+      <div className="relative z-[2] p-6 md:p-7 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-5">
           <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[12px] font-semibold">{c.category}</span>
           <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-[12px]">{c.format}</span>
@@ -34,7 +35,7 @@ function CourseCard({ c }: { c: Course }) {
         </div>
         <div className="mt-auto" />
       </div>
-      <div className="relative z-[2] mx-4 mb-4 rounded-[14px] bg-white/[0.1] border border-white/[0.08] px-5 py-3.5 flex items-center justify-between txt-shadow-overlay">
+      <div className="relative z-[2] mx-4 mb-4 rounded-[14px] bg-white/[0.1] border border-white/[0.08] px-5 py-3.5 flex items-center justify-between">
         <span className="text-[16px] font-bold text-white">{c.priceFree ? "Bepul" : `${c.price} so'm`}</span>
         <ArrowRight className="w-4 h-4 text-white/30" />
       </div>
