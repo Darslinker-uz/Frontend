@@ -24,27 +24,56 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = `${SITE_URL}/kurslar/${kategoriya}/${slug}`;
   const imageUrl = c.imageUrl ? (c.imageUrl.startsWith("http") ? c.imageUrl : `${SITE_URL}${c.imageUrl}`) : undefined;
   const priceText = c.priceFree ? "Bepul" : `${c.price} so'm`;
+
+  // Joy ma'lumoti — birinchi filial yoki eski region/district fallback'i.
+  // Onlayn/Video uchun joy ko'rsatmaymiz (har joydan kirish mumkin).
+  const isRemote = c.format === "Online" || c.format === "Video";
+  const firstBranch = c.branches?.[0];
+  const region = firstBranch?.region ?? c.region ?? null;
+  const district = firstBranch?.district ?? c.district ?? null;
+  // Title uchun: "Toshkent · Yunusobod" yoki "Toshkent" yoki bo'sh
+  const cityPart = !isRemote && (region || district)
+    ? ` · ${[region, district].filter(Boolean).join(" · ")}`
+    : (isRemote ? " · Onlayn" : "");
+
+  // Title: "Ingliz tili kursi — MYPRO · Toshkent · Yunusobod"
+  // 60 belgidan ko'p bo'lmasin (Google snippet max ~60)
+  const fullTitle = `${c.title} — ${c.provider}${cityPart}`;
+  const title = fullTitle.length > 60 ? fullTitle.slice(0, 57).trim() + "…" : fullTitle;
+
   const desc = (c.description && c.description.length > 40)
     ? `${c.description.slice(0, 155).trim()}…`
-    : `${c.title} — ${c.provider}${c.location ? `, ${c.location}` : ""}. ${c.format} format. Narx: ${priceText}. Davomiylik: ${c.duration}.`;
+    : `${c.title} — ${c.provider}${cityPart}. ${priceText}. ${c.duration ?? ""}. Ariza qoldiring.`;
+
+  // Keywords — shahar/tuman variantlari ham qo'shilsin
+  const keywords = [
+    c.title,
+    `${c.title} ${district ?? region ?? "Toshkent"}`,
+    c.category,
+    `${c.category} kursi`,
+    c.provider,
+    ...(region ? [`${c.category} ${region}`] : []),
+    ...(district ? [`${c.category} ${district}`] : []),
+    "kurs", c.format.toLowerCase(),
+  ].filter(Boolean) as string[];
 
   return {
-    title: `${c.title} — ${c.provider}`,
+    title,
     description: desc,
-    keywords: [c.title, c.category, c.provider, c.location, "kurs", "online kurs", c.format.toLowerCase()].filter(Boolean) as string[],
+    keywords,
     alternates: { canonical: url },
     openGraph: {
       type: "article",
       locale: "uz_UZ",
       url,
       siteName: "Darslinker.uz",
-      title: `${c.title} — ${c.provider}`,
+      title,
       description: desc,
       images: imageUrl ? [{ url: imageUrl, alt: c.title }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title: c.title,
+      title,
       description: desc,
       images: imageUrl ? [imageUrl] : undefined,
     },
