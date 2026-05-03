@@ -213,6 +213,7 @@ model Listing {
   duration        String?
   lessons         String[]        @default([])
   level           String?
+  levels          String[]        @default([])
   studentLimit    Int?            @map("student_limit")
   schedule        String?
   certificate     Boolean         @default(false)
@@ -254,10 +255,27 @@ model Listing {
   reviews  Review[]
   boosts   Boost[]
   ratings  Rating[]
+  branches ListingLocation[]
 
   @@index([status])
   @@index([categoryId])
   @@map("listings")
+}
+
+model ListingLocation {
+  id        Int      @id @default(autoincrement())
+  listingId Int      @map("listing_id")
+  region    String?
+  district  String?
+  address   String?
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([region])
+  @@map("listing_locations")
 }
 
 model Lead {

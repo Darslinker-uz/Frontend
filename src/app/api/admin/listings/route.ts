@@ -119,6 +119,23 @@ export async function POST(request: Request) {
   // New detail fields (10)
   const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
   const level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
+  const levels: string[] = Array.isArray(body.levels)
+    ? body.levels.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 50).slice(0, 6)
+    : [];
+
+  // Filiallar — agar "branches" massivi yuborilsa, alohida jadvalga yoziladi
+  type BranchInput = { region?: unknown; district?: unknown; address?: unknown };
+  const branchesInput: BranchInput[] = Array.isArray(body.branches)
+    ? body.branches.filter((b: unknown): b is BranchInput => typeof b === "object" && b !== null).slice(0, 20)
+    : [];
+  const branchesData = branchesInput
+    .map((b, i) => ({
+      region: b.region ? String(b.region).trim().slice(0, 100) || null : null,
+      district: b.district ? String(b.district).trim().slice(0, 100) || null : null,
+      address: b.address ? String(b.address).trim().slice(0, 200) || null : null,
+      sortOrder: i,
+    }))
+    .filter(b => b.region || b.district || b.address);
   const studentLimitRaw = Number(body.studentLimit);
   const studentLimit = !Number.isFinite(studentLimitRaw) || studentLimitRaw <= 0 ? null : Math.min(10000, Math.floor(studentLimitRaw));
   const paymentType = body.paymentType ? String(body.paymentType).trim().slice(0, 50) || null : null;
@@ -144,6 +161,7 @@ export async function POST(request: Request) {
       district: body.district ? String(body.district).trim().slice(0, 100) || null : null,
       language,
       level,
+      levels,
       studentLimit,
       paymentType,
       schedule,
@@ -177,6 +195,7 @@ export async function POST(request: Request) {
       // Admin: body.status yoki "active" (default).
       // Assistant: doim "pending" — super admin tasdiqlaydi (override mumkin emas)
       status: isAssistant ? "pending" : (body.status ?? "active"),
+      ...(branchesData.length > 0 ? { branches: { create: branchesData } } : {}),
     },
     include: {
       user: { select: { id: true, name: true, centerName: true, phone: true } },

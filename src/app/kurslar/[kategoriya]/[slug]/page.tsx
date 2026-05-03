@@ -375,14 +375,16 @@ export default async function KursDetailPage({ params }: Props) {
                     <p className="text-[14px] font-bold text-[#16181a]">{course.certificate ? "Beriladi" : "Yo'q"}</p>
                   </div>
                 </div>
-                {course.level && (
+                {((course.levels && course.levels.length > 0) || course.level) && (
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
                       <GraduationCap className="w-4 h-4 text-[#7ea2d4]" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-[11px] text-[#7c8490]">Daraja</p>
-                      <p className="text-[14px] font-bold text-[#16181a]">{course.level}</p>
+                      <p className="text-[14px] font-bold text-[#16181a]">
+                        {(course.levels && course.levels.length > 0 ? course.levels : (course.level ? [course.level] : [])).join(", ")}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -421,6 +423,30 @@ export default async function KursDetailPage({ params }: Props) {
                 )}
               </div>
             </div>
+
+            {/* Filiallar — bir nechta manzil bo'lsa ko'rsatamiz */}
+            {course.branches && course.branches.length > 1 && (
+              <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
+                <h2 className="text-[18px] font-bold text-[#16181a] mb-5">Filiallar</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {course.branches.map((b, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-[12px] bg-[#f0f2f3]">
+                      <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/15 flex items-center justify-center shrink-0">
+                        <MapPin className="w-4 h-4 text-[#7ea2d4]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[14px] font-semibold text-[#16181a] truncate">
+                          {[b.district, b.region].filter(Boolean).join(", ") || "—"}
+                        </p>
+                        {b.address && (
+                          <p className="text-[12px] text-[#7c8490] mt-0.5">{b.address}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Dars rejasi — faqat teacher kiritgan bo'lsa ko'rsatiladi */}
             {course.lessons && course.lessons.length > 0 && (

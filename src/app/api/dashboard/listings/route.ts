@@ -97,6 +97,25 @@ export async function POST(request: Request) {
   // New fields (10 course detail fields)
   const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
   const level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
+  const levels: string[] = Array.isArray(body.levels)
+    ? body.levels.map(x => String(x).trim()).filter(s => s.length > 0 && s.length <= 50).slice(0, 6)
+    : [];
+
+  // Filiallar — alohida jadval
+  type BranchInput = { region?: unknown; district?: unknown; address?: unknown };
+  const branchesData = (Array.isArray(body.branches)
+    ? (body.branches as unknown[])
+        .filter((b): b is BranchInput => typeof b === "object" && b !== null)
+        .slice(0, 20)
+    : []
+  )
+    .map((b: BranchInput, i: number) => ({
+      region: b.region ? String(b.region).trim().slice(0, 100) || null : null,
+      district: b.district ? String(b.district).trim().slice(0, 100) || null : null,
+      address: b.address ? String(b.address).trim().slice(0, 200) || null : null,
+      sortOrder: i,
+    }))
+    .filter(b => b.region || b.district || b.address);
   const studentLimitRaw = Number(body.studentLimit);
   const studentLimit = !Number.isFinite(studentLimitRaw) || studentLimitRaw <= 0 ? null : Math.min(10000, Math.floor(studentLimitRaw));
   const paymentType = body.paymentType ? String(body.paymentType).trim().slice(0, 50) || null : null;
@@ -199,6 +218,7 @@ export async function POST(request: Request) {
       lessons,
       language,
       level,
+      levels,
       studentLimit,
       paymentType,
       schedule,
@@ -208,6 +228,7 @@ export async function POST(request: Request) {
       demoLesson,
       discount,
       status: "pending", // requires admin approval
+      ...(branchesData.length > 0 ? { branches: { create: branchesData } } : {}),
     },
   });
 

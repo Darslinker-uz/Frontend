@@ -54,13 +54,16 @@ export default function NewListingPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [price, setPrice] = useState(50000);
   const [duration, setDuration] = useState("");
-  const [region, setRegion] = useState("");
-  const [city, setCity] = useState("");
+  const [branches, setBranches] = useState<{ region: string; district: string; address: string }[]>([
+    { region: "", district: "", address: "" },
+  ]);
+  const region = branches[0]?.region ?? "";
+  const city = branches[0]?.district ?? "";
 
   const [description, setDescription] = useState("");
   // 10 new detail fields
   const [language, setLanguage] = useState("uz");
-  const [level, setLevel] = useState("");
+  const [levels, setLevels] = useState<string[]>([]);
   const [paymentType, setPaymentType] = useState(tolovTuri[0]);
   const [schedule, setSchedule] = useState("");
   const [teacherName, setTeacherName] = useState("");
@@ -129,7 +132,13 @@ export default function NewListingPage() {
 
     setSubmitting(true);
     try {
-      const location = showLocation && city ? `${city}${region ? " · " + region : ""}` : null;
+      const filledBranches = showLocation
+        ? branches.filter(b => b.region || b.district || b.address)
+        : [];
+      const firstBranch = filledBranches[0];
+      const location = firstBranch
+        ? [firstBranch.address, firstBranch.district, firstBranch.region].filter(Boolean).join(" · ")
+        : null;
       const res = await fetch("/api/dashboard/listings", {
         method: "POST",
         credentials: "same-origin",
@@ -139,8 +148,13 @@ export default function NewListingPage() {
           categoryId: requestNewCategory ? null : (categoryId || null),
           proposedCategoryName: requestNewCategory ? newCategoryName.trim() : undefined,
           proposedGroupId: requestNewCategory ? Number(groupId) : undefined,
-          region: region || null,
-          district: city || null,
+          region: firstBranch?.region || null,
+          district: firstBranch?.district || null,
+          branches: filledBranches.map(b => ({
+            region: b.region || null,
+            district: b.district || null,
+            address: b.address || null,
+          })),
           format,
           price: isFree ? 0 : price,
           priceFree: isFree,
@@ -167,7 +181,8 @@ export default function NewListingPage() {
           icon: icon.id,
           lessons: lessons.map(s => s.trim()).filter(s => s.length > 0),
           language,
-          level: level || null,
+          level: levels[0] || null,
+          levels,
           paymentType: paymentType || null,
           schedule: showSchedule ? (schedule || null) : null,
           teacherName: teacherName || null,
@@ -474,28 +489,80 @@ export default function NewListingPage() {
             </div>
           </div>
           {showLocation && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className={labelClass} style={labelStyle}>Viloyat *</label>
-                  <select value={region} onChange={(e) => { setRegion(e.target.value); setCity(""); }} className={selectClass} style={selectStyle}>
-                    <option value="">Tanlang</option>
-                    {REGIONS.map((r) => <option key={r.name} value={r.name}>{r.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass} style={labelStyle}>{region === "Toshkent shahri" ? "Tuman *" : "Shahar *"}</label>
-                  <select value={city} onChange={(e) => setCity(e.target.value)} disabled={!region} className={selectClass} style={selectStyle}>
-                    <option value="">{region ? "Tanlang" : "Avval viloyatni tanlang"}</option>
-                    {REGIONS.find(r => r.name === region)?.districts.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className={labelClass} style={labelStyle}>Filiallar (manzillar)</label>
+                <span className="text-[11px]" style={{ color: config.textDim }}>{branches.length} / 10</span>
               </div>
-              <div>
-                <label className={labelClass} style={labelStyle}>Manzil *</label>
-                <input placeholder="Tuman, ko'cha, bino raqami" className={inputClass} style={inputStyle} />
-              </div>
-            </>
+              {branches.map((br, i) => (
+                <div key={i} className="rounded-[10px] p-3 space-y-2" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}` }}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-semibold" style={{ color: config.text }}>Filial {i + 1}</span>
+                    {branches.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setBranches(branches.filter((_, idx) => idx !== i))}
+                        className="text-[11px] font-medium hover:underline"
+                        style={{ color: "#ef4444" }}
+                      >
+                        O&apos;chirish
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <select
+                      value={br.region}
+                      onChange={(e) => {
+                        const next = [...branches];
+                        next[i] = { ...next[i], region: e.target.value, district: "" };
+                        setBranches(next);
+                      }}
+                      className={selectClass}
+                      style={selectStyle}
+                    >
+                      <option value="">Viloyat</option>
+                      {REGIONS.map((r) => <option key={r.name} value={r.name}>{r.name}</option>)}
+                    </select>
+                    <select
+                      value={br.district}
+                      onChange={(e) => {
+                        const next = [...branches];
+                        next[i] = { ...next[i], district: e.target.value };
+                        setBranches(next);
+                      }}
+                      disabled={!br.region}
+                      className={selectClass}
+                      style={selectStyle}
+                    >
+                      <option value="">{br.region === "Toshkent shahri" ? "Tuman" : "Shahar"}</option>
+                      {REGIONS.find(r => r.name === br.region)?.districts.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <input
+                    type="text"
+                    value={br.address}
+                    onChange={(e) => {
+                      const next = [...branches];
+                      next[i] = { ...next[i], address: e.target.value.slice(0, 200) };
+                      setBranches(next);
+                    }}
+                    placeholder="Ko'cha, bino raqami (ixtiyoriy)"
+                    className={inputClass}
+                    style={inputStyle}
+                  />
+                </div>
+              ))}
+              {branches.length < 10 && (
+                <button
+                  type="button"
+                  onClick={() => setBranches([...branches, { region: "", district: "", address: "" }])}
+                  className="w-full h-[40px] rounded-[10px] border border-dashed text-[13px] font-medium hover:border-[#7ea2d4]/40 hover:text-[#7ea2d4] hover:bg-[#7ea2d4]/5 transition-all flex items-center justify-center gap-2"
+                  style={{ borderColor: config.surfaceBorder, color: config.textMuted }}
+                >
+                  <Plus className="w-4 h-4" /> Yana filial qo&apos;shish
+                </button>
+              )}
+            </div>
           )}
           {showSchedule && (
             <div>
@@ -511,11 +578,29 @@ export default function NewListingPage() {
               </select>
             </div>
             <div>
-              <label className={labelClass} style={labelStyle}>Daraja</label>
-              <select value={level} onChange={(e) => setLevel(e.target.value)} className={selectClass} style={selectStyle}>
-                <option value="">Tanlang</option>
-                {darajalar.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
+              <label className={labelClass} style={labelStyle}>Darajalar</label>
+              <div className="flex flex-wrap gap-1.5">
+                {darajalar.map((d) => {
+                  const checked = levels.includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setLevels(checked ? levels.filter(l => l !== d) : [...levels, d])}
+                      className="px-3 h-[36px] rounded-[8px] text-[12px] font-medium transition-all flex items-center gap-1.5"
+                      style={{
+                        backgroundColor: checked ? config.accent : config.hover,
+                        color: checked ? config.accentText : config.textMuted,
+                        border: `1px solid ${checked ? config.accent : config.surfaceBorder}`,
+                      }}
+                    >
+                      {checked && <Check className="w-3.5 h-3.5" />}
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] mt-1" style={{ color: config.textDim }}>Bir nechta daraja tanlanishi mumkin</p>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3">

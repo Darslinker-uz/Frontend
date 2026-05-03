@@ -32,6 +32,7 @@ export async function GET(_request: Request, { params }: Ctx) {
           group: { select: { id: true, name: true, slug: true } },
         },
       },
+      branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       _count: { select: { leads: true, boosts: true, reviews: true } },
     },
   });
@@ -104,6 +105,9 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.level !== undefined) {
     data.level = body.level ? String(body.level).trim().slice(0, 50) || null : null;
   }
+  if (Array.isArray(body.levels)) {
+    data.levels = body.levels.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 50).slice(0, 6);
+  }
   if (body.studentLimit !== undefined) {
     const n = Number(body.studentLimit);
     data.studentLimit = !Number.isFinite(n) || n <= 0 ? null : Math.min(10000, Math.floor(n));
@@ -130,7 +134,22 @@ export async function PATCH(request: Request, { params }: Ctx) {
     data.discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
   }
 
-  if (Object.keys(data).length === 0) {
+  // Filiallar — agar yuborilsa, eskilarini tozalab yangilarini yozamiz
+  let branchesUpdate: { region: string | null; district: string | null; address: string | null; sortOrder: number }[] | null = null;
+  if (Array.isArray(body.branches)) {
+    branchesUpdate = (body.branches as unknown[])
+      .filter((b): b is { region?: unknown; district?: unknown; address?: unknown } => typeof b === "object" && b !== null)
+      .slice(0, 20)
+      .map((b: { region?: unknown; district?: unknown; address?: unknown }, i: number) => ({
+        region: b.region ? String(b.region).trim().slice(0, 100) || null : null,
+        district: b.district ? String(b.district).trim().slice(0, 100) || null : null,
+        address: b.address ? String(b.address).trim().slice(0, 200) || null : null,
+        sortOrder: i,
+      }))
+      .filter((b: { region: string | null; district: string | null; address: string | null }) => b.region || b.district || b.address);
+  }
+
+  if (Object.keys(data).length === 0 && !branchesUpdate) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
@@ -139,6 +158,15 @@ export async function PATCH(request: Request, { params }: Ctx) {
     where: { id: listingId },
     select: { status: true },
   });
+
+  if (branchesUpdate) {
+    await prisma.listingLocation.deleteMany({ where: { listingId } });
+    if (branchesUpdate.length > 0) {
+      await prisma.listingLocation.createMany({
+        data: branchesUpdate.map(b => ({ ...b, listingId })),
+      });
+    }
+  }
 
   const listing = await prisma.listing.update({
     where: { id: listingId },
