@@ -240,6 +240,7 @@ export async function POST(request: Request) {
       demoLesson,
       discount,
       status: "pending", // requires admin approval
+      statusChangedAt: new Date(),
       ...(branchesData.length > 0 ? { branches: { create: branchesData } } : {}),
     },
   });

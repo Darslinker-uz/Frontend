@@ -208,6 +208,7 @@ export async function POST(request: Request) {
       // Admin: body.status yoki "active" (default).
       // Assistant: doim "pending" — super admin tasdiqlaydi (override mumkin emas)
       status: isAssistant ? "pending" : (body.status ?? "active"),
+      statusChangedAt: new Date(),
       ...(branchesData.length > 0 ? { branches: { create: branchesData } } : {}),
     },
     include: {

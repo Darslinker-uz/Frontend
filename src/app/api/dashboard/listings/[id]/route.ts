@@ -193,6 +193,10 @@ export async function PATCH(request: Request, { params }: Ctx) {
     data.status = "pending";
     data.rejectReason = null;
   }
+  // Status haqiqatan o'zgardimi — vaqtni yozamiz
+  if (data.status && data.status !== existing.status) {
+    data.statusChangedAt = new Date();
+  }
 
   const listing = await prisma.listing.update({ where: { id: listingId }, data, select: { id: true, title: true, price: true, createdAt: true, status: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, description: true } });
 

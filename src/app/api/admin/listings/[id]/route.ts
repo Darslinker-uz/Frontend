@@ -78,8 +78,18 @@ export async function PATCH(request: Request, { params }: Ctx) {
   const body = await request.json();
   const data: Record<string, unknown> = {};
 
-  // Status o'zgartirilmoqdami? Agar ha — listing.approve kerak
-  const isStatusChange = body.status && ALLOWED_STATUS.includes(body.status);
+  // Avval mavjud status'ni o'qiymiz — body.status faqat HAQIQATAN
+  // o'zgargan bo'lsagina "status change" deb sanaymiz.
+  const existingForCheck = await prisma.listing.findUnique({
+    where: { id: listingId },
+    select: { status: true },
+  });
+  if (!existingForCheck) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  const isStatusChange = body.status
+    && ALLOWED_STATUS.includes(body.status)
+    && body.status !== existingForCheck.status;
   if (isStatusChange) {
     const deny = await requirePermission("listing.approve");
     if (deny) return deny;
@@ -194,10 +204,10 @@ export async function PATCH(request: Request, { params }: Ctx) {
   const userRole = (session?.user as { role?: string } | undefined)?.role;
   const isAssistant = userRole === "assistant";
 
-  // Previous status — re-moderation va notification uchun
+  // Previous status (notification + re-moderation logic uchun) — existingForCheck'dan ham ushlaydi
   const prev = await prisma.listing.findUnique({
     where: { id: listingId },
-    select: { status: true, title: true, price: true, category: { select: { name: true } } },
+    select: { status: true },
   });
 
   // Assistant aktiv e'londa content tahrir qilsa → pending'ga qaytaramiz
@@ -206,6 +216,11 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (assistantRemoderate) {
     data.status = "pending";
     data.rejectReason = null;
+  }
+
+  // Status haqiqatan o'zgardimi — statusChangedAt ni yangilaymiz
+  if (data.status && data.status !== prev?.status) {
+    data.statusChangedAt = new Date();
   }
 
   if (branchesUpdate) {

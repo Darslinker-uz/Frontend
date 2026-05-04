@@ -28,6 +28,7 @@ interface Listing {
   status: Status;
   rejectReason: string | null;
   createdAt: string;
+  statusChangedAt: string | null;
   user: { id: number; name: string; centerName: string | null; phone: string; telegramChatId: string | null };
   category: { id: number; name: string; slug: string; color: string | null };
   _count: { leads: number; boosts: number };
@@ -61,6 +62,7 @@ export default function AdminListingsPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Listing | null>(null);
+  const [confirmApprove, setConfirmApprove] = useState<Listing | null>(null);
   const isLight = config.id === "light" || config.id === "cream";
 
   const load = async () => {
@@ -104,7 +106,12 @@ export default function AdminListingsPage() {
     } catch (e) { console.error(e); setListings(prev); }
   };
 
-  const approve = (id: number) => { updateStatus(id, { status: "active" }); setMenuOpen(null); };
+  const requestApprove = (l: Listing) => { setConfirmApprove(l); setMenuOpen(null); };
+  const doApprove = () => {
+    if (!confirmApprove) return;
+    updateStatus(confirmApprove.id, { status: "active" });
+    setConfirmApprove(null);
+  };
   const togglePause = (l: Listing) => { updateStatus(l.id, { status: l.status === "active" ? "paused" : "active" }); setMenuOpen(null); };
 
   const reject = () => {
@@ -231,6 +238,12 @@ export default function AdminListingsPage() {
                       <span>{timeAgo(l.createdAt)}</span>
                     </div>
                   )}
+                  {l.status === "pending" && (
+                    <div className="flex items-center gap-3 mt-2 text-[11px]" style={{ color: "#f59e0b" }}>
+                      <Clock className="w-3 h-3" />
+                      <span>Kutuvga o&apos;tgan: {timeAgo(l.statusChangedAt ?? l.createdAt)}</span>
+                    </div>
+                  )}
                   {l.rejectReason && (
                     <div className="mt-3 rounded-[10px] p-2.5 flex items-start gap-2" style={{ backgroundColor: "#ef44441a", border: "1px solid #ef444433" }}>
                       <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: "#ef4444" }} />
@@ -243,7 +256,7 @@ export default function AdminListingsPage() {
                   {l.status === "pending" && (
                     <>
                       <button
-                        onClick={() => approve(l.id)}
+                        onClick={() => requestApprove(l)}
                         className="hidden md:flex h-[36px] px-3 rounded-[8px] items-center gap-1.5 text-[12px] font-medium"
                         style={{ backgroundColor: "#22c55e22", color: "#22c55e" }}
                       >
@@ -307,7 +320,7 @@ export default function AdminListingsPage() {
                                 icon={Check}
                                 label="Tasdiqlash"
                                 color="#22c55e"
-                                onClick={() => approve(l.id)}
+                                onClick={() => requestApprove(l)}
                               />
                               <MenuItem
                                 icon={X}
@@ -333,7 +346,7 @@ export default function AdminListingsPage() {
 
               {l.status === "pending" && (
                 <div className="md:hidden flex gap-2 mt-3">
-                  <button onClick={() => approve(l.id)} className="flex-1 h-[36px] rounded-[8px] flex items-center justify-center gap-1.5 text-[12px] font-medium" style={{ backgroundColor: "#22c55e22", color: "#22c55e" }}>
+                  <button onClick={() => requestApprove(l)} className="flex-1 h-[36px] rounded-[8px] flex items-center justify-center gap-1.5 text-[12px] font-medium" style={{ backgroundColor: "#22c55e22", color: "#22c55e" }}>
                     <Check className="w-3.5 h-3.5" /> Tasdiqlash
                   </button>
                   <button onClick={() => { setRejectModal(l); setRejectReason(""); }} className="flex-1 h-[36px] rounded-[8px] flex items-center justify-center gap-1.5 text-[12px] font-medium" style={{ backgroundColor: "#ef444422", color: "#ef4444" }}>
@@ -347,6 +360,35 @@ export default function AdminListingsPage() {
       ) : (
         <div className="rounded-[14px] p-12 text-center" style={{ backgroundColor: config.surface, border: `1px dashed ${config.surfaceBorder}` }}>
           <p className="text-[14px]" style={{ color: config.textMuted }}>E&apos;lon topilmadi</p>
+        </div>
+      )}
+
+      {confirmApprove && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmApprove(null)} />
+          <div className="relative rounded-[18px] p-6 max-w-[440px] w-full" style={{ backgroundColor: isLight ? "#ffffff" : config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-11 h-11 rounded-[12px] bg-green-500/15 flex items-center justify-center shrink-0">
+                <Check className="w-5 h-5 text-green-500" />
+              </div>
+              <div>
+                <h3 className="text-[17px] font-bold" style={{ color: config.text }}>E&apos;lonni tasdiqlash</h3>
+                <p className="text-[13px] mt-1" style={{ color: config.textMuted }}>E&apos;lon darhol saytda <b>aktiv</b> holatga o&apos;tadi va foydalanuvchilarga ko&apos;rinadi.</p>
+              </div>
+            </div>
+            <div className="rounded-[10px] p-3 mb-4" style={{ backgroundColor: config.hover }}>
+              <p className="text-[13px] font-semibold" style={{ color: config.text }}>{confirmApprove.title}</p>
+              <p className="text-[11px] mt-0.5" style={{ color: config.textMuted }}>{confirmApprove.user.centerName ?? confirmApprove.user.name}</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setConfirmApprove(null)} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium" style={{ backgroundColor: config.hover, color: config.textMuted }}>
+                Bekor
+              </button>
+              <button onClick={doApprove} className="flex-1 h-[44px] rounded-[10px] text-[14px] font-medium text-white flex items-center justify-center gap-1.5" style={{ backgroundColor: "#22c55e" }}>
+                <Check className="w-4 h-4" /> Ha, tasdiqlash
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -572,7 +614,7 @@ export default function AdminListingsPage() {
 
               {openListing.status === "pending" && (
                 <div className="flex gap-2 pt-2">
-                  <button onClick={() => { approve(openListing.id); setOpenListing(null); }} className="flex-1 h-[44px] rounded-[10px] text-[13px] font-medium flex items-center justify-center gap-1.5" style={{ backgroundColor: "#22c55e", color: "#ffffff" }}>
+                  <button onClick={() => { requestApprove(openListing); setOpenListing(null); }} className="flex-1 h-[44px] rounded-[10px] text-[13px] font-medium flex items-center justify-center gap-1.5" style={{ backgroundColor: "#22c55e", color: "#ffffff" }}>
                     <Check className="w-4 h-4" /> Tasdiqlash
                   </button>
                   <button onClick={() => { setRejectModal(openListing); setOpenListing(null); }} className="flex-1 h-[44px] rounded-[10px] text-[13px] font-medium flex items-center justify-center gap-1.5" style={{ backgroundColor: "#ef4444", color: "#ffffff" }}>
