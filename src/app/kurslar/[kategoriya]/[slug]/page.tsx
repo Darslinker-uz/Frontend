@@ -327,7 +327,7 @@ export default async function KursDetailPage({ params }: Props) {
             {/* Kurs haqida */}
             <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
               <h2 className="text-[18px] font-bold text-[#16181a] mb-3">Kurs haqida</h2>
-              <p className="text-[15px] text-[#7c8490] leading-relaxed">{course.description}</p>
+              <p className="text-[15px] text-[#7c8490] leading-relaxed whitespace-pre-wrap">{course.description}</p>
             </div>
 
             {/* Reyting bloki */}
