@@ -1,11 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowRight, Star } from "lucide-react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { ArrowRight, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
 import { CourseFilter, type FilterGroup, type FilterRegion } from "@/components/course-filter";
+
+const PAGE_SIZE = 12;
+
+function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
+  if (total <= 1) return null;
+  const range: (number | "...")[] = [];
+  const add = (p: number | "...") => { if (range[range.length - 1] !== p) range.push(p); };
+  add(1);
+  if (page > 3) add("...");
+  for (let p = Math.max(2, page - 1); p <= Math.min(total - 1, page + 1); p++) add(p);
+  if (page < total - 2) add("...");
+  if (total > 1) add(total);
+  const btn = "h-[36px] min-w-[36px] px-3 rounded-[8px] text-[13px] font-medium flex items-center justify-center transition-colors";
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-8 mb-4 flex-wrap">
+      <button onClick={() => onChange(Math.max(1, page - 1))} disabled={page === 1} className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`} aria-label="Oldingi sahifa">
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+      {range.map((p, i) =>
+        p === "..." ? (
+          <span key={`gap-${i}`} className="px-2 text-[13px] text-[#7c8490]">…</span>
+        ) : (
+          <button key={p} onClick={() => onChange(p)} className={p === page ? `${btn} bg-[#16181a] text-white` : `${btn} bg-white border border-[#e4e7ea] text-[#16181a] hover:bg-[#f0f2f3]`}>
+            {p}
+          </button>
+        )
+      )}
+      <button onClick={() => onChange(Math.min(total, page + 1))} disabled={page === total} className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`} aria-label="Keyingi sahifa">
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
 
 function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
   return (
@@ -69,16 +102,36 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
 
 export function KategoriyaClient({ kategoriya, allCourses, groups = [], regions = [] }: { kategoriya: string; allCourses: Course[]; groups?: FilterGroup[]; regions?: FilterRegion[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const initialScoped = allCourses.filter(c => c.categorySlug === kategoriya);
   const [filtered, setFiltered] = useState<Course[]>(initialScoped);
   const [filterKey, setFilterKey] = useState(0);
+  const [page, setPage] = useState(Math.max(1, Number(searchParams.get("page") ?? 1)));
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const handleFilter = useCallback((courses: Course[]) => {
     setFiltered(courses);
     setFilterKey(k => k + 1);
+    setPage(1);
   }, []);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageCourses = useMemo(
+    () => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filtered, safePage]
+  );
+
+  const goToPage = useCallback((p: number) => {
+    setPage(p);
+    const params = new URLSearchParams(searchParams.toString());
+    if (p === 1) params.delete("page"); else params.set("page", String(p));
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [searchParams, router, pathname]);
 
   return (
     <>
@@ -91,11 +144,13 @@ export function KategoriyaClient({ kategoriya, allCourses, groups = [], regions 
           initialCategory={kategoriya}
           onClearCategory={() => router.push("/kurslar")}
         >
-          <CourseGrid courses={filtered} filterKey={filterKey} />
+          <CourseGrid courses={pageCourses} filterKey={filterKey} />
+          <Pagination page={safePage} total={totalPages} onChange={goToPage} />
         </CourseFilter>
       </div>
       <div className="md:hidden mt-4">
-        <CourseGrid courses={filtered} filterKey={filterKey} />
+        <CourseGrid courses={pageCourses} filterKey={filterKey} />
+        <Pagination page={safePage} total={totalPages} onChange={goToPage} />
       </div>
     </>
   );

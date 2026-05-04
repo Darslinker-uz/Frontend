@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useCallback, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { ArrowRight, Star } from "lucide-react";
+import { useState, useCallback, useEffect, Suspense, useMemo } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { ArrowRight, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
 import { CourseFilter, type FilterGroup, type FilterRegion } from "@/components/course-filter";
 import { LocationBanner } from "@/components/location-banner";
+
+const PAGE_SIZE = 12;
 
 interface LocationFilterInfo {
   region: string | null;
@@ -74,21 +76,94 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
   );
 }
 
+function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
+  if (total <= 1) return null;
+  const range: (number | "...")[] = [];
+  // Smart pagination: 1 ... (page-1) page (page+1) ... last
+  const add = (p: number | "...") => { if (range[range.length - 1] !== p) range.push(p); };
+  add(1);
+  if (page > 3) add("...");
+  for (let p = Math.max(2, page - 1); p <= Math.min(total - 1, page + 1); p++) add(p);
+  if (page < total - 2) add("...");
+  if (total > 1) add(total);
+
+  const btn = "h-[36px] min-w-[36px] px-3 rounded-[8px] text-[13px] font-medium flex items-center justify-center transition-colors";
+
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-8 mb-4 flex-wrap">
+      <button
+        onClick={() => onChange(Math.max(1, page - 1))}
+        disabled={page === 1}
+        className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`}
+        aria-label="Oldingi sahifa"
+      >
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+      {range.map((p, i) =>
+        p === "..." ? (
+          <span key={`gap-${i}`} className="px-2 text-[13px] text-[#7c8490]">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onChange(p)}
+            className={p === page
+              ? `${btn} bg-[#16181a] text-white`
+              : `${btn} bg-white border border-[#e4e7ea] text-[#16181a] hover:bg-[#f0f2f3]`}
+          >
+            {p}
+          </button>
+        )
+      )}
+      <button
+        onClick={() => onChange(Math.min(total, page + 1))}
+        disabled={page === total}
+        className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`}
+        aria-label="Keyingi sahifa"
+      >
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
 const EMPTY_LOCATION_FILTER: LocationFilterInfo = { region: null, district: null, fallback: null };
 
 function KurslarContent({ initialCourses, locationFilter, groups, regions }: { initialCourses: Course[]; locationFilter: LocationFilterInfo; groups: FilterGroup[]; regions: FilterRegion[] }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const initialSearch = searchParams.get("search") || "";
   const initialFormat = searchParams.get("format") || "";
+  const initialPage = Math.max(1, Number(searchParams.get("page") ?? 1));
   const [filtered, setFiltered] = useState<Course[]>(initialCourses);
   const [filterKey, setFilterKey] = useState(0);
+  const [page, setPage] = useState(initialPage);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const handleFilter = useCallback((courses: Course[]) => {
     setFiltered(courses);
     setFilterKey(k => k + 1);
+    setPage(1); // filter o'zgargach 1-sahifaga qaytamiz
   }, []);
+
+  // Joriy sahifa kurslari
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageCourses = useMemo(
+    () => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filtered, safePage]
+  );
+
+  // Sahifa o'zgarganda URL ham yangilanadi (?page=N) va yuqoriga scroll
+  const goToPage = useCallback((p: number) => {
+    setPage(p);
+    const params = new URLSearchParams(searchParams.toString());
+    if (p === 1) params.delete("page"); else params.set("page", String(p));
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [searchParams, router, pathname]);
 
   return (
     <>
@@ -107,11 +182,13 @@ function KurslarContent({ initialCourses, locationFilter, groups, regions }: { i
           initialSearch={initialSearch}
           initialFormat={initialFormat}
         >
-          <CourseGrid courses={filtered} filterKey={filterKey} />
+          <CourseGrid courses={pageCourses} filterKey={filterKey} />
+          <Pagination page={safePage} total={totalPages} onChange={goToPage} />
         </CourseFilter>
       </div>
       <div className="md:hidden mt-4">
-        <CourseGrid courses={filtered} filterKey={filterKey} />
+        <CourseGrid courses={pageCourses} filterKey={filterKey} />
+        <Pagination page={safePage} total={totalPages} onChange={goToPage} />
       </div>
     </>
   );
