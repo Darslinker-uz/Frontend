@@ -3,62 +3,9 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
-import { GRADIENT_OPTIONS, ICON_OPTIONS, type Course } from "@/data/courses";
+import type { Slide } from "@/lib/featured-slide";
 
 const SLIDE_DURATION = 6000;
-const DEFAULT_GRADIENT = GRADIENT_OPTIONS[0].value;
-const DEFAULT_ICON = ICON_OPTIONS[0].path;
-
-export interface Slide {
-  slug: string;
-  categorySlug: string;
-  category: string;
-  format: string;
-  location: string;
-  title: string;
-  subtitle: string;
-  price: string;
-  duration: string;
-  gradient: string;
-  iconPath: string;
-  imageUrl: string | null;
-  imageAPosX: number;
-  imageAPosY: number;
-  imageAMPosX: number;
-  imageAMPosY: number;
-  imageAZoom: number;
-  imageAMZoom: number;
-  imageDarkness?: number;
-}
-
-// Course (lib/listings.ts'dan) → Slide (slider'da render uchun)
-// Server'da chaqirilishi mumkin (page.tsx) — toza data o'tkazish uchun
-export function courseToSlide(c: Course): Slide {
-  // gradient.id va icon.id Course'da string sifatida saqlanadi (lib mapper'da resolve qilingan)
-  const gradient = c.gradient ?? DEFAULT_GRADIENT;
-  const iconPath = c.iconPath ?? DEFAULT_ICON;
-  return {
-    slug: c.slug,
-    categorySlug: c.categorySlug,
-    category: c.category,
-    format: c.format,
-    location: c.district || c.region || c.location || "Online",
-    title: c.title,
-    subtitle: c.provider,
-    price: c.priceFree ? "Bepul" : `${c.price} so'm`,
-    duration: c.duration ?? "—",
-    gradient,
-    iconPath,
-    imageUrl: c.imageUrl ?? null,
-    imageAPosX: c.imageAPosX ?? 50,
-    imageAPosY: c.imageAPosY ?? 50,
-    imageAMPosX: c.imageAMPosX ?? 50,
-    imageAMPosY: c.imageAMPosY ?? 50,
-    imageAZoom: c.imageAZoom ?? 100,
-    imageAMZoom: c.imageAMZoom ?? 100,
-    imageDarkness: c.imageDarkness ?? 15,
-  };
-}
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr];

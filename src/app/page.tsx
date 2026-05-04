@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { FeaturedSlider, courseToSlide } from "@/components/featured-slider";
+import { FeaturedSlider } from "@/components/featured-slider";
+import { courseToSlide } from "@/lib/featured-slide";
 import { CoursesSlider } from "@/components/courses-slider";
 import { HeroSearch } from "@/components/hero-search";
 import { HelpForm } from "@/components/help-form";
