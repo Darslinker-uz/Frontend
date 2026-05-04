@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Zap, Crown, Sparkles, Check, Wallet, AlertCircle } from "lucide-react";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
+import { BoostCalendar } from "@/components/boost-calendar";
 
 type ClassType = "A" | "B";
 
@@ -35,10 +36,10 @@ export default function BoostPage() {
   const [loading, setLoading] = useState(true);
   const [selectedClass, setSelectedClass] = useState<ClassType | null>(null);
   const [duration, setDuration] = useState(7);
-  const [startDate, setStartDate] = useState<"now" | "later">("now");
-  const [laterDate, setLaterDate] = useState("");
+  const [pickedStartDate, setPickedStartDate] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [partialWarning, setPartialWarning] = useState<{ booked: number; skipped: string[] } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,15 +66,17 @@ export default function BoostPage() {
 
   const submit = async () => {
     if (!selectedClass) return;
+    if (!pickedStartDate) { setError("Boshlanish kunini tanlang"); return; }
     setError(null);
+    setPartialWarning(null);
     setSubmitting(true);
     try {
       const body: Record<string, unknown> = {
         listingId,
         type: selectedClass === "A" ? "a_class" : "b_class",
         daysTotal: duration,
+        startAt: pickedStartDate,
       };
-      if (startDate === "later" && laterDate) body.startAt = new Date(laterDate).toISOString();
       const res = await fetch("/api/dashboard/boost", {
         method: "POST",
         credentials: "same-origin",
@@ -83,6 +86,11 @@ export default function BoostPage() {
       const data = await res.json();
       if (!res.ok) {
         setError(data?.error ?? "Xatolik");
+        setSubmitting(false);
+        return;
+      }
+      if (data.skippedDays && data.skippedDays.length > 0) {
+        setPartialWarning({ booked: data.bookedDays.length, skipped: data.skippedDays });
         setSubmitting(false);
         return;
       }
@@ -244,18 +252,21 @@ export default function BoostPage() {
           </div>
 
           <div className="mb-5">
-            <p className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: config.textMuted }}>Boshlash vaqti</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => setStartDate("now")} className="h-[52px] rounded-[12px] text-[14px] font-medium transition-all border-2" style={startDate === "now" ? { borderColor: config.accent, backgroundColor: config.hover, color: config.text } : { borderColor: config.surfaceBorder, backgroundColor: config.surface, color: config.textMuted }}>
-                Darhol
-              </button>
-              <button onClick={() => setStartDate("later")} className="h-[52px] rounded-[12px] text-[14px] font-medium transition-all border-2" style={startDate === "later" ? { borderColor: config.accent, backgroundColor: config.hover, color: config.text } : { borderColor: config.surfaceBorder, backgroundColor: config.surface, color: config.textMuted }}>
-                Keyinroq
-              </button>
-            </div>
-            {startDate === "later" && (
-              <input value={laterDate} onChange={(e) => setLaterDate(e.target.value)} type="date" className="mt-2 w-full h-[44px] px-4 rounded-[10px] text-[14px] focus:outline-none" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
-            )}
+            <p className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: config.textMuted }}>Boshlash kuni</p>
+            <p className="text-[12px] mb-3" style={{ color: config.textDim }}>Eng kami ertaga. Calendar'dan bo&apos;sh kun tanlang.</p>
+            <BoostCalendar
+              type={selectedClass === "A" ? "a_class" : "b_class"}
+              duration={duration}
+              startDate={pickedStartDate}
+              onSelect={setPickedStartDate}
+              bg={config.hover}
+              border={config.surfaceBorder}
+              surface={config.surface}
+              text={config.text}
+              textMuted={config.textMuted}
+              textDim={config.textDim}
+              accent={config.accent}
+            />
           </div>
 
           <div className="rounded-[16px] p-5 mb-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
@@ -301,14 +312,27 @@ export default function BoostPage() {
             </div>
           )}
 
+          {partialWarning && (
+            <div className="rounded-[12px] p-4 mb-4" style={{ backgroundColor: "#22c55e14", border: "1px solid #22c55e33" }}>
+              <p className="text-[14px] font-semibold mb-1" style={{ color: "#16a34a" }}>✅ {partialWarning.booked} kun bron qilindi</p>
+              <p className="text-[12px]" style={{ color: "#16a34a" }}>
+                {partialWarning.skipped.length} ta band kun o&apos;tkazib yuborildi: {partialWarning.skipped.join(", ")}.
+                Pul faqat bron qilingan kunlar uchun yechildi.
+              </p>
+              <button onClick={() => router.push("/center/listings")} className="mt-3 text-[13px] font-medium" style={{ color: "#16a34a", textDecoration: "underline" }}>
+                E&apos;lonlarga qaytish
+              </button>
+            </div>
+          )}
+
           <button
             onClick={submit}
-            disabled={!canAfford || submitting}
+            disabled={!canAfford || submitting || !pickedStartDate || !!partialWarning}
             className="w-full h-[52px] rounded-[14px] text-[15px] font-semibold flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed"
-            style={canAfford && !submitting ? { backgroundColor: config.accent, color: config.accentText } : { backgroundColor: config.hover, color: config.textDim }}
+            style={canAfford && !submitting && pickedStartDate && !partialWarning ? { backgroundColor: config.accent, color: config.accentText } : { backgroundColor: config.hover, color: config.textDim }}
           >
             <Zap className="w-5 h-5" />
-            {submitting ? "Yuborilmoqda..." : canAfford ? `${price.toLocaleString()} so'm to'lash va yuborish` : "Balans yetarli emas"}
+            {submitting ? "Yuborilmoqda..." : !pickedStartDate ? "Boshlanish kunini tanlang" : !canAfford ? "Balans yetarli emas" : `${price.toLocaleString()} so'm to'lash va yuborish`}
           </button>
 
           <p className="text-[11px] text-center mt-3" style={{ color: config.textDim }}>

@@ -359,12 +359,15 @@ model Boost {
   leadsCount   Int         @default(0) @map("leads_count")
   rejectReason String?     @map("reject_reason")
   reviewedAt   DateTime?   @map("reviewed_at")
+  bundleId     String?     @map("bundle_id") // Bir bron paytida ko'p Boost yaratilsa, hammasini birga belgilash
   createdAt    DateTime    @default(now()) @map("created_at")
 
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([listingId])
+  @@index([type, status, startDate, endDate])
+  @@index([bundleId])
   @@map("boosts")
 }
 
