@@ -72,6 +72,7 @@ export async function GET() {
         status: "active",
         id: { notIn: Array.from(paidIds) },
         category: { active: true, pendingApproval: false },
+        imageUrl: { not: null }, // Faqat rasmli e'lonlar
       },
       select: listingSelect,
     });

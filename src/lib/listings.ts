@@ -279,6 +279,7 @@ export async function getFeaturedListings(): Promise<Course[]> {
         status: "active",
         id: { notIn: Array.from(paidIds) },
         category: { active: true, pendingApproval: false },
+        imageUrl: { not: null }, // Faqat rasmli e'lonlarni random tanlaymiz
       },
       select: listingSelect,
     });
@@ -337,6 +338,7 @@ export async function getPopularListings(): Promise<Course[]> {
         status: "active",
         id: { notIn: Array.from(paidIds) },
         category: { active: true, pendingApproval: false },
+        imageUrl: { not: null }, // Faqat rasmli e'lonlar — kartochka chiroyli ko'rinishi uchun
       },
       orderBy: [{ views: "desc" }, { createdAt: "desc" }],
       take: remaining,
