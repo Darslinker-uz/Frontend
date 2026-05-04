@@ -13,6 +13,8 @@ const listingSelect = {
   price: true,
   format: true,
   location: true,
+  region: true,
+  district: true,
   duration: true,
   imageUrl: true,
   imagePosX: true,

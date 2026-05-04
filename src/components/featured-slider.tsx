@@ -23,6 +23,8 @@ interface ApiFeatured {
   format: "offline" | "online" | "video";
   location: string | null;
   duration: string | null;
+  region: string | null;
+  district: string | null;
   imageUrl: string | null;
   imageAPosX: number;
   imageAPosY: number;
@@ -67,7 +69,8 @@ function toSlide(l: ApiFeatured): Slide {
     categorySlug: l.category.slug,
     category: l.category.name,
     format: FORMAT_LABELS[l.format] ?? "Online",
-    location: l.location ?? "Online",
+    // Card'da qisqa lokatsiya — tuman, yo'q bo'lsa viloyat, online kurslar uchun "Online"
+    location: l.district || l.region || (l.location ?? "Online"),
     title: l.title,
     subtitle: l.user.centerName ?? l.user.name,
     price: l.price === 0 ? "Bepul" : `${new Intl.NumberFormat("uz-UZ").format(l.price)} so'm`,
@@ -214,7 +217,7 @@ export function FeaturedSlider() {
                       <p className="text-[9px] md:text-[10px] text-white/40 mb-0.5">Narx</p>
                       <p className="text-[14px] md:text-[17px] font-bold text-white">{slide.price}</p>
                     </div>
-                    <div className="px-3 md:px-4 py-2 md:py-2.5 rounded-[10px] md:rounded-[14px] bg-white/10">
+                    <div className="hidden md:block px-3 md:px-4 py-2 md:py-2.5 rounded-[10px] md:rounded-[14px] bg-white/10">
                       <p className="text-[9px] md:text-[10px] text-white/40 mb-0.5">Davomiylik</p>
                       <p className="text-[14px] md:text-[17px] font-bold text-white">{slide.duration}</p>
                     </div>
