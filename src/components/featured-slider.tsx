@@ -101,7 +101,14 @@ export function FeaturedSlider() {
         const res = await fetch("/api/featured", { cache: "no-store" });
         const data: { listings: ApiFeatured[] } = await res.json();
         if (cancelled) return;
-        setSlides((data.listings ?? []).map(toSlide));
+        // Random shuffle per sessiya — sahifa qayta yuklansa yangi tartib
+        // (Fisher-Yates)
+        const arr = (data.listings ?? []).map(toSlide);
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        setSlides(arr);
       } catch (e) { console.error(e); }
     })();
     return () => { cancelled = true; };

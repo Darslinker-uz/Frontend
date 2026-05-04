@@ -6,7 +6,7 @@ import { CoursesSlider } from "@/components/courses-slider";
 import { HeroSearch } from "@/components/hero-search";
 import { HelpForm } from "@/components/help-form";
 import { FaqList } from "@/components/faq-item";
-import { getActiveCategoryGroups, getActiveListings } from "@/lib/listings";
+import { getActiveCategoryGroups, getPopularListings } from "@/lib/listings";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,8 @@ export default async function HomePage() {
   const [groups, courses, dbFaqs] = await Promise.all([
     // Bosh sahifa grid'i — admin'da `showOnHomepage` flag bilan boshqariladi
     getActiveCategoryGroups({ homepageOnly: true }),
-    getActiveListings({ limit: 12 }),
+    // CoursesSlider — paid B-class avval, qolgani views DESC bo'yicha (max 12)
+    getPopularListings(),
     prisma.faq.findMany({
       where: { active: true, page: "home" },
       orderBy: [{ order: "asc" }, { id: "asc" }],

@@ -233,8 +233,26 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
   return { course: listingToCourse(listing), id: listing.id };
 }
 
+// Bosh sahifa FeaturedSlider (A-class) — paid'lar avval, qolgani random non-paid bilan to'ldiriladi.
+// Max: 10 ta. Server tartibi: paid'lar (random emas, faqat startDate desc), keyin random non-paid.
+// Client tomonida shuffle qilinishi mumkin (har sessiya).
 export async function getFeaturedListings(): Promise<Course[]> {
   const now = new Date();
+  const MAX = 10;
+
+  // Listing select shape — qayta ishlatiladi
+  const listingSelect = {
+    id: true, title: true, slug: true, description: true, price: true,
+    format: true, location: true, region: true, district: true, duration: true, color: true, icon: true, imageUrl: true,
+    imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true, status: true, lessons: true,
+    language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
+    branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" as const } },
+    category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
+    user: { select: { name: true, centerName: true } },
+    ratings: { select: { stars: true } },
+  } as const;
+
+  // 1) Aktiv A-class boost'lardan (kunga aktiv)
   const boosts = await prisma.boost.findMany({
     where: {
       status: "active",
@@ -242,27 +260,91 @@ export async function getFeaturedListings(): Promise<Course[]> {
       startDate: { lte: now },
       endDate: { gte: now },
     },
-    take: 10,
+    take: MAX,
     orderBy: { startDate: "desc" },
-    include: {
-      listing: {
-        select: {
-          id: true, title: true, slug: true, description: true, price: true,
-          format: true, location: true, region: true, district: true, duration: true, color: true, icon: true, imageUrl: true,
-          imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true, status: true, lessons: true,
-          language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
-      branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
-          category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
-          user: { select: { name: true, centerName: true } },
-          ratings: { select: { stars: true } },
-        },
-      },
-    },
+    include: { listing: { select: listingSelect } },
   });
-  return boosts
+
+  const paid = boosts
     .map(b => b.listing)
-    .filter(l => l.status === "active")
-    .map(listingToCourse);
+    .filter(l => l.status === "active");
+  const paidIds = new Set(paid.map(l => l.id));
+
+  // 2) Joy qolsa — boost'siz random e'lonlar bilan to'ldirish
+  const remaining = MAX - paid.length;
+  let nonPaid: typeof paid = [];
+  if (remaining > 0) {
+    const others = await prisma.listing.findMany({
+      where: {
+        status: "active",
+        id: { notIn: Array.from(paidIds) },
+        category: { active: true, pendingApproval: false },
+      },
+      select: listingSelect,
+    });
+    // Tasodifiy aralashtiramiz
+    nonPaid = others
+      .map(l => ({ l, r: Math.random() }))
+      .sort((a, b) => a.r - b.r)
+      .slice(0, remaining)
+      .map(x => x.l);
+  }
+
+  return [...paid, ...nonPaid].map(listingToCourse);
+}
+
+// Bosh sahifa CoursesSlider ("Mashhur kurslar") — paid B-class avval, qolgani views DESC.
+// Max: 12 ta. Tartib stabil (1 kun ichida deyarli o'zgarmaydi).
+export async function getPopularListings(): Promise<Course[]> {
+  const now = new Date();
+  const MAX = 12;
+
+  const listingSelect = {
+    id: true, title: true, slug: true, description: true, price: true,
+    format: true, location: true, region: true, district: true, duration: true, color: true, icon: true, imageUrl: true,
+    imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true, status: true, lessons: true,
+    language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
+    branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" as const } },
+    category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
+    user: { select: { name: true, centerName: true } },
+    ratings: { select: { stars: true } },
+  } as const;
+
+  // 1) Aktiv B-class boost'lar — birinchi navbatda
+  const boosts = await prisma.boost.findMany({
+    where: {
+      status: "active",
+      type: "b_class",
+      startDate: { lte: now },
+      endDate: { gte: now },
+    },
+    take: MAX,
+    orderBy: { startDate: "desc" },
+    include: { listing: { select: listingSelect } },
+  });
+
+  const paid = boosts
+    .map(b => b.listing)
+    .filter(l => l.status === "active");
+  const paidIds = new Set(paid.map(l => l.id));
+
+  // 2) Joy qolsa — qolganlari views DESC bo'yicha
+  const remaining = MAX - paid.length;
+  let popular: typeof paid = [];
+  if (remaining > 0) {
+    popular = await prisma.listing.findMany({
+      where: {
+        status: "active",
+        id: { notIn: Array.from(paidIds) },
+        category: { active: true, pendingApproval: false },
+      },
+      orderBy: [{ views: "desc" }, { createdAt: "desc" }],
+      take: remaining,
+      select: listingSelect,
+    });
+  }
+
+  return [...paid, ...popular].map(listingToCourse);
 }
 
 // Public: recent ratings WITH a non-empty comment for the listing detail page.
