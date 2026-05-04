@@ -62,6 +62,7 @@ interface ApiListing {
   imageAMZoom: number;
   imageCZoom: number;
   imageCMZoom: number;
+  imageDarkness?: number;
   status: "pending" | "active" | "paused" | "rejected";
   category: { id: number; name: string; slug: string; group?: { id: number; name: string; slug: string } | null };
   language: string;
@@ -124,6 +125,7 @@ export default function EditListingPage() {
   const [imageAMZoom, setImageAMZoom] = useState(100);
   const [imageCZoom, setImageCZoom] = useState(100);
   const [imageCMZoom, setImageCMZoom] = useState(100);
+  const [imageDarkness, setImageDarkness] = useState(15);
   const [lessons, setLessons] = useState<string[]>([""]);
   const [activeVariant, setActiveVariant] = useState<"a-desktop" | "a-mobile" | "b" | "c-desktop" | "c-mobile">("a-desktop");
   // 10 new detail fields
@@ -201,6 +203,7 @@ export default function EditListingPage() {
         setImageAMZoom(l.imageAMZoom ?? 100);
         setImageCZoom(l.imageCZoom ?? 100);
         setImageCMZoom(l.imageCMZoom ?? 100);
+        setImageDarkness(l.imageDarkness ?? 15);
         setLessons(l.lessons && l.lessons.length > 0 ? l.lessons : [""]);
         setLanguages(l.languages && l.languages.length > 0 ? l.languages : (l.language ? [l.language] : ["uz"]));
         setLevels(l.levels && l.levels.length > 0 ? l.levels : (l.level ? [l.level] : []));
@@ -271,6 +274,7 @@ export default function EditListingPage() {
           imageAMZoom,
           imageCZoom,
           imageCMZoom,
+          imageDarkness,
           lessons: lessons.map(s => s.trim()).filter(s => s.length > 0),
           language: languages[0] || "uz",
           languages,
@@ -758,6 +762,14 @@ export default function EditListingPage() {
                         <span className="text-[11px]" style={{ color: config.textDim }}>{(active.zoom / 100).toFixed(2)}x</span>
                       </div>
                       <input type="range" min={100} max={300} step={5} value={active.zoom} onChange={(e) => active.setZoom(Number(e.target.value))} className="w-full accent-[#7ea2d4]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[11px]" style={labelStyle}>Qoraytirish (matn ko&apos;rinishi uchun)</label>
+                        <span className="text-[11px]" style={{ color: config.textDim }}>{imageDarkness}%</span>
+                      </div>
+                      <input type="range" min={0} max={50} value={imageDarkness} onChange={(e) => setImageDarkness(Number(e.target.value))} className="w-full accent-[#7ea2d4]" />
+                      <p className="text-[10px] mt-1" style={{ color: config.textDim }}>Yorug&apos; rasmlarda 15-25%, qora rasmlarda 0-10% tavsiya etiladi</p>
                     </div>
                   </div>
                 </div>

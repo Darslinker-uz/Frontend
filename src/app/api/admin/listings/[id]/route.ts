@@ -93,6 +93,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.imageAMZoom !== undefined) data.imageAMZoom = Math.max(100, Math.min(300, Number(body.imageAMZoom)));
   if (body.imageCZoom !== undefined) data.imageCZoom = Math.max(100, Math.min(300, Number(body.imageCZoom)));
   if (body.imageCMZoom !== undefined) data.imageCMZoom = Math.max(100, Math.min(300, Number(body.imageCMZoom)));
+  if (body.imageDarkness !== undefined) data.imageDarkness = Math.max(0, Math.min(50, Number(body.imageDarkness)));
   if (Array.isArray(body.lessons)) {
     data.lessons = body.lessons.map((x: unknown) => String(x).trim()).filter((s: string) => s.length > 0 && s.length <= 200).slice(0, 30);
   }

@@ -42,6 +42,7 @@ export async function GET() {
           imageAMZoom: true,
           imageCZoom: true,
           imageCMZoom: true,
+          imageDarkness: true,
           color: true,
           icon: true,
           views: true,

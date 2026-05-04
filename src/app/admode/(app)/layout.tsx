@@ -18,17 +18,26 @@ interface NavItem {
   // Assistant'lar uchun bu ruxsat kerak. Admin har doim hammasi.
   // null = bosh sahifa kabi har doim ko'rinadi
   perm: PermissionKey | null;
+  // Sidebar'da pending counts badge'i uchun key (faqat admin ko'radi)
+  badgeKey?: "listings" | "categories" | "boosts" | "partners";
+}
+
+interface PendingCounts {
+  listings: number;
+  categories: number;
+  boosts: number;
+  partners: number;
 }
 
 const navItems: NavItem[] = [
   { href: "/admode/home", label: "Bosh sahifa", icon: LayoutDashboard, perm: null },
   { href: "/admode/users", label: "Foydalanuvchilar", icon: Users, perm: "user.view" },
-  { href: "/admode/listings", label: "E'lonlar", icon: FileText, perm: "listing.view" },
+  { href: "/admode/listings", label: "E'lonlar", icon: FileText, perm: "listing.view", badgeKey: "listings" },
   { href: "/admode/leads", label: "Leadlar", icon: MessageSquare, perm: "lead.view" },
   { href: "/admode/payments", label: "To'lovlar", icon: CreditCard, perm: "payment.view" },
-  { href: "/admode/boosts", label: "Boostlar", icon: Zap, perm: "boost.view" },
+  { href: "/admode/boosts", label: "Boostlar", icon: Zap, perm: "boost.view", badgeKey: "boosts" },
   { href: "/admode/ratings", label: "Reytinglar", icon: Star, perm: null },
-  { href: "/admode/categories", label: "Kategoriyalar", icon: FolderTree, perm: "taxonomy.edit" },
+  { href: "/admode/categories", label: "Kategoriyalar", icon: FolderTree, perm: "taxonomy.edit", badgeKey: "categories" },
   { href: "/admode/regions", label: "Viloyatlar", icon: MapPin, perm: "region.edit" },
   { href: "/admode/kontent", label: "Kontent", icon: BookOpen, perm: "content.view" },
   { href: "/admode/faq", label: "FAQ", icon: HelpCircle, perm: "faq.edit" },
@@ -43,6 +52,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const [confirmExit, setConfirmExit] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<Permissions | null>(null);
+  const [pendingCounts, setPendingCounts] = useState<PendingCounts | null>(null);
 
   // Joriy foydalanuvchining permissions'ni olish (admin → ALL, assistant → kodda)
   useEffect(() => {
@@ -56,6 +66,20 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {});
   }, []);
+
+  // Pending counts polling — faqat admin uchun, har 30 soniyada
+  useEffect(() => {
+    if (role !== "admin") return;
+    const fetchCounts = () => {
+      fetch("/api/admin/pending-counts", { cache: "no-store", credentials: "same-origin" })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setPendingCounts(data); })
+        .catch(() => {});
+    };
+    fetchCounts();
+    const t = setInterval(fetchCounts, 30000);
+    return () => clearInterval(t);
+  }, [role]);
 
   // Sidebar nav items'ni filterlash
   const visibleNavItems = navItems.filter((item) => {
@@ -98,6 +122,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
+              const badgeCount = role === "admin" && item.badgeKey && pendingCounts
+                ? pendingCounts[item.badgeKey]
+                : 0;
               return (
                 <Link
                   key={item.href}
@@ -115,7 +142,15 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                   }}
                 >
                   <Icon className="w-[18px] h-[18px]" />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {badgeCount > 0 && (
+                    <span
+                      className="min-w-[20px] h-[20px] px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center"
+                      style={{ backgroundColor: "#ef4444", color: "white" }}
+                    >
+                      {badgeCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -175,14 +210,27 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         {visibleNavItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
+          const badgeCount = role === "admin" && item.badgeKey && pendingCounts
+            ? pendingCounts[item.badgeKey]
+            : 0;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-[10px] transition-all"
+              className="relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-[10px] transition-all"
               style={{ color: isActive ? config.text : config.textDim }}
             >
-              <Icon className="w-5 h-5" />
+              <div className="relative">
+                <Icon className="w-5 h-5" />
+                {badgeCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1.5 min-w-[16px] h-[16px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center"
+                    style={{ backgroundColor: "#ef4444", color: "white" }}
+                  >
+                    {badgeCount > 9 ? "9+" : badgeCount}
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           );

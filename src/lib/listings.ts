@@ -52,6 +52,7 @@ interface ListingFromDb {
   imageAMZoom: number;
   imageCZoom: number;
   imageCMZoom: number;
+  imageDarkness?: number;
   views: number;
   language?: string;
   level?: string | null;
@@ -120,6 +121,7 @@ export function listingToCourse(l: ListingFromDb): Course {
     imageAMZoom: l.imageAMZoom,
     imageCZoom: l.imageCZoom,
     imageCMZoom: l.imageCMZoom,
+    imageDarkness: l.imageDarkness,
     language: l.language ?? "uz",
     languages: l.languages && l.languages.length > 0
       ? l.languages
@@ -193,7 +195,7 @@ export async function getActiveListings(options?: {
     take: options?.limit,
     select: {
       id: true, title: true, slug: true, description: true, price: true,
-      format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true,
+      format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true,
       language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
       branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
@@ -213,7 +215,7 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
     },
     select: {
       id: true, title: true, slug: true, description: true, price: true,
-      format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true,
+      format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true,
       language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
       branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       status: true, phone: true,
@@ -245,7 +247,7 @@ export async function getFeaturedListings(): Promise<Course[]> {
         select: {
           id: true, title: true, slug: true, description: true, price: true,
           format: true, location: true, region: true, district: true, duration: true, color: true, icon: true, imageUrl: true,
-          imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, views: true, status: true, lessons: true,
+          imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true, status: true, lessons: true,
           language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
       branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
           category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },

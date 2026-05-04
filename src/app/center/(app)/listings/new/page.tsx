@@ -87,6 +87,7 @@ export default function NewListingPage() {
   const [imageAMZoom, setImageAMZoom] = useState(100);
   const [imageCZoom, setImageCZoom] = useState(100);
   const [imageCMZoom, setImageCMZoom] = useState(100);
+  const [imageDarkness, setImageDarkness] = useState(15);
   const [activeVariant, setActiveVariant] = useState<"a-desktop" | "a-mobile" | "b" | "c-desktop" | "c-mobile">("a-desktop");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -177,6 +178,7 @@ export default function NewListingPage() {
           imageAMZoom,
           imageCZoom,
           imageCMZoom,
+          imageDarkness,
           color: gradient.id,
           icon: icon.id,
           lessons: lessons.map(s => s.trim()).filter(s => s.length > 0),
@@ -248,7 +250,7 @@ export default function NewListingPage() {
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imageUrl} alt={v.label} className="absolute inset-0 w-full h-full object-cover" style={imgStyle} />
-              <div className="absolute inset-0 bg-black/15" />
+              <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${imageDarkness/100})` }} />
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
             </>
           ) : (
@@ -296,7 +298,7 @@ export default function NewListingPage() {
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imageUrl} alt={v.label} className="absolute inset-0 w-full h-full object-cover" style={imgStyle} />
-              <div className="absolute inset-0 bg-black/15" />
+              <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${imageDarkness/100})` }} />
               <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
             </>
           ) : (
@@ -333,7 +335,7 @@ export default function NewListingPage() {
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt={v.label} className="absolute inset-0 w-full h-full object-cover" style={imgStyle} />
-            <div className="absolute inset-0 bg-black/15" />
+            <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${imageDarkness/100})` }} />
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
           </>
         ) : (
@@ -805,6 +807,14 @@ export default function NewListingPage() {
                     <span className="text-[11px]" style={{ color: config.textDim }}>{(active.zoom / 100).toFixed(2)}x</span>
                   </div>
                   <input type="range" min={100} max={300} step={5} value={active.zoom} onChange={(e) => active.setZoom(Number(e.target.value))} className="w-full accent-[#7ea2d4]" />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px]" style={labelStyle}>Qoraytirish (matn ko&apos;rinishi uchun)</label>
+                    <span className="text-[11px]" style={{ color: config.textDim }}>{imageDarkness}%</span>
+                  </div>
+                  <input type="range" min={0} max={50} value={imageDarkness} onChange={(e) => setImageDarkness(Number(e.target.value))} className="w-full accent-[#7ea2d4]" />
+                  <p className="text-[10px] mt-1" style={{ color: config.textDim }}>Yorug&apos; rasmlarda 15-25%, qora rasmlarda 0-10% tavsiya etiladi</p>
                 </div>
               </div>
             )}

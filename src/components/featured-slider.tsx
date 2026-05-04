@@ -30,6 +30,7 @@ interface ApiFeatured {
   imageAMPosY: number;
   imageAZoom: number;
   imageAMZoom: number;
+  imageDarkness?: number;
   color: string | null;
   icon: string | null;
   category: { slug: string; name: string };
@@ -55,6 +56,7 @@ interface Slide {
   imageAMPosY: number;
   imageAZoom: number;
   imageAMZoom: number;
+  imageDarkness?: number;
 }
 
 function toSlide(l: ApiFeatured): Slide {
@@ -79,6 +81,7 @@ function toSlide(l: ApiFeatured): Slide {
     imageAMPosY: l.imageAMPosY ?? 50,
     imageAZoom: l.imageAZoom ?? 100,
     imageAMZoom: l.imageAMZoom ?? 100,
+    imageDarkness: l.imageDarkness ?? 15,
   };
 }
 
@@ -178,7 +181,7 @@ export function FeaturedSlider() {
                   <img src={slide.imageUrl} alt={slide.title} className="absolute inset-0 w-full h-full object-cover hidden md:block" style={{ objectPosition: `${slide.imageAPosX}% ${slide.imageAPosY}%`, transform: `scale(${slide.imageAZoom / 100})`, transformOrigin: `${slide.imageAPosX}% ${slide.imageAPosY}%` }} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={slide.imageUrl} alt={slide.title} className="absolute inset-0 w-full h-full object-cover md:hidden" style={{ objectPosition: `${slide.imageAMPosX}% ${slide.imageAMPosY}%`, transform: `scale(${slide.imageAMZoom / 100})`, transformOrigin: `${slide.imageAMPosX}% ${slide.imageAMPosY}%` }} />
-                  <div className="absolute inset-0 bg-black/15" />
+                  <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${(slide.imageDarkness ?? 15) / 100})` }} />
                   <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
                 </>
               ) : (
@@ -189,7 +192,9 @@ export function FeaturedSlider() {
               <div className="relative flex min-h-[300px] md:min-h-[340px]">
                 <div className="flex-1 p-5 pt-6 pb-[70px] md:p-10 md:pb-20 lg:p-12 lg:pb-20 flex flex-col">
                   <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-4 md:mb-6">
-                    <span className="inline-flex items-center px-2.5 md:px-3 py-1 rounded-full bg-white/20 text-white text-[11px] md:text-[12px] font-semibold backdrop-blur-sm">{slide.category}</span>
+                    {!slide.title.toLowerCase().includes(slide.category.toLowerCase()) && (
+                      <span className="inline-flex items-center px-2.5 md:px-3 py-1 rounded-full bg-white/20 text-white text-[11px] md:text-[12px] font-semibold backdrop-blur-sm">{slide.category}</span>
+                    )}
                     <span className="inline-flex items-center px-2.5 md:px-3 py-1 rounded-full bg-white/10 text-white/70 text-[11px] md:text-[12px] font-medium">{slide.format}</span>
                     <span className="inline-flex items-center gap-1 px-2.5 md:px-3 py-1 rounded-full bg-white/10 text-white/70 text-[11px] md:text-[12px] font-medium"><MapPin className="w-3 h-3" />{slide.location}</span>
                   </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Clock, ArrowLeft, Calendar, Eye, ChevronRight, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { renderMarkdown, stripMd, estimateReadTime } from "@/lib/markdown";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 export const dynamic = "force-dynamic";
 
@@ -121,6 +122,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      <ScrollToTop />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingLd) }} />
 

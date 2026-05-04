@@ -24,7 +24,7 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
             <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover hidden md:block" style={{ objectPosition: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%`, transform: `scale(${(course.imageCZoom ?? 100) / 100})`, transformOrigin: `${course.imageCPosX ?? 50}% ${course.imageCPosY ?? 50}%` }} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover md:hidden" style={{ objectPosition: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%`, transform: `scale(${(course.imageCMZoom ?? 100) / 100})`, transformOrigin: `${course.imageCMPosX ?? 50}% ${course.imageCMPosY ?? 50}%` }} />
-            <div className="absolute inset-0 bg-black/15" />
+            <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${(course.imageDarkness ?? 15) / 100})` }} />
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
           </>
         ) : (
@@ -33,7 +33,9 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
         <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 backdrop-blur-0 group-hover:backdrop-blur-[2px] transition-all duration-300 z-[1]" />
         <div className="relative z-[2] p-5 flex-1">
           <div className="flex items-center gap-2 mb-3">
-            <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{course.category}</span>
+            {!course.title.toLowerCase().includes(course.category.toLowerCase()) && (
+              <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-semibold">{course.category}</span>
+            )}
             <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{course.format}</span>
           </div>
           <h3 className="text-[17px] font-bold text-white leading-tight">{course.title}</h3>

@@ -6,6 +6,7 @@ import { getListingBySlug, getActiveCategories, getActiveListings, getRecentComm
 import { CourseLeadForm } from "@/components/course-lead-form";
 import { RatingForm } from "@/components/rating-form";
 import { RatingComments } from "@/components/rating-comments";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { MIN_RATINGS_TO_SHOW } from "@/data/courses";
 
 export const dynamic = "force-dynamic";
@@ -244,6 +245,7 @@ export default async function KursDetailPage({ params }: Props) {
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      <ScrollToTop />
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
@@ -284,7 +286,7 @@ export default async function KursDetailPage({ params }: Props) {
                   <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover hidden md:block" style={{ objectPosition: `${course.imageAPosX ?? 50}% ${course.imageAPosY ?? 50}%`, transform: `scale(${(course.imageAZoom ?? 100) / 100})`, transformOrigin: `${course.imageAPosX ?? 50}% ${course.imageAPosY ?? 50}%` }} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover md:hidden" style={{ objectPosition: `${course.imageAMPosX ?? 50}% ${course.imageAMPosY ?? 50}%`, transform: `scale(${(course.imageAMZoom ?? 100) / 100})`, transformOrigin: `${course.imageAMPosX ?? 50}% ${course.imageAMPosY ?? 50}%` }} />
-                  <div className="absolute inset-0 bg-black/15" />
+                  <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${(course.imageDarkness ?? 15) / 100})` }} />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
                 </>
               ) : (
@@ -295,7 +297,9 @@ export default async function KursDetailPage({ params }: Props) {
               )}
               <div className="relative">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[12px] font-semibold">{course.category}</span>
+                  {!course.title.toLowerCase().includes(course.category.toLowerCase()) && (
+                    <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[12px] font-semibold">{course.category}</span>
+                  )}
                   <span className="px-3 py-1 rounded-full bg-white/10 text-white/70 text-[12px]">{course.format}</span>
                 </div>
                 <h1 className="text-[24px] md:text-[32px] font-bold text-white leading-tight">{course.title}</h1>
@@ -577,7 +581,7 @@ export default async function KursDetailPage({ params }: Props) {
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={c.imageUrl} alt={c.title} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `${c.imageCPosX ?? 50}% ${c.imageCPosY ?? 50}%`, transform: `scale(${(c.imageCZoom ?? 100) / 100})`, transformOrigin: `${c.imageCPosX ?? 50}% ${c.imageCPosY ?? 50}%` }} />
-                      <div className="absolute inset-0 bg-black/15" />
+                      <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${(c.imageDarkness ?? 15) / 100})` }} />
                       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/85" />
                     </>
                   )}

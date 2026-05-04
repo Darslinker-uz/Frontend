@@ -242,6 +242,7 @@ model Listing {
   imageAMZoom     Int             @default(100) @map("image_am_zoom")
   imageCZoom      Int             @default(100) @map("image_c_zoom")
   imageCMZoom     Int             @default(100) @map("image_cm_zoom")
+  imageDarkness   Int             @default(15) @map("image_darkness")
   color           String?
   icon            String?
   views           Int             @default(0)

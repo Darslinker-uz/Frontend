@@ -90,6 +90,7 @@ export async function POST(request: Request) {
   const imageAMZoom = body.imageAMZoom !== undefined ? Math.max(100, Math.min(300, Number(body.imageAMZoom))) : 100;
   const imageCZoom = body.imageCZoom !== undefined ? Math.max(100, Math.min(300, Number(body.imageCZoom))) : 100;
   const imageCMZoom = body.imageCMZoom !== undefined ? Math.max(100, Math.min(300, Number(body.imageCMZoom))) : 100;
+  const imageDarkness = body.imageDarkness !== undefined ? Math.max(0, Math.min(50, Number(body.imageDarkness))) : 15;
   const lessons = Array.isArray(body.lessons)
     ? body.lessons.map(x => String(x).trim()).filter(s => s.length > 0 && s.length <= 200).slice(0, 30)
     : [];
@@ -218,6 +219,7 @@ export async function POST(request: Request) {
       imageAMZoom,
       imageCZoom,
       imageCMZoom,
+      imageDarkness,
       lessons,
       language,
       languages,

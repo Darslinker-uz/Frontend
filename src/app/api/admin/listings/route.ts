@@ -115,6 +115,8 @@ export async function POST(request: Request) {
     v !== undefined && v !== null ? Math.max(0, Math.min(100, Number(v))) : def;
   const clampZoom = (v: unknown, def = 100) =>
     v !== undefined && v !== null ? Math.max(100, Math.min(300, Number(v))) : def;
+  const clampDarkness = (v: unknown, def = 15) =>
+    v !== undefined && v !== null ? Math.max(0, Math.min(50, Number(v))) : def;
 
   // New detail fields (10)
   const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "uz";
@@ -191,6 +193,7 @@ export async function POST(request: Request) {
       imageAMZoom: clampZoom(body.imageAMZoom),
       imageCZoom: clampZoom(body.imageCZoom),
       imageCMZoom: clampZoom(body.imageCMZoom),
+      imageDarkness: clampDarkness(body.imageDarkness),
       color: body.color ?? null,
       icon: body.icon ?? null,
       lessons: Array.isArray(body.lessons)

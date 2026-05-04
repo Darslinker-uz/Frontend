@@ -34,6 +34,7 @@ export interface Course {
   imageAMZoom?: number;
   imageCZoom?: number;
   imageCMZoom?: number;
+  imageDarkness?: number;
   language?: string;
   languages?: string[];
   level?: string;
