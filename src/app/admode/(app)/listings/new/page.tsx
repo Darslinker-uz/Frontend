@@ -69,7 +69,7 @@ function AdminNewListingPageInner() {
   const [icon, setIcon] = useState(ICON_OPTIONS[0]);
   const [iconCategoryId, setIconCategoryId] = useState(ICON_CATEGORIES[0].id);
   const [title, setTitle] = useState("");
-  const [price, setPrice] = useState(50000);
+  const [price, setPrice] = useState(0);
   const [duration, setDuration] = useState("");
   // Filiallar (manzillar) ro'yxati — har biri region + tuman + ko'cha + ixtiyoriy narx
   const [branches, setBranches] = useState<{ region: string; district: string; address: string; price: number | null }[]>([

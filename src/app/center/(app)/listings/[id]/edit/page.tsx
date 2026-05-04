@@ -101,7 +101,7 @@ export default function EditListingPage() {
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [format, setFormat] = useState("");
   const [isFree, setIsFree] = useState(false);
-  const [price, setPrice] = useState(50000);
+  const [price, setPrice] = useState(0);
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
   const [branches, setBranches] = useState<{ region: string; district: string; address: string; price: number | null }[]>([
@@ -171,7 +171,7 @@ export default function EditListingPage() {
         setCategoryId(l.category.id ?? "");
         setFormat(FORMAT_TO_UI[l.format] ?? "Onlayn");
         setIsFree(l.price === 0);
-        setPrice(l.price === 0 ? 50000 : l.price);
+        setPrice(l.price);
         setDuration(l.duration ?? "");
         setDescription(l.description ?? "");
         if (l.branches && l.branches.length > 0) {

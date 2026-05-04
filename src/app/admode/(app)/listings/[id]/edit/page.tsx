@@ -122,7 +122,7 @@ export default function AdminEditListingPage() {
   const [providerName, setProviderName] = useState("");
   const [format, setFormat] = useState("");
   const [isFree, setIsFree] = useState(false);
-  const [price, setPrice] = useState(50000);
+  const [price, setPrice] = useState(0);
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
   const [branches, setBranches] = useState<{ region: string; district: string; address: string; price: number | null }[]>([
@@ -217,7 +217,7 @@ export default function AdminEditListingPage() {
         setProviderName(l.user?.centerName ? `${l.user.centerName} (${l.user.name})` : (l.user?.name ?? ""));
         setFormat(FORMAT_TO_UI[l.format] ?? "Onlayn");
         setIsFree(l.price === 0);
-        setPrice(l.price === 0 ? 50000 : l.price);
+        setPrice(l.price);
         setDuration(l.duration ?? "");
         setDescription(l.description ?? "");
         // Filiallar — yangi jadvaldan, bo'lmasa eski region/district'dan

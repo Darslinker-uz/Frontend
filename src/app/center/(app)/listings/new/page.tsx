@@ -52,7 +52,7 @@ export default function NewListingPage() {
   // Yangi yo'nalish so'rovi rejimi — kategoriya dropdown'da "Boshqa yo'nalish so'rash" tanlanganda
   const [requestNewCategory, setRequestNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [price, setPrice] = useState(50000);
+  const [price, setPrice] = useState(0);
   const [duration, setDuration] = useState("");
   const [branches, setBranches] = useState<{ region: string; district: string; address: string; price: number | null }[]>([
     { region: "", district: "", address: "", price: null },
