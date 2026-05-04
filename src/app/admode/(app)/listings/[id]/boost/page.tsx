@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Zap, Crown, Sparkles, Check, AlertCircle, Gift } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { BoostCalendar } from "@/components/boost-calendar";
 
 type ClassType = "A" | "B";
 
@@ -41,10 +42,10 @@ export default function AdminBoostPage() {
   const [loading, setLoading] = useState(true);
   const [selectedClass, setSelectedClass] = useState<ClassType | null>("A");
   const [duration, setDuration] = useState(7);
-  const [startDate, setStartDate] = useState<"now" | "later">("now");
-  const [laterDate, setLaterDate] = useState("");
+  const [pickedStartDate, setPickedStartDate] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [partialWarning, setPartialWarning] = useState<{ booked: number; skipped: string[] } | null>(null);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
@@ -63,14 +64,16 @@ export default function AdminBoostPage() {
 
   const submit = async () => {
     if (!selectedClass) return;
+    if (!pickedStartDate) { setError("Boshlanish kunini tanlang"); return; }
     setError(null);
+    setPartialWarning(null);
     setSubmitting(true);
     try {
       const body: Record<string, unknown> = {
         type: selectedClass === "A" ? "a_class" : "b_class",
         daysTotal: duration,
+        startAt: pickedStartDate,
       };
-      if (startDate === "later" && laterDate) body.startAt = new Date(laterDate).toISOString();
       const res = await fetch(`/api/admin/listings/${listingId}/boost`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,6 +82,11 @@ export default function AdminBoostPage() {
       const data = await res.json();
       if (!res.ok) {
         setError(data?.error ?? "Xatolik");
+        setSubmitting(false);
+        return;
+      }
+      if (data.skippedDays && data.skippedDays.length > 0) {
+        setPartialWarning({ booked: data.bookedDays.length, skipped: data.skippedDays });
         setSubmitting(false);
         return;
       }
@@ -223,27 +231,26 @@ export default function AdminBoostPage() {
         </div>
       </div>
 
-      {/* Start date */}
-      <div className="mb-5">
-        <p className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: config.textMuted }}>Boshlash vaqti</p>
-        <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => setStartDate("now")} className="h-[52px] rounded-[12px] text-[14px] font-medium transition-all border-2" style={startDate === "now" ? { borderColor: config.accent, backgroundColor: config.hover, color: config.text } : { borderColor: config.surfaceBorder, backgroundColor: config.surface, color: config.textMuted }}>
-            Darhol
-          </button>
-          <button onClick={() => setStartDate("later")} className="h-[52px] rounded-[12px] text-[14px] font-medium transition-all border-2" style={startDate === "later" ? { borderColor: config.accent, backgroundColor: config.hover, color: config.text } : { borderColor: config.surfaceBorder, backgroundColor: config.surface, color: config.textMuted }}>
-            Keyinroq
-          </button>
-        </div>
-        {startDate === "later" && (
-          <input
-            value={laterDate}
-            onChange={(e) => setLaterDate(e.target.value)}
-            type="date"
-            className="mt-2 w-full h-[44px] px-4 rounded-[10px] text-[14px] focus:outline-none"
-            style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+      {/* Start date — Calendar */}
+      {selectedClass && (
+        <div className="mb-5">
+          <p className="text-[13px] font-semibold uppercase tracking-wider mb-2" style={{ color: config.textMuted }}>Boshlash kuni</p>
+          <p className="text-[12px] mb-3" style={{ color: config.textDim }}>Eng kami ertaga. Calendar'dan bo&apos;sh kun tanlang. Cap to'lgan kun band ko'rsatiladi.</p>
+          <BoostCalendar
+            type={selectedClass === "A" ? "a_class" : "b_class"}
+            duration={duration}
+            startDate={pickedStartDate}
+            onSelect={setPickedStartDate}
+            bg={config.hover}
+            border={config.surfaceBorder}
+            surface={config.surface}
+            text={config.text}
+            textMuted={config.textMuted}
+            textDim={config.textDim}
+            accent={config.accent}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {error && (
         <div className="flex items-start gap-2 p-3 rounded-[10px] mb-4" style={{ backgroundColor: "#ef444414", border: "1px solid #ef444433", color: "#ef4444" }}>
@@ -252,9 +259,21 @@ export default function AdminBoostPage() {
         </div>
       )}
 
+      {partialWarning && (
+        <div className="rounded-[12px] p-4 mb-4" style={{ backgroundColor: "#22c55e14", border: "1px solid #22c55e33" }}>
+          <p className="text-[14px] font-semibold mb-1" style={{ color: "#16a34a" }}>✅ {partialWarning.booked} kun boost qo&apos;yildi</p>
+          <p className="text-[12px]" style={{ color: "#16a34a" }}>
+            {partialWarning.skipped.length} ta band kun o&apos;tkazib yuborildi: {partialWarning.skipped.join(", ")}.
+          </p>
+          <button onClick={() => router.push("/admode/boosts")} className="mt-3 text-[13px] font-medium underline" style={{ color: "#16a34a" }}>
+            Boostlarga o&apos;tish
+          </button>
+        </div>
+      )}
+
       <button
         onClick={submit}
-        disabled={!selectedClass || submitting || done || (startDate === "later" && !laterDate)}
+        disabled={!selectedClass || submitting || done || !pickedStartDate || !!partialWarning}
         className="w-full h-[52px] rounded-[14px] text-[15px] font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
         style={{ backgroundColor: config.accent, color: config.accentText }}
       >
@@ -262,6 +281,7 @@ export default function AdminBoostPage() {
         {done
           ? (isAssistant ? "So'rov yuborildi ✓" : "Boost qo'yildi ✓")
           : submitting ? "Yuborilmoqda..."
+          : !pickedStartDate ? "Boshlanish kunini tanlang"
           : (isAssistant ? "So'rov yuborish" : "Bepul boost qilish")}
       </button>
 
