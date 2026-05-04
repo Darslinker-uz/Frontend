@@ -71,9 +71,9 @@ function AdminNewListingPageInner() {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState(50000);
   const [duration, setDuration] = useState("");
-  // Filiallar (manzillar) ro'yxati — har biri region + tuman + ko'cha
-  const [branches, setBranches] = useState<{ region: string; district: string; address: string }[]>([
-    { region: "", district: "", address: "" },
+  // Filiallar (manzillar) ro'yxati — har biri region + tuman + ko'cha + ixtiyoriy narx
+  const [branches, setBranches] = useState<{ region: string; district: string; address: string; price: number | null }[]>([
+    { region: "", district: "", address: "", price: null },
   ]);
   const [description, setDescription] = useState("");
   // Eski formada bitta region/city — backward compat uchun (location stringi avlod kodida ishlatiladi)
@@ -216,6 +216,7 @@ function AdminNewListingPageInner() {
             region: b.region || null,
             district: b.district || null,
             address: b.address || null,
+            price: b.price,
           })),
           title,
           description: description || null,
@@ -755,12 +756,26 @@ function AdminNewListingPageInner() {
                     className={inputClass}
                     style={inputStyle}
                   />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={br.price ? new Intl.NumberFormat("uz-UZ").format(br.price).replace(/\s/g, ",") : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d]/g, "");
+                      const next = [...branches];
+                      next[i] = { ...next[i], price: raw ? Math.min(100_000_000, Number(raw)) : null };
+                      setBranches(next);
+                    }}
+                    placeholder="Filial uchun maxsus narx (ixtiyoriy) — bo'sh qoldirsa asosiy narx"
+                    className={inputClass}
+                    style={inputStyle}
+                  />
                 </div>
               ))}
               {branches.length < 10 && (
                 <button
                   type="button"
-                  onClick={() => setBranches([...branches, { region: "", district: "", address: "" }])}
+                  onClick={() => setBranches([...branches, { region: "", district: "", address: "", price: null }])}
                   className="w-full h-[40px] rounded-[10px] border border-dashed text-[13px] font-medium hover:border-[#7ea2d4]/40 hover:text-[#7ea2d4] hover:bg-[#7ea2d4]/5 transition-all flex items-center justify-center gap-2"
                   style={{ borderColor: config.surfaceBorder, color: config.textMuted }}
                 >

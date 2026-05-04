@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { notifyListingApproved, notifyListingRejected } from "@/lib/bot-handler";
+import { notifyListingApproved, notifyListingRejected, notifyListingPending } from "@/lib/bot-handler";
+import { auth } from "@/lib/auth";
 import type { ListingStatus } from "@/generated/prisma";
 import { requireAdmin } from "@/lib/require-admin";
 import { requirePermission } from "@/lib/require-permission";
@@ -8,6 +9,31 @@ import { requirePermission } from "@/lib/require-permission";
 interface Ctx { params: Promise<{ id: string }> }
 
 const ALLOWED_STATUS: ListingStatus[] = ["pending", "active", "paused", "rejected"];
+
+// Assistant tahrirlaganda re-moderation triggerlovchi maydonlar
+// (vizual sozlamalar — pos/zoom/darkness — re-moderation triggerlamasin)
+const REMODERATION_FIELDS = new Set([
+  "title",
+  "description",
+  "price",
+  "duration",
+  "location",
+  "region",
+  "district",
+  "imageUrl",
+  "lessons",
+  "schedule",
+  "discount",
+  "teacherName",
+  "teacherExperience",
+  "categoryId",
+  "format",
+  "level",
+  "levels",
+  "language",
+  "languages",
+  "branches",
+]);
 
 // GET /api/admin/listings/:id — bitta e'lon batafsil
 export async function GET(_request: Request, { params }: Ctx) {
@@ -32,7 +58,7 @@ export async function GET(_request: Request, { params }: Ctx) {
           group: { select: { id: true, name: true, slug: true } },
         },
       },
-      branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+      branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       _count: { select: { leads: true, boosts: true, reviews: true } },
     },
   });
@@ -139,15 +165,21 @@ export async function PATCH(request: Request, { params }: Ctx) {
   }
 
   // Filiallar — agar yuborilsa, eskilarini tozalab yangilarini yozamiz
-  let branchesUpdate: { region: string | null; district: string | null; address: string | null; sortOrder: number }[] | null = null;
+  let branchesUpdate: { region: string | null; district: string | null; address: string | null; price: number | null; sortOrder: number }[] | null = null;
+  const parseBranchPrice = (v: unknown): number | null => {
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) && n >= 0 ? Math.min(100_000_000, Math.floor(n)) : null;
+  };
   if (Array.isArray(body.branches)) {
     branchesUpdate = (body.branches as unknown[])
-      .filter((b): b is { region?: unknown; district?: unknown; address?: unknown } => typeof b === "object" && b !== null)
+      .filter((b): b is { region?: unknown; district?: unknown; address?: unknown; price?: unknown } => typeof b === "object" && b !== null)
       .slice(0, 20)
-      .map((b: { region?: unknown; district?: unknown; address?: unknown }, i: number) => ({
+      .map((b: { region?: unknown; district?: unknown; address?: unknown; price?: unknown }, i: number) => ({
         region: b.region ? String(b.region).trim().slice(0, 100) || null : null,
         district: b.district ? String(b.district).trim().slice(0, 100) || null : null,
         address: b.address ? String(b.address).trim().slice(0, 200) || null : null,
+        price: parseBranchPrice(b.price),
         sortOrder: i,
       }))
       .filter((b: { region: string | null; district: string | null; address: string | null }) => b.region || b.district || b.address);
@@ -157,11 +189,24 @@ export async function PATCH(request: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
-  // Previous status to detect a real transition for notifications
+  // Joriy foydalanuvchi roli — assistant aktiv e'lonni tahrirlasa, status pending'ga qaytarish
+  const session = await auth();
+  const userRole = (session?.user as { role?: string } | undefined)?.role;
+  const isAssistant = userRole === "assistant";
+
+  // Previous status — re-moderation va notification uchun
   const prev = await prisma.listing.findUnique({
     where: { id: listingId },
-    select: { status: true },
+    select: { status: true, title: true, price: true, category: { select: { name: true } } },
   });
+
+  // Assistant aktiv e'londa content tahrir qilsa → pending'ga qaytaramiz
+  const hasContentChange = Object.keys(data).some(k => REMODERATION_FIELDS.has(k)) || branchesUpdate !== null;
+  const assistantRemoderate = isAssistant && hasContentChange && prev?.status === "active" && !isStatusChange;
+  if (assistantRemoderate) {
+    data.status = "pending";
+    data.rejectReason = null;
+  }
 
   if (branchesUpdate) {
     await prisma.listingLocation.deleteMany({ where: { listingId } });
@@ -209,7 +254,19 @@ export async function PATCH(request: Request, { params }: Ctx) {
     }
   }
 
-  return NextResponse.json({ listing });
+  // Assistant tahriri tufayli pending'ga qaytdi → super admin'ga xabar
+  if (assistantRemoderate) {
+    notifyListingPending({
+      title: listing.title,
+      centerName: listing.user.centerName ?? listing.user.name ?? "—",
+      category: listing.category.name,
+      price: listing.price,
+      listingId: listing.id,
+      createdAt: new Date(),
+    }).catch(e => console.error("[admin-listings] notify pending (assistant edit) failed", e));
+  }
+
+  return NextResponse.json({ listing, remoderation: assistantRemoderate });
 }
 
 // DELETE /api/admin/listings/:id

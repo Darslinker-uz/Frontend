@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       paymentType: true,
       category: { select: { id: true, name: true, slug: true, color: true, group: { select: { id: true, name: true, slug: true } } } },
       user: { select: { id: true, name: true, centerName: true } },
-      branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+      branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       _count: { select: { leads: true } },
       ratings: { select: { stars: true } },
     },

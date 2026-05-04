@@ -487,12 +487,17 @@ export default async function KursDetailPage({ params }: Props) {
                       <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/15 flex items-center justify-center shrink-0">
                         <MapPin className="w-4 h-4 text-[#7ea2d4]" />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="text-[14px] font-semibold text-[#16181a] truncate">
                           {[b.district, b.region].filter(Boolean).join(", ") || "—"}
                         </p>
                         {b.address && (
                           <p className="text-[12px] text-[#7c8490] mt-0.5">{b.address}</p>
+                        )}
+                        {b.price && b.price !== priceAmount && (
+                          <p className="text-[13px] font-bold text-[#16181a] mt-1.5">
+                            {new Intl.NumberFormat("uz-UZ").format(b.price).replace(/\s/g, ",")} so&apos;m
+                          </p>
                         )}
                       </div>
                     </div>

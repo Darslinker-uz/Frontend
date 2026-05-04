@@ -43,7 +43,7 @@ export async function GET(_request: Request, { params }: Ctx) {
         },
       },
       user: { select: { id: true, name: true, centerName: true } },
-      branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+      branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
     },
   });
   if (!listing || listing.userId !== userId) {
@@ -153,15 +153,21 @@ export async function PATCH(request: Request, { params }: Ctx) {
   }
 
   // Filiallar — agar yuborilsa, eskilarini almashtiramiz
-  let branchesUpdate: { region: string | null; district: string | null; address: string | null; sortOrder: number }[] | null = null;
+  let branchesUpdate: { region: string | null; district: string | null; address: string | null; price: number | null; sortOrder: number }[] | null = null;
+  const parseBranchPrice = (v: unknown): number | null => {
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) && n >= 0 ? Math.min(100_000_000, Math.floor(n)) : null;
+  };
   if (Array.isArray(body.branches)) {
     branchesUpdate = (body.branches as unknown[])
-      .filter((b): b is { region?: unknown; district?: unknown; address?: unknown } => typeof b === "object" && b !== null)
+      .filter((b): b is { region?: unknown; district?: unknown; address?: unknown; price?: unknown } => typeof b === "object" && b !== null)
       .slice(0, 20)
-      .map((b: { region?: unknown; district?: unknown; address?: unknown }, i: number) => ({
+      .map((b: { region?: unknown; district?: unknown; address?: unknown; price?: unknown }, i: number) => ({
         region: b.region ? String(b.region).trim().slice(0, 100) || null : null,
         district: b.district ? String(b.district).trim().slice(0, 100) || null : null,
         address: b.address ? String(b.address).trim().slice(0, 200) || null : null,
+        price: parseBranchPrice(b.price),
         sortOrder: i,
       }))
       .filter((b) => b.region || b.district || b.address);

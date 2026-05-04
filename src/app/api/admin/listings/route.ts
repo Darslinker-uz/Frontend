@@ -129,15 +129,21 @@ export async function POST(request: Request) {
     : [];
 
   // Filiallar — agar "branches" massivi yuborilsa, alohida jadvalga yoziladi
-  type BranchInput = { region?: unknown; district?: unknown; address?: unknown };
+  type BranchInput = { region?: unknown; district?: unknown; address?: unknown; price?: unknown };
   const branchesInput: BranchInput[] = Array.isArray(body.branches)
     ? body.branches.filter((b: unknown): b is BranchInput => typeof b === "object" && b !== null).slice(0, 20)
     : [];
+  const parseBranchPrice = (v: unknown): number | null => {
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) && n >= 0 ? Math.min(100_000_000, Math.floor(n)) : null;
+  };
   const branchesData = branchesInput
     .map((b, i) => ({
       region: b.region ? String(b.region).trim().slice(0, 100) || null : null,
       district: b.district ? String(b.district).trim().slice(0, 100) || null : null,
       address: b.address ? String(b.address).trim().slice(0, 200) || null : null,
+      price: parseBranchPrice(b.price),
       sortOrder: i,
     }))
     .filter(b => b.region || b.district || b.address);

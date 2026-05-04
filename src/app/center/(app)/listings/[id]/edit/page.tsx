@@ -69,7 +69,7 @@ interface ApiListing {
   languages?: string[];
   level: string | null;
   levels?: string[];
-  branches?: { region: string | null; district: string | null; address: string | null; sortOrder: number }[];
+  branches?: { region: string | null; district: string | null; address: string | null; price?: number | null; sortOrder: number }[];
   studentLimit: number | null;
   paymentType: string | null;
   schedule: string | null;
@@ -104,8 +104,8 @@ export default function EditListingPage() {
   const [price, setPrice] = useState(50000);
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
-  const [branches, setBranches] = useState<{ region: string; district: string; address: string }[]>([
-    { region: "", district: "", address: "" },
+  const [branches, setBranches] = useState<{ region: string; district: string; address: string; price: number | null }[]>([
+    { region: "", district: "", address: "", price: null },
   ]);
   const region = branches[0]?.region ?? "";
   const city = branches[0]?.district ?? "";
@@ -179,12 +179,14 @@ export default function EditListingPage() {
             region: b.region ?? "",
             district: b.district ?? "",
             address: b.address ?? "",
+            price: b.price ?? null,
           })));
         } else if (l.region || l.district || l.location) {
           setBranches([{
             region: l.region ?? "",
             district: l.district ?? "",
             address: l.location ?? "",
+            price: null,
           }]);
         }
         setImageUrl(l.imageUrl);
@@ -252,6 +254,7 @@ export default function EditListingPage() {
             region: b.region || null,
             district: b.district || null,
             address: b.address || null,
+            price: b.price,
           })),
           format: UI_TO_FORMAT[format],
           price: isFree ? 0 : price,
@@ -490,12 +493,26 @@ export default function EditListingPage() {
                     className={inputClass}
                     style={inputStyle}
                   />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={br.price ? new Intl.NumberFormat("uz-UZ").format(br.price).replace(/\s/g, ",") : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d]/g, "");
+                      const next = [...branches];
+                      next[i] = { ...next[i], price: raw ? Math.min(100_000_000, Number(raw)) : null };
+                      setBranches(next);
+                    }}
+                    placeholder="Filial uchun maxsus narx (ixtiyoriy) — bo'sh qoldirsa asosiy narx"
+                    className={inputClass}
+                    style={inputStyle}
+                  />
                 </div>
               ))}
               {branches.length < 10 && (
                 <button
                   type="button"
-                  onClick={() => setBranches([...branches, { region: "", district: "", address: "" }])}
+                  onClick={() => setBranches([...branches, { region: "", district: "", address: "", price: null }])}
                   className="w-full h-[40px] rounded-[10px] border border-dashed text-[13px] font-medium hover:border-[#7ea2d4]/40 hover:text-[#7ea2d4] hover:bg-[#7ea2d4]/5 transition-all flex items-center justify-center gap-2"
                   style={{ borderColor: config.surfaceBorder, color: config.textMuted }}
                 >

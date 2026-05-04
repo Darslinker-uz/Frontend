@@ -15,6 +15,7 @@ interface ListingBranch {
   region: string | null;
   district: string | null;
   address: string | null;
+  price?: number | null;
   sortOrder?: number;
 }
 
@@ -96,6 +97,7 @@ export function listingToCourse(l: ListingFromDb): Course {
       region: b.region,
       district: b.district,
       address: b.address,
+      price: b.price ?? null,
     })),
     price,
     priceFree: l.price === 0,
@@ -197,7 +199,7 @@ export async function getActiveListings(options?: {
       id: true, title: true, slug: true, description: true, price: true,
       format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true,
       language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
-      branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+      branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
       user: { select: { name: true, centerName: true } },
       ratings: { select: { stars: true } },
@@ -217,7 +219,7 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
       id: true, title: true, slug: true, description: true, price: true,
       format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true,
       language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
-      branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+      branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       status: true, phone: true,
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
       user: { select: { name: true, centerName: true } },
@@ -249,7 +251,7 @@ export async function getFeaturedListings(): Promise<Course[]> {
           format: true, location: true, region: true, district: true, duration: true, color: true, icon: true, imageUrl: true,
           imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true, status: true, lessons: true,
           language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
-      branches: { select: { region: true, district: true, address: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+      branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
           category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
           user: { select: { name: true, centerName: true } },
           ratings: { select: { stars: true } },

@@ -86,7 +86,7 @@ interface ApiListing {
   languages?: string[];
   level: string | null;
   levels?: string[];
-  branches?: { region: string | null; district: string | null; address: string | null; sortOrder: number }[];
+  branches?: { region: string | null; district: string | null; address: string | null; price?: number | null; sortOrder: number }[];
   studentLimit: number | null;
   paymentType: string | null;
   schedule: string | null;
@@ -112,6 +112,8 @@ export default function AdminEditListingPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+  const isAssistant = role === "assistant";
 
   const [title, setTitle] = useState("");
   const [taxonomy, setTaxonomy] = useState<TaxonomyGroup[]>([]);
@@ -123,8 +125,8 @@ export default function AdminEditListingPage() {
   const [price, setPrice] = useState(50000);
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
-  const [branches, setBranches] = useState<{ region: string; district: string; address: string }[]>([
-    { region: "", district: "", address: "" },
+  const [branches, setBranches] = useState<{ region: string; district: string; address: string; price: number | null }[]>([
+    { region: "", district: "", address: "", price: null },
   ]);
   const region = branches[0]?.region ?? "";
   const city = branches[0]?.district ?? "";
@@ -182,6 +184,11 @@ export default function AdminEditListingPage() {
         if (!cancelled) setTaxonomy(data.groups ?? []);
       })
       .catch(e => console.error("[form] load taxonomy failed", e));
+    // Joriy foydalanuvchi roli — assistant uchun banner va re-moderation xabari
+    fetch("/api/me/permissions", { cache: "no-store", credentials: "same-origin" })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (!cancelled && data?.role) setRole(data.role); })
+      .catch(() => {});
     return () => { cancelled = true; };
   }, []);
 
@@ -219,12 +226,14 @@ export default function AdminEditListingPage() {
             region: b.region ?? "",
             district: b.district ?? "",
             address: b.address ?? "",
+            price: b.price ?? null,
           })));
         } else if (l.region || l.district || l.location) {
           setBranches([{
             region: l.region ?? "",
             district: l.district ?? "",
             address: l.location ?? "",
+            price: null,
           }]);
         }
         setStatus(l.status);
@@ -309,6 +318,7 @@ export default function AdminEditListingPage() {
             region: b.region || null,
             district: b.district || null,
             address: b.address || null,
+            price: b.price,
           })),
           format: UI_TO_FORMAT[format],
           price: isFree ? 0 : price,
@@ -355,6 +365,9 @@ export default function AdminEditListingPage() {
         setError(data?.error ?? "Saqlashda xatolik");
         setSaving(false);
         return;
+      }
+      if (data?.remoderation) {
+        alert("Tahrir saqlandi. E'lon super admin tasdig'igacha 'kutuvda' holatiga o'tdi.");
       }
       router.push("/admode/listings");
       router.refresh();
@@ -551,12 +564,21 @@ export default function AdminEditListingPage() {
         </div>
       </div>
 
-      <div className="rounded-[12px] p-3 mb-5 flex items-start gap-2.5" style={{ backgroundColor: "#22c55e14", border: "1px solid #22c55e33" }}>
-        <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#22c55e" }} />
-        <p className="text-[12px] leading-relaxed" style={{ color: "#22c55e" }}>
-          <b>Admin rejimi.</b> O&apos;zgarishlar avtomatik qo&apos;llanadi va qayta moderatsiyaga yuborilmaydi. Holatni qo&apos;lda o&apos;zgartirishingiz mumkin.
-        </p>
-      </div>
+      {isAssistant ? (
+        <div className="rounded-[12px] p-3 mb-5 flex items-start gap-2.5" style={{ backgroundColor: "#7ea2d414", border: "1px solid #7ea2d433" }}>
+          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#7ea2d4" }} />
+          <p className="text-[12px] leading-relaxed" style={{ color: "#5b87c0" }}>
+            <b>Yordamchi rejimi.</b> Aktiv e&apos;lonni tahrirlasangiz — o&apos;zgarish super admin tasdig&apos;igacha kutuvga o&apos;tadi. Pending e&apos;lonlarda esa shu holatda qoladi.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-[12px] p-3 mb-5 flex items-start gap-2.5" style={{ backgroundColor: "#22c55e14", border: "1px solid #22c55e33" }}>
+          <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#22c55e" }} />
+          <p className="text-[12px] leading-relaxed" style={{ color: "#22c55e" }}>
+            <b>Admin rejimi.</b> O&apos;zgarishlar avtomatik qo&apos;llanadi va qayta moderatsiyaga yuborilmaydi. Holatni qo&apos;lda o&apos;zgartirishingiz mumkin.
+          </p>
+        </div>
+      )}
 
       <div className="space-y-5">
         {/* PENDING CATEGORY BANNER — yangi yo'nalish so'rovi */}
@@ -769,12 +791,26 @@ export default function AdminEditListingPage() {
                     className={inputClass}
                     style={inputStyle}
                   />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={br.price ? new Intl.NumberFormat("uz-UZ").format(br.price).replace(/\s/g, ",") : ""}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d]/g, "");
+                      const next = [...branches];
+                      next[i] = { ...next[i], price: raw ? Math.min(100_000_000, Number(raw)) : null };
+                      setBranches(next);
+                    }}
+                    placeholder="Filial uchun maxsus narx (ixtiyoriy) — bo'sh qoldirsa asosiy narx"
+                    className={inputClass}
+                    style={inputStyle}
+                  />
                 </div>
               ))}
               {branches.length < 10 && (
                 <button
                   type="button"
-                  onClick={() => setBranches([...branches, { region: "", district: "", address: "" }])}
+                  onClick={() => setBranches([...branches, { region: "", district: "", address: "", price: null }])}
                   className="w-full h-[40px] rounded-[10px] border border-dashed text-[13px] font-medium hover:border-[#7ea2d4]/40 hover:text-[#7ea2d4] hover:bg-[#7ea2d4]/5 transition-all flex items-center justify-center gap-2"
                   style={{ borderColor: config.surfaceBorder, color: config.textMuted }}
                 >

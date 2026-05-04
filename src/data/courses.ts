@@ -39,7 +39,7 @@ export interface Course {
   languages?: string[];
   level?: string;
   levels?: string[];
-  branches?: { region: string | null; district: string | null; address: string | null }[];
+  branches?: { region: string | null; district: string | null; address: string | null; price?: number | null }[];
   studentLimit?: number;
   schedule?: string;
   certificate?: boolean;

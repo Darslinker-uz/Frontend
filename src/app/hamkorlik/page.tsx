@@ -8,8 +8,15 @@ type Status = "idle" | "submitting" | "success" | "error";
 
 export default function HamkorlikPage() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
+
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Submit success bo'lgach yuqoriga scroll — aks holda foydalanuvchi
+  // pastdagi formada turib tasdiq xabarini ko'rmasdan footer'ga tushib qoladi
+  useEffect(() => {
+    if (status === "success") window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [status]);
   const [form, setForm] = useState({
     name: "",
     phone: "",
