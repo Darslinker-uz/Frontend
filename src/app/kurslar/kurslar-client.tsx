@@ -79,7 +79,6 @@ function CourseGrid({ courses, filterKey }: { courses: Course[]; filterKey: numb
 function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (p: number) => void }) {
   if (total <= 1) return null;
   const range: (number | "...")[] = [];
-  // Smart pagination: 1 ... (page-1) page (page+1) ... last
   const add = (p: number | "...") => { if (range[range.length - 1] !== p) range.push(p); };
   add(1);
   if (page > 3) add("...");
@@ -94,7 +93,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
       <button
         onClick={() => onChange(Math.max(1, page - 1))}
         disabled={page === 1}
-        className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`}
+        className={`${btn} bg-white border border-[#7ea2d4]/30 text-[#7ea2d4] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#7ea2d4]/10 hover:border-[#7ea2d4]`}
         aria-label="Oldingi sahifa"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -107,7 +106,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
             key={p}
             onClick={() => onChange(p)}
             className={p === page
-              ? `${btn} bg-[#16181a] text-white`
+              ? `${btn} bg-[#7ea2d4] text-white`
               : `${btn} bg-white border border-[#e4e7ea] text-[#16181a] hover:bg-[#f0f2f3]`}
           >
             {p}
@@ -117,7 +116,7 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
       <button
         onClick={() => onChange(Math.min(total, page + 1))}
         disabled={page === total}
-        className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`}
+        className={`${btn} bg-white border border-[#7ea2d4]/30 text-[#7ea2d4] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#7ea2d4]/10 hover:border-[#7ea2d4]`}
         aria-label="Keyingi sahifa"
       >
         <ChevronRight className="w-4 h-4" />
@@ -162,7 +161,11 @@ function KurslarContent({ initialCourses, locationFilter, groups, regions }: { i
     if (p === 1) params.delete("page"); else params.set("page", String(p));
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // React re-render'dan keyin scroll — oxirgi sahifada (kontent kamayganda)
+    // browser'ning auto-scroll xatti-harakati to'sib qolishini oldini olish uchun
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    });
   }, [searchParams, router, pathname]);
 
   return (

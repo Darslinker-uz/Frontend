@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { FeaturedSlider } from "@/components/featured-slider";
+import { FeaturedSlider, courseToSlide } from "@/components/featured-slider";
 import { CoursesSlider } from "@/components/courses-slider";
 import { HeroSearch } from "@/components/hero-search";
 import { HelpForm } from "@/components/help-form";
 import { FaqList } from "@/components/faq-item";
-import { getActiveCategoryGroups, getPopularListings } from "@/lib/listings";
+import { getActiveCategoryGroups, getFeaturedListings, getPopularListings } from "@/lib/listings";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -15,17 +15,21 @@ export const revalidate = 0;
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
 export default async function HomePage() {
-  const [groups, courses, dbFaqs] = await Promise.all([
+  const [groups, courses, featuredCourses, dbFaqs] = await Promise.all([
     // Bosh sahifa grid'i — admin'da `showOnHomepage` flag bilan boshqariladi
     getActiveCategoryGroups({ homepageOnly: true }),
     // CoursesSlider — paid B-class avval, qolgani views DESC bo'yicha (max 12)
     getPopularListings(),
+    // FeaturedSlider — A-class boost'lar + random non-paid (max 10)
+    // Server'da olamiz va prop sifatida o'tkazamiz — slider darhol ko'rinadi (SSR)
+    getFeaturedListings(),
     prisma.faq.findMany({
       where: { active: true, page: "home" },
       orderBy: [{ order: "asc" }, { id: "asc" }],
       select: { id: true, question: true, answer: true },
     }),
   ]);
+  const featuredSlides = featuredCourses.map(courseToSlide);
 
   const websiteLd = {
     "@context": "https://schema.org",
@@ -95,7 +99,7 @@ export default async function HomePage() {
           <HeroSearch />
 
           {/* FEATURED SLIDER */}
-          <FeaturedSlider />
+          <FeaturedSlider initialSlides={featuredSlides} />
         </div>
 
         {/* KATEGORIYALAR */}

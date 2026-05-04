@@ -21,19 +21,19 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   const btn = "h-[36px] min-w-[36px] px-3 rounded-[8px] text-[13px] font-medium flex items-center justify-center transition-colors";
   return (
     <div className="flex items-center justify-center gap-1.5 mt-8 mb-4 flex-wrap">
-      <button onClick={() => onChange(Math.max(1, page - 1))} disabled={page === 1} className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`} aria-label="Oldingi sahifa">
+      <button onClick={() => onChange(Math.max(1, page - 1))} disabled={page === 1} className={`${btn} bg-white border border-[#7ea2d4]/30 text-[#7ea2d4] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#7ea2d4]/10 hover:border-[#7ea2d4]`} aria-label="Oldingi sahifa">
         <ChevronLeft className="w-4 h-4" />
       </button>
       {range.map((p, i) =>
         p === "..." ? (
           <span key={`gap-${i}`} className="px-2 text-[13px] text-[#7c8490]">…</span>
         ) : (
-          <button key={p} onClick={() => onChange(p)} className={p === page ? `${btn} bg-[#16181a] text-white` : `${btn} bg-white border border-[#e4e7ea] text-[#16181a] hover:bg-[#f0f2f3]`}>
+          <button key={p} onClick={() => onChange(p)} className={p === page ? `${btn} bg-[#7ea2d4] text-white` : `${btn} bg-white border border-[#e4e7ea] text-[#16181a] hover:bg-[#f0f2f3]`}>
             {p}
           </button>
         )
       )}
-      <button onClick={() => onChange(Math.min(total, page + 1))} disabled={page === total} className={`${btn} bg-white border border-[#e4e7ea] text-[#16181a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f0f2f3]`} aria-label="Keyingi sahifa">
+      <button onClick={() => onChange(Math.min(total, page + 1))} disabled={page === total} className={`${btn} bg-white border border-[#7ea2d4]/30 text-[#7ea2d4] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#7ea2d4]/10 hover:border-[#7ea2d4]`} aria-label="Keyingi sahifa">
         <ChevronRight className="w-4 h-4" />
       </button>
     </div>
@@ -130,7 +130,9 @@ export function KategoriyaClient({ kategoriya, allCourses, groups = [], regions 
     if (p === 1) params.delete("page"); else params.set("page", String(p));
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    });
   }, [searchParams, router, pathname]);
 
   return (

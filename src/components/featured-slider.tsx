@@ -1,45 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import Link from "next/link";
-import { GRADIENT_OPTIONS, ICON_OPTIONS } from "@/data/courses";
+import { GRADIENT_OPTIONS, ICON_OPTIONS, type Course } from "@/data/courses";
 
 const SLIDE_DURATION = 6000;
 const DEFAULT_GRADIENT = GRADIENT_OPTIONS[0].value;
 const DEFAULT_ICON = ICON_OPTIONS[0].path;
 
-const FORMAT_LABELS: Record<"offline" | "online" | "video", string> = {
-  offline: "Offline",
-  online: "Online",
-  video: "Video",
-};
-
-interface ApiFeatured {
-  id: number;
-  title: string;
-  slug: string;
-  price: number;
-  format: "offline" | "online" | "video";
-  location: string | null;
-  duration: string | null;
-  region: string | null;
-  district: string | null;
-  imageUrl: string | null;
-  imageAPosX: number;
-  imageAPosY: number;
-  imageAMPosX: number;
-  imageAMPosY: number;
-  imageAZoom: number;
-  imageAMZoom: number;
-  imageDarkness?: number;
-  color: string | null;
-  icon: string | null;
-  category: { slug: string; name: string };
-  user: { name: string; centerName?: string | null };
-}
-
-interface Slide {
+export interface Slide {
   slug: string;
   categorySlug: string;
   category: string;
@@ -61,61 +31,54 @@ interface Slide {
   imageDarkness?: number;
 }
 
-function toSlide(l: ApiFeatured): Slide {
-  const gradient = l.color ? (GRADIENT_OPTIONS.find(g => g.id === l.color)?.value ?? DEFAULT_GRADIENT) : DEFAULT_GRADIENT;
-  const iconPath = l.icon ? (ICON_OPTIONS.find(i => i.id === l.icon)?.path ?? DEFAULT_ICON) : DEFAULT_ICON;
+// Course (lib/listings.ts'dan) → Slide (slider'da render uchun)
+// Server'da chaqirilishi mumkin (page.tsx) — toza data o'tkazish uchun
+export function courseToSlide(c: Course): Slide {
+  // gradient.id va icon.id Course'da string sifatida saqlanadi (lib mapper'da resolve qilingan)
+  const gradient = c.gradient ?? DEFAULT_GRADIENT;
+  const iconPath = c.iconPath ?? DEFAULT_ICON;
   return {
-    slug: l.slug,
-    categorySlug: l.category.slug,
-    category: l.category.name,
-    format: FORMAT_LABELS[l.format] ?? "Online",
-    // Card'da qisqa lokatsiya — tuman, yo'q bo'lsa viloyat, online kurslar uchun "Online"
-    location: l.district || l.region || (l.location ?? "Online"),
-    title: l.title,
-    subtitle: l.user.centerName ?? l.user.name,
-    price: l.price === 0 ? "Bepul" : `${new Intl.NumberFormat("uz-UZ").format(l.price)} so'm`,
-    duration: l.duration ?? "—",
+    slug: c.slug,
+    categorySlug: c.categorySlug,
+    category: c.category,
+    format: c.format,
+    location: c.district || c.region || c.location || "Online",
+    title: c.title,
+    subtitle: c.provider,
+    price: c.priceFree ? "Bepul" : `${c.price} so'm`,
+    duration: c.duration ?? "—",
     gradient,
     iconPath,
-    imageUrl: l.imageUrl,
-    imageAPosX: l.imageAPosX ?? 50,
-    imageAPosY: l.imageAPosY ?? 50,
-    imageAMPosX: l.imageAMPosX ?? 50,
-    imageAMPosY: l.imageAMPosY ?? 50,
-    imageAZoom: l.imageAZoom ?? 100,
-    imageAMZoom: l.imageAMZoom ?? 100,
-    imageDarkness: l.imageDarkness ?? 15,
+    imageUrl: c.imageUrl ?? null,
+    imageAPosX: c.imageAPosX ?? 50,
+    imageAPosY: c.imageAPosY ?? 50,
+    imageAMPosX: c.imageAMPosX ?? 50,
+    imageAMPosY: c.imageAMPosY ?? 50,
+    imageAZoom: c.imageAZoom ?? 100,
+    imageAMZoom: c.imageAMZoom ?? 100,
+    imageDarkness: c.imageDarkness ?? 15,
   };
 }
 
-export function FeaturedSlider() {
-  const [slides, setSlides] = useState<Slide[]>([]);
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+export function FeaturedSlider({ initialSlides }: { initialSlides: Slide[] }) {
+  // Server'dan kelgan slides darhol ishlatiladi — fetch yoki loading yo'q.
+  // Random shuffle mount paytida bir marta (per session).
+  const [slides] = useState<Slide[]>(() => shuffle(initialSlides));
   const [current, setCurrent] = useState(0);
   const [prevIndex, setPrevIndex] = useState(-1);
   const [progress, setProgress] = useState(0);
   const progressRef = useRef<number>(0);
   const animRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/featured", { cache: "no-store" });
-        const data: { listings: ApiFeatured[] } = await res.json();
-        if (cancelled) return;
-        // Random shuffle per sessiya — sahifa qayta yuklansa yangi tartib
-        // (Fisher-Yates)
-        const arr = (data.listings ?? []).map(toSlide);
-        for (let i = arr.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        setSlides(arr);
-      } catch (e) { console.error(e); }
-    })();
-    return () => { cancelled = true; };
-  }, []);
 
   const goTo = useCallback((index: number) => {
     setPrevIndex(current);
