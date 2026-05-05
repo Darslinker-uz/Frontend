@@ -24,6 +24,7 @@ export default function AppleIcon() {
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
+          borderRadius: "50%",
         }}
       >
         {/* Eng orqa kvadrat (eng oqaribroq) */}
