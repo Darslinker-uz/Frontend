@@ -119,7 +119,7 @@ export function FeaturedSlider({ initialSlides }: { initialSlides: Slide[] }) {
                     <span className="inline-flex items-center gap-1 px-2.5 md:px-3 py-1 rounded-full bg-white/10 text-white/70 text-[11px] md:text-[12px] font-medium"><MapPin className="w-3 h-3" />{slide.location}</span>
                   </div>
 
-                  <h2 className="text-[22px] md:text-[32px] lg:text-[36px] font-bold text-white leading-[1.15] mb-2 md:mb-3 line-clamp-2 min-h-[52px] md:min-h-[76px]">{slide.title}</h2>
+                  <h2 className="text-[33px] md:text-[48px] lg:text-[54px] font-bold text-white leading-[1.15] mb-2 md:mb-3 line-clamp-2 min-h-[78px] md:min-h-[114px]">{slide.title}</h2>
                   <p className="text-[13px] md:text-[15px] text-white/50 mb-auto">{slide.subtitle} &middot; {slide.location}</p>
 
                   <div className="flex flex-wrap items-center gap-2 md:gap-4 mt-4 md:mt-6">

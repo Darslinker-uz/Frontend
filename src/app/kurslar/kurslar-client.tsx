@@ -40,7 +40,7 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
             )}
             <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/60 text-[11px]">{course.format}</span>
           </div>
-          <h3 className="text-[17px] font-bold text-white leading-tight">{course.title}</h3>
+          <h3 className="text-[26px] font-bold text-white leading-tight">{course.title}</h3>
           <p className="text-[12px] text-white/35 mt-1">{course.provider} · {course.location}</p>
           {(course.duration && course.duration !== "—") || (course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW || (course.views ?? 0) > 0 ? (
             <div className="flex items-center gap-2 mt-2 text-[11px] text-white/40">

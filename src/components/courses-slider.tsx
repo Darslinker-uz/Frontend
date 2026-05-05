@@ -29,7 +29,7 @@ function CourseCard({ c }: { c: Course }) {
           )}
           <span className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-[12px]">{c.format}</span>
         </div>
-        <h3 className="text-[22px] font-bold text-white leading-tight">{c.title}</h3>
+        <h3 className="text-[33px] font-bold text-white leading-tight">{c.title}</h3>
         <p className="text-[14px] text-white/35 mt-3">{c.provider} · {c.location}</p>
         <div className="flex items-center gap-3 mt-4 text-[13px] text-white/30">
           <span className="flex items-center gap-1"><Star className="w-4 h-4 fill-white/50 text-white/50" />{c.rating}</span>
