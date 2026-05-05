@@ -324,7 +324,7 @@ export default async function KursDetailPage({ params }: Props) {
                   )}
                   {(course.views ?? 0) > 0 && (
                     <div className="flex items-center gap-1.5 text-[13px] text-white/60">
-                      <Eye className="w-4 h-4" />{course.views} ko&apos;rishlar
+                      <Eye className="w-4 h-4" />{course.views}
                     </div>
                   )}
                 </div>
