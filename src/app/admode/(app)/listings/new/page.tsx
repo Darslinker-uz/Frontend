@@ -9,6 +9,7 @@ import { useAdminTheme } from "@/context/admin-theme-context";
 import { ImageUpload } from "@/components/image-upload";
 import { PriceScroll } from "@/components/price-scroll";
 import { REGIONS } from "@/data/regions";
+import { formatUzPhone } from "@/lib/phone-format";
 
 const formatlar = ["Onlayn", "Oflayn", "Gibrid", "Video"];
 const FORMAT_MAP: Record<string, "offline" | "online" | "video" | "hybrid"> = {
@@ -230,6 +231,7 @@ function AdminNewListingPageInner() {
           location,
           duration: duration || null,
           phone: contactPhone.trim() || selectedProvider?.phone || "",
+          phoneShown: contactPhone.trim().length > 0,
           website: website.trim() || null,
           instagram: instagram.trim() || null,
           telegram: telegram.trim() || null,
@@ -911,7 +913,7 @@ function AdminNewListingPageInner() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={labelClass} style={labelStyle}>Telefon</label>
-              <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
+              <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(formatUzPhone(e.target.value))} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
               <p className="text-[10px] mt-1" style={{ color: config.textDim }}>Bo&apos;sh qoldirsangiz markaz raqami ishlatiladi</p>
             </div>
             <div>

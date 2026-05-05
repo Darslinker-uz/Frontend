@@ -155,6 +155,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
     const v = body.phone ? String(body.phone).trim().slice(0, 50) : "";
     if (v) data.phone = v;
   }
+  if (body.phoneShown !== undefined) data.phoneShown = body.phoneShown === true;
   if (body.website !== undefined) {
     data.website = body.website ? String(body.website).trim().slice(0, 300) || null : null;
   }

@@ -10,6 +10,7 @@ import { useDashboardTheme } from "@/context/dashboard-theme-context";
 import { ImageUpload } from "@/components/image-upload";
 import { PriceScroll } from "@/components/price-scroll";
 import { REGIONS } from "@/data/regions";
+import { formatUzPhone } from "@/lib/phone-format";
 
 interface TaxonomyGroup {
   id: number;
@@ -199,6 +200,7 @@ export default function NewListingPage() {
           demoLesson,
           discount: discount || null,
           phone: contactPhone.trim() || undefined,
+          phoneShown: contactPhone.trim().length > 0,
           website: website.trim() || null,
           instagram: instagram.trim() || null,
           telegram: telegram.trim() || null,
@@ -752,7 +754,7 @@ export default function NewListingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={labelClass} style={labelStyle}>Telefon raqam</label>
-              <input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
+              <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(formatUzPhone(e.target.value))} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
             </div>
             <div>
               <label className={labelClass} style={labelStyle}>Sayt</label>

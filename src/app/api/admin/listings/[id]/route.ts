@@ -108,7 +108,11 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.region !== undefined) data.region = body.region ? String(body.region).trim().slice(0, 100) || null : null;
   if (body.district !== undefined) data.district = body.district ? String(body.district).trim().slice(0, 100) || null : null;
   if (body.duration !== undefined) data.duration = body.duration;
-  if (body.phone !== undefined) data.phone = body.phone;
+  if (body.phone !== undefined) {
+    const trimmed = typeof body.phone === "string" ? body.phone.trim() : "";
+    if (trimmed) data.phone = trimmed;
+  }
+  if (body.phoneShown !== undefined) data.phoneShown = body.phoneShown === true;
   if (body.color !== undefined) data.color = body.color;
   if (body.icon !== undefined) data.icon = body.icon;
   if (body.imageUrl !== undefined) data.imageUrl = body.imageUrl;

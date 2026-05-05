@@ -226,6 +226,7 @@ model Listing {
   startDate       DateTime?       @map("start_date")
   admissionStatus AdmissionStatus @default(open) @map("admission_status")
   phone           String
+  phoneShown      Boolean         @default(false) @map("phone_shown")
   website         String?
   instagram       String?
   telegram        String?

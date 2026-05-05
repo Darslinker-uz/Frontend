@@ -186,6 +186,7 @@ export async function POST(request: Request) {
       demoLesson,
       discount,
       phone: body.phone ?? "",
+      phoneShown: body.phoneShown === true,
       website,
       instagram,
       telegram,

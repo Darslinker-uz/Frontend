@@ -49,6 +49,7 @@ export interface Course {
   teacherExperience?: string;
   paymentType?: string;
   phone?: string;
+  phoneShown?: boolean;
   website?: string;
   instagram?: string;
   telegram?: string;

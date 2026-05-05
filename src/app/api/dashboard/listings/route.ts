@@ -210,6 +210,7 @@ export async function POST(request: Request) {
       district,
       duration,
       phone: body.phone ? String(body.phone).trim().slice(0, 50) || authorPhone : authorPhone,
+      phoneShown: body.phoneShown === true,
       website,
       instagram,
       telegram,
