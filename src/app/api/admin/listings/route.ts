@@ -156,6 +156,9 @@ export async function POST(request: Request) {
   const certificate = body.certificate === true || body.certificate === "true" || body.certificate === "ha";
   const demoLesson = body.demoLesson === true || body.demoLesson === "true" || body.demoLesson === "ha";
   const discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
+  const website = body.website ? String(body.website).trim().slice(0, 300) || null : null;
+  const instagram = body.instagram ? String(body.instagram).trim().slice(0, 200) || null : null;
+  const telegram = body.telegram ? String(body.telegram).trim().slice(0, 200) || null : null;
 
   const listing = await prisma.listing.create({
     data: {
@@ -183,6 +186,9 @@ export async function POST(request: Request) {
       demoLesson,
       discount,
       phone: body.phone ?? "",
+      website,
+      instagram,
+      telegram,
       imageUrl: body.imageUrl ?? null,
       imagePosX: clampPos(body.imagePosX),
       imagePosY: clampPos(body.imagePosY),

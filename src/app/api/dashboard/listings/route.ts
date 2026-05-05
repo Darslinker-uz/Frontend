@@ -135,6 +135,9 @@ export async function POST(request: Request) {
   const certificate = body.certificate === true || body.certificate === "true" || body.certificate === "ha";
   const demoLesson = body.demoLesson === true || body.demoLesson === "true" || body.demoLesson === "ha";
   const discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
+  const website = body.website ? String(body.website).trim().slice(0, 300) || null : null;
+  const instagram = body.instagram ? String(body.instagram).trim().slice(0, 200) || null : null;
+  const telegram = body.telegram ? String(body.telegram).trim().slice(0, 200) || null : null;
 
   if (!title || title.length < 3) return NextResponse.json({ error: "Kurs nomi kamida 3 belgi" }, { status: 400 });
   if (!formatLabel) return NextResponse.json({ error: "Format majburiy" }, { status: 400 });
@@ -206,7 +209,10 @@ export async function POST(request: Request) {
       region,
       district,
       duration,
-      phone: authorPhone,
+      phone: body.phone ? String(body.phone).trim().slice(0, 50) || authorPhone : authorPhone,
+      website,
+      instagram,
+      telegram,
       color,
       icon,
       imageUrl,

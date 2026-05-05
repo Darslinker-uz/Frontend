@@ -71,6 +71,10 @@ export default function NewListingPage() {
   const [certificate, setCertificate] = useState(false);
   const [demoLesson, setDemoLesson] = useState(false);
   const [discount, setDiscount] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [website, setWebsite] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [telegram, setTelegram] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imagePosX, setImagePosX] = useState(50);
   const [imagePosY, setImagePosY] = useState(50);
@@ -194,6 +198,10 @@ export default function NewListingPage() {
           certificate,
           demoLesson,
           discount: discount || null,
+          phone: contactPhone.trim() || undefined,
+          website: website.trim() || null,
+          instagram: instagram.trim() || null,
+          telegram: telegram.trim() || null,
         }),
       });
       const data = await res.json();
@@ -731,6 +739,33 @@ export default function NewListingPage() {
           <div>
             <label className={labelClass} style={labelStyle}>Chegirma / aksiya</label>
             <input value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="Birinchi oy 50% chegirma" className={inputClass} style={inputStyle} />
+          </div>
+        </div>
+
+        {/* ALOQA */}
+        <div className="rounded-[16px] p-4 sm:p-5 space-y-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+          <div className="flex items-center gap-2">
+            <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Aloqa</h2>
+            <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ backgroundColor: config.hover, color: config.textDim }}>ixtiyoriy</span>
+          </div>
+          <p className="text-[12px]" style={{ color: config.textMuted }}>To&apos;ldirilmasa, e&apos;lon sahifasida profilingizdagi telefon raqami ko&apos;rsatiladi.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass} style={labelStyle}>Telefon raqam</label>
+              <input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Sayt</label>
+              <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." className={inputClass} style={inputStyle} />
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Instagram</label>
+              <input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@foydalanuvchi" className={inputClass} style={inputStyle} />
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Telegram</label>
+              <input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@kanal yoki @user" className={inputClass} style={inputStyle} />
+            </div>
           </div>
         </div>
 

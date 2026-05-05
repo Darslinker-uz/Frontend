@@ -49,6 +49,9 @@ export interface Course {
   teacherExperience?: string;
   paymentType?: string;
   phone?: string;
+  website?: string;
+  instagram?: string;
+  telegram?: string;
   ratingAvg?: number;
   ratingCount?: number;
   views?: number;

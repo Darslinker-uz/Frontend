@@ -66,6 +66,9 @@ interface ListingFromDb {
   teacherExperience?: string | null;
   paymentType?: string | null;
   phone?: string | null;
+  website?: string | null;
+  instagram?: string | null;
+  telegram?: string | null;
   category: { name: string; slug: string; group?: { name: string; slug: string } | null } | null;
   user: { name: string; centerName?: string | null } | null;
 }
@@ -141,6 +144,9 @@ export function listingToCourse(l: ListingFromDb): Course {
     teacherExperience: l.teacherExperience ?? undefined,
     paymentType: l.paymentType ?? undefined,
     phone: l.phone ?? undefined,
+    website: l.website ?? undefined,
+    instagram: l.instagram ?? undefined,
+    telegram: l.telegram ?? undefined,
     ratingAvg,
     ratingCount,
     views: l.views,
@@ -199,7 +205,7 @@ export async function getActiveListings(options?: {
     select: {
       id: true, title: true, slug: true, description: true, price: true,
       format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true,
-      language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
+      language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true, phone: true, website: true, instagram: true, telegram: true,
       branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
       user: { select: { name: true, centerName: true } },
@@ -219,9 +225,9 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
     select: {
       id: true, title: true, slug: true, description: true, price: true,
       format: true, location: true, region: true, district: true, duration: true, lessons: true, color: true, icon: true, imageUrl: true, imagePosX: true, imagePosY: true, imageAPosX: true, imageAPosY: true, imageAMPosX: true, imageAMPosY: true, imageCPosX: true, imageCPosY: true, imageCMPosX: true, imageCMPosY: true, imageZoom: true, imageAZoom: true, imageAMZoom: true, imageCZoom: true, imageCMZoom: true, imageDarkness: true, views: true,
-      language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
+      language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true, phone: true, website: true, instagram: true, telegram: true,
       branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
-      status: true, phone: true,
+      status: true,
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
       user: { select: { name: true, centerName: true } },
       ratings: { select: { stars: true } },

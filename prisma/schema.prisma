@@ -226,6 +226,9 @@ model Listing {
   startDate       DateTime?       @map("start_date")
   admissionStatus AdmissionStatus @default(open) @map("admission_status")
   phone           String
+  website         String?
+  instagram       String?
+  telegram        String?
   imageUrl        String?         @map("image_url")
   imagePosX       Int             @default(50) @map("image_pos_x")
   imagePosY       Int             @default(50) @map("image_pos_y")

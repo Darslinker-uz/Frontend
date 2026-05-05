@@ -151,6 +151,19 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body.discount !== undefined) {
     data.discount = body.discount ? String(body.discount).trim().slice(0, 200) || null : null;
   }
+  if (body.phone !== undefined) {
+    const v = body.phone ? String(body.phone).trim().slice(0, 50) : "";
+    if (v) data.phone = v;
+  }
+  if (body.website !== undefined) {
+    data.website = body.website ? String(body.website).trim().slice(0, 300) || null : null;
+  }
+  if (body.instagram !== undefined) {
+    data.instagram = body.instagram ? String(body.instagram).trim().slice(0, 200) || null : null;
+  }
+  if (body.telegram !== undefined) {
+    data.telegram = body.telegram ? String(body.telegram).trim().slice(0, 200) || null : null;
+  }
 
   // Filiallar — agar yuborilsa, eskilarini almashtiramiz
   let branchesUpdate: { region: string | null; district: string | null; address: string | null; price: number | null; sortOrder: number }[] | null = null;

@@ -109,6 +109,11 @@ function AdminNewListingPageInner() {
   const [certificate, setCertificate] = useState(false);
   const [demoLesson, setDemoLesson] = useState(false);
   const [discount, setDiscount] = useState("");
+  // Aloqa maydonlari — barchasi ixtiyoriy
+  const [contactPhone, setContactPhone] = useState("");
+  const [website, setWebsite] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [telegram, setTelegram] = useState("");
 
   const addLesson = () => setLessons([...lessons, ""]);
   const removeLesson = (i: number) => setLessons(lessons.filter((_, idx) => idx !== i));
@@ -224,7 +229,10 @@ function AdminNewListingPageInner() {
           format: FORMAT_MAP[format] ?? "online",
           location,
           duration: duration || null,
-          phone: selectedProvider?.phone || "",
+          phone: contactPhone.trim() || selectedProvider?.phone || "",
+          website: website.trim() || null,
+          instagram: instagram.trim() || null,
+          telegram: telegram.trim() || null,
           imageUrl,
           imagePosX,
           imagePosY,
@@ -891,6 +899,33 @@ function AdminNewListingPageInner() {
           <div>
             <label className={labelClass} style={labelStyle}>Chegirma / aksiya</label>
             <input value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="Birinchi oy 50% chegirma" className={inputClass} style={inputStyle} />
+          </div>
+        </div>
+
+        {/* ALOQA — barchasi ixtiyoriy */}
+        <div className="rounded-[16px] p-4 sm:p-5 space-y-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+          <div className="flex items-center gap-2">
+            <h2 className="text-[15px] font-bold" style={{ color: config.text }}>Aloqa</h2>
+            <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ backgroundColor: config.hover, color: config.textDim }}>ixtiyoriy</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass} style={labelStyle}>Telefon</label>
+              <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
+              <p className="text-[10px] mt-1" style={{ color: config.textDim }}>Bo&apos;sh qoldirsangiz markaz raqami ishlatiladi</p>
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Sayt</label>
+              <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://markaz.uz" className={inputClass} style={inputStyle} />
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Instagram</label>
+              <input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@username yoki to'liq URL" className={inputClass} style={inputStyle} />
+            </div>
+            <div>
+              <label className={labelClass} style={labelStyle}>Telegram</label>
+              <input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@username yoki t.me/..." className={inputClass} style={inputStyle} />
+            </div>
           </div>
         </div>
 
