@@ -10,7 +10,7 @@ interface Comment {
   createdAt: string | Date;
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 export function RatingComments({ comments }: { comments: Comment[] }) {
   const [visible, setVisible] = useState(0);

@@ -91,11 +91,9 @@ export default async function KursDetailPage({ params }: Props) {
   if (!result) notFound();
   const { course, id: listingId } = result;
 
-  // Sharhlar — faqat reyting publik chegarasidan o'tgan bo'lsa yuklaymiz.
-  // Faqat izoh qoldirgan foydalanuvchilar ko'rsatiladi (yulduzlar emas).
-  const comments = (course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW
-    ? await getRecentComments(listingId, 200)
-    : [];
+  // Sharhlar — har doim ko'rinadi (yulduz reytingdan mustaqil).
+  // Faqat izoh qoldirgan foydalanuvchilar ko'rsatiladi (yulduzsiz baholashlar emas).
+  const comments = await getRecentComments(listingId, 200);
 
   // Cross-linking: shu kategoriyadagi boshqa kurslar (joriy listing'dan tashqari).
   const relatedAll = course.categorySlug
@@ -345,9 +343,23 @@ export default async function KursDetailPage({ params }: Props) {
                   {(course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW ? (
                     <div className="flex items-center gap-2 mt-2">
                       <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <Star key={n} className={`w-4 h-4 ${(course.ratingAvg ?? 0) >= n - 0.25 ? "fill-amber-400 text-amber-400" : "text-[#d4d7db]"}`} />
-                        ))}
+                        {[1, 2, 3, 4, 5].map((n) => {
+                          const avg = course.ratingAvg ?? 0;
+                          if (avg >= n - 0.25) {
+                            return <Star key={n} className="w-4 h-4 fill-amber-400 text-amber-400" />;
+                          }
+                          if (avg >= n - 0.75) {
+                            return (
+                              <span key={n} className="relative inline-block w-4 h-4">
+                                <Star className="absolute inset-0 w-4 h-4 text-[#d4d7db]" />
+                                <span className="absolute inset-0 overflow-hidden" style={{ width: "50%" }}>
+                                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                </span>
+                              </span>
+                            );
+                          }
+                          return <Star key={n} className="w-4 h-4 text-[#d4d7db]" />;
+                        })}
                       </div>
                       <span className="text-[16px] font-bold text-[#16181a]">{(course.ratingAvg ?? 0).toFixed(1)}</span>
                       <span className="text-[13px] text-[#7c8490]">· {course.ratingCount} baholash</span>
