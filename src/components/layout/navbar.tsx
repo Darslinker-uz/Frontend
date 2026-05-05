@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Home, BookOpen, Wifi, WifiOff, PenLine, MessageCircle, ChevronDown } from "lucide-react";
+import { Menu, X, Home, BookOpen, Wifi, WifiOff, PenLine, MessageCircle, ChevronDown, Info } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 
 const mobileBaseLinks = [
@@ -11,6 +11,7 @@ const mobileBaseLinks = [
   { href: "/kurslar?format=online", label: "Onlayn", icon: Wifi },
   { href: "/kurslar?format=offline", label: "Oflayn", icon: WifiOff },
   { href: "/blog", label: "Blog", icon: PenLine },
+  { href: "/haqimizda", label: "Haqimizda", icon: Info },
 ];
 
 type ApiCategory = {
@@ -164,6 +165,14 @@ export function Navbar() {
               className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
             >
               Blog
+            </Button>
+          </Link>
+          <Link href="/haqimizda">
+            <Button
+              variant="ghost"
+              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
+            >
+              Haqimizda
             </Button>
           </Link>
         </div>

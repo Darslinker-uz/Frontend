@@ -7,6 +7,7 @@ const platformLinks = [
   { href: "/kurslar?format=offline", label: "Oflayn kurslar" },
   { href: "/manba", label: "Manba" },
   { href: "/blog", label: "Maqolalar" },
+  { href: "/haqimizda", label: "Haqimizda" },
   { href: "/hamkorlik", label: "Hamkorlik qilish" },
 ];
 
