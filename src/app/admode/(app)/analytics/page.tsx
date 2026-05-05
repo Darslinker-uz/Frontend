@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   TrendingDown, Users, FileText, CreditCard, Zap, Eye, MessageSquare,
@@ -82,7 +82,7 @@ const EMPTY_DATA: AnalyticsResponse = {
 
 const fmt = (n: number) => new Intl.NumberFormat("uz-UZ").format(n);
 
-export default function AdminAnalyticsPage() {
+function AdminAnalyticsPageInner() {
   const { config } = useAdminTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -369,6 +369,20 @@ export default function AdminAnalyticsPage() {
         {tab === "boost" && <BoostTab period={period} />}
       </div>
     </div>
+  );
+}
+
+export default function AdminAnalyticsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center px-5 md:px-8 py-12 text-[14px] text-neutral-500">
+          Yuklanmoqda...
+        </div>
+      }
+    >
+      <AdminAnalyticsPageInner />
+    </Suspense>
   );
 }
 
