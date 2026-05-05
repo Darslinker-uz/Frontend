@@ -54,7 +54,7 @@ function timeAgo(iso: string) {
 
 export default function AdminUsersPage() {
   const { config } = useAdminTheme();
-  const [tab, setTab] = useState<"hammasi" | Role>("hammasi");
+  const [tab, setTab] = useState<"hammasi" | Role | "blocked">("hammasi");
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
   const [openUser, setOpenUser] = useState<User | null>(null);
@@ -78,17 +78,24 @@ export default function AdminUsersPage() {
   useEffect(() => { loadUsers(); }, []);
 
   const filtered = users.filter(u => {
-    if (tab !== "hammasi" && u.role !== tab) return false;
+    if (tab === "blocked") {
+      if (!u.banned) return false;
+    } else {
+      if (u.banned) return false;
+      if (tab !== "hammasi" && u.role !== tab) return false;
+    }
     if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.phone.includes(search)) return false;
     return true;
   });
 
+  const active = users.filter(u => !u.banned);
   const counts = {
-    hammasi: users.length,
-    admin: users.filter(u => u.role === "admin").length,
-    provider: users.filter(u => u.role === "provider").length,
-    student: users.filter(u => u.role === "student").length,
-    assistant: users.filter(u => u.role === "assistant").length,
+    hammasi: active.length,
+    admin: active.filter(u => u.role === "admin").length,
+    provider: active.filter(u => u.role === "provider").length,
+    student: active.filter(u => u.role === "student").length,
+    assistant: active.filter(u => u.role === "assistant").length,
+    blocked: users.filter(u => u.banned).length,
   };
 
   const toggleBlock = async (user: User) => {
@@ -174,6 +181,7 @@ export default function AdminUsersPage() {
           { key: "student" as const, label: "O'quvchilar", count: counts.student },
           { key: "admin" as const, label: "Adminlar", count: counts.admin },
           { key: "assistant" as const, label: "Yordamchilar", count: counts.assistant },
+          { key: "blocked" as const, label: "Bloklanganlar", count: counts.blocked },
         ].map((t) => {
           const isActive = tab === t.key;
           return (
@@ -296,6 +304,19 @@ export default function AdminUsersPage() {
                           color={!u.banned ? "#ef4444" : "#22c55e"}
                           onClick={() => toggleBlock(u)}
                         />
+                        {u.banned && (
+                          <MenuItem
+                            icon={Trash2}
+                            label="O'chirish"
+                            color="#ef4444"
+                            onClick={() => {
+                              setMenuOpen(null);
+                              if (confirm(`${u.name} foydalanuvchisi butunlay o'chiriladi. Bu amal qaytarib bo'lmaydi. Davom etasizmi?`)) {
+                                deleteUser(u.id);
+                              }
+                            }}
+                          />
+                        )}
                       </div>
                     </>
                   )}
