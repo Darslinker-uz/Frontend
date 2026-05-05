@@ -59,13 +59,15 @@ export const metadata: Metadata = {
     images: ["/og-image.png?v=4"],
   },
   icons: {
+    // Brauzer tabi uchun — kichik, to'rtburchak logo (sayt ichida)
     icon: [
       { url: "/icon.svg?v=4", type: "image/svg+xml" },
       { url: "/favicon-32.png?v=4", sizes: "32x32", type: "image/png" },
       { url: "/favicon-16.png?v=4", sizes: "16x16", type: "image/png" },
     ],
     shortcut: "/icon-512.png?v=4",
-    apple: "/apple-touch-icon.png?v=4",
+    // apple — Google Search ham foydalanadi. app/apple-icon.tsx avtomatik
+    // aniqlanadi (paddingli, dumaloq kesimga sig'adi). Manual override yo'q.
   },
   alternates: {
     canonical: SITE_URL,

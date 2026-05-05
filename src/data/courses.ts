@@ -51,6 +51,7 @@ export interface Course {
   phone?: string;
   ratingAvg?: number;
   ratingCount?: number;
+  views?: number;
 }
 
 // Reyting kamida shu sondan boshlab umumiy ko'rinadi.

@@ -143,6 +143,7 @@ export function listingToCourse(l: ListingFromDb): Course {
     phone: l.phone ?? undefined,
     ratingAvg,
     ratingCount,
+    views: l.views,
   };
 }
 
@@ -227,9 +228,8 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
     },
   });
   if (!listing || listing.status !== "active") return null;
-  // Increment views — fire-and-forget
-  prisma.listing.update({ where: { id: listing.id }, data: { views: { increment: 1 } } })
-    .catch(e => console.error("view increment failed", e));
+  // View increment endi client-side (POST /api/listings/[id]/view) orqali —
+  // Next.js prefetch va StrictMode tufayli sahifa server render har gal +1 qo'shar edi.
   return { course: listingToCourse(listing), id: listing.id };
 }
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useCallback, useEffect, Suspense, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { ArrowRight, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Eye, Star } from "lucide-react";
 import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
 import { CourseFilter, type FilterGroup, type FilterRegion } from "@/components/course-filter";
 import { LocationBanner } from "@/components/location-banner";
@@ -42,12 +42,15 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
           </div>
           <h3 className="text-[17px] font-bold text-white leading-tight">{course.title}</h3>
           <p className="text-[12px] text-white/35 mt-1">{course.provider} · {course.location}</p>
-          {(course.duration && course.duration !== "—") || (course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW ? (
+          {(course.duration && course.duration !== "—") || (course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW || (course.views ?? 0) > 0 ? (
             <div className="flex items-center gap-2 mt-2 text-[11px] text-white/40">
               {(course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && (
                 <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{(course.ratingAvg ?? 0).toFixed(1)} <span className="text-white/30">({course.ratingCount})</span></span>
               )}
               {course.duration && course.duration !== "—" && <span>{course.duration}</span>}
+              {(course.views ?? 0) > 0 && (
+                <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" />{course.views}</span>
+              )}
             </div>
           ) : null}
         </div>

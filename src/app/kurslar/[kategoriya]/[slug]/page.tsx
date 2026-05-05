@@ -7,6 +7,7 @@ import { CourseLeadForm } from "@/components/course-lead-form";
 import { RatingForm } from "@/components/rating-form";
 import { RatingComments } from "@/components/rating-comments";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { ViewTracker } from "@/components/view-tracker";
 import { MIN_RATINGS_TO_SHOW } from "@/data/courses";
 
 export const dynamic = "force-dynamic";
@@ -246,6 +247,7 @@ export default async function KursDetailPage({ params }: Props) {
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
       <ScrollToTop />
+      <ViewTracker slug={slug} />
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
