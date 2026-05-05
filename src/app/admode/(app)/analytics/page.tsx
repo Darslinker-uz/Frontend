@@ -1,12 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   TrendingDown, Users, FileText, CreditCard, Zap, Eye, MessageSquare,
   ArrowUpRight, ArrowDownRight, Building2, Crown, Award, Calendar,
-  ChevronDown, Check,
+  ChevronDown, Check, BarChart3, Tags, Filter, Activity, Target, Rocket,
 } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { ListingsTab } from "./_tabs/listings";
+import { CentersTab } from "./_tabs/centers";
+import { CategoriesTab } from "./_tabs/categories";
+import { FunnelTab } from "./_tabs/funnel";
+import { LeadsTab } from "./_tabs/leads";
+import { BoostTab } from "./_tabs/boost";
+
+type TabId = "umumiy" | "listings" | "centers" | "categories" | "funnel" | "leads" | "boost";
+
+const TABS: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
+  { id: "umumiy", label: "Umumiy", icon: BarChart3 },
+  { id: "listings", label: "E'lonlar", icon: FileText },
+  { id: "centers", label: "Markazlar", icon: Building2 },
+  { id: "categories", label: "Yo'nalishlar", icon: Tags },
+  { id: "funnel", label: "Konversiya", icon: Filter },
+  { id: "leads", label: "Lead sifati", icon: Target },
+  { id: "boost", label: "Boost ROI", icon: Rocket },
+];
 
 type PeriodId = "1d" | "7d" | "30d" | "90d" | "apr" | "mar" | "feb" | "yan" | "dek" | "noy";
 type PeriodKind = "preset" | "month";
@@ -65,12 +84,24 @@ const fmt = (n: number) => new Intl.NumberFormat("uz-UZ").format(n);
 
 export default function AdminAnalyticsPage() {
   const { config } = useAdminTheme();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as TabId | null;
+  const tab: TabId = tabParam && TABS.some(t => t.id === tabParam) ? tabParam : "umumiy";
+  const setTab = (next: TabId) => {
+    const sp = new URLSearchParams(searchParams.toString());
+    if (next === "umumiy") sp.delete("tab");
+    else sp.set("tab", next);
+    router.push(`/admode/analytics${sp.toString() ? `?${sp.toString()}` : ""}`);
+  };
+
   const [period, setPeriod] = useState<PeriodId>("30d");
   const [monthOpen, setMonthOpen] = useState(false);
   const [data, setData] = useState<AnalyticsResponse>(EMPTY_DATA);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   useEffect(() => {
+    if (tab !== "umumiy") return;
     let cancelled = false;
     setLoading(true);
     (async () => {
@@ -86,7 +117,7 @@ export default function AdminAnalyticsPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [period]);
+  }, [period, tab]);
 
   const kpi = data.kpi;
   const activeMeta = PERIODS.find(p => p.id === period)!;
@@ -159,6 +190,32 @@ export default function AdminAnalyticsPage() {
           </div>
         </div>
 
+        {/* TAB NAVIGATION */}
+        <div className="flex items-center gap-1 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          {TABS.map((t) => {
+            const active = tab === t.id;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className="shrink-0 h-9 px-3.5 rounded-lg text-[12.5px] font-medium transition-all flex items-center gap-1.5"
+                style={{
+                  backgroundColor: active ? config.accent : config.surface,
+                  color: active ? config.accentText : config.textMuted,
+                  border: `1px solid ${active ? config.accent : config.surfaceBorder}`,
+                }}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* TAB: Umumiy */}
+        {tab === "umumiy" && (
+        <>
         {/* KPI CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 mb-6">
           <KpiCard label="Daromad" value={`${(kpi.revenue / 1000000).toFixed(1)}M`} unit="so'm" delta={kpi.revenueDelta} icon={CreditCard} color="#22c55e" config={config} />
@@ -301,6 +358,15 @@ export default function AdminAnalyticsPage() {
             <MetricRow label="Aktiv markaz" value="94" config={config} icon={Building2} last />
           </div>
         </div>
+        </>
+        )}
+
+        {tab === "listings" && <ListingsTab period={period} />}
+        {tab === "centers" && <CentersTab period={period} />}
+        {tab === "categories" && <CategoriesTab period={period} />}
+        {tab === "funnel" && <FunnelTab period={period} />}
+        {tab === "leads" && <LeadsTab period={period} />}
+        {tab === "boost" && <BoostTab period={period} />}
       </div>
     </div>
   );
