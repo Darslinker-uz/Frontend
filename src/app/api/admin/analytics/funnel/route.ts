@@ -11,18 +11,17 @@ export async function GET(request: Request) {
   const period = (searchParams.get("period") ?? "30d") as PeriodId;
   const { start, end } = resolveRange(period);
 
-  // Funnel stages — uses lifetime views (no per-period view events table) and period-filtered leads
-  const [viewsAgg, leadsTotal, leadsContacted, leadsSuccess, leadsCancelled] = await Promise.all([
-    prisma.listing.aggregate({ _sum: { views: true } }),
+  // Funnel stages — period-filtered using ViewEvent table
+  const [views, leadsTotal, leadsContacted, leadsSuccess, leadsCancelled] = await Promise.all([
+    prisma.viewEvent.count({ where: { createdAt: { gte: start, lt: end } } }),
     prisma.lead.count({ where: { createdAt: { gte: start, lt: end } } }),
     prisma.lead.count({ where: { createdAt: { gte: start, lt: end }, status: { in: ["contacted", "callback", "converted", "disputed"] } } }),
     prisma.lead.count({ where: { createdAt: { gte: start, lt: end }, status: "converted" } }),
     prisma.lead.count({ where: { createdAt: { gte: start, lt: end }, status: "not_interested" } }),
   ]);
 
-  const views = viewsAgg._sum.views ?? 0;
   const stages = [
-    { key: "views", label: "E'lon ko'rishlari (jami)", count: views },
+    { key: "views", label: "E'lon ko'rishlari", count: views },
     { key: "leads", label: "Ariza yuborildi", count: leadsTotal },
     { key: "contacted", label: "Markaz bog'landi", count: leadsContacted },
     { key: "success", label: "Muvaffaqiyatli (success)", count: leadsSuccess },

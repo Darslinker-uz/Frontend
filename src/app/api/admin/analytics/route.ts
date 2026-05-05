@@ -67,7 +67,7 @@ function toMillions(amount: number): number {
 }
 
 async function kpiBlock(start: Date, end: Date) {
-  const [revenueAgg, leads, users, listings, viewsAgg] = await Promise.all([
+  const [revenueAgg, leads, users, listings, views, uniqueRows] = await Promise.all([
     prisma.payment.aggregate({
       _sum: { amount: true },
       where: {
@@ -79,16 +79,22 @@ async function kpiBlock(start: Date, end: Date) {
     prisma.lead.count({ where: { createdAt: { gte: start, lt: end } } }),
     prisma.user.count({ where: { createdAt: { gte: start, lt: end } } }),
     prisma.listing.count({ where: { createdAt: { gte: start, lt: end } } }),
-    // Views are tracked on Listing (total counter, not time-sliced). Sum listings created <= end.
-    prisma.listing.aggregate({
-      _sum: { views: true },
-      where: { createdAt: { lte: end } },
+    prisma.viewEvent.count({ where: { createdAt: { gte: start, lt: end } } }),
+    // Distinct sessionIds within range — fallback to ipHash for sessions without sessionId
+    prisma.viewEvent.findMany({
+      where: { createdAt: { gte: start, lt: end } },
+      select: { sessionId: true, ipHash: true },
+      take: 100_000,
     }),
   ]);
 
   const revenue = revenueAgg._sum.amount ?? 0;
-  const views = viewsAgg._sum.views ?? 0;
-  const uniqueVisitors = Math.round(views * 0.55);
+  const uniqueSet = new Set<string>();
+  for (const r of uniqueRows) {
+    const key = r.sessionId ?? (r.ipHash ? `ip:${r.ipHash}` : null);
+    if (key) uniqueSet.add(key);
+  }
+  const uniqueVisitors = uniqueSet.size;
 
   return { revenue, views, uniqueVisitors, leads, users, listings };
 }
@@ -278,15 +284,14 @@ export async function GET(request: Request) {
     }),
   );
 
-  // ============ conversionFunnel ============
-  const [totalViewsAgg, totalLeads, converted, providerBought] = await Promise.all([
-    prisma.listing.aggregate({ _sum: { views: true } }),
-    prisma.lead.count(),
-    prisma.lead.count({ where: { status: "converted" } }),
-    prisma.lead.count({ where: { status: { in: ["contacted", "converted"] } } }),
+  // ============ conversionFunnel — period-filtered ============
+  const [totalViews, totalLeads, converted, providerBought] = await Promise.all([
+    prisma.viewEvent.count({ where: { createdAt: { gte: start, lt: end } } }),
+    prisma.lead.count({ where: { createdAt: { gte: start, lt: end } } }),
+    prisma.lead.count({ where: { createdAt: { gte: start, lt: end }, status: "converted" } }),
+    prisma.lead.count({ where: { createdAt: { gte: start, lt: end }, status: { in: ["contacted", "converted"] } } }),
   ]);
 
-  const totalViews = totalViewsAgg._sum.views ?? 0;
   const safePct = (n: number) =>
     totalViews > 0 ? Math.round((n / totalViews) * 10000) / 100 : 0;
 

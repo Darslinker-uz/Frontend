@@ -262,6 +262,7 @@ model Listing {
   reviews  Review[]
   boosts   Boost[]
   ratings  Rating[]
+  viewEvents ViewEvent[]
   branches ListingLocation[]
 
   @@index([status])
@@ -451,6 +452,24 @@ model Rating {
   @@index([listingId])
   @@index([phone])
   @@map("ratings")
+}
+
+// View event log — har bir e'lon ko'rilishi uchun bitta qator.
+// listing.views (lifetime denormalized counter) joyida qoladi (tezkor read uchun).
+// Bu jadval period-based analytics va unique visitor hisobi uchun.
+model ViewEvent {
+  id        Int      @id @default(autoincrement())
+  listingId Int      @map("listing_id")
+  sessionId String?  @map("session_id")
+  ipHash    String?  @map("ip_hash")
+  referrer  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, createdAt])
+  @@index([createdAt])
+  @@map("view_events")
 }
 
 // ===================================================================
