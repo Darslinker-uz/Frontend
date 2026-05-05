@@ -10,7 +10,7 @@ import { useDashboardTheme } from "@/context/dashboard-theme-context";
 import { ImageUpload } from "@/components/image-upload";
 import { PriceScroll } from "@/components/price-scroll";
 import { REGIONS } from "@/data/regions";
-import { formatUzPhone } from "@/lib/phone-format";
+import { formatUzPhone, UZ_PHONE_PREFIX, hasUzPhoneContent } from "@/lib/phone-format";
 
 interface TaxonomyGroup {
   id: number;
@@ -72,7 +72,7 @@ export default function NewListingPage() {
   const [certificate, setCertificate] = useState(false);
   const [demoLesson, setDemoLesson] = useState(false);
   const [discount, setDiscount] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
+  const [contactPhone, setContactPhone] = useState(UZ_PHONE_PREFIX);
   const [website, setWebsite] = useState("");
   const [instagram, setInstagram] = useState("");
   const [telegram, setTelegram] = useState("");
@@ -199,8 +199,8 @@ export default function NewListingPage() {
           certificate,
           demoLesson,
           discount: discount || null,
-          phone: contactPhone.trim() || undefined,
-          phoneShown: contactPhone.trim().length > 0,
+          phone: hasUzPhoneContent(contactPhone) ? contactPhone.trim() : undefined,
+          phoneShown: hasUzPhoneContent(contactPhone),
           website: website.trim() || null,
           instagram: instagram.trim() || null,
           telegram: telegram.trim() || null,
@@ -754,7 +754,7 @@ export default function NewListingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={labelClass} style={labelStyle}>Telefon raqam</label>
-              <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(formatUzPhone(e.target.value))} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
+              <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(formatUzPhone(e.target.value) || UZ_PHONE_PREFIX)} placeholder="+998 90 123 45 67" className={inputClass} style={inputStyle} />
             </div>
             <div>
               <label className={labelClass} style={labelStyle}>Sayt</label>

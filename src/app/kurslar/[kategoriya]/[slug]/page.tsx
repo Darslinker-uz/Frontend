@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Clock, Star, BookOpen, Award, Users, Globe, CreditCard, Gift, Calendar, GraduationCap, Wallet, Tag, Eye, Phone, AtSign, Send } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Star, BookOpen, Award, Users, Globe, CreditCard, Gift, Calendar, GraduationCap, Wallet, Tag, Eye, Phone } from "lucide-react";
+import { InstagramIcon, TelegramIcon } from "@/components/social-icons";
 import { notFound } from "next/navigation";
 import { getListingBySlug, getActiveCategories, getActiveListings, getRecentComments } from "@/lib/listings";
 import { CourseLeadForm } from "@/components/course-lead-form";
@@ -329,6 +330,66 @@ export default async function KursDetailPage({ params }: Props) {
               </div>
             </div>
 
+            {/* Mobile contact strip — card'dan keyin (faqat mobil/tablet uchun) */}
+            {((course.phoneShown && course.phone) || course.website || course.instagram || course.telegram) && (
+              <div className="lg:hidden rounded-[18px] bg-white border border-[#e4e7ea] p-4">
+                {course.phoneShown && course.phone && (
+                  <a
+                    href={`tel:${course.phone.replace(/[^+\d]/g, "")}`}
+                    className="flex items-center gap-3 px-3 py-3 rounded-[12px] bg-[#7ea2d4]/10 hover:bg-[#7ea2d4]/15 transition-colors"
+                  >
+                    <Phone className="w-5 h-5 text-[#7ea2d4] shrink-0" />
+                    <span className="text-[15px] font-semibold text-[#16181a]">{course.phone}</span>
+                  </a>
+                )}
+                {(course.website || course.instagram || course.telegram) && (
+                  <div className={`flex items-center gap-2 ${course.phoneShown && course.phone ? "mt-3" : ""}`}>
+                    {course.website && (
+                      <a
+                        href={course.website.startsWith("http") ? course.website : `https://${course.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Sayt"
+                        className="flex-1 h-[44px] flex items-center justify-center rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] transition-colors"
+                      >
+                        <Globe className="w-5 h-5 text-[#7ea2d4]" />
+                      </a>
+                    )}
+                    {course.instagram && (
+                      <a
+                        href={(() => {
+                          const v = course.instagram.trim();
+                          if (v.startsWith("http")) return v;
+                          return `https://instagram.com/${v.replace(/^@/, "")}`;
+                        })()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Instagram"
+                        className="flex-1 h-[44px] flex items-center justify-center rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] transition-colors"
+                      >
+                        <InstagramIcon className="w-5 h-5 text-[#7ea2d4]" />
+                      </a>
+                    )}
+                    {course.telegram && (
+                      <a
+                        href={(() => {
+                          const v = course.telegram.trim();
+                          if (v.startsWith("http")) return v;
+                          return `https://t.me/${v.replace(/^@/, "")}`;
+                        })()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Telegram"
+                        className="flex-1 h-[44px] flex items-center justify-center rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] transition-colors"
+                      >
+                        <TelegramIcon className="w-5 h-5 text-[#7ea2d4]" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Kurs haqida */}
             <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6 md:p-8">
               <h2 className="text-[18px] font-bold text-[#16181a] mb-3">Kurs haqida</h2>
@@ -493,6 +554,73 @@ export default async function KursDetailPage({ params }: Props) {
                     </div>
                   </div>
                 )}
+                {course.phoneShown && course.phone && (
+                  <a href={`tel:${course.phone.replace(/[^+\d]/g, "")}`} className="flex items-start gap-3 hover:opacity-80 transition-opacity">
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <Phone className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-[#7c8490]">Telefon</p>
+                      <p className="text-[14px] font-bold text-[#16181a]">{course.phone}</p>
+                    </div>
+                  </a>
+                )}
+                {course.website && (
+                  <a
+                    href={course.website.startsWith("http") ? course.website : `https://${course.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 hover:opacity-80 transition-opacity"
+                  >
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <Globe className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-[#7c8490]">Sayt</p>
+                      <p className="text-[14px] font-bold text-[#16181a] truncate">{course.website.replace(/^https?:\/\//, "")}</p>
+                    </div>
+                  </a>
+                )}
+                {course.instagram && (
+                  <a
+                    href={(() => {
+                      const v = course.instagram.trim();
+                      if (v.startsWith("http")) return v;
+                      return `https://instagram.com/${v.replace(/^@/, "")}`;
+                    })()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 hover:opacity-80 transition-opacity"
+                  >
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <InstagramIcon className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-[#7c8490]">Instagram</p>
+                      <p className="text-[14px] font-bold text-[#16181a] truncate">@{course.instagram.replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, "")}</p>
+                    </div>
+                  </a>
+                )}
+                {course.telegram && (
+                  <a
+                    href={(() => {
+                      const v = course.telegram.trim();
+                      if (v.startsWith("http")) return v;
+                      return `https://t.me/${v.replace(/^@/, "")}`;
+                    })()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 hover:opacity-80 transition-opacity"
+                  >
+                    <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
+                      <TelegramIcon className="w-4 h-4 text-[#7ea2d4]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-[#7c8490]">Telegram</p>
+                      <p className="text-[14px] font-bold text-[#16181a] truncate">@{course.telegram.replace(/^@/, "").replace(/^https?:\/\/(www\.)?t\.me\//, "").replace(/\/$/, "")}</p>
+                    </div>
+                  </a>
+                )}
               </div>
             </div>
 
@@ -575,6 +703,66 @@ export default async function KursDetailPage({ params }: Props) {
                 </div>
               </div>
 
+              {/* Desktop contact strip — narx ostida */}
+              {((course.phoneShown && course.phone) || course.website || course.instagram || course.telegram) && (
+                <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-4">
+                  {course.phoneShown && course.phone && (
+                    <a
+                      href={`tel:${course.phone.replace(/[^+\d]/g, "")}`}
+                      className="flex items-center gap-3 px-3 py-3 rounded-[12px] bg-[#7ea2d4]/10 hover:bg-[#7ea2d4]/15 transition-colors"
+                    >
+                      <Phone className="w-5 h-5 text-[#7ea2d4] shrink-0" />
+                      <span className="text-[15px] font-semibold text-[#16181a]">{course.phone}</span>
+                    </a>
+                  )}
+                  {(course.website || course.instagram || course.telegram) && (
+                    <div className={`flex items-center gap-2 ${course.phoneShown && course.phone ? "mt-3" : ""}`}>
+                      {course.website && (
+                        <a
+                          href={course.website.startsWith("http") ? course.website : `https://${course.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Sayt"
+                          className="flex-1 h-[44px] flex items-center justify-center rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] transition-colors"
+                        >
+                          <Globe className="w-5 h-5 text-[#7ea2d4]" />
+                        </a>
+                      )}
+                      {course.instagram && (
+                        <a
+                          href={(() => {
+                            const v = course.instagram.trim();
+                            if (v.startsWith("http")) return v;
+                            return `https://instagram.com/${v.replace(/^@/, "")}`;
+                          })()}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Instagram"
+                          className="flex-1 h-[44px] flex items-center justify-center rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] transition-colors"
+                        >
+                          <InstagramIcon className="w-5 h-5 text-[#7ea2d4]" />
+                        </a>
+                      )}
+                      {course.telegram && (
+                        <a
+                          href={(() => {
+                            const v = course.telegram.trim();
+                            if (v.startsWith("http")) return v;
+                            return `https://t.me/${v.replace(/^@/, "")}`;
+                          })()}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Telegram"
+                          className="flex-1 h-[44px] flex items-center justify-center rounded-[10px] bg-[#f0f2f3] hover:bg-[#e4e7ea] transition-colors"
+                        >
+                          <TelegramIcon className="w-5 h-5 text-[#7ea2d4]" />
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Ariza form */}
               <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6">
                 <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Ariza qoldirish</h3>
@@ -582,59 +770,6 @@ export default async function KursDetailPage({ params }: Props) {
                 <CourseLeadForm listingId={listingId} />
               </div>
 
-              {/* To'g'ridan-to'g'ri bog'lanish kanallari */}
-              {((course.phoneShown && course.phone) || course.website || course.instagram || course.telegram) && (
-                <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6">
-                  <h3 className="text-[16px] font-bold text-[#16181a] mb-2">To&apos;g&apos;ridan bog&apos;lanish</h3>
-                  <p className="text-[13px] text-[#7c8490] mb-4">Markazning rasmiy kanallari orqali murojaat qilishingiz mumkin</p>
-                  <div className="space-y-2">
-                    {course.phoneShown && course.phone && (
-                      <a href={`tel:${course.phone.replace(/[^+\d]/g, "")}`} className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-[#f5f6f8] hover:bg-[#ecedef] transition-colors">
-                        <Phone className="w-4 h-4 text-[#7ea2d4] shrink-0" />
-                        <span className="text-[14px] font-medium text-[#16181a]">{course.phone}</span>
-                      </a>
-                    )}
-                    {course.website && (
-                      <a href={course.website.startsWith("http") ? course.website : `https://${course.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-[#f5f6f8] hover:bg-[#ecedef] transition-colors">
-                        <Globe className="w-4 h-4 text-[#7ea2d4] shrink-0" />
-                        <span className="text-[14px] font-medium text-[#16181a] truncate">{course.website.replace(/^https?:\/\//, "")}</span>
-                      </a>
-                    )}
-                    {course.instagram && (
-                      <a
-                        href={(() => {
-                          const v = course.instagram.trim();
-                          if (v.startsWith("http")) return v;
-                          const handle = v.replace(/^@/, "");
-                          return `https://instagram.com/${handle}`;
-                        })()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-[#f5f6f8] hover:bg-[#ecedef] transition-colors"
-                      >
-                        <AtSign className="w-4 h-4 text-[#7ea2d4] shrink-0" />
-                        <span className="text-[14px] font-medium text-[#16181a] truncate">{course.instagram.startsWith("@") ? course.instagram : `@${course.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, "")}`}</span>
-                      </a>
-                    )}
-                    {course.telegram && (
-                      <a
-                        href={(() => {
-                          const v = course.telegram.trim();
-                          if (v.startsWith("http")) return v;
-                          const handle = v.replace(/^@/, "");
-                          return `https://t.me/${handle}`;
-                        })()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-[#f5f6f8] hover:bg-[#ecedef] transition-colors"
-                      >
-                        <Send className="w-4 h-4 text-[#7ea2d4] shrink-0" />
-                        <span className="text-[14px] font-medium text-[#16181a] truncate">{course.telegram.startsWith("@") ? course.telegram : `@${course.telegram.replace(/^https?:\/\/(www\.)?t\.me\//, "").replace(/\/$/, "")}`}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
