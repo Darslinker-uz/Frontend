@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Clock, Star, BookOpen, Award, Users, Globe, CreditCard, Gift, Calendar, GraduationCap, Wallet, Tag } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Star, BookOpen, Award, Users, Globe, CreditCard, Gift, Calendar, GraduationCap, Wallet, Tag, Eye } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getListingBySlug, getActiveCategories, getActiveListings, getRecentComments } from "@/lib/listings";
 import { CourseLeadForm } from "@/components/course-lead-form";
@@ -320,6 +320,11 @@ export default async function KursDetailPage({ params }: Props) {
                   {(course.ratingCount ?? 0) >= MIN_RATINGS_TO_SHOW && (
                     <div className="flex items-center gap-1.5 text-[13px] text-white/80">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-400" />{(course.ratingAvg ?? 0).toFixed(1)} <span className="text-white/40">· {course.ratingCount} baholash</span>
+                    </div>
+                  )}
+                  {(course.views ?? 0) > 0 && (
+                    <div className="flex items-center gap-1.5 text-[13px] text-white/60">
+                      <Eye className="w-4 h-4" />{course.views} ko&apos;rishlar
                     </div>
                   )}
                 </div>
