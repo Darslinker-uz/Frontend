@@ -100,11 +100,13 @@ export function LeadsProvider({ children }: { children: ReactNode }) {
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") fetchLeads(false);
     };
+    const onFocus = () => fetchLeads(false);
     document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("focus", () => fetchLeads(false));
+    window.addEventListener("focus", onFocus);
     return () => {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
     };
   }, [fetchLeads]);
 
