@@ -27,7 +27,13 @@ export function BotLoginForm({ title, subtitle, botUsername, expectedRole, succe
   const [submitting, setSubmitting] = useState(false);
 
   function handlePhone(value: string) {
-    const digits = value.replace(/\D/g, "").replace(/^998/, "").slice(0, 9);
+    let digits = value.replace(/\D/g, "");
+    // Country code 998 ni faqat to'liq xalqaro format bo'lganda strip qilamiz
+    // (foydalanuvchi yozish jarayonida "998" ni o'z raqami sifatida yozayotgan bo'lishi mumkin)
+    if (digits.length > 9 && digits.startsWith("998")) {
+      digits = digits.slice(3);
+    }
+    digits = digits.slice(0, 9);
     let formatted = "";
     if (digits.length > 0) formatted = digits.slice(0, 2);
     if (digits.length > 2) formatted += " " + digits.slice(2, 5);
@@ -112,7 +118,7 @@ export function BotLoginForm({ title, subtitle, botUsername, expectedRole, succe
                     value={phone}
                     onChange={(e) => handlePhone(e.target.value)}
                     placeholder="77 123 45 67"
-                    maxLength={12}
+                    maxLength={20}
                     disabled={submitting}
                     className="w-full h-[48px] pl-[70px] pr-4 text-[16px] rounded-[10px] bg-white border border-[#e4e7ea] text-[#16181a] placeholder:text-[#7c8490]/40 focus:outline-none focus:border-[#7ea2d4] transition-colors"
                   />
