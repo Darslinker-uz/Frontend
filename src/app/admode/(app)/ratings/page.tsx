@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Search, Star, Trash2, Pencil, X, Save, Phone, Calendar } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { ElonlarTabs } from "../_components/elonlar-tabs";
 
 interface ProviderRow {
   id: number;
@@ -77,7 +78,9 @@ export default function AdminRatingsPage() {
   });
 
   return (
-    <div className="px-5 md:px-8 py-6 md:py-8">
+    <>
+      <ElonlarTabs />
+      <div className="px-5 md:px-8 py-6 md:py-8">
       <div className="mb-6">
         <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>Reytinglar</h1>
         <p className="text-[14px] mt-0.5" style={{ color: config.textMuted }}>
@@ -146,7 +149,8 @@ export default function AdminRatingsPage() {
       {openProvider && (
         <ProviderDetailModal provider={openProvider} onClose={() => { setOpenProvider(null); load(); }} />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

@@ -7,6 +7,7 @@ import {
   MoreHorizontal, Check, XCircle,
 } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { ElonlarTabs } from "../_components/elonlar-tabs";
 
 type BoostClass = "A" | "B";
 type BoostStatus = "pending" | "active" | "ended" | "stopped" | "rejected";
@@ -211,7 +212,9 @@ export default function AdminBoostsPage() {
   };
 
   return (
-    <div className="px-5 md:px-8 py-6 md:py-8">
+    <>
+      <ElonlarTabs />
+      <div className="px-5 md:px-8 py-6 md:py-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight" style={{ color: config.text }}>Boostlar</h1>
@@ -330,7 +333,8 @@ export default function AdminBoostsPage() {
           config={config}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

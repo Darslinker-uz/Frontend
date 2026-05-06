@@ -10,11 +10,12 @@ export async function GET() {
   const deny = await requireAdminOnly();
   if (deny) return deny;
 
-  const [listingsPending, categoriesPending, boostsPending, partnerApps] = await Promise.all([
+  const [listingsPending, categoriesPending, boostsPending, partnerApps, studentLeads] = await Promise.all([
     prisma.listing.count({ where: { status: "pending" } }),
     prisma.category.count({ where: { pendingApproval: true } }),
     prisma.boost.count({ where: { status: "pending" } }),
     prisma.partnerApplication.count({ where: { status: "new_app" } }).catch(() => 0),
+    prisma.lead.count({ where: { status: "new_lead" } }).catch(() => 0),
   ]);
 
   return NextResponse.json({
@@ -22,5 +23,6 @@ export async function GET() {
     categories: categoriesPending,
     boosts: boostsPending,
     partners: partnerApps,
+    students: studentLeads,
   });
 }

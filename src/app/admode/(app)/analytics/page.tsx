@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   TrendingDown, Users, FileText, CreditCard, Zap, Eye, MessageSquare,
   ArrowUpRight, ArrowDownRight, Building2, Crown, Award, Calendar,
-  ChevronDown, Check, BarChart3, Tags, Filter, Activity, Target, Rocket,
+  ChevronDown, Check, BarChart3, Tags, Filter, Activity, Target, Rocket, Globe,
 } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
 import { ListingsTab } from "./_tabs/listings";
@@ -14,11 +14,13 @@ import { CategoriesTab } from "./_tabs/categories";
 import { FunnelTab } from "./_tabs/funnel";
 import { LeadsTab } from "./_tabs/leads";
 import { BoostTab } from "./_tabs/boost";
+import { TrafficTab } from "./_tabs/traffic";
 
-type TabId = "umumiy" | "listings" | "centers" | "categories" | "funnel" | "leads" | "boost";
+type TabId = "umumiy" | "listings" | "centers" | "categories" | "funnel" | "leads" | "boost" | "trafik";
 
 const TABS: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
   { id: "umumiy", label: "Umumiy", icon: BarChart3 },
+  { id: "trafik", label: "Trafik", icon: Globe },
   { id: "listings", label: "E'lonlar", icon: FileText },
   { id: "centers", label: "Markazlar", icon: Building2 },
   { id: "categories", label: "Yo'nalishlar", icon: Tags },
@@ -129,8 +131,11 @@ function AdminAnalyticsPageInner() {
         <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold tracking-tight" style={{ color: config.text }}>Analytics</h1>
-            <p className="mt-1 text-sm" style={{ color: config.textMuted }}>Platforma ko&apos;rsatkichlari · {activeMeta.label}</p>
+            <p className="mt-1 text-sm" style={{ color: config.textMuted }}>
+              Platforma ko&apos;rsatkichlari{tab !== "trafik" && ` · ${activeMeta.label}`}
+            </p>
           </div>
+          {tab !== "trafik" && (
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1 p-1 rounded-lg" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
               {(["1d", "7d", "30d", "90d"] as PeriodId[]).map(p => {
@@ -188,6 +193,7 @@ function AdminAnalyticsPageInner() {
               )}
             </div>
           </div>
+          )}
         </div>
 
         {/* TAB NAVIGATION */}
@@ -361,6 +367,7 @@ function AdminAnalyticsPageInner() {
         </>
         )}
 
+        {tab === "trafik" && <TrafficTab />}
         {tab === "listings" && <ListingsTab period={period} />}
         {tab === "centers" && <CentersTab period={period} />}
         {tab === "categories" && <CategoriesTab period={period} />}

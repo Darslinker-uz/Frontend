@@ -472,6 +472,31 @@ model ViewEvent {
   @@map("view_events")
 }
 
+// Sayt bo'yicha barcha sahifa tashriflari — User-Agent bilan,
+// AI bot va search engine'larni alohida ajratish uchun.
+// Middleware'da har request uchun bittadan yoziladi (publik sahifalar).
+// Admin → Analytics → Traffik tab bu jadvaldan o'qiydi.
+model PageView {
+  id          Int      @id @default(autoincrement())
+  path        String   // qaysi sahifa: "/", "/kurslar/ingliz-tili", "/markaz/abc"
+  userAgent   String?  @map("user_agent")
+  // Bot turi: null = oddiy foydalanuvchi.
+  // Aks holda: "GPTBot", "ClaudeBot", "Googlebot", "Bingbot", "PerplexityBot", h.k.
+  botName     String?  @map("bot_name")
+  // Bot kategoriyasi: "ai" (LLM/AI search), "search" (Google/Bing/Yandex), "social" (FB/TG/Twitter), "other"
+  botCategory String?  @map("bot_category")
+  sessionId   String?  @map("session_id")
+  ipHash      String?  @map("ip_hash")
+  referrer    String?
+  country     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([botName, createdAt])
+  @@index([botCategory, createdAt])
+  @@map("page_views")
+}
+
 // ===================================================================
 // Manba — bilim maqolalari (lug'at + qo'llanma + sharh + FAQ).
 // SEO va AEO uchun kontent ekosistemasi.

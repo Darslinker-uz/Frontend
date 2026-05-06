@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, Check, X, Eye, MoreHorizontal, AlertCircle, Clock, Zap, MapPin, Pause, Play, Trash2, Pencil, Plus, Star, ArrowRight } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
 import { GRADIENT_OPTIONS, ICON_OPTIONS } from "@/data/courses";
+import { ElonlarTabs } from "../_components/elonlar-tabs";
 
 type Status = "pending" | "active" | "paused" | "rejected";
 
@@ -135,7 +136,9 @@ export default function AdminListingsPage() {
   };
 
   return (
-    <div className="px-5 md:px-8 py-6 md:py-8">
+    <>
+      <ElonlarTabs />
+      <div className="px-5 md:px-8 py-6 md:py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>E&apos;lonlar moderatsiyasi</h1>
@@ -626,7 +629,8 @@ export default function AdminListingsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

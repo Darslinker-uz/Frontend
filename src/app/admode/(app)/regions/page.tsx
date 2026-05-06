@@ -6,6 +6,7 @@ import {
   MoreHorizontal, MapPin, Search,
 } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { MazmunTabs } from "../_components/mazmun-tabs";
 
 interface AdminRegion {
   id: number;
@@ -144,7 +145,9 @@ export default function AdminRegionsPage() {
   };
 
   return (
-    <div className="px-5 md:px-8 py-6 md:py-8">
+    <>
+      <MazmunTabs />
+      <div className="px-5 md:px-8 py-6 md:py-8">
       <div className="mb-6 flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>Viloyatlar</h1>
@@ -279,7 +282,8 @@ export default function AdminRegionsPage() {
           }}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

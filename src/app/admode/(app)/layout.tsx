@@ -4,13 +4,17 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
-  LayoutDashboard, Users, FileText, MessageSquare, CreditCard, Zap, FolderTree, BarChart3, Settings,
-  LogOut, ExternalLink, ShieldAlert, Star, BookOpen, MapPin, HelpCircle,
+  LayoutDashboard, Users, FileText, MessageSquare, CreditCard, BarChart3, Settings,
+  LogOut, ExternalLink, Layers,
 } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { AdminThemeProvider, useAdminTheme } from "@/context/admin-theme-context";
 import { type Permissions, hasPermission, type PermissionKey } from "@/lib/permissions";
+import { PendingCountsContext, type PendingCounts } from "./_components/pending-counts-context";
 
+// Bo'lim — sidebar tugmasi.
+// E'lonlar va Sayt mazmuni guruhlari ostida bir nechta sahifalar yashiringan
+// (top-tab orqali yuriladi). Sidebar pathPrefix bo'yicha aktivni aniqlaydi.
 interface NavItem {
   href: string;
   label: string;
@@ -18,29 +22,40 @@ interface NavItem {
   // Assistant'lar uchun bu ruxsat kerak. Admin har doim hammasi.
   // null = bosh sahifa kabi har doim ko'rinadi
   perm: PermissionKey | null;
-  // Sidebar'da pending counts badge'i uchun key (faqat admin ko'radi)
-  badgeKey?: "listings" | "categories" | "boosts" | "partners";
-}
-
-interface PendingCounts {
-  listings: number;
-  categories: number;
-  boosts: number;
-  partners: number;
+  // Sidebar'da pending counts badge'i uchun keylar (faqat admin ko'radi).
+  // Bir nechta key berilsa — yig'indisi ko'rsatiladi.
+  badgeKeys?: ReadonlyArray<keyof PendingCounts>;
+  // Aktivlikni aniqlash uchun qo'shimcha pathlar (bu nav item ga "tegishli" sahifalar)
+  groupPaths?: ReadonlyArray<string>;
 }
 
 const navItems: NavItem[] = [
   { href: "/admode/home", label: "Bosh sahifa", icon: LayoutDashboard, perm: null },
+  {
+    href: "/admode/listings",
+    label: "E'lonlar",
+    icon: FileText,
+    perm: "listing.view",
+    badgeKeys: ["listings", "boosts"],
+    groupPaths: ["/admode/listings", "/admode/boosts", "/admode/ratings"],
+  },
+  {
+    href: "/admode/leads",
+    label: "Leadlar",
+    icon: MessageSquare,
+    perm: "lead.view",
+    badgeKeys: ["students", "partners"],
+  },
   { href: "/admode/users", label: "Foydalanuvchilar", icon: Users, perm: "user.view" },
-  { href: "/admode/listings", label: "E'lonlar", icon: FileText, perm: "listing.view", badgeKey: "listings" },
-  { href: "/admode/leads", label: "Leadlar", icon: MessageSquare, perm: "lead.view" },
   { href: "/admode/payments", label: "To'lovlar", icon: CreditCard, perm: "payment.view" },
-  { href: "/admode/boosts", label: "Boostlar", icon: Zap, perm: "boost.view", badgeKey: "boosts" },
-  { href: "/admode/ratings", label: "Reytinglar", icon: Star, perm: null },
-  { href: "/admode/categories", label: "Kategoriyalar", icon: FolderTree, perm: "taxonomy.edit", badgeKey: "categories" },
-  { href: "/admode/regions", label: "Viloyatlar", icon: MapPin, perm: "region.edit" },
-  { href: "/admode/kontent", label: "Kontent", icon: BookOpen, perm: "content.view" },
-  { href: "/admode/faq", label: "FAQ", icon: HelpCircle, perm: "faq.edit" },
+  {
+    href: "/admode/categories",
+    label: "Sayt mazmuni",
+    icon: Layers,
+    perm: "taxonomy.edit",
+    badgeKeys: ["categories"],
+    groupPaths: ["/admode/categories", "/admode/regions", "/admode/kontent", "/admode/faq"],
+  },
   { href: "/admode/analytics", label: "Analytics", icon: BarChart3, perm: "analytics.view" },
   { href: "/admode/settings", label: "Sozlamalar", icon: Settings, perm: null },
 ];
@@ -121,9 +136,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
-              const badgeCount = role === "admin" && item.badgeKey && pendingCounts
-                ? pendingCounts[item.badgeKey]
+              const groupPaths = item.groupPaths ?? [item.href];
+              const isActive = groupPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
+              const badgeCount = role === "admin" && item.badgeKeys && pendingCounts
+                ? item.badgeKeys.reduce((sum, k) => sum + (pendingCounts[k] ?? 0), 0)
                 : 0;
               return (
                 <Link
@@ -199,7 +215,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
       {/* Content */}
       <div className="flex-1 min-h-screen md:pt-0 pt-[56px] pb-[64px] md:pb-0" style={{ color: config.text }}>
-        {children}
+        <PendingCountsContext.Provider value={pendingCounts}>
+          {children}
+        </PendingCountsContext.Provider>
       </div>
 
       {/* Mobile bottom nav */}
@@ -209,9 +227,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       >
         {visibleNavItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
-          const badgeCount = role === "admin" && item.badgeKey && pendingCounts
-            ? pendingCounts[item.badgeKey]
+          const groupPaths = item.groupPaths ?? [item.href];
+          const isActive = groupPaths.some((p) => pathname === p || pathname.startsWith(p + "/"));
+          const badgeCount = role === "admin" && item.badgeKeys && pendingCounts
+            ? item.badgeKeys.reduce((sum, k) => sum + (pendingCounts[k] ?? 0), 0)
             : 0;
           return (
             <Link
