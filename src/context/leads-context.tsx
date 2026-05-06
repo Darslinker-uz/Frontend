@@ -59,6 +59,7 @@ interface LeadsContextType {
   leads: Lead[];
   loading: boolean;
   moveLead: (id: number, newStatus: string, note?: string) => void;
+  refresh: () => Promise<void>;
   stats: {
     total: number;
     yangi: number;
@@ -70,22 +71,42 @@ interface LeadsContextType {
 
 const LeadsContext = createContext<LeadsContextType | null>(null);
 
+const POLL_INTERVAL_MS = 30_000;
+
 export function LeadsProvider({ children }: { children: ReactNode }) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/dashboard/leads", { cache: "no-store" });
-        const data: { leads: ApiLead[] } = await res.json();
-        if (!cancelled) setLeads((data.leads ?? []).map(fromApi));
-      } catch (e) { console.error(e); }
-      finally { if (!cancelled) setLoading(false); }
-    })();
-    return () => { cancelled = true; };
+  const fetchLeads = useCallback(async (showLoading: boolean): Promise<void> => {
+    if (showLoading) setLoading(true);
+    try {
+      const res = await fetch("/api/dashboard/leads", { cache: "no-store" });
+      if (!res.ok) {
+        console.error("[leads] fetch failed", res.status);
+        return;
+      }
+      const data: { leads: ApiLead[] } = await res.json();
+      setLeads((data.leads ?? []).map(fromApi));
+    } catch (e) {
+      console.error("[leads] fetch error", e);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchLeads(true);
+    const interval = setInterval(() => { fetchLeads(false); }, POLL_INTERVAL_MS);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") fetchLeads(false);
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", () => fetchLeads(false));
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [fetchLeads]);
 
   const moveLead = useCallback(async (id: number, newStatus: string, note?: string) => {
     const apiStatus = UI_TO_STATUS[newStatus];
@@ -111,8 +132,10 @@ export function LeadsProvider({ children }: { children: ReactNode }) {
   const sifatsiz = leads.filter(l => l.status === "sifatsiz").length;
   const konversiya = total > 0 ? Math.round((sotibOldi / total) * 100) : 0;
 
+  const refresh = useCallback(() => fetchLeads(false), [fetchLeads]);
+
   return (
-    <LeadsContext.Provider value={{ leads, loading, moveLead, stats: { total, yangi, sotibOldi, sifatsiz, konversiya } }}>
+    <LeadsContext.Provider value={{ leads, loading, moveLead, refresh, stats: { total, yangi, sotibOldi, sifatsiz, konversiya } }}>
       {children}
     </LeadsContext.Provider>
   );
