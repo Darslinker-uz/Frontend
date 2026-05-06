@@ -113,9 +113,30 @@ export default async function BlogPage() {
           </p>
         </div>
 
+        {/* HARDCODED static blogs (until DB migration) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
+          {[
+            { slug: "kursni-qanday-tanlash-7-mezon", title: "Kursni qanday to'g'ri tanlash kerak: 7 ta mezon 2026", excerpt: "Kurs tanlashda 7 ta asosiy mezon — format, narx, o'qituvchi, sertifikat va boshqalar. Vaqt va pulni yo'qotmaslik uchun amaliy yondashuv.", category: "O'quvchilar uchun" },
+            { slug: "oquv-markaz-yangi-oquvchi-topish", title: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya 2026", excerpt: "O'quv markaz uchun yangi o'quvchi topishning 5 ta strategiyasi — SEO, marketplace, ijtimoiy tarmoqlar, referrals, hamkorlik. CPL va vaqt bilan qiyoslangan.", category: "O'quv markazlar uchun" },
+          ].map((post) => (
+            <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
+              <article className="rounded-[20px] border-2 border-[#e4e7ea] p-6 hover:border-[#16181a] transition-all duration-300 h-full flex flex-col bg-white">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7c8490]">{post.category}</span>
+                <h2 className="text-[19px] font-bold text-[#16181a] leading-tight mt-3">{post.title}</h2>
+                <p className="text-[14px] text-[#7c8490] mt-3 line-clamp-2 flex-1">{post.excerpt}</p>
+                <div className="flex items-center justify-end mt-5 pt-4 border-t border-[#e4e7ea]">
+                  <div className="w-8 h-8 rounded-full border border-[#e4e7ea] group-hover:border-[#16181a] flex items-center justify-center transition-all">
+                    <ArrowRight className="w-4 h-4 text-[#7c8490] group-hover:text-[#16181a] transition-colors" />
+                  </div>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+
         {articles.length === 0 ? (
           <div className="rounded-[20px] border-2 border-dashed border-[#e4e7ea] p-10 text-center">
-            <p className="text-[15px] text-[#7c8490]">Hozircha maqolalar yo&apos;q. Tez orada chiqamiz.</p>
+            <p className="text-[15px] text-[#7c8490]">Hozircha real DB maqolalari yo&apos;q. Yuqoridagi DEMO maqolalarni ko&apos;rib chiqing.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
