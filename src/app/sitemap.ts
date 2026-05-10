@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/kurslar`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/manba`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/blog/nega-oquv-markazlar-darslinker-tanlaydi`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/hamkorlik`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/haqimizda`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/check`, changeFrequency: "monthly", priority: 0.3 },

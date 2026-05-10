@@ -116,6 +116,7 @@ export default async function BlogPage() {
         {/* HARDCODED static blogs (until DB migration) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
           {[
+            { slug: "nega-oquv-markazlar-darslinker-tanlaydi", title: "Nega o'quv markazlar Darslinker'ni tanlaydi? 5 ta sabab (2026)", excerpt: "Darslinker o'quv markazlarga nima beradi? SEO, marketplace katalog, real-time Telegram lid, CRM kabinet va organik ko'rinish — bir platformada. 5 ta asosiy imkoniyat batafsil.", category: "O'quv markazlar uchun" },
             { slug: "kursni-qanday-tanlash-7-mezon", title: "Kursni qanday to'g'ri tanlash kerak: 7 ta mezon 2026", excerpt: "Kurs tanlashda 7 ta asosiy mezon — format, narx, o'qituvchi, sertifikat va boshqalar. Vaqt va pulni yo'qotmaslik uchun amaliy yondashuv.", category: "O'quvchilar uchun" },
             { slug: "oquv-markaz-yangi-oquvchi-topish", title: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya 2026", excerpt: "O'quv markaz uchun yangi o'quvchi topishning 5 ta strategiyasi — SEO, marketplace, ijtimoiy tarmoqlar, referrals, hamkorlik. CPL va vaqt bilan qiyoslangan.", category: "O'quv markazlar uchun" },
           ].map((post) => (
