@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
-const DISALLOW = ["/admode", "/admode/*", "/center", "/center/*", "/api/*", "/auth", "/student"];
+const DISALLOW = ["/admode", "/admode/*", "/center", "/center/*", "/api/*", "/auth", "/student", "/hamkorlik/demo"];
 
 // AI crawlers — platform ma'lumotlari (kurslar, markazlar) LLMlarga ham kirish
 // mumkin bo'lsin, toki ChatGPT/Gemini/Claude/Perplexity javoblarida saytimiz

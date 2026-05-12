@@ -18,6 +18,8 @@ export function MainShell({
   const isDashboard = pathname.startsWith("/center/");
   const isAdmin = pathname.startsWith("/admode");
   const isAuth = pathname === "/auth";
+  // Yopiq demo / pitch sahifalari — o'z layout'ida ishlaydi, navbar/footer kerakmas.
+  const isLanding = pathname === "/hamkorlik/demo";
 
   // Dashboard da body qora bo'lishi kerak. Admin'da AdminThemeProvider o'zi body'ni
   // tanlangan tema rangiga sinxronlaydi, shuning uchun bu yerda tegmaymiz.
@@ -36,8 +38,8 @@ export function MainShell({
     }
   }, [isDashboard, isAdmin]);
 
-  // Dashboard, admin va auth sahifalarida navbar/footer ko'rsatilmaydi
-  if (isDashboard || isAdmin || isAuth) {
+  // Dashboard, admin, auth va yopiq landing sahifalarida navbar/footer ko'rsatilmaydi
+  if (isDashboard || isAdmin || isAuth || isLanding) {
     return <>{children}</>;
   }
 
