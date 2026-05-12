@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, Kalam, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { MainShell } from "@/components/layout/main-shell";
 import { Footer } from "@/components/layout/footer";
@@ -100,6 +101,15 @@ export default function RootLayout({
         <Providers>
           <MainShell footer={<Footer />}>{children}</MainShell>
         </Providers>
+        {process.env.NODE_ENV === "production" && (
+          <Script id="microsoft-clarity" strategy="afterInteractive">
+            {`(function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "wpvzwkybup");`}
+          </Script>
+        )}
       </body>
     </html>
   );
