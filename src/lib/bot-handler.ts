@@ -10,12 +10,13 @@ import {
   type TelegramClient,
 } from "@/lib/telegram";
 import type { LeadStatus, Role } from "@/generated/prisma";
+import { handleStudentAiCallback, tryStudentAi } from "@/lib/student-ai";
 
 // ==================== HANDLER ====================
 // Shared update processor — used by both webhook and polling.
 // `mode` selects which bot the update came from:
 //   "provider" — @Darslinker_cbot, full CRM (lead callbacks, group ID, etc.)
-//   "student"  — @darslinkerbot, login-code only (used for rating + future student panel)
+//   "student"  — @darslinkerbot, login-code + Darslinker AI kurs maslahatchi
 
 export type BotMode = "provider" | "student";
 
@@ -51,9 +52,23 @@ export async function handleUpdate(update: TgUpdate, mode: BotMode = "provider")
     const client = getClient(mode);
     if (update.message) {
       await handleMessage(update.message, mode, client);
-    } else if (update.callback_query && mode === "provider") {
-      // Lead callbacks (Bog'landim) only exist in the provider bot.
-      await handleCallback(update.callback_query);
+    } else if (update.callback_query) {
+      if (mode === "student") {
+        const q = update.callback_query;
+        if (q.message && q.data?.startsWith("ai:")) {
+          await handleStudentAiCallback(
+            q.message.chat.id,
+            q.message.message_id,
+            q.data,
+            client,
+            (t) => client.answerCallbackQuery(q.id, t),
+          );
+        } else {
+          await client.answerCallbackQuery(q.id);
+        }
+      } else {
+        await handleCallback(update.callback_query);
+      }
     }
   } catch (e) {
     console.error(`[bot:${mode}] handleUpdate error:`, e);
@@ -79,7 +94,7 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
   // /start
   if (msg.text === "/start") {
     const greeting = mode === "student"
-      ? "👋 <b>Darslinker'ga xush kelibsiz!</b>\n\nKurslarni baholash va o'quvchi paneliga kirish uchun telefon raqamingizni ulashing."
+      ? "👋 <b>Darslinker'ga xush kelibsiz!</b>\n\nKurslarni baholash va o'quvchi paneliga kirish uchun telefon raqamingizni ulashing.\n\n🤖 Mos kurs topish uchun: /ai yoki shunchaki xabar yozing."
       : "👋 <b>Darslinker CRM</b>'ga xush kelibsiz!\n\nRo'yxatdan o'tish yoki saytga kirish uchun telefon raqamingizni ulashing.";
     await client.sendMessage(chatId, greeting, {
       parse_mode: "HTML",
@@ -150,13 +165,20 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
   }
 
   // /help
-  if (msg.text === "/help") {
-    await client.sendMessage(chatId,
+  if (msg.text === "/help" || msg.text?.startsWith("/help@")) {
+    const helpStudent =
       "ℹ️ <b>Yordam</b>\n\n" +
       "/start — Ro'yxatdan o'tish\n" +
-      "/code — Yangi kod so'rash (agar avval ro'yxatdan o'tgan bo'lsangiz)",
-      { parse_mode: "HTML" },
-    );
+      "/code — Yangi kod so'rash\n" +
+      "/ai — Darslinker AI: sizga mos kurslarni topish\n\n" +
+      "Yoki shunchaki xabar yozing — AI javob beradi.";
+    const helpProvider =
+      "ℹ️ <b>Yordam</b>\n\n" +
+      "/start — Ro'yxatdan o'tish\n" +
+      "/code — Yangi kod so'rash (agar avval ro'yxatdan o'tgan bo'lsangiz)";
+    await client.sendMessage(chatId, mode === "student" ? helpStudent : helpProvider, {
+      parse_mode: "HTML",
+    });
     return;
   }
 
@@ -220,7 +242,13 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
     }
   }
 
-  // Unknown message
+  // @darslinkerbot — Darslinker AI (har qanday matn yoki /ai)
+  if (mode === "student") {
+    const handled = await tryStudentAi(chatId, msg.text, !!msg.contact, client);
+    if (handled) return;
+  }
+
+  // Unknown message (provider bot)
   await client.sendMessage(chatId,
     "Tushunmadim 🤔 /start yoki /help bosing.",
   );
