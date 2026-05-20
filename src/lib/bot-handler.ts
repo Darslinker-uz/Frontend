@@ -10,7 +10,7 @@ import {
   type TelegramClient,
 } from "@/lib/telegram";
 import type { LeadStatus, Role } from "@/generated/prisma";
-import { handleStudentAiCallback, tryStudentAi } from "@/lib/student-ai";
+import { handleStudentAiCallback, tryCompleteInquiryFromContact, tryStudentAi } from "@/lib/student-ai";
 
 // ==================== HANDLER ====================
 // Shared update processor — used by both webhook and polling.
@@ -106,6 +106,13 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
       },
     });
     return;
+  }
+
+  // Kurs bo'yicha qo'shimcha ma'lumot — telefon (login dan oldin)
+  if (mode === "student" && msg.contact) {
+    if (await tryCompleteInquiryFromContact(chatId, msg.contact, msg.from, client)) {
+      return;
+    }
   }
 
   // Contact share
@@ -245,7 +252,7 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
 
   // @darslinkerbot — Darslinker AI (har qanday matn yoki /ai)
   if (mode === "student") {
-    const handled = await tryStudentAi(chatId, msg.text, !!msg.contact, client);
+    const handled = await tryStudentAi(chatId, msg.text, !!msg.contact, client, msg.from);
     if (handled) return;
   }
 

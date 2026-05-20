@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma";
 import { chatCompletion, type ChatTurn } from "@/lib/openai";
-import { escHtml, type TelegramClient } from "@/lib/telegram";
+import { escHtml, normalizePhone, type TelegramClient, type TgContact, type TgUser } from "@/lib/telegram";
 
 // ==================== DARSLINKER AI (@darslinkerbot) ====================
 // /ai → mos kurs quiz | Erkin chat: tarix (20 xabar)
@@ -20,17 +20,23 @@ export type AiAnswers = {
 
 type SessionMeta = {
   flow: "menu" | "quiz" | "results";
-  mode: "match";
+  mode: "match" | "browse";
   resultIds: number[];
   page: number;
   listMessageId?: number;
   view: "list" | "detail";
   detailIdx?: number;
+  browseQuery?: string;
+};
+
+type PendingInquiry = {
+  listingId: number;
 };
 
 type ChatState = {
   greeted: boolean;
   history: ChatTurn[];
+  pendingInquiry?: PendingInquiry;
 };
 
 type QuestionKey = keyof AiAnswers;
@@ -111,12 +117,24 @@ const LEVEL_KEYWORDS: Record<string, string[]> = {
   experienced: ["yuqori", "advanced", "professional", "pro"],
 };
 
-const CHAT_SYSTEM_BASE = `Sen "Darslinker AI" — Darslinker.uz kurs maslahatchisisan.
-O'zbek tilida, aniq va qisqa javob ber (1–3 jumla, ortiqcha so'z yo'q).
-Faqat kurslar, kasb o'rganish, IT, marketing, dizayn, tillar haqida gapir.
-Boshqa mavzuga o'tsa — muloyim rad et, kurs mavzusiga qayt.
-Kurs tanlash testi uchun /ai buyrug'ini taklif qil.
-Emoji kam. HTML yo'q. Oldingi xabarlarni hisobga ol.`;
+const CHAT_SYSTEM_BASE = `Sen Darslinker.uz platformasining shaxsiy yordamchisisan — iliq, odamdek, tabiiy muloqot qil.
+O'zbek tilida, 1–3 qisqa jumla. Emoji juda kam.
+ASOSIY: foydalanuvchi salom, "qalaysiz", "rahmat" desa — doimo muloyim, iliq javob ber. HECH QACHON salomni rad etmang.
+"Salom berish mumkin emas", "shaxsiy savollarga javob bera olmayman" kabi sovuq/rad etuvchi iboralarni ISHLATMA.
+Vazifang — kurslar, kasb o'rganish (IT, marketing, dizayn, tillar) bo'yicha maslahat. Mos kurs topish uchun /ai ni eslat.
+MUHIM: kurslar ro'yxatini o'zing to'qima — tizim bazadan chiqaradi. "Ko'rsat" desa, yo'nalishni aniqlashga yordam ber (IT, python...).
+Off-topic bo'lsa — qisqa, yumshoq qaytar. Oldingi xabarlarni eslab javob ber.`;
+
+const INTRO_VARIANTS = [
+  "Assalomu alaykum! Men Darslinker.uz platformasining shaxsiy yordamchisiman — sizga mos kurs topishda yordam beraman.",
+  "Va alaykum assalom! Men darslinker.uz yordamchisiman. Qaysi yo'nalishda kurs qidiryapsiz — aytishingiz mumkin.",
+  "Assalomu alaykum! Darslinker.uz danman — kurs tanlash va topishda siz bilanman. Nimadan boshlaymiz?",
+];
+
+const RE_GREETING = /^(assalomu?\s*alaykum|assalom|salom|salam|hello|hi|hey|hayrli|xayrli)\b|^(va\s*)?alaykum/i;
+const RE_SMALLTALK = /^(qalaysiz|qalesan|yaxshimisiz|yaxshimi|ahvoliz|nima\s*gap|nima\s*gapp)\b/i;
+const RE_THANKS = /^(rahmat|tashakkur|thanks|thank\s*you)\b/i;
+const RE_BAD_REPLY = /salom\s*berish\s*mumkin\s*emas|salom\s*ayta\s*olmayman|shaxsiy\s*savollarga\s*javob\s*bera\s*olmayman/i;
 
 // ---------- helpers ----------
 
@@ -157,7 +175,33 @@ function parseChat(raw: unknown): ChatState {
         })
         .slice(-MAX_CHAT_HISTORY)
     : [];
-  return { greeted: Boolean(c.greeted), history };
+  let pendingInquiry: PendingInquiry | undefined;
+  if (c.pendingInquiry && typeof c.pendingInquiry === "object" && !Array.isArray(c.pendingInquiry)) {
+    const p = c.pendingInquiry as Record<string, unknown>;
+    const listingId = typeof p.listingId === "number" ? p.listingId : Number(p.listingId);
+    if (Number.isFinite(listingId) && listingId > 0) {
+      pendingInquiry = { listingId };
+    }
+  }
+  return { greeted: Boolean(c.greeted), history, pendingInquiry };
+}
+
+function getDarslinkerAdminIds(): string[] {
+  const raw =
+    process.env.DarslinkerAdminIds ||
+    process.env.DARSLINKER_ADMIN_IDS ||
+    process.env.TELEGRAM_SUPER_ADMIN_CHAT_ID ||
+    "";
+  return raw.split(",").map(s => s.trim()).filter(Boolean);
+}
+
+function parsePhoneFromText(text: string): string | null {
+  const digits = text.replace(/\D/g, "");
+  if (digits.length < 9) return null;
+  if (digits.startsWith("998") && digits.length >= 12) return normalizePhone(digits);
+  if (digits.length === 9) return normalizePhone(digits);
+  if (digits.length >= 12) return normalizePhone(digits);
+  return normalizePhone(digits);
 }
 
 function parseSessionJson(raw: unknown): { answers: AiAnswers; meta: SessionMeta | null; chat: ChatState } {
@@ -191,6 +235,46 @@ function appendHistory(chat: ChatState, userText: string, assistantText: string)
 
 async function showTyping(client: TelegramClient, chatId: number): Promise<void> {
   await client.sendChatAction(chatId, "typing");
+}
+
+function isGreeting(text: string): boolean {
+  return RE_GREETING.test(text.trim().toLowerCase());
+}
+
+function isSmallTalk(text: string): boolean {
+  return RE_SMALLTALK.test(text.trim().toLowerCase());
+}
+
+function pickIntro(): string {
+  return INTRO_VARIANTS[Math.floor(Math.random() * INTRO_VARIANTS.length)];
+}
+
+function replyToGreeting(chat: ChatState): string {
+  if (!chat.greeted) return pickIntro();
+  const repeats = [
+    "Va alaykum assalom! Yana qanday yordam bera olaman?",
+    "Assalom! Qaysi kurs yoki yo'nalish qiziq?",
+    "Salom! IT, til, marketing — qayerdan boshlaymiz?",
+  ];
+  return repeats[Math.floor(Math.random() * repeats.length)];
+}
+
+function replyToSmallTalk(): string {
+  const lines = [
+    "Yaxshi, rahmat! Siz-chi? Qaysi sohada kurs izlayapsiz?",
+    "Alhamdulillah, yaxshi! Sizga qanday kurs kerak — ayting, yordam beraman.",
+    "Rahmat, yaxshiman! Kurs tanlashda yordam kerakmi?",
+  ];
+  return lines[Math.floor(Math.random() * lines.length)];
+}
+
+function sanitizeAiReply(text: string, userText: string, chat: ChatState): string {
+  if (RE_BAD_REPLY.test(text)) {
+    if (isGreeting(userText)) return replyToGreeting(chat);
+    if (isSmallTalk(userText)) return replyToSmallTalk();
+    return "Albatta, gapiravering! Qaysi yo'nalishda kurs qidiryapsiz? /ai bilan mos kursni ham topamiz.";
+  }
+  return text;
 }
 
 function formatPrice(price: number): string {
@@ -348,6 +432,182 @@ function toCourseRow(l: Awaited<ReturnType<typeof fetchAllActive>>[number], scor
   };
 }
 
+/** Kalit so'z / yo'nalish → DB qidiruv */
+const BROWSE_ALIASES: Record<string, { groups?: string[]; keywords: string[] }> = {
+  python: { groups: ["it"], keywords: ["python", "питон"] },
+  javascript: { groups: ["it"], keywords: ["javascript", "js", "react", "node"] },
+  java: { groups: ["it"], keywords: ["java"] },
+  it: { groups: ["it"], keywords: ["it", "dasturlash", "programming", "dastur"] },
+  marketing: { groups: ["biznes"], keywords: ["marketing", "smm", "reklama", "target"] },
+  dizayn: { groups: ["dizayn"], keywords: ["dizayn", "design", "ui", "ux", "figma"] },
+  til: { groups: ["tillar"], keywords: ["til", "ingliz", "ielts", "rus"] },
+  ingliz: { groups: ["tillar"], keywords: ["ingliz", "english", "ielts"] },
+  biznes: { groups: ["biznes"], keywords: ["biznes", "business", "sotuv"] },
+};
+
+const RE_SHOW_COURSES =
+  /kurslarni?\s*ko|ko['']rsat|ko['']rib\s*ber|chiqar|ro['']yxat|hammasini|barchasini|barcha\s*kurs|hamma\s*kurs|toping|izlab\s*ber|izlang|qaysi\s*kurs/i;
+
+const RE_TOPIC_WORD =
+  /^(it|python|java|javascript|js|marketing|dizayn|ingliz|til|smm|react|nodejs|php|flutter)$/i;
+
+function lastAssistantText(history: ChatTurn[]): string {
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (history[i].role === "assistant") return history[i].content.toLowerCase();
+  }
+  return "";
+}
+
+function isCourseContext(history: ChatTurn[]): boolean {
+  const t = lastAssistantText(history);
+  return /kurs|soha|yo'nalish|it\b|marketing|dizayn|tanlash|qaysi|python|ko'rib|mos kurs/i.test(t);
+}
+
+function wantsCourseBrowse(text: string, history: ChatTurn[]): boolean {
+  const low = text.trim().toLowerCase();
+  if (RE_SHOW_COURSES.test(low)) return true;
+  if (RE_TOPIC_WORD.test(low) && isCourseContext(history)) return true;
+  for (const key of Object.keys(BROWSE_ALIASES)) {
+    if (low.includes(key) && /kurs|ko['']rsat|hammasi|barcha|chiqar/i.test(low)) return true;
+  }
+  return false;
+}
+
+/** null = GPT javob; '' = barcha kurslar; boshqa = filtr */
+function resolveBrowseQuery(text: string, history: ChatTurn[]): string | null {
+  if (!wantsCourseBrowse(text, history)) return null;
+  const low = text.trim().toLowerCase();
+
+  if (/hammasini|barchasini|barcha\s*kurs|hamma\s*kurs/i.test(low)) return "";
+
+  for (const key of Object.keys(BROWSE_ALIASES)) {
+    if (new RegExp(`\\b${key}\\b`, "i").test(low)) return key;
+  }
+
+  if (RE_TOPIC_WORD.test(low)) return low;
+
+  let cleaned = low
+    .replace(/kurslarni?|kurslar|ko['']rsat|ko['']rib|chiqar|ro['']yxat|hammasini|barchasini|ber|menga|iltimos|bo['']yicha|hammasi|barchasi/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (cleaned.length >= 2) return cleaned;
+
+  // "kurslarni ko'rsat" — yo'nalish yo'q, GPT so'rashi kerak
+  if (/^kurslarni?\s*ko|^ko['']rsat/.test(low) && !isCourseContext(history)) return null;
+
+  // Oldingi suhbatda yo'nalish bo'lsa — barcha IT kurslar va h.k.
+  if (isCourseContext(history) && RE_SHOW_COURSES.test(low)) {
+    const prev = lastAssistantText(history);
+    for (const key of Object.keys(BROWSE_ALIASES)) {
+      if (prev.includes(key)) return key;
+    }
+    return "";
+  }
+
+  return null;
+}
+
+function scoreListingForBrowse(row: CourseRow, query: string): number {
+  const q = query.toLowerCase().trim();
+  if (!q) return row.views;
+
+  const alias = BROWSE_ALIASES[q] ?? { keywords: [q] };
+  const hay = `${row.title} ${row.description ?? ""} ${row.categoryName} ${row.groupSlug}`.toLowerCase();
+  let score = 0;
+  if (alias.groups?.includes(row.groupSlug)) score += 45;
+  for (const kw of alias.keywords) {
+    if (hay.includes(kw)) score += 35;
+    if (row.title.toLowerCase().includes(kw)) score += 25;
+  }
+  if (hay.includes(q)) score += 20;
+  return score;
+}
+
+async function searchListingsByQuery(query: string): Promise<number[]> {
+  const listings = await fetchAllActive();
+  const q = query.trim().toLowerCase();
+
+  if (!q) {
+    return listings
+      .sort((a, b) => b.views - a.views)
+      .map(l => l.id);
+  }
+
+  const scored = listings
+    .map(l => {
+      const row = toCourseRow(l);
+      return { id: row.id, score: scoreListingForBrowse(row, q) };
+    })
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (scored.length > 0) return scored.map(s => s.id);
+
+  // Yumshoq qidiruv — sarlavhada so'z bo'lsa
+  return listings
+    .filter(l => `${l.title} ${l.description ?? ""}`.toLowerCase().includes(q))
+    .sort((a, b) => b.views - a.views)
+    .map(l => l.id);
+}
+
+function browseListTitle(query: string): string {
+  if (!query) return "📚 Kurslar";
+  const labels: Record<string, string> = {
+    python: "Python",
+    it: "IT",
+    marketing: "Marketing",
+    dizayn: "Dizayn",
+    til: "Tillar",
+    ingliz: "Ingliz tili",
+  };
+  const label = labels[query] ?? query;
+  return `🔎 ${label} bo'yicha kurslar`;
+}
+
+async function showCourseBrowse(
+  client: TelegramClient,
+  chatId: number,
+  chatKey: string,
+  query: string,
+  userText: string,
+  chat: ChatState
+): Promise<void> {
+  const ids = await searchListingsByQuery(query);
+  const title = browseListTitle(query);
+
+  if (ids.length === 0) {
+    const reply =
+      `😔 "${escHtml(query || "so'rovingiz")}" bo'yicha hozircha faol kurs topilmadi.\n\n` +
+      "Boshqa yo'nalish yozing yoki /ai orqali mos kursni toping.";
+    await client.sendMessage(chatId, reply, { parse_mode: "HTML" });
+    await saveSession(chatKey, {
+      chat: appendHistory(chat, userText, "Mos kurs topilmadi."),
+    });
+    return;
+  }
+
+  const meta: SessionMeta = {
+    flow: "results",
+    mode: "browse",
+    resultIds: ids,
+    page: 0,
+    view: "list",
+    browseQuery: query,
+  };
+  const histNote = `${title}: ${ids.length} ta kurs ko'rsatildi.`;
+  await saveSession(chatKey, {
+    step: 0,
+    meta,
+    chat: appendHistory(chat, userText, histNote),
+  });
+
+  const msgId = await renderResultsList(client, chatId, meta, title);
+  if (msgId) {
+    await saveSession(chatKey, { meta: { ...meta, listMessageId: msgId } });
+  }
+}
+
 async function rankForMatch(answers: AiAnswers): Promise<number[]> {
   const listings = await fetchAllActive();
   const scored = listings
@@ -457,8 +717,9 @@ function buildDetailText(c: CourseRow): string {
   return lines.join("\n");
 }
 
-function detailKeyboard(meta: SessionMeta, pageCount: number) {
+function detailKeyboard(meta: SessionMeta, pageCount: number, listingId: number) {
   const rows: { text: string; callback_data: string }[][] = [
+    [{ text: "📞 Qo'shimcha ma'lumot olish", callback_data: `ai:inf:${listingId}` }],
     [{ text: "◀️ Ro'yxatga", callback_data: "ai:b" }],
   ];
   if (meta.page < pageCount - 1) {
@@ -525,9 +786,133 @@ async function renderDetail(
   await saveSession(String(chatId), { meta: detailMeta });
   await client.editMessageText(chatId, messageId, buildDetailText(c), {
     parse_mode: "HTML",
-    reply_markup: detailKeyboard(detailMeta, pageCount),
+    reply_markup: detailKeyboard(detailMeta, pageCount, c.id),
     disable_web_page_preview: true,
   });
+}
+
+async function notifyAdminsCourseInquiry(
+  client: TelegramClient,
+  params: { listingId: number; phone: string; userName?: string; userChatId: string }
+) {
+  const map = await getCoursesByIds([params.listingId]);
+  const c = map.get(params.listingId);
+  if (!c) return;
+
+  const url = `${SITE_BASE}/kurslar/${c.groupSlug}/${c.slug}`;
+  const lines = [
+    "📩 <b>Yangi ma'lumot so'rovi</b> (@darslinkerbot)",
+    "",
+    `📚 <b>Kurs:</b> ${escHtml(c.title)}`,
+    `🏫 <b>Markaz:</b> ${escHtml(c.centerName ?? "—")}`,
+    `🏷 ${escHtml(c.categoryName)} · ${formatFormat(c.format)}`,
+    `💰 ${escHtml(formatPrice(c.price))}`,
+    "",
+    `📞 <b>Telefon:</b> ${escHtml(params.phone)}`,
+  ];
+  if (params.userName) lines.push(`👤 <b>Ism:</b> ${escHtml(params.userName)}`);
+  lines.push(`🆔 <b>Chat ID:</b> <code>${escHtml(params.userChatId)}</code>`);
+  lines.push("", `🔗 <a href="${url}">Kurs sahifasi</a>`);
+
+  const adminIds = getDarslinkerAdminIds();
+  for (const adminId of adminIds) {
+    await client.sendMessage(adminId, lines.join("\n"), {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    });
+  }
+}
+
+async function completeCourseInquiry(
+  client: TelegramClient,
+  chatId: number,
+  chatKey: string,
+  phone: string,
+  listingId: number,
+  chat: ChatState,
+  user?: TgUser
+): Promise<void> {
+  const userName = user
+    ? [user.first_name, user.last_name].filter(Boolean).join(" ")
+    : undefined;
+
+  await notifyAdminsCourseInquiry(client, {
+    listingId,
+    phone,
+    userName: userName || undefined,
+    userChatId: chatKey,
+  });
+
+  const clearedChat: ChatState = { ...chat, pendingInquiry: undefined };
+  await saveSession(chatKey, { chat: clearedChat });
+
+  await client.sendMessage(
+    chatId,
+    "✅ Rahmat! Telefoningiz qabul qilindi.\n\nTez orada siz bilan bog'lanamiz.",
+    { reply_markup: { remove_keyboard: true } },
+  );
+}
+
+const INQUIRY_PHONE_PROMPT =
+  "📞 <b>Qo'shimcha ma'lumot olish</b>\n\n" +
+  "Telefon raqamingizni qoldiring, biz sizga aloqaga chiqamiz:\n\n" +
+  "<i>Masalan: 991234567</i>\n\n" +
+  "Yoki pastdagi tugma orqali telefonni ulashing.";
+
+/** Kontakt ulashish — login dan oldin (faqat kurs so'rovi kutilayotganda) */
+export async function tryCompleteInquiryFromContact(
+  chatId: number,
+  contact: TgContact,
+  from: TgUser | undefined,
+  client: TelegramClient
+): Promise<boolean> {
+  const chatKey = String(chatId);
+  const { chat } = await loadSession(chatKey);
+  if (!chat.pendingInquiry) return false;
+
+  const phone = normalizePhone(contact.phone_number);
+  await completeCourseInquiry(
+    client,
+    chatId,
+    chatKey,
+    phone,
+    chat.pendingInquiry.listingId,
+    chat,
+    from,
+  );
+  return true;
+}
+
+async function tryCompleteInquiryFromText(
+  chatId: number,
+  text: string,
+  from: TgUser | undefined,
+  client: TelegramClient
+): Promise<boolean> {
+  const chatKey = String(chatId);
+  const { chat } = await loadSession(chatKey);
+  if (!chat.pendingInquiry) return false;
+
+  const phone = parsePhoneFromText(text);
+  if (!phone) {
+    await client.sendMessage(
+      chatId,
+      "❌ Telefon raqamini tushunmadim.\n\nMasalan: <code>991234567</code> yoki +998901234567",
+      { parse_mode: "HTML" },
+    );
+    return true;
+  }
+
+  await completeCourseInquiry(
+    client,
+    chatId,
+    chatKey,
+    phone,
+    chat.pendingInquiry.listingId,
+    chat,
+    from,
+  );
+  return true;
 }
 
 // ---------- quiz ----------
@@ -592,32 +977,43 @@ async function startMatchQuiz(chatId: string) {
   });
 }
 
-/** Erkin chat — tarix, bir marta salom, qisqa javob */
+/** Erkin chat — iliq, odamdek; salomni hech qachon rad etmaydi */
 async function conversationalReply(userText: string, chat: ChatState): Promise<{ reply: string; chat: ChatState }> {
-  const fallback = (msg: string, greeted: boolean) => {
-    const low = msg.toLowerCase();
-    if (!greeted && /^(salom|assalom|hello|hi)\b/.test(low)) {
-      return "Assalomu alaykum! Men Darslinker AI — kurslar bo'yicha yordam beraman. Savolingizni yozing yoki mos kurs uchun /ai yuboring.";
-    }
-    if (/^(rahmat|tashakkur)/.test(low)) return "Arzimaydi! Yana savol bo'lsa yozing.";
-    return "Kurslar haqida savolingizni yozing. Mos kurs topish uchun /ai yuboring.";
-  };
+  const trimmed = userText.trim();
+  const low = trimmed.toLowerCase();
+
+  if (isGreeting(low)) {
+    const reply = replyToGreeting(chat);
+    return { reply, chat: appendHistory(chat, userText, reply) };
+  }
+  if (isSmallTalk(low)) {
+    const reply = replyToSmallTalk();
+    return { reply, chat: appendHistory({ ...chat, greeted: true }, userText, reply) };
+  }
+  if (RE_THANKS.test(low)) {
+    const reply = "Arzimaydi! Yana savol bo'lsa, bemalol yozing.";
+    return { reply, chat: appendHistory(chat, userText, reply) };
+  }
 
   const system =
     CHAT_SYSTEM_BASE +
     (chat.greeted
-      ? "\nMUHIM: Qayta salom bermang (Salom, Assalomu alaykum ishlatmang). To'g'ridan-to'g'ri javob bering."
-      : "\nBU BIRINCHI MULOQOT: bir marta qisqa salom bilan boshlang, keyin savol bering.");
+      ? "\nFoydalanuvchi bilan allaqachon tanishgansiz — to'liq tanishtiruvni takrorlamang, lekin salomga qisqa iliq javob berish mumkin."
+      : "\nAgar salomlashsa — Assalomu alaykum bilan boshlab, darslinker.uz shaxsiy yordamchisi ekaningizni va kurs topishda yordam berishingizni ayting (so'zma-so'z bir xil matn shart emas).");
 
   const ai = await chatCompletion({
     system,
     history: chat.history,
-    user: userText.slice(0, 500),
-    maxTokens: 150,
-    temperature: 0.4,
+    user: trimmed.slice(0, 500),
+    maxTokens: 160,
+    temperature: 0.65,
   });
 
-  const reply = ai ?? fallback(userText, chat.greeted);
+  const fallback = chat.greeted
+    ? "Tushundim. Qaysi yo'nalishda kurs qidiryapsiz? Kerak bo'lsa /ai orqali mos kursni topamiz."
+    : pickIntro();
+
+  let reply = sanitizeAiReply(ai ?? fallback, userText, chat);
   const nextChat = appendHistory(chat, userText, reply);
   return { reply, chat: nextChat };
 }
@@ -627,7 +1023,8 @@ async function conversationalReply(userText: string, chat: ChatState): Promise<{
 export async function handleStudentAiMessage(
   chatId: number,
   text: string | undefined,
-  client: TelegramClient
+  client: TelegramClient,
+  from?: TgUser
 ): Promise<boolean> {
   if (shouldSkipForAi(text, false)) return false;
 
@@ -641,6 +1038,11 @@ export async function handleStudentAiMessage(
   }
 
   const { step, answers, meta, chat } = await loadSession(chatKey);
+
+  if (chat.pendingInquiry && text?.trim()) {
+    await incrementDailyCount(chatKey);
+    return tryCompleteInquiryFromText(chatId, text, from, client).then(() => true);
+  }
 
   if (isAiCommand(text)) {
     await incrementDailyCount(chatKey);
@@ -678,6 +1080,13 @@ export async function handleStudentAiMessage(
   if (text?.trim()) {
     await incrementDailyCount(chatKey);
     await showTyping(client, chatId);
+
+    const browseQuery = resolveBrowseQuery(text, chat.history);
+    if (browseQuery !== null) {
+      await showCourseBrowse(client, chatId, chatKey, browseQuery, text, chat);
+      return true;
+    }
+
     const { reply, chat: nextChat } = await conversationalReply(text, chat);
     await saveSession(chatKey, { chat: nextChat });
     await client.sendMessage(chatId, escHtml(reply));
@@ -706,7 +1115,12 @@ export async function handleStudentAiCallback(
 
   if (data === "ai:mn") {
     await answerCb();
-    await saveSession(chatKey, { step: 0, answers: {}, meta: null, chat });
+    await saveSession(chatKey, {
+      step: 0,
+      answers: {},
+      meta: null,
+      chat: { ...chat, pendingInquiry: undefined },
+    });
     await showMainMenu(client, chatId, { messageId });
     return true;
   }
@@ -723,7 +1137,10 @@ export async function handleStudentAiCallback(
     await answerCb();
     const listMeta: SessionMeta = { ...meta, view: "list" };
     await saveSession(chatKey, { meta: listMeta, chat });
-    await renderResultsList(client, chatId, listMeta, "🎓 Sizga mos kurslar", { messageId });
+    const backTitle = meta.mode === "browse"
+      ? browseListTitle(meta.browseQuery ?? "")
+      : "🎓 Sizga mos kurslar";
+    await renderResultsList(client, chatId, listMeta, backTitle, { messageId });
     return true;
   }
 
@@ -733,7 +1150,10 @@ export async function handleStudentAiCallback(
     const page = parseInt(pageM[1], 10);
     const newMeta: SessionMeta = { ...meta, page, view: "list" };
     await saveSession(chatKey, { meta: newMeta, chat });
-    await renderResultsList(client, chatId, newMeta, "🎓 Sizga mos kurslar", { messageId });
+    const pageTitle = meta.mode === "browse"
+      ? browseListTitle(meta.browseQuery ?? "")
+      : "🎓 Sizga mos kurslar";
+    await renderResultsList(client, chatId, newMeta, pageTitle, { messageId });
     return true;
   }
 
@@ -745,6 +1165,25 @@ export async function handleStudentAiCallback(
     if (globalIdx >= 0 && globalIdx < meta.resultIds.length) {
       await renderDetail(client, chatId, messageId, meta, globalIdx);
     }
+    return true;
+  }
+
+  const infM = data.match(/^ai:inf:(\d+)$/);
+  if (infM) {
+    await answerCb();
+    const listingId = parseInt(infM[1], 10);
+    if (!Number.isFinite(listingId)) return true;
+    await incrementDailyCount(chatKey);
+    const nextChat: ChatState = { ...chat, pendingInquiry: { listingId } };
+    await saveSession(chatKey, { chat: nextChat });
+    await client.sendMessage(chatId, INQUIRY_PHONE_PROMPT, {
+      parse_mode: "HTML",
+      reply_markup: {
+        keyboard: [[{ text: "📱 Telefonni ulashish", request_contact: true }]],
+        resize_keyboard: true,
+        one_time_keyboard: true,
+      },
+    });
     return true;
   }
 
@@ -777,9 +1216,10 @@ export async function tryStudentAi(
   chatId: number,
   text: string | undefined,
   hasContact: boolean,
-  client: TelegramClient
+  client: TelegramClient,
+  from?: TgUser
 ): Promise<boolean> {
   if (hasContact || shouldSkipForAi(text, hasContact)) return false;
   if (!text?.trim()) return false;
-  return handleStudentAiMessage(chatId, text, client);
+  return handleStudentAiMessage(chatId, text, client, from);
 }
