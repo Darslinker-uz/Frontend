@@ -122,8 +122,10 @@ O'zbek tilida, 1–3 qisqa jumla. Emoji juda kam.
 ASOSIY: foydalanuvchi salom, "qalaysiz", "rahmat" desa — doimo muloyim, iliq javob ber. HECH QACHON salomni rad etmang.
 "Salom berish mumkin emas", "shaxsiy savollarga javob bera olmayman" kabi sovuq/rad etuvchi iboralarni ISHLATMA.
 Vazifang — kurslar, kasb o'rganish (IT, marketing, dizayn, tillar) bo'yicha maslahat. Mos kurs topish uchun /ai ni eslat.
-MUHIM: kurslar ro'yxatini o'zing to'qima — tizim bazadan chiqaradi. "Ko'rsat" desa, yo'nalishni aniqlashga yordam ber (IT, python...).
-Off-topic bo'lsa — qisqa, yumshoq qaytar. Oldingi xabarlarni eslab javob ber.`;
+MUHIM: kurslar ro'yxatini o'zing to'qima — faqat darslinker.uz bazasidagi kurslar tizim orqali chiqadi.
+Duolingo, Preply, Coursera yoki boshqa tashqi platformalarni TAVSIYA QILMA.
+Foydalanuvchi yo'nalish aytsa (ingliz tili, python...) — qisqa tasdiq yoz, ro'yxatni tizim ko'rsatadi.
+"Ko'rsat" demasa — yo'nalishni aniqlashga yordam ber. Off-topic — yumshoq qaytar.`;
 
 const INTRO_VARIANTS = [
   "Assalomu alaykum! Men Darslinker.uz platformasining shaxsiy yordamchisiman — sizga mos kurs topishda yordam beraman.",
@@ -442,14 +444,35 @@ const BROWSE_ALIASES: Record<string, { groups?: string[]; keywords: string[] }> 
   dizayn: { groups: ["dizayn"], keywords: ["dizayn", "design", "ui", "ux", "figma"] },
   til: { groups: ["tillar"], keywords: ["til", "ingliz", "ielts", "rus"] },
   ingliz: { groups: ["tillar"], keywords: ["ingliz", "english", "ielts"] },
+  rus: { groups: ["tillar"], keywords: ["rus", "рус"] },
+  koreys: { groups: ["tillar"], keywords: ["koreys", "korean"] },
   biznes: { groups: ["biznes"], keywords: ["biznes", "business", "sotuv"] },
 };
+
+/** Matndan yo'nalish (browse query kaliti) */
+const SUBJECT_FROM_TEXT: { pattern: RegExp; query: string }[] = [
+  { pattern: /ingliz(\s*tili)?|english|ielts/i, query: "ingliz" },
+  { pattern: /rus(\s*tili)?/i, query: "rus" },
+  { pattern: /koreys(\s*tili)?|korean/i, query: "koreys" },
+  { pattern: /\bpython\b/i, query: "python" },
+  { pattern: /\bjavascript\b|\bjs\b|react/i, query: "javascript" },
+  { pattern: /\bjava\b/i, query: "java" },
+  { pattern: /\bmarketing\b|smm/i, query: "marketing" },
+  { pattern: /dizayn|design|ui\/?ux/i, query: "dizayn" },
+  { pattern: /\bit\b|dasturlash/i, query: "it" },
+];
 
 const RE_SHOW_COURSES =
   /kurslarni?\s*ko|ko['']rsat|ko['']rib\s*ber|chiqar|ro['']yxat|hammasini|barchasini|barcha\s*kurs|hamma\s*kurs|toping|izlab\s*ber|izlang|qaysi\s*kurs/i;
 
 const RE_TOPIC_WORD =
-  /^(it|python|java|javascript|js|marketing|dizayn|ingliz|til|smm|react|nodejs|php|flutter)$/i;
+  /^(it|python|java|javascript|js|marketing|dizayn|ingliz|rus|koreys|til|smm|react|nodejs|php|flutter)$/i;
+
+const RE_LEVEL_TEXT = /boshlang|beginner|noldan|o['']rta|orta|ozgina|yuqori|advanced|tajribali|tajriba/i;
+
+const RE_WAIT_FOR_MORE = /^(kurs\s*kerak|til\s*bo['']yicha|nima\s*gap|qalesan|qalaysiz)$/i;
+
+type BrowseIntent = { query: string; level?: string };
 
 function lastAssistantText(history: ChatTurn[]): string {
   for (let i = history.length - 1; i >= 0; i--) {
@@ -460,71 +483,127 @@ function lastAssistantText(history: ChatTurn[]): string {
 
 function isCourseContext(history: ChatTurn[]): boolean {
   const t = lastAssistantText(history);
-  return /kurs|soha|yo'nalish|it\b|marketing|dizayn|tanlash|qaysi|python|ko'rib|mos kurs/i.test(t);
+  return /kurs|soha|yo'nalish|it\b|marketing|dizayn|tanlash|qaysi|python|til|ingliz|ko'rib|mos kurs|daraja|format/i.test(t);
 }
 
-function wantsCourseBrowse(text: string, history: ChatTurn[]): boolean {
+function isKursConversation(history: ChatTurn[], text: string): boolean {
+  const blob = [...history.map(h => h.content), text].join(" ").toLowerCase();
+  return /kurs|til\s*bo|ingliz|marketing|dizayn|\bit\b|python|yo'nalish|soha|daraja/i.test(blob);
+}
+
+function extractSubjectFromText(text: string): string | null {
   const low = text.trim().toLowerCase();
-  if (RE_SHOW_COURSES.test(low)) return true;
-  if (RE_TOPIC_WORD.test(low) && isCourseContext(history)) return true;
-  for (const key of Object.keys(BROWSE_ALIASES)) {
-    if (low.includes(key) && /kurs|ko['']rsat|hammasi|barcha|chiqar/i.test(low)) return true;
+  for (const { pattern, query } of SUBJECT_FROM_TEXT) {
+    if (pattern.test(low)) return query;
   }
-  return false;
-}
-
-/** null = GPT javob; '' = barcha kurslar; boshqa = filtr */
-function resolveBrowseQuery(text: string, history: ChatTurn[]): string | null {
-  if (!wantsCourseBrowse(text, history)) return null;
-  const low = text.trim().toLowerCase();
-
-  if (/hammasini|barchasini|barcha\s*kurs|hamma\s*kurs/i.test(low)) return "";
-
   for (const key of Object.keys(BROWSE_ALIASES)) {
     if (new RegExp(`\\b${key}\\b`, "i").test(low)) return key;
   }
-
   if (RE_TOPIC_WORD.test(low)) return low;
+  return null;
+}
+
+function extractLevelFromText(text: string): string | undefined {
+  const low = text.trim().toLowerCase();
+  if (/boshlang|beginner|noldan/.test(low)) return "beginner";
+  if (/o['']rta|orta|ozgina|asosiy/.test(low)) return "some";
+  if (/yuqori|advanced|tajriba/.test(low)) return "experienced";
+  return undefined;
+}
+
+function findSubjectInHistory(history: ChatTurn[]): string | null {
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (history[i].role !== "user") continue;
+    const s = extractSubjectFromText(history[i].content);
+    if (s && s !== "til") return s;
+  }
+  return null;
+}
+
+/** null = GPT; query '' = barcha kurslar */
+function resolveBrowseIntent(text: string, history: ChatTurn[]): BrowseIntent | null {
+  const low = text.trim().toLowerCase();
+  const inKurs = isKursConversation(history, text);
+
+  if (RE_WAIT_FOR_MORE.test(low)) return null;
+
+  if (/hammasini|barchasini|barcha\s*kurs|hamma\s*kurs/i.test(low)) {
+    return { query: "", level: extractLevelFromText(text) };
+  }
+
+  if (RE_SHOW_COURSES.test(low)) {
+    const subject = extractSubjectFromText(text) ?? findSubjectInHistory(history);
+    return { query: subject ?? "", level: extractLevelFromText(text) };
+  }
+
+  const subjectNow = extractSubjectFromText(text);
+  const levelNow = extractLevelFromText(text);
+
+  // "ingiliz tili", "python" — kurs suhbatida darhol ro'yxat
+  if (subjectNow && subjectNow !== "til" && inKurs) {
+    return { query: subjectNow, level: levelNow };
+  }
+
+  // "boshlang'ich" — tarixdan yo'nalish + daraja
+  if (levelNow && inKurs) {
+    const subject = findSubjectInHistory(history);
+    if (subject) return { query: subject, level: levelNow };
+  }
+
+  // Eski qisqa kalit so'z + kontekst
+  if (RE_TOPIC_WORD.test(low) && isCourseContext(history)) {
+    return { query: low, level: levelNow };
+  }
+
+  for (const key of Object.keys(BROWSE_ALIASES)) {
+    if (low.includes(key) && /kurs|ko['']rsat|hammasi|barcha|chiqar/i.test(low)) {
+      return { query: key, level: levelNow };
+    }
+  }
 
   let cleaned = low
     .replace(/kurslarni?|kurslar|ko['']rsat|ko['']rib|chiqar|ro['']yxat|hammasini|barchasini|ber|menga|iltimos|bo['']yicha|hammasi|barchasi/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
-
-  if (cleaned.length >= 2) return cleaned;
-
-  // "kurslarni ko'rsat" — yo'nalish yo'q, GPT so'rashi kerak
-  if (/^kurslarni?\s*ko|^ko['']rsat/.test(low) && !isCourseContext(history)) return null;
-
-  // Oldingi suhbatda yo'nalish bo'lsa — barcha IT kurslar va h.k.
-  if (isCourseContext(history) && RE_SHOW_COURSES.test(low)) {
-    const prev = lastAssistantText(history);
-    for (const key of Object.keys(BROWSE_ALIASES)) {
-      if (prev.includes(key)) return key;
-    }
-    return "";
+  if (cleaned.length >= 2 && inKurs && /kurs|ko['']rsat/i.test(low)) {
+    return { query: cleaned, level: levelNow };
   }
+
+  if (/^kurslarni?\s*ko|^ko['']rsat/.test(low) && !isCourseContext(history)) return null;
 
   return null;
 }
 
-function scoreListingForBrowse(row: CourseRow, query: string): number {
+function scoreListingForBrowse(row: CourseRow, query: string, level?: string): number {
   const q = query.toLowerCase().trim();
-  if (!q) return row.views;
-
-  const alias = BROWSE_ALIASES[q] ?? { keywords: [q] };
-  const hay = `${row.title} ${row.description ?? ""} ${row.categoryName} ${row.groupSlug}`.toLowerCase();
   let score = 0;
-  if (alias.groups?.includes(row.groupSlug)) score += 45;
-  for (const kw of alias.keywords) {
-    if (hay.includes(kw)) score += 35;
-    if (row.title.toLowerCase().includes(kw)) score += 25;
+
+  if (!q) {
+    score = row.views;
+  } else {
+    const alias = BROWSE_ALIASES[q] ?? { keywords: [q] };
+    const hay = `${row.title} ${row.description ?? ""} ${row.categoryName} ${row.groupSlug}`.toLowerCase();
+    if (alias.groups?.includes(row.groupSlug)) score += 45;
+    for (const kw of alias.keywords) {
+      if (hay.includes(kw)) score += 35;
+      if (row.title.toLowerCase().includes(kw)) score += 25;
+    }
+    if (hay.includes(q)) score += 20;
+    if (score === 0) return 0;
   }
-  if (hay.includes(q)) score += 20;
+
+  if (level) {
+    const levelText = [row.level, ...row.levels].filter(Boolean).join(" ").toLowerCase();
+    const kw = LEVEL_KEYWORDS[level] ?? [];
+    if (kw.some(k => levelText.includes(k))) score += 35;
+    else if (level === "beginner" && !levelText) score += 12;
+    else if (level === "beginner") score -= 8;
+  }
+
   return score;
 }
 
-async function searchListingsByQuery(query: string): Promise<number[]> {
+async function searchListingsByQuery(query: string, level?: string): Promise<number[]> {
   const listings = await fetchAllActive();
   const q = query.trim().toLowerCase();
 
@@ -537,21 +616,23 @@ async function searchListingsByQuery(query: string): Promise<number[]> {
   const scored = listings
     .map(l => {
       const row = toCourseRow(l);
-      return { id: row.id, score: scoreListingForBrowse(row, q) };
+      return { id: row.id, score: scoreListingForBrowse(row, q, level) };
     })
     .filter(x => x.score > 0)
     .sort((a, b) => b.score - a.score);
 
   if (scored.length > 0) return scored.map(s => s.id);
 
-  // Yumshoq qidiruv — sarlavhada so'z bo'lsa
-  return listings
-    .filter(l => `${l.title} ${l.description ?? ""}`.toLowerCase().includes(q))
-    .sort((a, b) => b.views - a.views)
-    .map(l => l.id);
+  if (q) {
+    return listings
+      .filter(l => `${l.title} ${l.description ?? ""}`.toLowerCase().includes(q))
+      .sort((a, b) => b.views - a.views)
+      .map(l => l.id);
+  }
+  return [];
 }
 
-function browseListTitle(query: string): string {
+function browseListTitle(query: string, level?: string): string {
   if (!query) return "📚 Kurslar";
   const labels: Record<string, string> = {
     python: "Python",
@@ -560,25 +641,29 @@ function browseListTitle(query: string): string {
     dizayn: "Dizayn",
     til: "Tillar",
     ingliz: "Ingliz tili",
+    rus: "Rus tili",
+    koreys: "Koreys tili",
   };
   const label = labels[query] ?? query;
-  return `🔎 ${label} bo'yicha kurslar`;
+  const levelLabel =
+    level === "beginner" ? " (boshlang'ich)" : level === "some" ? " (o'rta)" : level === "experienced" ? " (yuqori)" : "";
+  return `🔎 ${label}${levelLabel} bo'yicha kurslar`;
 }
 
 async function showCourseBrowse(
   client: TelegramClient,
   chatId: number,
   chatKey: string,
-  query: string,
+  intent: BrowseIntent,
   userText: string,
   chat: ChatState
 ): Promise<void> {
-  const ids = await searchListingsByQuery(query);
-  const title = browseListTitle(query);
+  const ids = await searchListingsByQuery(intent.query, intent.level);
+  const title = browseListTitle(intent.query, intent.level);
 
   if (ids.length === 0) {
     const reply =
-      `😔 "${escHtml(query || "so'rovingiz")}" bo'yicha hozircha faol kurs topilmadi.\n\n` +
+      `😔 "${escHtml(intent.query || "so'rovingiz")}" bo'yicha hozircha faol kurs topilmadi.\n\n` +
       "Boshqa yo'nalish yozing yoki /ai orqali mos kursni toping.";
     await client.sendMessage(chatId, reply, { parse_mode: "HTML" });
     await saveSession(chatKey, {
@@ -593,7 +678,7 @@ async function showCourseBrowse(
     resultIds: ids,
     page: 0,
     view: "list",
-    browseQuery: query,
+    browseQuery: intent.query,
   };
   const histNote = `${title}: ${ids.length} ta kurs ko'rsatildi.`;
   await saveSession(chatKey, {
@@ -1014,6 +1099,9 @@ async function conversationalReply(userText: string, chat: ChatState): Promise<{
     : pickIntro();
 
   let reply = sanitizeAiReply(ai ?? fallback, userText, chat);
+  if (/duolingo|preply|coursera|udemy/i.test(reply)) {
+    reply = "Darslinker.uz da kurslar bor — yo'nalishni yozing (masalan: ingliz tili), ro'yxatni chiqaraman.";
+  }
   const nextChat = appendHistory(chat, userText, reply);
   return { reply, chat: nextChat };
 }
@@ -1081,9 +1169,9 @@ export async function handleStudentAiMessage(
     await incrementDailyCount(chatKey);
     await showTyping(client, chatId);
 
-    const browseQuery = resolveBrowseQuery(text, chat.history);
-    if (browseQuery !== null) {
-      await showCourseBrowse(client, chatId, chatKey, browseQuery, text, chat);
+    const browseIntent = resolveBrowseIntent(text, chat.history);
+    if (browseIntent !== null) {
+      await showCourseBrowse(client, chatId, chatKey, browseIntent, text, chat);
       return true;
     }
 
