@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma";
-import { chatCompletion } from "@/lib/openai";
+import { chatCompletion, type ChatTurn } from "@/lib/openai";
 import { escHtml, type TelegramClient } from "@/lib/telegram";
 
 // ==================== DARSLINKER AI (@darslinkerbot) ====================
-// /ai → 2 ta rejim | Mos kurs: 5 savol → paginated ro'yxat (editMessage)
+// /ai → mos kurs quiz | Erkin chat: tarix (20 xabar)
 
 const PAGE_SIZE = 5;
+const MAX_CHAT_HISTORY = 20;
 const SITE_BASE = process.env.AUTH_URL?.replace(/\/$/, "") || "https://darslinker.uz";
 
 export type AiAnswers = {
@@ -19,12 +20,17 @@ export type AiAnswers = {
 
 type SessionMeta = {
   flow: "menu" | "quiz" | "results";
-  mode: "match" | "cheap";
+  mode: "match";
   resultIds: number[];
   page: number;
   listMessageId?: number;
   view: "list" | "detail";
   detailIdx?: number;
+};
+
+type ChatState = {
+  greeted: boolean;
+  history: ChatTurn[];
 };
 
 type QuestionKey = keyof AiAnswers;
@@ -40,7 +46,6 @@ const QUESTIONS: QuestionDef[] = [
     key: "goal",
     text: "Nima maqsadda kurs qidiryapsiz?",
     options: [
-      { id: "job", label: "💼 Ish topish" },
       { id: "income", label: "📈 Daromad" },
       { id: "career", label: "🎯 Yangi kasb" },
       { id: "freelance", label: "🌐 Freelance" },
@@ -106,13 +111,12 @@ const LEVEL_KEYWORDS: Record<string, string[]> = {
   experienced: ["yuqori", "advanced", "professional", "pro"],
 };
 
-const CHAT_SYSTEM = `Sen "Darslinker AI" — Darslinker.uz platformasining yordamchisisan.
-O'zbek tilida gapirasan, samimiy va iliq — xuddi yaxshi maslahatchi odam kabi.
-Salomlashsa: "Assalomu alaykum!" yoki "Salom!" deb tabiiy javob ber, so'ng qanday yordam bera olishingni so'ra.
-Asosiy vazifang — o'quv kurslari, kasb o'rganish, til, IT, marketing, dizayn va Darslinker.uz haqida maslahat.
-Boshqa mavzular (siyosat, tibbiyot, dasturlash kod yozish va h.k.) bo'lsa — muloyim rad etib, kurs/talim mavzusiga qayt.
-Kurs qidirish yoki ro'yxat ko'rish uchun foydalanuvchiga /ai buyrug'ini eslat (u yerda maxsus tugmalar bor).
-Javob qisqa bo'lsin: 2–5 jumla. Emoji juda kam. HTML/teglar ishlatma.`;
+const CHAT_SYSTEM_BASE = `Sen "Darslinker AI" — Darslinker.uz kurs maslahatchisisan.
+O'zbek tilida, aniq va qisqa javob ber (1–3 jumla, ortiqcha so'z yo'q).
+Faqat kurslar, kasb o'rganish, IT, marketing, dizayn, tillar haqida gapir.
+Boshqa mavzuga o'tsa — muloyim rad et, kurs mavzusiga qayt.
+Kurs tanlash testi uchun /ai buyrug'ini taklif qil.
+Emoji kam. HTML yo'q. Oldingi xabarlarni hisobga ol.`;
 
 // ---------- helpers ----------
 
@@ -139,20 +143,54 @@ function shouldSkipForAi(text: string | undefined, hasContact: boolean): boolean
   return t.startsWith("/start") || t.startsWith("/help") || t.startsWith("/code") || t.startsWith("/groupid");
 }
 
-function parseSessionJson(raw: unknown): { answers: AiAnswers; meta: SessionMeta | null } {
+const DEFAULT_CHAT: ChatState = { greeted: false, history: [] };
+
+function parseChat(raw: unknown): ChatState {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { ...DEFAULT_CHAT };
+  const c = raw as Record<string, unknown>;
+  const history = Array.isArray(c.history)
+    ? c.history
+        .filter((m): m is ChatTurn => {
+          if (!m || typeof m !== "object") return false;
+          const t = m as ChatTurn;
+          return (t.role === "user" || t.role === "assistant") && typeof t.content === "string";
+        })
+        .slice(-MAX_CHAT_HISTORY)
+    : [];
+  return { greeted: Boolean(c.greeted), history };
+}
+
+function parseSessionJson(raw: unknown): { answers: AiAnswers; meta: SessionMeta | null; chat: ChatState } {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    return { answers: {}, meta: null };
+    return { answers: {}, meta: null, chat: { ...DEFAULT_CHAT } };
   }
   const obj = raw as Record<string, unknown>;
-  const { _meta, ...rest } = obj;
+  const { _meta, _chat, ...rest } = obj;
   const meta = _meta && typeof _meta === "object" && !Array.isArray(_meta)
     ? (_meta as SessionMeta)
     : null;
-  return { answers: rest as AiAnswers, meta };
+  return { answers: rest as AiAnswers, meta, chat: parseChat(_chat) };
 }
 
-function packSession(answers: AiAnswers, meta: SessionMeta | null): Prisma.InputJsonValue {
-  return (meta ? { ...answers, _meta: meta } : { ...answers }) as Prisma.InputJsonValue;
+function packSession(
+  answers: AiAnswers,
+  meta: SessionMeta | null,
+  chat: ChatState
+): Prisma.InputJsonValue {
+  return { ...answers, ...(meta ? { _meta: meta } : {}), _chat: chat } as Prisma.InputJsonValue;
+}
+
+function appendHistory(chat: ChatState, userText: string, assistantText: string): ChatState {
+  const history = [
+    ...chat.history,
+    { role: "user" as const, content: userText.slice(0, 400) },
+    { role: "assistant" as const, content: assistantText.slice(0, 400) },
+  ].slice(-MAX_CHAT_HISTORY);
+  return { greeted: true, history };
+}
+
+async function showTyping(client: TelegramClient, chatId: number): Promise<void> {
+  await client.sendChatAction(chatId, "typing");
 }
 
 function formatPrice(price: number): string {
@@ -192,29 +230,30 @@ async function incrementDailyCount(chatId: string): Promise<void> {
 
 async function loadSession(chatId: string) {
   const row = await prisma.studentAiSession.findUnique({ where: { chatId } });
-  const { answers, meta } = parseSessionJson(row?.answers);
-  return { step: row?.step ?? 0, answers, meta };
+  const { answers, meta, chat } = parseSessionJson(row?.answers);
+  return { step: row?.step ?? 0, answers, meta, chat };
 }
 
 async function saveSession(
   chatId: string,
-  data: { step?: number; answers?: AiAnswers; meta?: SessionMeta | null }
+  data: { step?: number; answers?: AiAnswers; meta?: SessionMeta | null; chat?: ChatState }
 ) {
   const current = await loadSession(chatId);
   const answers = data.answers ?? current.answers;
   const meta = data.meta !== undefined ? data.meta : current.meta;
+  const chat = data.chat ?? current.chat;
   await prisma.studentAiSession.upsert({
     where: { chatId },
     create: {
       chatId,
       step: data.step ?? 0,
-      answers: packSession(answers, meta),
+      answers: packSession(answers, meta, chat),
       dailyDate: todayTashkent(),
       dailyCount: 0,
     },
     update: {
       step: data.step ?? current.step,
-      answers: packSession(answers, meta),
+      answers: packSession(answers, meta, chat),
     },
   });
 }
@@ -266,7 +305,7 @@ function scoreListing(l: Omit<CourseRow, "score">, answers: AiAnswers): number {
   if (time === "high") score += 5;
 
   const goal = answers.goal;
-  if (["job", "income", "freelance"].includes(goal ?? "") && ["it", "biznes"].includes(l.groupSlug)) {
+  if (["income", "freelance", "career"].includes(goal ?? "") && ["it", "biznes"].includes(l.groupSlug)) {
     score += 12;
   }
   if (l.certificate) score += 6;
@@ -320,14 +359,6 @@ async function rankForMatch(answers: AiAnswers): Promise<number[]> {
   return scored.map(s => s.id);
 }
 
-async function rankForCheap(): Promise<number[]> {
-  const listings = await fetchAllActive();
-  return listings
-    .map(l => toCourseRow(l))
-    .sort((a, b) => a.price - b.price || b.views - a.views)
-    .map(s => s.id);
-}
-
 async function getCoursesByIds(ids: number[]): Promise<Map<number, CourseRow>> {
   if (ids.length === 0) return new Map();
   const listings = await prisma.listing.findMany({
@@ -348,10 +379,7 @@ async function getCoursesByIds(ids: number[]): Promise<Map<number, CourseRow>> {
 
 function mainMenuKeyboard() {
   return {
-    inline_keyboard: [
-      [{ text: "🎯 Mos kursni topish", callback_data: "ai:m:match" }],
-      [{ text: "💰 Arzon kurslarni ko'rish", callback_data: "ai:m:cheap" }],
-    ],
+    inline_keyboard: [[{ text: "🎯 Mos kursni topish", callback_data: "ai:m:match" }]],
   };
 }
 
@@ -443,7 +471,7 @@ function detailKeyboard(meta: SessionMeta, pageCount: number) {
 async function showMainMenu(client: TelegramClient, chatId: number, edit?: { messageId: number }) {
   const text =
     "🤖 <b>Darslinker AI</b>\n\n" +
-    "Sizga qanday yordam kerak?";
+    "Sizga mos kursni topish uchun tugmani bosing:";
   const opts = { parse_mode: "HTML" as const, reply_markup: mainMenuKeyboard(), disable_web_page_preview: true };
   if (edit) {
     await client.editMessageText(chatId, edit.messageId, text, opts);
@@ -507,7 +535,7 @@ async function renderDetail(
 function matchTextToOption(text: string, options: QuestionDef["options"]): string | null {
   const lower = text.toLowerCase().trim();
   const aliases: Record<string, string[]> = {
-    job: ["ish"], income: ["daromad"], career: ["kasb"], freelance: ["frilans"],
+    income: ["daromad", "ish", "pul"], career: ["kasb"], freelance: ["frilans"],
     business: ["biznes"], growth: ["rivoj"],
     it: ["it", "dasturlash"], marketing: ["marketing", "smm"], design: ["dizayn"],
     language: ["til", "ingliz"], unknown: ["bilmayman"],
@@ -564,22 +592,34 @@ async function startMatchQuiz(chatId: string) {
   });
 }
 
-/** Erkin chat — salomlashadi, odamdek muloqot; tugmalar yo'q */
-async function conversationalReply(userText: string): Promise<string> {
-  const fallback = (msg: string) => {
+/** Erkin chat — tarix, bir marta salom, qisqa javob */
+async function conversationalReply(userText: string, chat: ChatState): Promise<{ reply: string; chat: ChatState }> {
+  const fallback = (msg: string, greeted: boolean) => {
     const low = msg.toLowerCase();
-    if (/^(salom|assalom|hello|hi|hayir|xayr|rahmat)/.test(low)) {
-      return "Assalomu alaykum! 😊 Men Darslinker AI — kurslar va o'qish bo'yicha yordam beraman. Bugun nima qidiryapsiz? Kurs tanlash uchun /ai buyrug'ini ham yuborishingiz mumkin.";
+    if (!greeted && /^(salom|assalom|hello|hi)\b/.test(low)) {
+      return "Assalomu alaykum! Men Darslinker AI — kurslar bo'yicha yordam beraman. Savolingizni yozing yoki mos kurs uchun /ai yuboring.";
     }
-    return "Salom! Men sizga kurs tanlashda yordam beraman. Savolingizni yozing yoki kurs qidirish uchun /ai yuboring.";
+    if (/^(rahmat|tashakkur)/.test(low)) return "Arzimaydi! Yana savol bo'lsa yozing.";
+    return "Kurslar haqida savolingizni yozing. Mos kurs topish uchun /ai yuboring.";
   };
 
+  const system =
+    CHAT_SYSTEM_BASE +
+    (chat.greeted
+      ? "\nMUHIM: Qayta salom bermang (Salom, Assalomu alaykum ishlatmang). To'g'ridan-to'g'ri javob bering."
+      : "\nBU BIRINCHI MULOQOT: bir marta qisqa salom bilan boshlang, keyin savol bering.");
+
   const ai = await chatCompletion({
-    system: CHAT_SYSTEM,
+    system,
+    history: chat.history,
     user: userText.slice(0, 500),
-    maxTokens: 220,
+    maxTokens: 150,
+    temperature: 0.4,
   });
-  return ai ?? fallback(userText);
+
+  const reply = ai ?? fallback(userText, chat.greeted);
+  const nextChat = appendHistory(chat, userText, reply);
+  return { reply, chat: nextChat };
 }
 
 // ---------- public handlers ----------
@@ -600,11 +640,11 @@ export async function handleStudentAiMessage(
     return true;
   }
 
-  const { step, answers, meta } = await loadSession(chatKey);
+  const { step, answers, meta, chat } = await loadSession(chatKey);
 
   if (isAiCommand(text)) {
     await incrementDailyCount(chatKey);
-    await saveSession(chatKey, { step: 0, answers: {}, meta: null });
+    await saveSession(chatKey, { step: 0, answers: {}, meta: null, chat });
     await showMainMenu(client, chatId);
     return true;
   }
@@ -635,10 +675,11 @@ export async function handleStudentAiMessage(
     return true;
   }
 
-  // Erkin xabar — samimiy suhbat (tugmasiz); faqat /ai → 2 ta tugma
   if (text?.trim()) {
     await incrementDailyCount(chatKey);
-    const reply = await conversationalReply(text);
+    await showTyping(client, chatId);
+    const { reply, chat: nextChat } = await conversationalReply(text, chat);
+    await saveSession(chatKey, { chat: nextChat });
     await client.sendMessage(chatId, escHtml(reply));
     return true;
   }
@@ -661,11 +702,11 @@ export async function handleStudentAiCallback(
     return true;
   }
 
-  const { step, answers, meta } = await loadSession(chatKey);
+  const { step, answers, meta, chat } = await loadSession(chatKey);
 
   if (data === "ai:mn") {
     await answerCb();
-    await saveSession(chatKey, { step: 0, answers: {}, meta: null });
+    await saveSession(chatKey, { step: 0, answers: {}, meta: null, chat });
     await showMainMenu(client, chatId, { messageId });
     return true;
   }
@@ -678,29 +719,11 @@ export async function handleStudentAiCallback(
     return true;
   }
 
-  if (data === "ai:m:cheap") {
-    await answerCb();
-    await incrementDailyCount(chatKey);
-    const ids = await rankForCheap();
-    const cheapMeta: SessionMeta = {
-      flow: "results",
-      mode: "cheap",
-      resultIds: ids,
-      page: 0,
-      view: "list",
-      listMessageId: messageId,
-    };
-    await saveSession(chatKey, { step: 6, answers: {}, meta: cheapMeta });
-    await renderResultsList(client, chatId, cheapMeta, "💰 Arzon kurslar", { messageId });
-    return true;
-  }
-
   if (data === "ai:b" && meta) {
     await answerCb();
     const listMeta: SessionMeta = { ...meta, view: "list" };
-    await saveSession(chatKey, { meta: listMeta });
-    const title = meta.mode === "cheap" ? "💰 Arzon kurslar" : "🎓 Sizga mos kurslar";
-    await renderResultsList(client, chatId, listMeta, title, { messageId });
+    await saveSession(chatKey, { meta: listMeta, chat });
+    await renderResultsList(client, chatId, listMeta, "🎓 Sizga mos kurslar", { messageId });
     return true;
   }
 
@@ -709,9 +732,8 @@ export async function handleStudentAiCallback(
     await answerCb();
     const page = parseInt(pageM[1], 10);
     const newMeta: SessionMeta = { ...meta, page, view: "list" };
-    await saveSession(chatKey, { meta: newMeta });
-    const title = meta.mode === "cheap" ? "💰 Arzon kurslar" : "🎓 Sizga mos kurslar";
-    await renderResultsList(client, chatId, newMeta, title, { messageId });
+    await saveSession(chatKey, { meta: newMeta, chat });
+    await renderResultsList(client, chatId, newMeta, "🎓 Sizga mos kurslar", { messageId });
     return true;
   }
 

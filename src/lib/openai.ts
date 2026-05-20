@@ -8,15 +8,31 @@ export function getOpenAiConfig() {
   return { apiKey, model };
 }
 
+export type ChatTurn = { role: "user" | "assistant"; content: string };
+
 export async function chatCompletion(params: {
   system: string;
-  user: string;
+  user?: string;
+  history?: ChatTurn[];
   maxTokens?: number;
+  temperature?: number;
 }): Promise<string | null> {
   const { apiKey, model } = getOpenAiConfig();
   if (!apiKey) {
     console.warn("[openai] GPT_KEY yo'q — AI matn generatsiyasi o'tkaziladi");
     return null;
+  }
+
+  const messages: { role: string; content: string }[] = [
+    { role: "system", content: params.system },
+  ];
+  if (params.history?.length) {
+    for (const t of params.history) {
+      messages.push({ role: t.role, content: t.content });
+    }
+  }
+  if (params.user) {
+    messages.push({ role: "user", content: params.user });
   }
 
   try {
@@ -28,12 +44,9 @@ export async function chatCompletion(params: {
       },
       body: JSON.stringify({
         model,
-        temperature: 0.7,
+        temperature: params.temperature ?? 0.5,
         max_tokens: params.maxTokens ?? 400,
-        messages: [
-          { role: "system", content: params.system },
-          { role: "user", content: params.user },
-        ],
+        messages,
       }),
     });
     const data = await res.json();

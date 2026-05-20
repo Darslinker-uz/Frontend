@@ -38,6 +38,7 @@ function getClient(mode: BotMode): TelegramClient {
   // provider — reuse the default exported client (bound to TELEGRAM_BOT_TOKEN)
   return {
     sendMessage,
+    sendChatAction: () => Promise.resolve(false),
     answerCallbackQuery,
     editMessageText,
     editMessageReplyMarkup: () => Promise.resolve(null),
@@ -170,7 +171,7 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
       "ℹ️ <b>Yordam</b>\n\n" +
       "/start — Ro'yxatdan o'tish\n" +
       "/code — Yangi kod so'rash\n" +
-      "/ai — kurs tanlash (2 ta tugma)\n\n" +
+      "/ai — mos kursni topish\n\n" +
       "Shunchaki xabar yozing — AI samimiy javob beradi.";
     const helpProvider =
       "ℹ️ <b>Yordam</b>\n\n" +

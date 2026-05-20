@@ -65,6 +65,7 @@ type Keyboard = {
 
 export interface TelegramClient {
   sendMessage: (chatId: number | string, text: string, opts?: { reply_markup?: Keyboard; parse_mode?: "HTML" | "MarkdownV2"; disable_web_page_preview?: boolean }) => Promise<TgMessage | null>;
+  sendChatAction: (chatId: number | string, action?: "typing" | "upload_photo") => Promise<boolean>;
   answerCallbackQuery: (id: string, text?: string) => Promise<unknown>;
   editMessageText: (chatId: number | string, messageId: number, text: string, opts?: { reply_markup?: Keyboard; parse_mode?: "HTML" | "MarkdownV2"; disable_web_page_preview?: boolean }) => Promise<unknown>;
   editMessageReplyMarkup: (chatId: number | string, messageId: number, replyMarkup?: Keyboard) => Promise<unknown>;
@@ -127,6 +128,8 @@ export function createTelegramClient(token: string | undefined): TelegramClient 
   return {
     sendMessage: (chatId, text, opts) =>
       call<TgMessage>("sendMessage", { chat_id: chatId, text, ...opts }),
+    sendChatAction: (chatId, action = "typing") =>
+      call<boolean>("sendChatAction", { chat_id: chatId, action }).then(r => r !== null),
     answerCallbackQuery: (id, text) =>
       call("answerCallbackQuery", { callback_query_id: id, text }),
     editMessageText: (chatId, messageId, text, opts) =>
@@ -152,6 +155,7 @@ export function createTelegramClient(token: string | undefined): TelegramClient 
 const defaultClient = createTelegramClient(DEFAULT_TOKEN);
 
 export const sendMessage = defaultClient.sendMessage;
+export const sendChatAction = defaultClient.sendChatAction;
 export const answerCallbackQuery = defaultClient.answerCallbackQuery;
 export const editMessageText = defaultClient.editMessageText;
 export const editMessageReplyMarkup = defaultClient.editMessageReplyMarkup;
