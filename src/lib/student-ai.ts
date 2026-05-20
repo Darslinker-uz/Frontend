@@ -106,9 +106,13 @@ const LEVEL_KEYWORDS: Record<string, string[]> = {
   experienced: ["yuqori", "advanced", "professional", "pro"],
 };
 
-const AI_SYSTEM = `Sen "Darslinker AI" — Darslinker.uz kurs maslahatchisisan.
-Faqat kurs tanlash haqida gapir. Boshqa mavzularga javob bermagin — muloyim qayt.
-O'zbek tilida, samimiy va qisqa. HTML ishlatma.`;
+const CHAT_SYSTEM = `Sen "Darslinker AI" — Darslinker.uz platformasining yordamchisisan.
+O'zbek tilida gapirasan, samimiy va iliq — xuddi yaxshi maslahatchi odam kabi.
+Salomlashsa: "Assalomu alaykum!" yoki "Salom!" deb tabiiy javob ber, so'ng qanday yordam bera olishingni so'ra.
+Asosiy vazifang — o'quv kurslari, kasb o'rganish, til, IT, marketing, dizayn va Darslinker.uz haqida maslahat.
+Boshqa mavzular (siyosat, tibbiyot, dasturlash kod yozish va h.k.) bo'lsa — muloyim rad etib, kurs/talim mavzusiga qayt.
+Kurs qidirish yoki ro'yxat ko'rish uchun foydalanuvchiga /ai buyrug'ini eslat (u yerda maxsus tugmalar bor).
+Javob qisqa bo'lsin: 2–5 jumla. Emoji juda kam. HTML/teglar ishlatma.`;
 
 // ---------- helpers ----------
 
@@ -125,7 +129,7 @@ function isAiCommand(text: string | undefined): boolean {
   if (!text) return false;
   const t = text.trim().toLowerCase();
   const bot = (process.env.TELEGRAM_STUDENT_BOT_USERNAME || "darslinkerbot").toLowerCase();
-  return t === "/ai" || t === `/ai@${bot}` || t === "ai";
+  return t === "/ai" || t === `/ai@${bot}`;
 }
 
 function shouldSkipForAi(text: string | undefined, hasContact: boolean): boolean {
@@ -560,13 +564,22 @@ async function startMatchQuiz(chatId: string) {
   });
 }
 
-async function offTopicReply(userText: string): Promise<string> {
+/** Erkin chat — salomlashadi, odamdek muloqot; tugmalar yo'q */
+async function conversationalReply(userText: string): Promise<string> {
+  const fallback = (msg: string) => {
+    const low = msg.toLowerCase();
+    if (/^(salom|assalom|hello|hi|hayir|xayr|rahmat)/.test(low)) {
+      return "Assalomu alaykum! 😊 Men Darslinker AI — kurslar va o'qish bo'yicha yordam beraman. Bugun nima qidiryapsiz? Kurs tanlash uchun /ai buyrug'ini ham yuborishingiz mumkin.";
+    }
+    return "Salom! Men sizga kurs tanlashda yordam beraman. Savolingizni yozing yoki kurs qidirish uchun /ai yuboring.";
+  };
+
   const ai = await chatCompletion({
-    system: AI_SYSTEM,
-    user: `Foydalanuvchi boshqa narsa so'radi: "${userText.slice(0, 200)}". Qisqa rad et va /ai orqali kurs tanlashga taklif qil.`,
-    maxTokens: 120,
+    system: CHAT_SYSTEM,
+    user: userText.slice(0, 500),
+    maxTokens: 220,
   });
-  return ai ?? "Men faqat kurs tanlashda yordam beraman 😊 /ai yuboring.";
+  return ai ?? fallback(userText);
 }
 
 // ---------- public handlers ----------
@@ -622,17 +635,11 @@ export async function handleStudentAiMessage(
     return true;
   }
 
+  // Erkin xabar — samimiy suhbat (tugmasiz); faqat /ai → 2 ta tugma
   if (text?.trim()) {
-    const hints = ["kurs", "it", "arzon", "ingliz", "marketing", "dizayn", "o'qish"];
-    if (!hints.some(h => text.toLowerCase().includes(h)) && text.length > 10) {
-      await incrementDailyCount(chatKey);
-      await client.sendMessage(chatId, escHtml(await offTopicReply(text)));
-      await showMainMenu(client, chatId);
-      return true;
-    }
     await incrementDailyCount(chatKey);
-    await saveSession(chatKey, { step: 0, answers: {}, meta: null });
-    await showMainMenu(client, chatId);
+    const reply = await conversationalReply(text);
+    await client.sendMessage(chatId, escHtml(reply));
     return true;
   }
 

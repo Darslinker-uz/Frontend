@@ -94,7 +94,7 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
   // /start
   if (msg.text === "/start") {
     const greeting = mode === "student"
-      ? "👋 <b>Darslinker'ga xush kelibsiz!</b>\n\nKurslarni baholash va o'quvchi paneliga kirish uchun telefon raqamingizni ulashing.\n\n🤖 Mos kurs topish uchun: /ai yoki shunchaki xabar yozing."
+      ? "👋 <b>Darslinker'ga xush kelibsiz!</b>\n\nKurslarni baholash va panelga kirish uchun telefon raqamingizni ulashing.\n\n🤖 AI bilan suhbat — shunchaki yozing. Kurs tanlash tugmalari: /ai"
       : "👋 <b>Darslinker CRM</b>'ga xush kelibsiz!\n\nRo'yxatdan o'tish yoki saytga kirish uchun telefon raqamingizni ulashing.";
     await client.sendMessage(chatId, greeting, {
       parse_mode: "HTML",
@@ -170,8 +170,8 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
       "ℹ️ <b>Yordam</b>\n\n" +
       "/start — Ro'yxatdan o'tish\n" +
       "/code — Yangi kod so'rash\n" +
-      "/ai — Darslinker AI: sizga mos kurslarni topish\n\n" +
-      "Yoki shunchaki xabar yozing — AI javob beradi.";
+      "/ai — kurs tanlash (2 ta tugma)\n\n" +
+      "Shunchaki xabar yozing — AI samimiy javob beradi.";
     const helpProvider =
       "ℹ️ <b>Yordam</b>\n\n" +
       "/start — Ro'yxatdan o'tish\n" +
