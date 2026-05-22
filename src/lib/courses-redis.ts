@@ -83,9 +83,9 @@ async function loadActiveCoursesFromDb(): Promise<CachedCourse[]> {
   }));
 }
 
-async function writeCoursesToRedis(courses: CachedCourse[]): Promise<void> {
+async function writeCoursesToRedis(courses: CachedCourse[]): Promise<boolean> {
   const redis = await getRedis();
-  if (!redis) return;
+  if (!redis) return false;
 
   const meta: CoursesCacheMeta = {
     syncedAt: new Date().toISOString(),
@@ -94,6 +94,7 @@ async function writeCoursesToRedis(courses: CachedCourse[]): Promise<void> {
 
   await redis.set(REDIS_COURSES_KEY, JSON.stringify(courses));
   await redis.set(REDIS_COURSES_META_KEY, JSON.stringify(meta));
+  return true;
 }
 
 async function readCoursesFromRedis(): Promise<CachedCourse[] | null> {
@@ -118,8 +119,10 @@ export async function syncCoursesFromDbToRedis(): Promise<{ count: number; sourc
   syncInFlight = (async () => {
     const courses = await loadActiveCoursesFromDb();
     if (isRedisConfigured()) {
-      await writeCoursesToRedis(courses);
-      console.info(`[courses-redis] ${courses.length} ta kurs Redis ga yozildi`);
+      const written = await writeCoursesToRedis(courses);
+      if (written) {
+        console.info(`[courses-redis] ${courses.length} ta kurs Redis ga yozildi`);
+      }
     } else {
       console.warn("[courses-redis] REDIS_URL yo'q — faqat DB dan yuklandi");
     }
@@ -171,11 +174,17 @@ export async function getCoursesCacheMeta(): Promise<CoursesCacheMeta | null> {
   }
 }
 
-/** Server ishga tushganda + har DB_TO_REDIS_PERIOD da sync. */
-export function startCoursesSyncScheduler(): void {
+/** Server ishga tushganda + har DB_TO_REDIS_PERIOD da sync (Redis bo'lsa). */
+export async function startCoursesSyncScheduler(): Promise<void> {
   if (schedulerStarted) return;
   if (!isRedisConfigured()) {
     console.warn("[courses-redis] Scheduler o'chiq — REDIS_URL yo'q");
+    return;
+  }
+
+  const redis = await getRedis();
+  if (!redis) {
+    console.warn("[courses-redis] Scheduler o'chiq — Redis ulanmadi (DB fallback)");
     return;
   }
 

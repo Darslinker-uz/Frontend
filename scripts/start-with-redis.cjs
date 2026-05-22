@@ -18,10 +18,11 @@ const env = { ...process.env };
 
 function parseRedisUrl(url) {
   try {
-    const u = new URL(url || "redis://localhost:6379");
-    return { host: u.hostname || "localhost", port: parseInt(u.port || "6379", 10) };
+    const u = new URL((url || "redis://127.0.0.1:6379").replace(/\/\/localhost\b/i, "//127.0.0.1"));
+    const host = u.hostname === "localhost" ? "127.0.0.1" : u.hostname || "127.0.0.1";
+    return { host, port: parseInt(u.port || "6379", 10) };
   } catch {
-    return { host: "localhost", port: 6379 };
+    return { host: "127.0.0.1", port: 6379 };
   }
 }
 
@@ -70,8 +71,13 @@ async function ensureRedis() {
 
   console.log("[start] Redis ishga tushirilmoqda (Docker)...");
   if (!runDockerCompose()) {
-    console.warn("[start] Docker topilmadi yoki Redis container yaratilmadi");
-    console.warn("[start] AI kurslar vaqtincha DB dan o'qiladi");
+    console.warn("[start] Docker topilmadi — serverda Redis alohida o'rnatish kerak:");
+    console.warn("  Ubuntu/Debian: sudo apt update && sudo apt install -y redis-server");
+    console.warn("  sudo systemctl enable redis-server && sudo systemctl start redis-server");
+    console.warn("  Tekshirish: redis-cli ping  →  PONG");
+    console.warn("  .env: REDIS_URL=\"redis://127.0.0.1:6379\"  (localhost emas!)");
+    console.warn("  Bulut: Upstash.com → REDIS_URL ni .env ga qo'ying");
+    console.warn("[start] Hozircha AI kurslar PostgreSQL dan o'qiladi");
     return false;
   }
 
@@ -102,8 +108,9 @@ function runCoursesSync() {
 }
 
 async function main() {
-  await ensureRedis();
-  runCoursesSync();
+  const redisOk = await ensureRedis();
+  if (redisOk) runCoursesSync();
+  else console.warn("[start] Redis sync o'tkazilmadi (Redis yo'q)");
 
   console.log("[start] Next.js production server...");
   const next = spawn(node, [nextCli, "start"], { cwd: root, env, stdio: "inherit" });
