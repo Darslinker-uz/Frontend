@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, Mic, Send, Sparkles, Target } from "lucide-react";
-import { AiChatWidget, type AiChatHandle } from "@/components/ai/ai-chat-widget";
+import { AiFullPageChat } from "@/components/ai/ai-full-page-chat";
+import { useAiChat } from "@/components/ai/use-ai-chat";
+import type { WebAiAction } from "@/lib/web-ai";
 
 const HEADINGS = [
   "Bugun qanday kurs izlayapsiz?",
@@ -12,26 +14,35 @@ const HEADINGS = [
 ];
 
 export function AiPageClient() {
-  const chatRef = useRef<AiChatHandle>(null);
-  const [input, setInput] = useState("");
+  const [chatActive, setChatActive] = useState(false);
+  const [landingInput, setLandingInput] = useState("");
+  const chat = useAiChat();
   const heading = HEADINGS[0];
 
-  const submit = () => {
-    const text = input.trim();
-    if (!text) return;
-    setInput("");
-    chatRef.current?.openAndSend(text);
+  const startChat = async (action: WebAiAction, userLabel?: string) => {
+    setChatActive(true);
+    await chat.ensureInit();
+    chat.queueAction(action, userLabel);
   };
+
+  const submit = () => {
+    const text = landingInput.trim();
+    if (!text) return;
+    setLandingInput("");
+    void startChat({ type: "message", text }, text);
+  };
+
+  if (chatActive) {
+    return <AiFullPageChat chat={chat} />;
+  }
 
   return (
     <div className="ai-landing relative flex min-h-[100dvh] flex-col">
-      {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
         <div className="ai-landing-glow absolute left-1/2 top-[38%] h-[520px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
         <div className="ai-landing-glow-secondary absolute left-1/2 top-[55%] h-[380px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
       </div>
 
-      {/* Top bar */}
       <header className="relative z-10 flex items-center justify-between px-4 py-4 sm:px-6">
         <Link
           href="/"
@@ -49,18 +60,16 @@ export function AiPageClient() {
         <div className="size-10" aria-hidden />
       </header>
 
-      {/* Hero */}
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 pb-28 pt-6 sm:px-6">
         <h1 className="ai-heading max-w-3xl text-center text-[clamp(1.75rem,5vw,2.75rem)] font-medium leading-tight tracking-tight">
           {heading}
         </h1>
 
-        {/* Gemini-style input pill */}
         <div className="mt-10 w-full max-w-2xl">
           <div className="ai-input-pill flex items-center gap-2 rounded-full px-3 py-2 backdrop-blur-md sm:gap-3 sm:px-4 sm:py-2.5">
             <button
               type="button"
-              onClick={() => chatRef.current?.openAndAction({ type: "menu_match" }, "Mos kursni topish")}
+              onClick={() => void startChat({ type: "menu_match" }, "Mos kursni topish")}
               className="ai-pill-icon-btn flex size-9 shrink-0 items-center justify-center rounded-full transition"
               aria-label="Mos kursni topish"
               title="Mos kursni topish"
@@ -71,8 +80,8 @@ export function AiPageClient() {
             <span className="hidden size-2 shrink-0 rounded-full bg-[#7ea2d4] sm:block" aria-hidden />
 
             <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
+              value={landingInput}
+              onChange={e => setLandingInput(e.target.value)}
               onKeyDown={e => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -90,7 +99,7 @@ export function AiPageClient() {
             <button
               type="button"
               onClick={submit}
-              disabled={!input.trim()}
+              disabled={!landingInput.trim()}
               className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#2d5a8a] text-white transition hover:bg-[#3a6a9a] disabled:opacity-30"
               aria-label="Yuborish"
             >
@@ -99,9 +108,10 @@ export function AiPageClient() {
 
             <button
               type="button"
-              onClick={() => chatRef.current?.open()}
+              onClick={submit}
+              disabled={!landingInput.trim()}
               className="ai-pill-icon-btn flex size-9 shrink-0 items-center justify-center rounded-full transition sm:hidden"
-              aria-label="Chat ochish"
+              aria-label="Yuborish"
             >
               <Mic className="size-4" />
             </button>
@@ -112,8 +122,6 @@ export function AiPageClient() {
           </p>
         </div>
       </main>
-
-      <AiChatWidget ref={chatRef} />
     </div>
   );
 }
