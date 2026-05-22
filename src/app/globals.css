@@ -266,3 +266,146 @@ select option {
 input[type="date"] {
   color-scheme: dark light;
 }
+
+/* ==================== AI LANDING (/ai) ==================== */
+.ai-landing {
+  --ai-bg: linear-gradient(180deg, #eef4fc 0%, #f4f7fb 50%, #f0f2f3 100%);
+  --ai-fg: #16181a;
+  --ai-fg-muted: #6a7585;
+  --ai-fg-subtle: rgba(106, 117, 133, 0.55);
+  --ai-chrome-btn-border: rgba(126, 162, 212, 0.45);
+  --ai-chrome-btn-bg: rgba(255, 255, 255, 0.85);
+  --ai-chrome-btn-fg: #2d5a8a;
+  --ai-chrome-btn-hover: rgba(126, 162, 212, 0.15);
+  --ai-badge-border: rgba(126, 162, 212, 0.45);
+  --ai-badge-bg: rgba(255, 255, 255, 0.9);
+  --ai-badge-fg: #2d5a8a;
+  --ai-pill-bg: rgba(255, 255, 255, 0.95);
+  --ai-pill-border: rgba(126, 162, 212, 0.4);
+  --ai-pill-shadow: 0 20px 40px rgba(45, 90, 138, 0.1);
+  --ai-pill-icon: #6a7585;
+  --ai-pill-icon-hover-bg: rgba(126, 162, 212, 0.12);
+  --ai-pill-icon-hover-fg: #2d5a8a;
+  --ai-input-fg: #16181a;
+  --ai-input-placeholder: rgba(106, 117, 133, 0.75);
+  --ai-tag-border: rgba(126, 162, 212, 0.35);
+  --ai-tag-fg: #6a7585;
+  --ai-glow-1: rgba(126, 162, 212, 0.28);
+  --ai-glow-1-mid: rgba(126, 162, 212, 0.12);
+  --ai-glow-2: rgba(45, 90, 138, 0.12);
+  --ai-glow-2-mid: rgba(45, 90, 138, 0.05);
+  --ai-focus-ring: rgba(126, 162, 212, 0.35);
+  --ai-focus-shadow: rgba(45, 90, 138, 0.12);
+
+  background: var(--ai-bg);
+  color: var(--ai-fg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .ai-landing {
+    --ai-bg: #0a0c10;
+    --ai-fg: #f4f7fb;
+    --ai-fg-muted: rgba(184, 204, 232, 0.75);
+    --ai-fg-subtle: rgba(184, 204, 232, 0.35);
+    --ai-chrome-btn-border: rgba(255, 255, 255, 0.1);
+    --ai-chrome-btn-bg: rgba(255, 255, 255, 0.05);
+    --ai-chrome-btn-fg: rgba(255, 255, 255, 0.85);
+    --ai-chrome-btn-hover: rgba(255, 255, 255, 0.1);
+    --ai-badge-border: rgba(126, 162, 212, 0.3);
+    --ai-badge-bg: rgba(126, 162, 212, 0.1);
+    --ai-badge-fg: #b8cce8;
+    --ai-pill-bg: rgba(22, 27, 36, 0.92);
+    --ai-pill-border: rgba(255, 255, 255, 0.1);
+    --ai-pill-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    --ai-pill-icon: rgba(255, 255, 255, 0.5);
+    --ai-pill-icon-hover-bg: rgba(255, 255, 255, 0.1);
+    --ai-pill-icon-hover-fg: #ffffff;
+    --ai-input-fg: #ffffff;
+    --ai-input-placeholder: rgba(255, 255, 255, 0.35);
+    --ai-tag-border: rgba(255, 255, 255, 0.1);
+    --ai-tag-fg: rgba(255, 255, 255, 0.45);
+    --ai-glow-1: rgba(45, 90, 138, 0.45);
+    --ai-glow-1-mid: rgba(126, 162, 212, 0.18);
+    --ai-glow-2: rgba(74, 122, 184, 0.22);
+    --ai-glow-2-mid: rgba(45, 90, 138, 0.08);
+    --ai-focus-ring: rgba(126, 162, 212, 0.45);
+    --ai-focus-shadow: rgba(0, 0, 0, 0.35);
+  }
+}
+
+.ai-landing-glow {
+  background: radial-gradient(
+    ellipse at center,
+    var(--ai-glow-1) 0%,
+    var(--ai-glow-1-mid) 35%,
+    transparent 70%
+  );
+  filter: blur(40px);
+}
+
+.ai-landing-glow-secondary {
+  background: radial-gradient(
+    ellipse at center,
+    var(--ai-glow-2) 0%,
+    var(--ai-glow-2-mid) 40%,
+    transparent 70%
+  );
+  filter: blur(56px);
+}
+
+.ai-chrome-btn {
+  border: 1px solid var(--ai-chrome-btn-border);
+  background: var(--ai-chrome-btn-bg);
+  color: var(--ai-chrome-btn-fg);
+}
+
+.ai-chrome-btn:hover {
+  background: var(--ai-chrome-btn-hover);
+}
+
+.ai-badge {
+  border: 1px solid var(--ai-badge-border);
+  background: var(--ai-badge-bg);
+  color: var(--ai-badge-fg);
+}
+
+.ai-heading {
+  color: var(--ai-fg);
+}
+
+.ai-input-pill {
+  border: 1px solid var(--ai-pill-border);
+  background: var(--ai-pill-bg);
+  box-shadow: var(--ai-pill-shadow);
+}
+
+.ai-input-pill:focus-within {
+  border-color: var(--ai-focus-ring);
+  box-shadow: 0 0 0 1px var(--ai-focus-ring), var(--ai-pill-shadow);
+}
+
+.ai-pill-icon-btn {
+  color: var(--ai-pill-icon);
+}
+
+.ai-pill-icon-btn:hover {
+  background: var(--ai-pill-icon-hover-bg);
+  color: var(--ai-pill-icon-hover-fg);
+}
+
+.ai-pill-input {
+  color: var(--ai-input-fg);
+}
+
+.ai-pill-input::placeholder {
+  color: var(--ai-input-placeholder);
+}
+
+.ai-pill-tag {
+  border: 1px solid var(--ai-tag-border);
+  color: var(--ai-tag-fg);
+}
+
+.ai-hint {
+  color: var(--ai-fg-subtle);
+}

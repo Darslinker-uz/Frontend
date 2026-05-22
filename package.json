@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:web": "next dev",
     "build": "node scripts/clean-prisma-output.mjs && prisma generate && next build",
     "start": "next start",
     "start:with-bots": "node scripts/start-with-bots.cjs",

@@ -13,6 +13,7 @@ export function MainShell({
   footer: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const isAiPage = pathname === "/ai";
   // Provider app shell lives under /center/* (home, listings, …) — its own sidebar layout.
   // The bare /center route is the public login page and keeps the standard navbar/footer.
   const isDashboard = pathname.startsWith("/center/");
@@ -20,6 +21,7 @@ export function MainShell({
   const isAuth = pathname === "/auth";
   // Yopiq demo / pitch sahifalari — o'z layout'ida ishlaydi, navbar/footer kerakmas.
   const isLanding = pathname.startsWith("/hamkorlik/demo");
+  const hideChrome = isDashboard || isAdmin || isAuth || isLanding || isAiPage;
 
   // Dashboard da body qora bo'lishi kerak. Admin'da AdminThemeProvider o'zi body'ni
   // tanlangan tema rangiga sinxronlaydi, shuning uchun bu yerda tegmaymiz.
@@ -32,14 +34,24 @@ export function MainShell({
         document.documentElement.style.backgroundColor = "";
       };
     }
+    if (isAiPage) {
+      const light = !window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const bg = light ? "#f0f2f3" : "#0a0c10";
+      document.body.style.backgroundColor = bg;
+      document.documentElement.style.backgroundColor = bg;
+      return () => {
+        document.body.style.backgroundColor = "";
+        document.documentElement.style.backgroundColor = "";
+      };
+    }
     if (!isAdmin) {
       document.body.style.backgroundColor = "";
       document.documentElement.style.backgroundColor = "";
     }
-  }, [isDashboard, isAdmin]);
+  }, [isDashboard, isAdmin, isAiPage]);
 
-  // Dashboard, admin, auth va yopiq landing sahifalarida navbar/footer ko'rsatilmaydi
-  if (isDashboard || isAdmin || isAuth || isLanding) {
+  // Dashboard, admin, auth, yopiq landing va /ai sahifalarida navbar/footer yo'q
+  if (hideChrome) {
     return <>{children}</>;
   }
 

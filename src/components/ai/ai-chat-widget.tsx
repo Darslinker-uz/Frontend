@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { MessageCircle, X, Send, Sparkles, ChevronLeft, ChevronRight, ExternalLink, Phone } from "lucide-react";
 import type { WebAiAction, WebAiResponse, WebAiUi, WebCourseDetail } from "@/lib/web-ai";
 import { PhoneInput } from "@/components/phone-input";
@@ -18,7 +25,20 @@ async function callAi(sessionId: string, action: WebAiAction): Promise<WebAiResp
   return res.json();
 }
 
-export function AiChatWidget() {
+export type AiChatHandle = {
+  open: () => void;
+  openAndSend: (text: string) => void;
+  openAndAction: (action: WebAiAction, userLabel?: string) => void;
+};
+
+type AiChatWidgetProps = {
+  theme?: "light" | "dark";
+};
+
+export const AiChatWidget = forwardRef<AiChatHandle, AiChatWidgetProps>(function AiChatWidget(
+  { theme = "light" },
+  ref
+) {
   const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState("");
   const [messages, setMessages] = useState<ChatMsg[]>([]);
@@ -27,7 +47,9 @@ export function AiChatWidget() {
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<{ action: WebAiAction; userLabel?: string } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const initStarted = useRef(false);
 
   const scrollDown = () => {
     requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }));
@@ -50,57 +72,86 @@ export function AiChatWidget() {
     scrollDown();
   }, []);
 
-  const send = async (action: WebAiAction, userLabel?: string) => {
-    if (!sessionId && action.type !== "init") return;
-    setLoading(true);
-    setError(null);
-    if (userLabel) {
-      setMessages(prev => [...prev, { role: "user", content: userLabel }]);
-    }
-    try {
-      const sid = sessionId || (typeof window !== "undefined" ? localStorage.getItem(SESSION_KEY) : null) || "";
-      const data = await callAi(sid, action);
-      if (data.sessionId) {
-        setSessionId(data.sessionId);
-        localStorage.setItem(SESSION_KEY, data.sessionId);
-      }
-      applyResponse(data);
-    } catch {
-      setError("Tarmoq xatosi");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!open) return;
-    const stored = localStorage.getItem(SESSION_KEY);
-    if (stored) {
-      setSessionId(stored);
-      return;
-    }
-    if (sessionId) return;
-    let cancelled = false;
-    (async () => {
+  const send = useCallback(
+    async (action: WebAiAction, userLabel?: string) => {
       setLoading(true);
+      setError(null);
+      if (userLabel) {
+        setMessages(prev => [...prev, { role: "user", content: userLabel }]);
+      }
       try {
-        const data = await callAi("", { type: "init" });
-        if (cancelled) return;
+        const sid =
+          sessionId ||
+          (typeof window !== "undefined" ? localStorage.getItem(SESSION_KEY) : null) ||
+          "";
+        const data = await callAi(sid, action);
         if (data.sessionId) {
           setSessionId(data.sessionId);
           localStorage.setItem(SESSION_KEY, data.sessionId);
         }
         applyResponse(data);
       } catch {
-        if (!cancelled) setError("Tarmoq xatosi");
+        setError("Tarmoq xatosi");
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [open, sessionId, applyResponse]);
+    },
+    [sessionId, applyResponse]
+  );
+
+  const ensureInit = useCallback(async () => {
+    const stored = localStorage.getItem(SESSION_KEY);
+    if (stored) {
+      setSessionId(stored);
+      return stored;
+    }
+    if (initStarted.current) return sessionId;
+    initStarted.current = true;
+    setLoading(true);
+    try {
+      const data = await callAi("", { type: "init" });
+      if (data.sessionId) {
+        setSessionId(data.sessionId);
+        localStorage.setItem(SESSION_KEY, data.sessionId);
+      }
+      applyResponse(data);
+      return data.sessionId;
+    } catch {
+      setError("Tarmoq xatosi");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [sessionId, applyResponse]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      open: () => setOpen(true),
+      openAndSend: (text: string) => {
+        setOpen(true);
+        setPendingAction({ action: { type: "message", text }, userLabel: text });
+      },
+      openAndAction: (action: WebAiAction, userLabel?: string) => {
+        setOpen(true);
+        setPendingAction({ action, userLabel });
+      },
+    }),
+    []
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    void ensureInit();
+  }, [open, ensureInit]);
+
+  useEffect(() => {
+    if (!open || !pendingAction || loading) return;
+    if (!sessionId && !localStorage.getItem(SESSION_KEY)) return;
+    const { action, userLabel } = pendingAction;
+    setPendingAction(null);
+    void send(action, userLabel);
+  }, [open, pendingAction, sessionId, loading, send]);
 
   useEffect(() => {
     scrollDown();
@@ -121,6 +172,11 @@ export function AiChatWidget() {
     setInput("");
     void send({ type: "message", text: t }, t);
   };
+
+  const fabClass =
+    theme === "dark"
+      ? "fixed bottom-5 right-5 z-[60] flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-[#2d5a8a] to-[#4a7ab8] text-white shadow-lg shadow-[#2d5a8a]/50 ring-1 ring-white/10 hover:scale-105 transition-transform"
+      : "fixed bottom-5 right-5 z-[60] flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-[#2d5a8a] to-[#4a7ab8] text-white shadow-lg shadow-[#2d5a8a]/40 hover:scale-105 transition-transform";
 
   const renderCourses = (c: Extract<WebAiUi, { kind: "courses" }>) => (
     <div className="mt-2 space-y-2">
@@ -211,14 +267,14 @@ export function AiChatWidget() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Darslinker AI"
-          className="fixed bottom-5 right-5 z-[60] flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-[#2d5a8a] to-[#4a7ab8] text-white shadow-lg shadow-[#2d5a8a]/40 hover:scale-105 transition-transform"
+          className={fabClass}
         >
           <Sparkles className="size-6" />
         </button>
       )}
 
       {open && (
-        <div className="fixed bottom-5 right-5 z-[60] flex w-[min(100vw-2rem,380px)] flex-col overflow-hidden rounded-2xl border border-[#7ea2d4]/50 bg-[#f4f7fb] shadow-2xl shadow-[#2d5a8a]/25 h-[min(72vh,520px)]">
+        <div className="fixed bottom-5 right-5 z-[60] flex w-[min(100vw-2rem,380px)] flex-col overflow-hidden rounded-2xl border border-[#7ea2d4]/50 bg-[#f4f7fb] shadow-2xl shadow-black/30 h-[min(72vh,520px)]">
           <header className="flex items-center justify-between bg-gradient-to-r from-[#2d5a8a] to-[#4a7ab8] px-4 py-3 text-white shrink-0">
             <div className="flex items-center gap-2">
               <MessageCircle className="size-5" />
@@ -341,6 +397,6 @@ export function AiChatWidget() {
       )}
     </>
   );
-}
+});
 
 const QUESTION_KEYS = ["goal", "direction", "level", "time", "budget"];
