@@ -8,6 +8,7 @@ import type { Prisma } from "@/generated/prisma";
 import { chatCompletion, type ChatTurn } from "@/lib/openai";
 import { normalizePhone } from "@/lib/telegram";
 import type { AiAnswers } from "@/lib/ai-shared";
+import { getCachedCoursesByIds } from "@/lib/courses-redis";
 
 const PAGE_SIZE = 5;
 const SITE_BASE = process.env.AUTH_URL?.replace(/\/$/, "") || "https://darslinker.uz";
@@ -234,25 +235,21 @@ function formatFormat(f: string) {
 
 async function fetchListings(ids: number[]) {
   if (!ids.length) return [];
-  const rows = await prisma.listing.findMany({
-    where: { id: { in: ids } },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      description: true,
-      price: true,
-      format: true,
-      duration: true,
-      certificate: true,
-      demoLesson: true,
-      level: true,
-      category: { select: { name: true, group: { select: { slug: true } } } },
-      user: { select: { centerName: true, name: true } },
-    },
-  });
-  const order = new Map(ids.map((id, i) => [id, i]));
-  return rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+  const cached = await getCachedCoursesByIds(ids);
+  return cached.map(c => ({
+    id: c.id,
+    title: c.title,
+    slug: c.slug,
+    description: c.description,
+    price: c.price,
+    format: c.format as "offline" | "online" | "video" | "hybrid",
+    duration: c.duration,
+    certificate: c.certificate,
+    demoLesson: c.demoLesson,
+    level: c.level,
+    category: { name: c.categoryName, group: { slug: c.groupSlug } },
+    user: { centerName: c.centerName, name: c.centerName },
+  }));
 }
 
 function toCard(l: Awaited<ReturnType<typeof fetchListings>>[number]): WebCourseCard {

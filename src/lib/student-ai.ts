@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma";
 import { chatCompletion, type ChatTurn } from "@/lib/openai";
 import { escHtml, normalizePhone, type TelegramClient, type TgContact, type TgUser } from "@/lib/telegram";
+import { getAllCachedCourses, getCachedCoursesByIds } from "@/lib/courses-redis";
 
 // ==================== DARSLINKER AI (@darslinkerbot) ====================
 // /ai → mos kurs quiz | Erkin chat: tarix (20 xabar)
@@ -401,16 +402,7 @@ function scoreListing(l: Omit<CourseRow, "score">, answers: AiAnswers): number {
 }
 
 async function fetchAllActive() {
-  return prisma.listing.findMany({
-    where: { status: "active", category: { active: true, pendingApproval: false } },
-    select: {
-      id: true, title: true, slug: true, description: true, price: true, format: true,
-      duration: true, certificate: true, demoLesson: true, level: true, levels: true, views: true,
-      category: { select: { name: true, group: { select: { slug: true } } } },
-      user: { select: { centerName: true, name: true } },
-    },
-    take: 300,
-  });
+  return getAllCachedCourses();
 }
 
 function toCourseRow(l: Awaited<ReturnType<typeof fetchAllActive>>[number], score = 0): CourseRow {
@@ -420,16 +412,16 @@ function toCourseRow(l: Awaited<ReturnType<typeof fetchAllActive>>[number], scor
     slug: l.slug,
     description: l.description,
     price: l.price,
-    format: l.format,
+    format: l.format as CourseRow["format"],
     duration: l.duration,
     certificate: l.certificate,
     demoLesson: l.demoLesson,
     level: l.level,
     levels: l.levels,
     views: l.views,
-    categoryName: l.category.name,
-    groupSlug: l.category.group.slug,
-    centerName: l.user.centerName ?? l.user.name,
+    categoryName: l.categoryName,
+    groupSlug: l.groupSlug,
+    centerName: l.centerName,
     score,
   };
 }
@@ -706,15 +698,7 @@ async function rankForMatch(answers: AiAnswers): Promise<number[]> {
 
 async function getCoursesByIds(ids: number[]): Promise<Map<number, CourseRow>> {
   if (ids.length === 0) return new Map();
-  const listings = await prisma.listing.findMany({
-    where: { id: { in: ids } },
-    select: {
-      id: true, title: true, slug: true, description: true, price: true, format: true,
-      duration: true, certificate: true, demoLesson: true, level: true, levels: true, views: true,
-      category: { select: { name: true, group: { select: { slug: true } } } },
-      user: { select: { centerName: true, name: true } },
-    },
-  });
+  const listings = await getCachedCoursesByIds(ids);
   const map = new Map<number, CourseRow>();
   for (const l of listings) map.set(l.id, toCourseRow(l));
   return map;

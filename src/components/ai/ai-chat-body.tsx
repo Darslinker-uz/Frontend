@@ -20,17 +20,26 @@ type ChatApi = ReturnType<typeof useAiChat>;
 
 type Props = {
   chat: ChatApi;
-  skin?: "widget" | "gemini";
+  skin?: "widget" | "gemini" | "aikurs";
+  /** Kurslar chap panelda — chatda faqat sarlavha va sahifalash */
+  coursesInSidebar?: boolean;
 };
 
-export function AiChatBody({ chat, skin = "widget" }: Props) {
+export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: Props) {
   const { messages, ui, loading, error, send, phone, setPhone, bottomRef } = chat;
   const isGemini = skin === "gemini";
+  const isAikurs = skin === "aikurs";
 
   const userBubble = (content: string, key: number) =>
     isGemini ? (
       <div key={key} className="mb-8 flex justify-end">
         <div className="max-w-[85%] rounded-full bg-[#2a2a2a] px-5 py-3 text-[15px] leading-snug text-white">
+          {content}
+        </div>
+      </div>
+    ) : isAikurs ? (
+      <div key={key} className="mb-4 flex justify-end">
+        <div className="max-w-[88%] rounded-2xl rounded-br-md bg-[#2d5a8a] px-3.5 py-2.5 text-[13px] leading-snug text-white shadow-sm">
           {content}
         </div>
       </div>
@@ -70,6 +79,10 @@ export function AiChatBody({ chat, skin = "widget" }: Props) {
           </button>
         </div>
       </div>
+    ) : isAikurs ? (
+      <div key={key} className="mb-4 max-w-[95%]">
+        <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[#16181a]">{content}</p>
+      </div>
     ) : (
       <div
         key={key}
@@ -82,12 +95,49 @@ export function AiChatBody({ chat, skin = "widget" }: Props) {
   const uiShell = (children: React.ReactNode) =>
     isGemini ? (
       <div className="mb-8 max-w-3xl text-white">{children}</div>
+    ) : isAikurs ? (
+      <div className="mb-3">{children}</div>
     ) : (
       <div>{children}</div>
     );
 
-  const renderCourses = (c: Extract<WebAiUi, { kind: "courses" }>) =>
-    uiShell(
+  const renderCourses = (c: Extract<WebAiUi, { kind: "courses" }>) => {
+    if (coursesInSidebar) {
+      return uiShell(
+        <>
+          <p className="text-sm font-semibold text-[#2d5a8a]">{c.title}</p>
+          <p className="mt-1 text-xs text-[#6a7585]">
+            {c.total} ta kurs chapda · {c.page * 5 + 1}–{Math.min((c.page + 1) * 5, c.total)}
+          </p>
+          {(c.page > 0 || c.page < c.totalPages - 1) && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {c.page > 0 && (
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void send({ type: "courses_page", page: c.page - 1 })}
+                  className="inline-flex items-center gap-1 rounded-full border border-[#dce6f2] bg-white px-2.5 py-1 text-[11px] text-[#2d5a8a]"
+                >
+                  <ChevronLeft className="size-3" /> Oldingi
+                </button>
+              )}
+              {c.page < c.totalPages - 1 && (
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void send({ type: "courses_page", page: c.page + 1 })}
+                  className="inline-flex items-center gap-1 rounded-full border border-[#dce6f2] bg-white px-2.5 py-1 text-[11px] text-[#2d5a8a]"
+                >
+                  Keyingi <ChevronRight className="size-3" />
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    return uiShell(
       <>
         <p className={`text-sm font-semibold ${isGemini ? "text-[#b8cce8]" : "text-[#2d5a8a]"}`}>
           {c.title}
@@ -150,6 +200,7 @@ export function AiChatBody({ chat, skin = "widget" }: Props) {
         </div>
       </>
     );
+  };
 
   const renderCourse = (course: WebCourseDetail) =>
     uiShell(

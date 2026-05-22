@@ -409,3 +409,78 @@ input[type="date"] {
 .ai-hint {
   color: var(--ai-fg-subtle);
 }
+
+/* ==================== AIKURS (/aikurs) ==================== */
+@keyframes aikurs-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aikurs-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes aikurs-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes aikurs-split-bg {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.aikurs-landing-enter {
+  animation: aikurs-fade-up 0.55s ease-out both;
+}
+
+.aikurs-chat-enter {
+  animation: aikurs-fade-up 0.45s ease-out both;
+}
+
+.aikurs-split-root {
+  animation: aikurs-split-bg 0.4s ease-out both;
+}
+
+.aikurs-split-courses {
+  animation: aikurs-slide-left 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.05s;
+}
+
+.aikurs-split-chat {
+  animation: aikurs-slide-right 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aikurs-landing-enter,
+  .aikurs-chat-enter,
+  .aikurs-split-root,
+  .aikurs-split-courses,
+  .aikurs-split-chat {
+    animation: none;
+  }
+}

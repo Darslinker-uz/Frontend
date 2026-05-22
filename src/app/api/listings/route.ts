@@ -13,12 +13,20 @@ export async function GET(request: Request) {
   const city = searchParams.get("city");
   const search = searchParams.get("search");
   const limit = searchParams.get("limit");
+  const idsParam = searchParams.get("ids");
 
   const where: Record<string, unknown> = {
     status: "active",
-    // Pending yo'nalishli e'lonlarni ko'rsatmaymiz
     category: { active: true, pendingApproval: false, ...(categorySlug ? { slug: categorySlug } : {}) },
   };
+
+  if (idsParam) {
+    const idList = idsParam
+      .split(",")
+      .map(s => parseInt(s.trim(), 10))
+      .filter(n => Number.isFinite(n) && n > 0);
+    if (idList.length) where.id = { in: idList };
+  }
   if (format) where.format = format;
   if (priceFree === "true") where.price = 0;
   if (city) where.location = { contains: city, mode: "insensitive" };
@@ -96,6 +104,15 @@ export async function GET(request: Request) {
     void _omit;
     return { ...rest, ratingAvg, ratingCount };
   });
+
+  if (idsParam) {
+    const idList = idsParam
+      .split(",")
+      .map(s => parseInt(s.trim(), 10))
+      .filter(n => Number.isFinite(n) && n > 0);
+    const order = new Map(idList.map((id, i) => [id, i]));
+    withAggregates.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+  }
 
   return NextResponse.json({ listings: withAggregates });
 }

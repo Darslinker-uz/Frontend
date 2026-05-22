@@ -2,9 +2,9 @@
  * Darslinker AI — Telegram va veb uchun umumiy mantiq.
  */
 
-import { prisma } from "@/lib/prisma";
 import { chatCompletion, type ChatTurn } from "@/lib/openai";
 import { createTelegramClient, escHtml } from "@/lib/telegram";
+import { cachedToAiRow, getAllCachedCourses, getCachedCourseById } from "@/lib/courses-redis";
 
 export type AiAnswers = {
   goal?: string;
@@ -81,48 +81,13 @@ const RE_SMALLTALK = /^(qalaysiz|qalesan|yaxshimisiz)\b/i;
 const RE_BAD_REPLY = /salom\s*berish\s*mumkin\s*emas|duolingo|preply|coursera/i;
 
 async function fetchAllActive() {
-  return prisma.listing.findMany({
-    where: { status: "active", category: { active: true, pendingApproval: false } },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      description: true,
-      price: true,
-      format: true,
-      duration: true,
-      certificate: true,
-      demoLesson: true,
-      level: true,
-      levels: true,
-      views: true,
-      category: { select: { name: true, group: { select: { slug: true } } } },
-      user: { select: { centerName: true, name: true } },
-    },
-    take: 300,
-  });
+  return getAllCachedCourses();
 }
 
-type Row = Awaited<ReturnType<typeof fetchAllActive>>[number] & {
-  categoryName?: string;
-  groupSlug?: string;
-  centerName?: string | null;
-};
+type Row = ReturnType<typeof cachedToAiRow>;
 
-function toRow(l: Awaited<ReturnType<typeof fetchAllActive>>[number]) {
-  return {
-    id: l.id,
-    title: l.title,
-    description: l.description,
-    price: l.price,
-    format: l.format,
-    level: l.level,
-    levels: l.levels,
-    views: l.views,
-    categoryName: l.category.name,
-    groupSlug: l.category.group.slug,
-    centerName: l.user.centerName ?? l.user.name,
-  };
+function toRow(l: Awaited<ReturnType<typeof fetchAllActive>>[number]): Row {
+  return cachedToAiRow(l);
 }
 
 function isKursConversation(history: ChatTurn[], text: string) {
@@ -337,18 +302,7 @@ export async function notifyAdminsInquiry(params: {
   phone: string;
   sessionKey: string;
 }) {
-  const listings = await prisma.listing.findMany({
-    where: { id: params.listingId },
-    select: {
-      title: true,
-      price: true,
-      format: true,
-      slug: true,
-      category: { select: { name: true, group: { select: { slug: true } } } },
-      user: { select: { centerName: true, name: true } },
-    },
-  });
-  const l = listings[0];
+  const l = await getCachedCourseById(params.listingId);
   if (!l) return;
   const site = process.env.AUTH_URL?.replace(/\/$/, "") || "https://darslinker.uz";
   const fmt = (p: number) => (p === 0 ? "Bepul" : `${new Intl.NumberFormat("uz-UZ").format(p)} so'm`);
@@ -356,14 +310,14 @@ export async function notifyAdminsInquiry(params: {
     "📩 <b>Yangi ma'lumot so'rovi</b> (veb /ai)",
     "",
     `📚 <b>Kurs:</b> ${escHtml(l.title)}`,
-    `🏫 <b>Markaz:</b> ${escHtml(l.user.centerName ?? l.user.name)}`,
-    `🏷 ${escHtml(l.category.name)}`,
+    `🏫 <b>Markaz:</b> ${escHtml(l.centerName)}`,
+    `🏷 ${escHtml(l.categoryName)}`,
     `💰 ${escHtml(fmt(l.price))}`,
     "",
     `📞 <b>Telefon:</b> ${escHtml(params.phone)}`,
     `🆔 <b>Sessiya:</b> <code>${escHtml(params.sessionKey)}</code>`,
     "",
-    `🔗 ${site}/kurslar/${l.category.group.slug}/${l.slug}`,
+    `🔗 ${site}/kurslar/${l.groupSlug}/${l.slug}`,
   ];
   const token = process.env.TELEGRAM_STUDENT_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
   const client = createTelegramClient(token);

@@ -103,31 +103,43 @@ export function AiKursCoursesPanel({
   courses,
   loading = false,
   error = null,
+  title = "Kurslar",
+  subtitle = "AI maslahatchi yonida tanlang va solishtiring",
+  compactHeader = false,
 }: {
   courses: Course[];
   loading?: boolean;
   error?: string | null;
+  title?: string;
+  subtitle?: string;
+  compactHeader?: boolean;
 }) {
   return (
     <section className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#f0f2f3]">
-      <header className="flex shrink-0 items-center gap-3 border-b border-[#e4e7ea] bg-white px-4 py-3 sm:px-6">
+      <header
+        className={`flex shrink-0 items-center gap-3 border-b border-[#e4e7ea] bg-white ${
+          compactHeader ? "px-4 py-3" : "px-4 py-3 sm:px-6"
+        }`}
+      >
         <Link
           href="/"
           aria-label="Asosiy sahifaga qaytish"
-          className="flex size-9 items-center justify-center rounded-full border border-[#dce6f2] bg-[#f8fafb] text-[#2d5a8a] transition hover:bg-[#eef4fc]"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#dce6f2] bg-[#f8fafb] text-[#2d5a8a] transition hover:bg-[#eef4fc]"
         >
           <ChevronLeft className="size-5" />
         </Link>
-        <div>
-          <h1 className="text-base font-semibold text-[#16181a] sm:text-lg">Kurslar</h1>
-          <p className="text-[12px] text-[#6a7585]">AI maslahatchi yonida tanlang va solishtiring</p>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-base font-semibold text-[#16181a] sm:text-lg">{title}</h1>
+          <p className="truncate text-[12px] text-[#6a7585]">{subtitle}</p>
         </div>
-        <Link
-          href="/kurslar"
-          className="ml-auto hidden rounded-full border border-[#7ea2d4]/40 px-3 py-1.5 text-[12px] font-medium text-[#2d5a8a] hover:bg-[#eef4fc] sm:inline-flex"
-        >
-          Barcha kurslar
-        </Link>
+        {!compactHeader && (
+          <Link
+            href="/kurslar"
+            className="ml-auto hidden shrink-0 rounded-full border border-[#7ea2d4]/40 px-3 py-1.5 text-[12px] font-medium text-[#2d5a8a] hover:bg-[#eef4fc] sm:inline-flex"
+          >
+            Barcha kurslar
+          </Link>
+        )}
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
@@ -156,7 +168,7 @@ export function AiKursCoursesPanel({
             <p className="text-[15px] font-medium text-[#7c8490]">Kurs topilmadi</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-3">
             {courses.map((course, i) => (
               <CourseCard key={course.slug} course={course} index={i} />
             ))}
