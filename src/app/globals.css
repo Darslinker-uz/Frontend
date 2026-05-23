@@ -490,8 +490,12 @@ input[type="date"] {
   animation: aikurs-fade-up 0.4s ease-out both;
 }
 
-.aikursmini-dock {
+.aikursmini-fab-root {
   padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.aikursmini-fab-panel {
+  animation: aikurs-fade-up 0.3s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

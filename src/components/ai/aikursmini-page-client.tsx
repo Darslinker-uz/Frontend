@@ -97,17 +97,15 @@ export function AiKursMiniPageClient() {
   }, []);
 
   return (
-    <div className="aikursmini-root flex h-[100dvh] flex-col overflow-hidden bg-[#f0f2f3]">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <AiKursMiniCoursesPanel
-          courses={courses}
-          loading={coursesLoading}
-          error={coursesError}
-          title={coursesTitle}
-          subtitle={coursesSubtitle}
-          ranked={isRanked && courses.length > 0}
-        />
-      </div>
+    <div className="aikursmini-root relative h-[100dvh] overflow-hidden bg-[#f0f2f3]">
+      <AiKursMiniCoursesPanel
+        courses={courses}
+        loading={coursesLoading}
+        error={coursesError}
+        title={coursesTitle}
+        subtitle={coursesSubtitle}
+        ranked={isRanked && courses.length > 0}
+      />
       <AiKursMiniChatDock
         chat={chat}
         expanded={chatExpanded}

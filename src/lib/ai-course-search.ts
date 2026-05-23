@@ -143,8 +143,8 @@ const SUBJECTS: SubjectDef[] = [
     label: "Robototexnika",
     categorySlugs: ["robotika"],
     groupSlugs: ["bolalar", "it"],
-    keywords: ["robot", "robototexnika", "robotika", "robokidz", "arduino"],
-    patterns: [/robot/i, /robototexnika/i],
+    keywords: ["robot", "robototexnika", "robotatexnika", "robotika", "robokidz", "arduino"],
+    patterns: [/robot/i, /robototexnika/i, /robotatexnika/i],
   },
   {
     key: "mental",
@@ -170,14 +170,173 @@ const SUBJECTS: SubjectDef[] = [
     keywords: ["dtm", "milliy sertifikat", "sertifikat"],
     patterns: [/dtm/i, /milliy\s*sertifikat/i],
   },
+  {
+    key: "tarix",
+    label: "Tarix",
+    categorySlugs: ["tarix"],
+    groupSlugs: ["akademik"],
+    keywords: ["tarix", "history", " tarix "],
+    patterns: [/tarix/i],
+  },
+  {
+    key: "geografiya",
+    label: "Geografiya",
+    categorySlugs: ["geografiya"],
+    groupSlugs: ["akademik"],
+    keywords: ["geografiya", "geography"],
+    patterns: [/geografiya/i],
+  },
+  {
+    key: "adabiyot",
+    label: "Adabiyot",
+    categorySlugs: ["adabiyot"],
+    groupSlugs: ["akademik"],
+    keywords: ["adabiyot", "literature"],
+    patterns: [/adabiyot/i],
+  },
+  {
+    key: "ona-tili",
+    label: "Ona tili",
+    categorySlugs: ["ozbek-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["ona tili", "ona-tili", "o'zbek tili", "ozbek tili", "узбек"],
+    patterns: [/ona\s*tili/i, /o['']?zbek\s*tili/i, /ozbek\s*tili/i],
+  },
+  {
+    key: "xitoy",
+    label: "Xitoy tili",
+    categorySlugs: ["xitoy-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["xitoy", "xitoy tili", "chinese", "hsk"],
+    patterns: [/xitoy/i, /chinese/i, /\bhsk\b/i],
+  },
+  {
+    key: "nemis",
+    label: "Nemis tili",
+    categorySlugs: ["nemis-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["nemis", "nemis tili", "german", "deutsch"],
+    patterns: [/nemis/i, /german/i, /deutsch/i],
+  },
+  {
+    key: "fransuz",
+    label: "Fransuz tili",
+    categorySlugs: ["fransuz-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["fransuz", "fransuz tili", "french"],
+    patterns: [/fransuz/i, /french/i],
+  },
+  {
+    key: "yapon",
+    label: "Yapon tili",
+    categorySlugs: ["yapon-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["yapon", "yapon tili", "japanese"],
+    patterns: [/yapon/i, /japanese/i],
+  },
+  {
+    key: "arab",
+    label: "Arab tili",
+    categorySlugs: ["arab-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["arab", "arab tili", "arabic"],
+    patterns: [/arab/i, /arabic/i],
+  },
+  {
+    key: "ispan",
+    label: "Ispan tili",
+    categorySlugs: ["ispan-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["ispan", "ispan tili", "spanish"],
+    patterns: [/ispan/i, /spanish/i],
+  },
+  {
+    key: "italyan",
+    label: "Italyan tili",
+    categorySlugs: ["italyan-tili"],
+    groupSlugs: ["tillar"],
+    keywords: ["italyan", "italyan tili", "italian"],
+    patterns: [/italyan/i, /italian/i],
+  },
+  {
+    key: "kompyuter",
+    label: "Kompyuter savodxonligi",
+    categorySlugs: ["ma-lumotlar-bazasi"],
+    groupSlugs: ["it"],
+    keywords: ["kompyuter", "savodxonligi", "kompyuter savodxonligi", "computer literacy", "pc"],
+    patterns: [/kompyuter/i, /savodxonligi/i],
+  },
+  {
+    key: "frontend",
+    label: "Frontend",
+    categorySlugs: ["frontend"],
+    groupSlugs: ["it"],
+    keywords: ["frontend", "front-end", "html", "css"],
+    patterns: [/frontend/i, /front[\s-]?end/i],
+  },
+  {
+    key: "backend",
+    label: "Backend",
+    categorySlugs: ["backend"],
+    groupSlugs: ["it"],
+    keywords: ["backend", "back-end", "server"],
+    patterns: [/backend/i, /back[\s-]?end/i],
+  },
+  {
+    key: "fullstack",
+    label: "Full-stack",
+    categorySlugs: ["fullstack"],
+    groupSlugs: ["it"],
+    keywords: ["fullstack", "full-stack", "full stack"],
+    patterns: [/full[\s-]?stack/i],
+  },
+  {
+    key: "web",
+    label: "Web dasturlash",
+    categorySlugs: ["frontend", "fullstack", "javascript"],
+    groupSlugs: ["it"],
+    keywords: ["web", "web dasturlash", "veb", "website"],
+    patterns: [/web[\s-]?dasturlash/i, /\bveb\b/i],
+  },
+  {
+    key: "ai",
+    label: "Sun'iy intellekt",
+    categorySlugs: ["sunyi-intellekt", "machine-learning", "prompt-engineering"],
+    groupSlugs: ["it"],
+    keywords: ["sun'iy intellekt", "suniy intellekt", "ai", "chatgpt", "machine learning"],
+    patterns: [/sun['']?iy\s*intellekt/i, /\bai\b/i, /chatgpt/i],
+  },
+  {
+    key: "smm",
+    label: "SMM",
+    categorySlugs: ["smm"],
+    groupSlugs: ["biznes"],
+    keywords: ["smm", "instagram", "telegram marketing"],
+    patterns: [/\bsmm\b/i],
+  },
+  {
+    key: "olimpiada",
+    label: "Olimpiada",
+    categorySlugs: ["olimpiada"],
+    groupSlugs: ["akademik"],
+    keywords: ["olimpiada", "olympiad"],
+    patterns: [/olimpiada/i],
+  },
 ];
 
 const SUBJECT_BY_KEY = new Map(SUBJECTS.map(s => [s.key, s]));
 
 const GROUP_ALIASES: Record<string, { slugs: string[]; patterns: RegExp[] }> = {
-  akademik: { slugs: ["akademik"], patterns: [/akademik/i, /fan(lar)?/i, /dtm/i, /sertifikat/i] },
-  tillar: { slugs: ["tillar"], patterns: [/xorijiy\s*til/i, /til(lar)?\s*kurs/i] },
+  akademik: { slugs: ["akademik"], patterns: [/akademik\s*fan/i, /akademik/i, /fan(lar)?/i, /dtm/i, /sertifikat/i] },
+  tillar: {
+    slugs: ["tillar"],
+    patterns: [/xorijiy\s*til/i, /til(lar)?\s*kurs/i, /til\s*o['']rgan/i],
+  },
   bolalar: { slugs: ["bolalar"], patterns: [/bolalar\s*uchun/i, /bolaga/i, /kids/i] },
+  it: { slugs: ["it"], patterns: [/it\s*va\s*dasturlash/i, /\bit\b.*dasturlash/i] },
+  biznes: { slugs: ["biznes"], patterns: [/marketing\s*va\s*smm/i, /biznes/i] },
+  dizayn: { slugs: ["dizayn"], patterns: [/dizayn\s*va\s*san/i, /dizayn/i, /san['']?at/i] },
+  kasbiy: { slugs: ["kasbiy"], patterns: [/kasbiy\s*ko['']nikma/i] },
 };
 
 const LEVEL_KEYWORDS: Record<string, string[]> = {
@@ -226,11 +385,13 @@ function detectSubjects(text: string): SubjectDef[] {
 
   for (const s of SUBJECTS) {
     if (s.patterns.some(p => p.test(low))) found.set(s.key, s);
+    if (low.includes(s.label.toLowerCase())) found.set(s.key, s);
     for (const kw of s.keywords) {
-      if (low.includes(kw)) found.set(s.key, s);
+      if (low.includes(kw.toLowerCase())) found.set(s.key, s);
     }
     for (const slug of s.categorySlugs) {
-      if (low.includes(slug.replace(/-/g, " ")) || low.includes(slug)) found.set(s.key, s);
+      const spaced = slug.replace(/-/g, " ");
+      if (low.includes(spaced) || low.includes(slug)) found.set(s.key, s);
     }
   }
 
@@ -382,10 +543,26 @@ export function resolveCourseSearchIntent(text: string, history: ChatTurn[] = []
     }
   }
 
-  if (subjectsNow.length && (inKurs || RE_COURSE_CONTEXT.test(low) || /kurs/i.test(low))) {
+  /** «kimyo», «tarix», «ona tili» — darhol qidiruv (kurs so'zi shart emas) */
+  if (subjectsNow.length) {
     return buildIntent({
       query: subjectsNow[0].key,
       subjects: subjectsNow.map(s => s.key),
+      groupSlugs: groupsNow,
+      level,
+      format,
+      region,
+      district,
+      priceMax,
+      freeOnly,
+    });
+  }
+
+  if (groupsNow.length) {
+    return buildIntent({
+      query: groupsNow[0],
+      subjects: [],
+      groupSlugs: groupsNow,
       level,
       format,
       region,
@@ -530,12 +707,14 @@ function scoreCourse(c: CachedCourse, intent: CourseSearchIntent): number {
   for (const key of intent.subjects) {
     const s = SUBJECT_BY_KEY.get(key);
     if (!s) continue;
-    if (s.categorySlugs.includes(c.categorySlug)) score += 95;
+    if (s.categorySlugs.includes(c.categorySlug)) score += 100;
+    if (c.categoryName.toLowerCase() === s.label.toLowerCase()) score += 95;
+    if (c.categoryName.toLowerCase().includes(s.label.toLowerCase())) score += 80;
     if (s.groupSlugs.includes(c.groupSlug)) score += 25;
     for (const kw of s.keywords) {
       if (hay.includes(kw)) score += 40;
       if (c.title.toLowerCase().includes(kw)) score += 35;
-      if (c.categoryName.toLowerCase().includes(kw)) score += 50;
+      if (c.categoryName.toLowerCase().includes(kw)) score += 55;
     }
   }
 
