@@ -490,6 +490,12 @@ input[type="date"] {
   }
 }
 
+/* Bosh sahifa AI FAB */
+.home-ai-fab {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  margin-bottom: env(safe-area-inset-bottom, 0);
+}
+
 /* ==================== AIKURSMINI (/aikursmini) ==================== */
 .aikursmini-root {
   animation: aikurs-fade-up 0.4s ease-out both;

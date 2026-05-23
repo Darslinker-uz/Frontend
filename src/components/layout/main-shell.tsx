@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { HomeAiFab } from "@/components/ai/home-ai-fab";
 import { Navbar } from "./navbar";
 import { PageTransition } from "@/components/page-transition";
 
@@ -66,6 +67,7 @@ export function MainShell({
       <Navbar />
       <main className="flex-1"><PageTransition>{children}</PageTransition></main>
       {footer}
+      <HomeAiFab />
     </>
   );
 }

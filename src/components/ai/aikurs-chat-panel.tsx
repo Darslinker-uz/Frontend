@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, MessageCircle, Send, Sparkles, Target } from "lucide-react";
+import { ChevronLeft, MessageCircle, Send, Sparkles } from "lucide-react";
 import { AiChatBody } from "@/components/ai/ai-chat-body";
 import type { useAiChat } from "@/components/ai/use-ai-chat";
 
@@ -47,14 +47,6 @@ export function AiKursChatPanel({ chat, variant, coursesInSidebar = false, onBac
 
         <footer className="shrink-0 border-t border-[#e4e7ea] bg-white p-2">
           <div className="flex gap-1.5">
-            <button
-              type="button"
-              onClick={() => void chat.send({ type: "menu_match" }, "Mos kursni topish")}
-              className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#dce6f2] text-[#2d5a8a] hover:bg-[#eef4fc]"
-              title="Mos kursni topish"
-            >
-              <Target className="size-4" />
-            </button>
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -113,14 +105,6 @@ export function AiKursChatPanel({ chat, variant, coursesInSidebar = false, onBac
         </div>
         <footer className="shrink-0 pb-4 pt-2">
           <div className="ai-input-pill flex items-center gap-2 rounded-full px-3 py-2 sm:px-4">
-            <button
-              type="button"
-              onClick={() => void chat.send({ type: "menu_match" }, "Mos kursni topish")}
-              className="ai-pill-icon-btn flex size-9 shrink-0 items-center justify-center rounded-full"
-              title="Mos kursni topish"
-            >
-              <Target className="size-4" />
-            </button>
             <input
               value={input}
               onChange={e => setInput(e.target.value)}

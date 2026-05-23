@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, Mic, Send, Sparkles, Target } from "lucide-react";
+import { ChevronLeft, Mic, Send } from "lucide-react";
 import { AiKursChatPanel } from "@/components/ai/aikurs-chat-panel";
 import { AiKursCoursesPanel } from "@/components/ai/aikurs-courses-panel";
 import { useAiChat } from "@/components/ai/use-ai-chat";
@@ -146,15 +146,6 @@ export function AiKursPageClient() {
 
         <div className="mt-10 w-full max-w-2xl">
           <div className="ai-input-pill flex items-center gap-2 rounded-full px-3 py-2 backdrop-blur-md sm:gap-3 sm:px-4 sm:py-2.5">
-            <button
-              type="button"
-              onClick={() => void startChat({ type: "menu_match" }, "Mos kursni topish")}
-              className="ai-pill-icon-btn flex size-9 shrink-0 items-center justify-center rounded-full transition"
-              aria-label="Mos kursni topish"
-            >
-              <Target className="size-4" />
-            </button>
-            <span className="hidden size-2 shrink-0 rounded-full bg-[#7ea2d4] sm:block" aria-hidden />
             <input
               value={landingInput}
               onChange={e => setLandingInput(e.target.value)}

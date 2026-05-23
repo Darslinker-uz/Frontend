@@ -29,6 +29,13 @@ export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: 
   const { messages, ui, loading, error, send, phone, setPhone, bottomRef } = chat;
   const isGemini = skin === "gemini";
   const isAikurs = skin === "aikurs" || skin === "aikursmini";
+  const hideMatchMenu = skin === "aikurs";
+  const menuButtons =
+    ui?.kind === "menu"
+      ? hideMatchMenu
+        ? ui.buttons.filter(b => b.id !== "menu_match")
+        : ui.buttons
+      : [];
 
   const userBubble = (content: string, key: number) =>
     isGemini ? (
@@ -259,27 +266,28 @@ export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: 
         <p className={`px-1 ${isGemini ? "mb-4 text-sm text-red-400" : "text-[12px] text-red-600"}`}>{error}</p>
       )}
 
-      {ui?.kind === "menu" && uiShell(
-        <div className="flex flex-col gap-2">
-          {ui.buttons.map(b => (
-            <button
-              key={b.id}
-              type="button"
-              disabled={loading}
-              onClick={() => {
-                if (b.id === "menu_match") void send({ type: "menu_match" }, b.label);
-              }}
-              className={
-                isGemini
-                  ? "rounded-full border border-white/10 bg-[#2a2a2a] px-4 py-3 text-left text-sm text-white hover:bg-[#333]"
-                  : "rounded-xl border border-[#7ea2d4]/50 bg-white px-3 py-2.5 text-left text-[13px] font-medium text-[#2d5a8a] hover:bg-[#eef4fc]"
-              }
-            >
-              {b.label}
-            </button>
-          ))}
-        </div>
-      )}
+      {menuButtons.length > 0 &&
+        uiShell(
+          <div className="flex flex-col gap-2">
+            {menuButtons.map(b => (
+              <button
+                key={b.id}
+                type="button"
+                disabled={loading}
+                onClick={() => {
+                  if (b.id === "menu_match") void send({ type: "menu_match" }, b.label);
+                }}
+                className={
+                  isGemini
+                    ? "rounded-full border border-white/10 bg-[#2a2a2a] px-4 py-3 text-left text-sm text-white hover:bg-[#333]"
+                    : "rounded-xl border border-[#7ea2d4]/50 bg-white px-3 py-2.5 text-left text-[13px] font-medium text-[#2d5a8a] hover:bg-[#eef4fc]"
+                }
+              >
+                {b.label}
+              </button>
+            ))}
+          </div>
+        )}
 
       {ui?.kind === "quiz" && uiShell(
         <div className="space-y-3">
