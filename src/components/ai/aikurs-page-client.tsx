@@ -39,7 +39,7 @@ export function AiKursPageClient() {
     setCoursesLoading(true);
     setCoursesError(null);
     try {
-      const ids = ui.courses.map(c => c.id);
+      const ids = ui.resultIds?.length ? ui.resultIds : ui.courses.map(c => c.id);
       setCourses(await fetchCoursesByIds(ids));
     } catch {
       setCourses([]);

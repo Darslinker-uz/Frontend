@@ -20,7 +20,7 @@ type ChatApi = ReturnType<typeof useAiChat>;
 
 type Props = {
   chat: ChatApi;
-  skin?: "widget" | "gemini" | "aikurs";
+  skin?: "widget" | "gemini" | "aikurs" | "aikursmini";
   /** Kurslar chap panelda — chatda faqat sarlavha va sahifalash */
   coursesInSidebar?: boolean;
 };
@@ -28,7 +28,7 @@ type Props = {
 export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: Props) {
   const { messages, ui, loading, error, send, phone, setPhone, bottomRef } = chat;
   const isGemini = skin === "gemini";
-  const isAikurs = skin === "aikurs";
+  const isAikurs = skin === "aikurs" || skin === "aikursmini";
 
   const userBubble = (content: string, key: number) =>
     isGemini ? (

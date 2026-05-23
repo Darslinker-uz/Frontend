@@ -22,10 +22,17 @@ export type CachedCourse = {
   level: string | null;
   levels: string[];
   views: number;
+  location: string | null;
+  region: string | null;
+  district: string | null;
   categoryName: string;
   categorySlug: string;
+  groupName: string;
   groupSlug: string;
   centerName: string;
+  /** listing_locations — viloyat filtrlari uchun */
+  branchRegions: string[];
+  branchDistricts: string[];
 };
 
 export type CoursesCacheMeta = {
@@ -58,8 +65,14 @@ async function loadActiveCoursesFromDb(): Promise<CachedCourse[]> {
       level: true,
       levels: true,
       views: true,
-      category: { select: { name: true, slug: true, group: { select: { slug: true } } } },
+      location: true,
+      region: true,
+      district: true,
+      category: {
+        select: { name: true, slug: true, group: { select: { name: true, slug: true } } },
+      },
       user: { select: { centerName: true, name: true } },
+      branches: { select: { region: true, district: true } },
     },
   });
 
@@ -76,10 +89,24 @@ async function loadActiveCoursesFromDb(): Promise<CachedCourse[]> {
     level: r.level,
     levels: r.levels,
     views: r.views,
+    location: r.location,
+    region: r.region,
+    district: r.district,
     categoryName: r.category.name,
     categorySlug: r.category.slug,
+    groupName: r.category.group.name,
     groupSlug: r.category.group.slug,
     centerName: r.user.centerName ?? r.user.name,
+    branchRegions: [
+      ...new Set(
+        [r.region, ...r.branches.map(b => b.region)].filter((x): x is string => Boolean(x))
+      ),
+    ],
+    branchDistricts: [
+      ...new Set(
+        [r.district, ...r.branches.map(b => b.district)].filter((x): x is string => Boolean(x))
+      ),
+    ],
   }));
 }
 
@@ -105,11 +132,42 @@ async function readCoursesFromRedis(): Promise<CachedCourse[] | null> {
   if (!raw) return null;
 
   try {
-    const parsed = JSON.parse(raw) as CachedCourse[];
-    return Array.isArray(parsed) ? parsed : null;
+    const parsed = JSON.parse(raw) as Partial<CachedCourse>[];
+    if (!Array.isArray(parsed)) return null;
+    return parsed
+      .filter((c): c is Partial<CachedCourse> & { id: number } => typeof c?.id === "number")
+      .map(normalizeCachedCourse);
   } catch {
     return null;
   }
+}
+
+/** Eski Redis yozuvlari (maydonlar kengaytirilguncha) */
+function normalizeCachedCourse(c: Partial<CachedCourse> & { id: number }): CachedCourse {
+  return {
+    id: c.id,
+    title: c.title ?? "",
+    slug: c.slug ?? "",
+    description: c.description ?? null,
+    price: c.price ?? 0,
+    format: c.format ?? "offline",
+    duration: c.duration ?? null,
+    certificate: c.certificate ?? false,
+    demoLesson: c.demoLesson ?? false,
+    level: c.level ?? null,
+    levels: c.levels ?? [],
+    views: c.views ?? 0,
+    location: c.location ?? null,
+    region: c.region ?? null,
+    district: c.district ?? null,
+    categoryName: c.categoryName ?? "",
+    categorySlug: c.categorySlug ?? "",
+    groupName: c.groupName ?? "",
+    groupSlug: c.groupSlug ?? "",
+    centerName: c.centerName ?? "",
+    branchRegions: c.branchRegions ?? (c.region ? [c.region] : []),
+    branchDistricts: c.branchDistricts ?? (c.district ? [c.district] : []),
+  };
 }
 
 /** DB dan o'qib Redis ga yozadi. */
@@ -209,13 +267,20 @@ export function cachedToAiRow(c: CachedCourse) {
   return {
     id: c.id,
     title: c.title,
+    slug: c.slug,
     description: c.description,
     price: c.price,
     format: c.format,
+    duration: c.duration,
     level: c.level,
     levels: c.levels,
     views: c.views,
+    location: c.location,
+    region: c.region,
+    district: c.district,
     categoryName: c.categoryName,
+    categorySlug: c.categorySlug,
+    groupName: c.groupName,
     groupSlug: c.groupSlug,
     centerName: c.centerName,
   };

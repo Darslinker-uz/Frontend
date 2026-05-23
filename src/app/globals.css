@@ -484,3 +484,18 @@ input[type="date"] {
     animation: none;
   }
 }
+
+/* ==================== AIKURSMINI (/aikursmini) ==================== */
+.aikursmini-root {
+  animation: aikurs-fade-up 0.4s ease-out both;
+}
+
+.aikursmini-dock {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aikursmini-root {
+    animation: none;
+  }
+}

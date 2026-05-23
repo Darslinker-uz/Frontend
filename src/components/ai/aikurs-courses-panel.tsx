@@ -4,7 +4,15 @@ import Link from "next/link";
 import { ArrowRight, ChevronLeft, Eye, Star } from "lucide-react";
 import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
 
-function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
+export function AiKursCourseCard({
+  course,
+  index = 0,
+  rank,
+}: {
+  course: Course;
+  index?: number;
+  rank?: number;
+}) {
   return (
     <Link
       href={`/kurslar/${course.categorySlug}/${course.slug}`}
@@ -54,6 +62,19 @@ function CourseCard({ course, index = 0 }: { course: Course; index?: number }) {
           />
         )}
         <div className="relative z-[2] flex flex-1 flex-col p-4">
+          {rank != null && rank <= 3 && (
+            <span
+              className={`mb-2 inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                rank === 1
+                  ? "bg-amber-400/90 text-amber-950"
+                  : rank === 2
+                    ? "bg-white/25 text-white"
+                    : "bg-white/15 text-white/90"
+              }`}
+            >
+              {rank === 1 ? "🥇 Eng mos" : rank === 2 ? "🥈 2-o'rin" : "🥉 3-o'rin"}
+            </span>
+          )}
           <div className="mb-2 flex items-center gap-2">
             {!course.title.toLowerCase().includes(course.category.toLowerCase()) && (
               <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white">
@@ -170,7 +191,7 @@ export function AiKursCoursesPanel({
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-3">
             {courses.map((course, i) => (
-              <CourseCard key={course.slug} course={course} index={i} />
+              <AiKursCourseCard key={course.slug} course={course} index={i} />
             ))}
           </div>
         )}

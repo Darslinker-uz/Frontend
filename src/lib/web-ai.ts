@@ -54,6 +54,8 @@ export type WebAiUi =
       kind: "courses";
       title: string;
       courses: WebCourseCard[];
+      /** To'liq tartiblangan ID ro'yxati (sahifalashdan tashqari) */
+      resultIds: number[];
       page: number;
       totalPages: number;
       total: number;
@@ -277,9 +279,10 @@ function toDetail(l: Awaited<ReturnType<typeof fetchListings>>[number]): WebCour
 }
 
 import {
-  resolveBrowseIntent,
-  searchListingsByQuery,
+  resolveBrowseIntentAsync,
+  searchCoursesByIntent,
   rankListingsForMatch,
+  browseListTitleFromIntent,
   browseListTitle,
   conversationalReplyForWeb,
   notifyAdminsInquiry,
@@ -294,6 +297,7 @@ async function buildCoursesUi(meta: SessionMeta, title: string): Promise<WebAiUi
   return {
     kind: "courses",
     title,
+    resultIds: meta.resultIds,
     page,
     totalPages,
     total,
@@ -428,10 +432,10 @@ export async function processWebAi(sessionId: string, action: WebAiAction): Prom
       });
     }
 
-    const browse = resolveBrowseIntent(text, chat.history);
+    const browse = await resolveBrowseIntentAsync(text, chat.history);
     if (browse !== null) {
-      const ids = await searchListingsByQuery(browse.query, browse.level);
-      const title = browseListTitle(browse.query, browse.level);
+      const ids = await searchCoursesByIntent(browse);
+      const title = browseListTitleFromIntent(browse);
       const resultMeta: SessionMeta = { flow: "results", mode: "browse", resultIds: ids, page: 0, browseQuery: browse.query };
       const hist = {
         ...chat,

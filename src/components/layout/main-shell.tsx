@@ -13,7 +13,8 @@ export function MainShell({
   footer: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isChromelessPage = pathname === "/ai" || pathname.startsWith("/aikurs");
+  const isChromelessPage =
+    pathname === "/ai" || pathname.startsWith("/aikurs");
   // Provider app shell lives under /center/* (home, listings, …) — its own sidebar layout.
   // The bare /center route is the public login page and keeps the standard navbar/footer.
   const isDashboard = pathname.startsWith("/center/");
