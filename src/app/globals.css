@@ -301,8 +301,13 @@ input[type="date"] {
   color: var(--ai-fg);
 }
 
+/* /aikurs — doim kunduzgi (oq + ko'k), tizima dark bo'lsa ham */
+.ai-landing.ai-landing--day {
+  color-scheme: light;
+}
+
 @media (prefers-color-scheme: dark) {
-  .ai-landing {
+  .ai-landing:not(.ai-landing--day) {
     --ai-bg: #0a0c10;
     --ai-fg: #f4f7fb;
     --ai-fg-muted: rgba(184, 204, 232, 0.75);

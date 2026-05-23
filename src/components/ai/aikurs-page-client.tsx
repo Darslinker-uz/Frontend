@@ -105,7 +105,7 @@ export function AiKursPageClient() {
 
   if (started) {
     return (
-      <div className="aikurs-chat-enter ai-landing relative flex min-h-[100dvh] flex-col">
+      <div className="aikurs-chat-enter ai-landing ai-landing--day relative flex min-h-[100dvh] flex-col">
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
           <div className="ai-landing-glow absolute left-1/2 top-[30%] h-[480px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
         </div>
@@ -115,7 +115,7 @@ export function AiKursPageClient() {
   }
 
   return (
-    <div className="aikurs-landing-enter ai-landing relative flex min-h-[100dvh] flex-col">
+    <div className="aikurs-landing-enter ai-landing ai-landing--day relative flex min-h-[100dvh] flex-col">
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
         <div className="ai-landing-glow absolute left-1/2 top-[38%] h-[520px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
         <div className="ai-landing-glow-secondary absolute left-1/2 top-[55%] h-[380px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full" />

@@ -15,6 +15,7 @@ export function MainShell({
   const pathname = usePathname();
   const isChromelessPage =
     pathname === "/ai" || pathname.startsWith("/aikurs");
+  const isAikursLightPage = pathname === "/aikurs";
   // Provider app shell lives under /center/* (home, listings, …) — its own sidebar layout.
   // The bare /center route is the public login page and keeps the standard navbar/footer.
   const isDashboard = pathname.startsWith("/center/");
@@ -36,8 +37,12 @@ export function MainShell({
       };
     }
     if (isChromelessPage) {
-      const light = !window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const bg = light ? "#f0f2f3" : "#0a0c10";
+      const light = isAikursLightPage || !window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const bg = isAikursLightPage
+        ? "#eef4fc"
+        : light
+          ? "#f0f2f3"
+          : "#0a0c10";
       document.body.style.backgroundColor = bg;
       document.documentElement.style.backgroundColor = bg;
       return () => {
@@ -49,7 +54,7 @@ export function MainShell({
       document.body.style.backgroundColor = "";
       document.documentElement.style.backgroundColor = "";
     }
-  }, [isDashboard, isAdmin, isChromelessPage]);
+  }, [isDashboard, isAdmin, isChromelessPage, isAikursLightPage]);
 
   // Dashboard, admin, auth, yopiq landing va /ai sahifalarida navbar/footer yo'q
   if (hideChrome) {

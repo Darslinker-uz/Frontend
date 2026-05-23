@@ -749,12 +749,50 @@ function passesHardFilters(c: CachedCourse, intent: CourseSearchIntent): boolean
   return true;
 }
 
+/** Aniq fan: faqat shu kategoriya (kimyo→kimyo, ona tili→ozbek-tili) */
+function isStrictTopicIntent(intent: CourseSearchIntent): boolean {
+  if (intent.categorySlugs.length > 0) return true;
+  if (intent.subjects.length === 1) return true;
+  if (intent.groupSlugs.length === 1 && intent.subjects.length === 0) return true;
+  return false;
+}
+
+function matchesStrictTopic(c: CachedCourse, intent: CourseSearchIntent): boolean {
+  const allowedSlugs = new Set(intent.categorySlugs);
+  const allowedGroups = new Set(intent.groupSlugs);
+
+  for (const key of intent.subjects) {
+    const s = SUBJECT_BY_KEY.get(key);
+    s?.categorySlugs.forEach(slug => allowedSlugs.add(slug));
+    s?.groupSlugs.forEach(g => allowedGroups.add(g));
+  }
+
+  if (allowedSlugs.size > 0) {
+    return allowedSlugs.has(c.categorySlug);
+  }
+  if (allowedGroups.size > 0) {
+    return allowedGroups.has(c.groupSlug);
+  }
+  return true;
+}
+
 /** Redis keshdan filtrlash + tartiblash */
 export async function searchCoursesByIntent(intent: CourseSearchIntent): Promise<number[]> {
   const all = await getAllCachedCourses();
-  const filtered = all.filter(c => passesHardFilters(c, intent));
+  const strict = isStrictTopicIntent(intent);
+  let pool = all.filter(c => passesHardFilters(c, intent));
 
-  const pool = filtered.length > 0 ? filtered : all;
+  if (strict) {
+    pool = pool.filter(c => matchesStrictTopic(c, intent));
+    if (!pool.length) return [];
+    return pool
+      .map(c => ({ id: c.id, score: scoreCourse(c, intent) }))
+      .sort((a, b) => b.score - a.score)
+      .map(s => s.id);
+  }
+
+  if (!pool.length) pool = all;
+
   const scored = pool
     .map(c => ({ id: c.id, score: scoreCourse(c, intent) }))
     .filter(x => x.score > 0)
@@ -762,8 +800,15 @@ export async function searchCoursesByIntent(intent: CourseSearchIntent): Promise
 
   if (scored.length) return scored.map(s => s.id);
 
-  if (!intent.query && intent.subjects.length === 0) {
+  if (!intent.query && intent.subjects.length === 0 && !intent.groupSlugs.length) {
     return pool.sort((a, b) => b.views - a.views).map(c => c.id);
+  }
+
+  if (intent.groupSlugs.length) {
+    return pool
+      .filter(c => intent.groupSlugs.includes(c.groupSlug))
+      .sort((a, b) => b.views - a.views)
+      .map(c => c.id);
   }
 
   const q = intent.query.toLowerCase();

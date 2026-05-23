@@ -80,7 +80,7 @@ export function AiKursChatPanel({ chat, variant, coursesInSidebar = false, onBac
   }
 
   return (
-    <div className="ai-landing relative flex min-h-[100dvh] flex-col">
+    <div className="ai-landing ai-landing--day relative flex min-h-[100dvh] flex-col">
       <header className="relative z-10 flex shrink-0 items-center justify-between px-4 py-4 sm:px-6">
         {onBack ? (
           <button
