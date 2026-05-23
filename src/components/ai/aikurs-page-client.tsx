@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, Mic, Send } from "lucide-react";
+import { ChevronLeft, Mic, Send, Sparkles } from "lucide-react";
 import { AiKursChatPanel } from "@/components/ai/aikurs-chat-panel";
 import { AiKursCoursesPanel } from "@/components/ai/aikurs-courses-panel";
 import { useAiChat } from "@/components/ai/use-ai-chat";
