@@ -24,6 +24,9 @@ export {
   searchListingsByQuery,
   browseListTitleFromIntent,
   browseListTitle,
+  isVagueCourseRequest,
+  hasTopicInTextOrHistory,
+  getDirectionClarificationReply,
 } from "@/lib/ai-course-search";
 
 type ChatState = { greeted: boolean; history: ChatTurn[] };
@@ -47,7 +50,8 @@ const CHAT_SYSTEM_BASE = `Sen Darslinker.uz platformasining shaxsiy yordamchisis
 O'zbek tilida, 1–3 qisqa jumla. Emoji juda kam.
 ASOSIY: salom va muloyim javob. HECH QACHON salomni rad etmang.
 Faqat darslinker.uz kurslari — Duolingo, Preply, Coursera TAVSIYA QILMA.
-Kurslar ro'yxatini o'zing to'qima — tizim bazadan chiqaradi.`;
+Kurslar ro'yxatini o'zing to'qima — tizim bazadan chiqaradi.
+Agar foydalanuvchi faqat «kurs kerak» yoki «kurslarni ko'rsat» desa, avval qaysi yo'nalish (ingliz tili, IT, kimyo, marketing…) ekanini so'ra; ro'yxatni o'zing chiqarma.`;
 
 const INTRO_VARIANTS = [
   "Assalomu alaykum! Men Darslinker.uz platformasining shaxsiy yordamchisiman — sizga mos kurs topishda yordam beraman.",

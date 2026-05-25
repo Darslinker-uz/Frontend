@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, ChevronLeft, Eye, Star } from "lucide-react";
 import { type Course, MIN_RATINGS_TO_SHOW } from "@/data/courses";
+import {
+  COURSE_FORMAT_FILTER_OPTIONS,
+  filterCoursesByFormat,
+  type CourseFormatFilterId,
+} from "@/lib/course-format-filter";
 
 export function AiKursCourseCard({
   course,
@@ -127,6 +133,7 @@ export function AiKursCoursesPanel({
   title = "Kurslar",
   subtitle = "AI maslahatchi yonida tanlang va solishtiring",
   compactHeader = false,
+  showFormatFilters = false,
 }: {
   courses: Course[];
   loading?: boolean;
@@ -134,32 +141,73 @@ export function AiKursCoursesPanel({
   title?: string;
   subtitle?: string;
   compactHeader?: boolean;
+  /** Split rejimda format tugmalari (Barchasi, Online, …) */
+  showFormatFilters?: boolean;
 }) {
+  const [formatFilter, setFormatFilter] = useState<CourseFormatFilterId>("all");
+
+  useEffect(() => {
+    setFormatFilter("all");
+  }, [courses, title]);
+
+  const filteredCourses = useMemo(
+    () => filterCoursesByFormat(courses, formatFilter),
+    [courses, formatFilter]
+  );
+
+  const countLabel =
+    formatFilter === "all"
+      ? `${courses.length} ta kurs`
+      : `${filteredCourses.length} / ${courses.length} ta kurs`;
+
   return (
     <section className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#f0f2f3]">
-      <header
-        className={`flex shrink-0 items-center gap-3 border-b border-[#e4e7ea] bg-white ${
-          compactHeader ? "px-4 py-3" : "px-4 py-3 sm:px-6"
-        }`}
-      >
-        <Link
-          href="/"
-          aria-label="Asosiy sahifaga qaytish"
-          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#dce6f2] bg-[#f8fafb] text-[#2d5a8a] transition hover:bg-[#eef4fc]"
+      <header className="shrink-0 border-b border-[#e4e7ea] bg-white">
+        <div
+          className={`flex items-center gap-3 ${compactHeader ? "px-4 py-3" : "px-4 py-3 sm:px-6"}`}
         >
-          <ChevronLeft className="size-5" />
-        </Link>
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-base font-semibold text-[#16181a] sm:text-lg">{title}</h1>
-          <p className="truncate text-[12px] text-[#6a7585]">{subtitle}</p>
-        </div>
-        {!compactHeader && (
           <Link
-            href="/kurslar"
-            className="ml-auto hidden shrink-0 rounded-full border border-[#7ea2d4]/40 px-3 py-1.5 text-[12px] font-medium text-[#2d5a8a] hover:bg-[#eef4fc] sm:inline-flex"
+            href="/"
+            aria-label="Asosiy sahifaga qaytish"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#dce6f2] bg-[#f8fafb] text-[#2d5a8a] transition hover:bg-[#eef4fc]"
           >
-            Barcha kurslar
+            <ChevronLeft className="size-5" />
           </Link>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-base font-semibold text-[#16181a] sm:text-lg">{title}</h1>
+            <p className="truncate text-[12px] text-[#6a7585]">
+              {showFormatFilters ? countLabel : subtitle}
+            </p>
+          </div>
+          {!compactHeader && (
+            <Link
+              href="/kurslar"
+              className="ml-auto hidden shrink-0 rounded-full border border-[#7ea2d4]/40 px-3 py-1.5 text-[12px] font-medium text-[#2d5a8a] hover:bg-[#eef4fc] sm:inline-flex"
+            >
+              Barcha kurslar
+            </Link>
+          )}
+        </div>
+        {showFormatFilters && !loading && !error && courses.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto px-4 pb-3 sm:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {COURSE_FORMAT_FILTER_OPTIONS.map(opt => {
+              const active = formatFilter === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setFormatFilter(opt.id)}
+                  className={`shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-medium transition ${
+                    active
+                      ? "bg-[#2d5a8a] text-white shadow-sm"
+                      : "border border-[#dce6f2] bg-[#f8fafb] text-[#2d5a8a] hover:border-[#7ea2d4]/50 hover:bg-[#eef4fc]"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         )}
       </header>
 
@@ -188,9 +236,20 @@ export function AiKursCoursesPanel({
           <div className="flex flex-col items-center justify-center rounded-[18px] border border-[#e4e7ea] bg-white py-16">
             <p className="text-[15px] font-medium text-[#7c8490]">Kurs topilmadi</p>
           </div>
+        ) : filteredCourses.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-[18px] border border-[#e4e7ea] bg-white py-16 px-6 text-center">
+            <p className="text-[15px] font-medium text-[#7c8490]">Bu formatda kurs yo&apos;q</p>
+            <button
+              type="button"
+              onClick={() => setFormatFilter("all")}
+              className="mt-3 rounded-full border border-[#7ea2d4]/40 px-4 py-2 text-[13px] font-medium text-[#2d5a8a] hover:bg-[#eef4fc]"
+            >
+              Barchasini ko&apos;rish
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-3">
-            {courses.map((course, i) => (
+            {filteredCourses.map((course, i) => (
               <AiKursCourseCard key={course.slug} course={course} index={i} />
             ))}
           </div>

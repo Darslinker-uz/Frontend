@@ -94,6 +94,7 @@ export function AiKursPageClient() {
             title={coursesTitle}
             subtitle="AI filtri bo'yicha mos kurslar"
             compactHeader
+            showFormatFilters
           />
         </div>
         <aside className="aikurs-split-chat flex h-[45vh] min-h-[280px] w-full shrink-0 flex-col border-t border-[#dce6f2] md:h-full md:w-[32%] md:min-w-[300px] md:max-w-[400px] md:border-t-0 md:border-l">

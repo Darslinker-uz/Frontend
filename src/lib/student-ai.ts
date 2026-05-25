@@ -8,6 +8,9 @@ import {
   searchCoursesByIntent,
   browseListTitleFromIntent,
   browseListTitle,
+  isVagueCourseRequest,
+  hasTopicInTextOrHistory,
+  getDirectionClarificationReply,
   type CourseSearchIntent,
 } from "@/lib/ai-course-search";
 
@@ -945,6 +948,15 @@ export async function handleStudentAiMessage(
   if (text?.trim()) {
     await incrementDailyCount(chatKey);
     await showTyping(client, chatId);
+
+    if (isVagueCourseRequest(text) && !hasTopicInTextOrHistory(text, chat.history)) {
+      const reply = getDirectionClarificationReply();
+      await saveSession(chatKey, {
+        chat: appendHistory(chat, text, reply),
+      });
+      await client.sendMessage(chatId, escHtml(reply), { parse_mode: "HTML" });
+      return true;
+    }
 
     const browseIntent = await resolveCourseSearchIntentAsync(text, chat.history);
     if (browseIntent !== null) {

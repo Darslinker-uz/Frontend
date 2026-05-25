@@ -1,22 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { WebAiAction, WebAiResponse, WebAiUi } from "@/lib/web-ai";
+import type { WebAiAction, WebAiResponse, WebAiUi, AiChatSurface } from "@/lib/web-ai";
 
 export type ChatMsg = { role: "user" | "assistant"; content: string };
 
 const DEFAULT_SESSION_KEY = "darslinker_ai_session";
 
-async function callAi(sessionId: string, action: WebAiAction): Promise<WebAiResponse> {
+function surfaceFromSessionKey(sessionKey: string): AiChatSurface {
+  return sessionKey === "darslinker_aikurs_session" ? "aikurs" : "web";
+}
+
+async function callAi(
+  sessionId: string,
+  action: WebAiAction,
+  surface: AiChatSurface
+): Promise<WebAiResponse> {
   const res = await fetch("/api/ai/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId, action }),
+    body: JSON.stringify({ sessionId, action, surface }),
   });
   return res.json();
 }
 
 export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
+  const surface = surfaceFromSessionKey(sessionKey);
   const [sessionId, setSessionId] = useState("");
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [ui, setUi] = useState<WebAiUi | null>(null);
@@ -67,7 +76,7 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
           sessionId ||
           (typeof window !== "undefined" ? localStorage.getItem(sessionKey) : null) ||
           "";
-        const data = await callAi(sid, action);
+        const data = await callAi(sid, action, surface);
         if (data.sessionId) {
           setSessionId(data.sessionId);
           localStorage.setItem(sessionKey, data.sessionId);
@@ -79,7 +88,7 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
         setLoading(false);
       }
     },
-    [sessionId, applyResponse, sessionKey]
+    [sessionId, applyResponse, sessionKey, surface]
   );
 
   const ensureInit = useCallback(async () => {
@@ -93,7 +102,7 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
     initStarted.current = true;
     setLoading(true);
     try {
-      const data = await callAi("", { type: "init" });
+      const data = await callAi("", { type: "init" }, surface);
       if (data.sessionId) {
         setSessionId(data.sessionId);
         localStorage.setItem(sessionKey, data.sessionId);
@@ -107,7 +116,7 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
     } finally {
       setLoading(false);
     }
-  }, [sessionId, applyResponse, sessionKey]);
+  }, [sessionId, applyResponse, sessionKey, surface]);
 
   const queueAction = useCallback((action: WebAiAction, userLabel?: string) => {
     setPendingAction({ action, userLabel });
@@ -161,3 +170,4 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
 }
 
 export const AI_QUESTION_KEYS = ["goal", "direction", "level", "time", "budget"];
+export { AIKURS_QUIZ_KEYS } from "@/lib/aikurs-intake";

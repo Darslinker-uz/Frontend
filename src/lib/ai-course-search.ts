@@ -370,7 +370,8 @@ const DISTRICT_PATTERNS: { district: string; patterns: RegExp[] }[] = [
 ];
 
 const RE_SHOW_COURSES =
-  /kurslarni?\s*ko|ko['']rsat|ko['']rib\s*ber|chiqar|ro['']yxat|hammasini|barchasini|barcha\s*kurs|hamma\s*kurs|toping|izlab\s*ber|izlang|qaysi\s*kurs|kerak|qidiryapman|izlayapman/i;
+  /kurslarni?\s*ko|ko['']rsat|ko['']rib\s*ber|chiqar|ro['']yxat|toping|izlab\s*ber|izlang|qaysi\s*kurs|qidiryapman|izlayapman|menga\s+kurs/i;
+const RE_EXPLICIT_ALL_COURSES = /hammasini|barchasini|barcha\s*kurs|hamma\s*kurs/i;
 const RE_COURSE_CONTEXT = /kurs|til\s*bo|fan|o['']qish|o['']rganmoqchi|yo'nalish|soha|daraja/i;
 const RE_WAIT_FOR_MORE = /^(kurs\s*kerak|til\s*bo['']yicha|nima\s*gap|qalesan|qalaysiz)$/i;
 const RE_SUBJECT_KURS = /(\p{L}+)\s*kurs(lar)?/iu;
@@ -498,6 +499,47 @@ function isKursConversation(history: ChatTurn[], text: string) {
   return RE_COURSE_CONTEXT.test(blob);
 }
 
+/** Matnda yoki suhbat tarixida aniq yo'nalish bormi */
+export function hasTopicInTextOrHistory(text: string, history: ChatTurn[] = []): boolean {
+  if (detectSubjects(text).length > 0) return true;
+  if (detectGroups(text).length > 0) return true;
+  return findSubjectInHistory(history) !== null;
+}
+
+/** «Kurs kerak», «kurslarni ko'rsat» — yo'nalishsiz umumiy so'rov */
+export function isVagueCourseRequest(text: string): boolean {
+  const low = normalizeText(text);
+  if (RE_EXPLICIT_ALL_COURSES.test(low)) return false;
+  if (detectSubjects(text).length > 0 || detectGroups(text).length > 0) return false;
+
+  if (
+    /^kurs(lar)?\s*kerak/i.test(low) ||
+    /menga\s+kurs(lar)?/i.test(low) ||
+    /kurs(lar)?\s*(kerak|qidiryapman|izlayapman)/i.test(low)
+  ) {
+    return true;
+  }
+
+  if (/\bkurs(lar)?\b/i.test(low) && /(ko['']rsat|ko['']rib|chiqar|toping|izlab|izlang)/i.test(low)) {
+    return true;
+  }
+
+  return false;
+}
+
+/** Yo'nalish aniqlanmaguncha kurs ro'yxati chiqmasin — tabiiy savol */
+export function getDirectionClarificationReply(): string {
+  return (
+    "Albatta, yordam beraman! Qaysi yo'nalishda kurs qidiryapsiz?\n\n" +
+    "Masalan:\n" +
+    "• Ingliz tili, rus tili, koreys tili, ona tili\n" +
+    "• IT va dasturlash (python, frontend, robototexnika…)\n" +
+    "• Kimyo, biologiya, matematika, fizika, tarix\n" +
+    "• Marketing, dizayn\n\n" +
+    "Yo'nalishni yozing — shu bo'yicha mos kurslarni ko'rsataman."
+  );
+}
+
 /** Qoida asosida intent (tez) */
 export function resolveCourseSearchIntent(text: string, history: ChatTurn[] = []): CourseSearchIntent | null {
   const low = normalizeText(text);
@@ -512,15 +554,19 @@ export function resolveCourseSearchIntent(text: string, history: ChatTurn[] = []
   const priceMax = extractPriceMax(text);
   const freeOnly = /bepul|free|tekin/i.test(low);
 
-  if (/hammasini|barchasini|barcha\s*kurs|hamma\s*kurs/i.test(low)) {
+  if (RE_EXPLICIT_ALL_COURSES.test(low)) {
     return buildIntent({ query: "", level, format, region, district, priceMax, freeOnly });
   }
 
   const subjectsNow = detectSubjects(text);
   const groupsNow = detectGroups(text);
+  const histKey = findSubjectInHistory(history);
+
+  if (RE_SHOW_COURSES.test(low) && !subjectsNow.length && !groupsNow.length && !histKey) {
+    return null;
+  }
 
   if (RE_SHOW_COURSES.test(low) || subjectsNow.length || groupsNow.length) {
-    const histKey = findSubjectInHistory(history);
     const subs =
       subjectsNow.length > 0
         ? subjectsNow
@@ -528,7 +574,7 @@ export function resolveCourseSearchIntent(text: string, history: ChatTurn[] = []
           ? [SUBJECT_BY_KEY.get(histKey)!].filter(Boolean)
           : [];
     const query = subs[0]?.key ?? (groupsNow[0] ?? "");
-    if (subs.length || groupsNow.length || RE_SHOW_COURSES.test(low)) {
+    if (subs.length || groupsNow.length) {
       return buildIntent({
         query,
         subjects: subs.map(s => s.key),
@@ -589,10 +635,11 @@ export function resolveCourseSearchIntent(text: string, history: ChatTurn[] = []
   }
 
   if ((format || region || district || priceMax || freeOnly) && (inKurs || /kurs/i.test(low))) {
-    const histKey = findSubjectInHistory(history);
+    if (!histKey && !subjectsNow.length && !groupsNow.length) return null;
     return buildIntent({
-      query: histKey ?? "",
-      subjects: histKey ? [histKey] : [],
+      query: histKey ?? subjectsNow[0]?.key ?? "",
+      subjects: histKey ? [histKey] : subjectsNow.map(s => s.key),
+      groupSlugs: groupsNow,
       level,
       format,
       region,

@@ -14,7 +14,7 @@ import {
 import type { WebAiUi, WebCourseDetail } from "@/lib/web-ai";
 import { PhoneInput } from "@/components/phone-input";
 import type { useAiChat } from "@/components/ai/use-ai-chat";
-import { AI_QUESTION_KEYS } from "@/components/ai/use-ai-chat";
+import { AI_QUESTION_KEYS, AIKURS_QUIZ_KEYS } from "@/components/ai/use-ai-chat";
 
 type ChatApi = ReturnType<typeof useAiChat>;
 
@@ -276,6 +276,10 @@ export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: 
                 disabled={loading}
                 onClick={() => {
                   if (b.id === "menu_match") void send({ type: "menu_match" }, b.label);
+                  else if (b.id === "aikurs_yes")
+                    void send({ type: "aikurs_consent", consent: true }, b.label);
+                  else if (b.id === "aikurs_no")
+                    void send({ type: "aikurs_consent", consent: false }, b.label);
                 }}
                 className={
                   isGemini
@@ -301,12 +305,13 @@ export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: 
                 key={opt.id}
                 type="button"
                 disabled={loading}
-                onClick={() =>
+                onClick={() => {
+                  const keys = isAikurs ? AIKURS_QUIZ_KEYS : AI_QUESTION_KEYS;
                   void send(
-                    { type: "quiz_answer", key: AI_QUESTION_KEYS[ui.step - 1], value: opt.id },
+                    { type: "quiz_answer", key: keys[ui.step - 1], value: opt.id },
                     opt.label
-                  )
-                }
+                  );
+                }}
                 className={
                   isGemini
                     ? "rounded-2xl border border-white/10 bg-[#2a2a2a] px-4 py-3 text-left text-sm text-white hover:bg-[#333]"

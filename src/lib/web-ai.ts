@@ -17,6 +17,7 @@ export type WebAiAction =
   | { type: "init" }
   | { type: "message"; text: string }
   | { type: "menu_match" }
+  | { type: "aikurs_consent"; consent: boolean }
   | { type: "quiz_answer"; key: string; value: string }
   | { type: "courses_page"; page: number }
   | { type: "course_open"; index: number }
@@ -286,7 +287,11 @@ import {
   browseListTitle,
   conversationalReplyForWeb,
   notifyAdminsInquiry,
+  isVagueCourseRequest,
+  hasTopicInTextOrHistory,
+  getDirectionClarificationReply,
 } from "@/lib/ai-shared";
+import { handleAikursAction, type AikursSessionApi } from "@/lib/aikurs-intake";
 
 async function buildCoursesUi(meta: SessionMeta, title: string): Promise<WebAiUi> {
   const total = meta.resultIds.length;
@@ -324,8 +329,45 @@ function fail(sessionId: string, error: string, limit?: boolean): WebAiResponse 
   return { ok: false, sessionId, error, assistantMessages: [], limitReached: limit };
 }
 
-export async function processWebAi(sessionId: string, action: WebAiAction): Promise<WebAiResponse> {
+export type AiChatSurface = "web" | "aikurs";
+
+export async function processWebAi(
+  sessionId: string,
+  action: WebAiAction,
+  surface: AiChatSurface = "web"
+): Promise<WebAiResponse> {
   const key = webKey(sessionId);
+
+  if (surface === "aikurs") {
+    const api: AikursSessionApi = {
+      load: async (k: string) => {
+        const s = await load(k);
+        return {
+          step: s.step,
+          answers: s.answers,
+          meta: s.meta as import("@/lib/aikurs-intake").AikursSessionMeta | null,
+          chat: s.chat,
+        };
+      },
+      save: async (k: string, data) => {
+        await save(k, {
+          step: data.step,
+          answers: data.answers,
+          meta: data.meta as SessionMeta | null | undefined,
+          chat: data.chat,
+        });
+      },
+      bumpLimit,
+      buildCoursesUi: async (meta, title: string) =>
+        buildCoursesUi(meta as SessionMeta, title),
+      ok,
+      fail,
+    };
+    if (action.type !== "init" && !(await checkLimit(key))) {
+      return fail(sessionId, `Kunlik limit (${getDailyLimit()}) tugadi. Ertaga qayting.`, true);
+    }
+    return handleAikursAction(sessionId, key, action, api);
+  }
 
   if (action.type !== "init" && !(await checkLimit(key))) {
     return fail(sessionId, `Kunlik limit (${getDailyLimit()}) tugadi. Ertaga qayting.`, true);
@@ -430,6 +472,21 @@ export async function processWebAi(sessionId: string, action: WebAiAction): Prom
         phone: text,
         listingId: chat.pendingInquiry.listingId,
       });
+    }
+
+    if (isVagueCourseRequest(text) && !hasTopicInTextOrHistory(text, chat.history)) {
+      const reply = getDirectionClarificationReply();
+      const nextChat = {
+        ...chat,
+        greeted: true,
+        history: [
+          ...chat.history,
+          { role: "user" as const, content: text },
+          { role: "assistant" as const, content: reply },
+        ].slice(-20),
+      };
+      await save(key, { chat: nextChat });
+      return ok(sessionId, [reply]);
     }
 
     const browse = await resolveBrowseIntentAsync(text, chat.history);

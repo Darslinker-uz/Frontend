@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { processWebAi, createWebSessionId, type WebAiAction } from "@/lib/web-ai";
+import { processWebAi, createWebSessionId, type WebAiAction, type AiChatSurface } from "@/lib/web-ai";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Juda ko'p so'rov. Biroz kuting." }, { status: 429 });
   }
 
-  let body: { sessionId?: string; action?: WebAiAction };
+  let body: { sessionId?: string; action?: WebAiAction; surface?: AiChatSurface };
   try {
     body = await request.json();
   } catch {
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
   }
 
   const sessionId = body.sessionId?.trim() || createWebSessionId();
-  const result = await processWebAi(sessionId, body.action);
+  const surface = body.surface === "aikurs" ? "aikurs" : "web";
+  const result = await processWebAi(sessionId, body.action, surface);
   return NextResponse.json(result);
 }
