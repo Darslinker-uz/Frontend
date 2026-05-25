@@ -32,6 +32,16 @@ export function AiKursChatPanel({ chat, variant, coursesInSidebar = false, onBac
     return (
       <div className="flex h-full min-h-0 flex-col bg-[#f8fafb]">
         <header className="flex shrink-0 items-center gap-2 border-b border-[#e4e7ea] bg-white px-3 py-2.5">
+          {onBack ? (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex size-8 shrink-0 items-center justify-center rounded-full border border-[#dce6f2] text-[#2d5a8a] hover:bg-[#eef4fc]"
+              aria-label="Yangi qidiruv"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+          ) : null}
           <div className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#2d5a8a] to-[#4a7ab8] text-white">
             <MessageCircle className="size-4" />
           </div>

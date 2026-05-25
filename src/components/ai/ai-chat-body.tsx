@@ -14,7 +14,8 @@ import {
 import type { WebAiUi, WebCourseDetail } from "@/lib/web-ai-types";
 import { PhoneInput } from "@/components/phone-input";
 import type { useAiChat } from "@/components/ai/use-ai-chat";
-import { AI_QUESTION_KEYS, AIKURS_QUIZ_KEYS } from "@/components/ai/use-ai-chat";
+import { AI_QUESTION_KEYS } from "@/components/ai/use-ai-chat";
+import { AIKURS_QUIZ_STEP_TO_KEY } from "@/lib/web-ai-types";
 
 type ChatApi = ReturnType<typeof useAiChat>;
 
@@ -306,11 +307,11 @@ export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: 
                 type="button"
                 disabled={loading}
                 onClick={() => {
-                  const keys = isAikurs ? AIKURS_QUIZ_KEYS : AI_QUESTION_KEYS;
-                  void send(
-                    { type: "quiz_answer", key: keys[ui.step - 1], value: opt.id },
-                    opt.label
-                  );
+                  const key = isAikurs
+                    ? AIKURS_QUIZ_STEP_TO_KEY[ui.step]
+                    : AI_QUESTION_KEYS[ui.step - 1];
+                  if (!key) return;
+                  void send({ type: "quiz_answer", key, value: opt.id }, opt.label);
                 }}
                 className={
                   isGemini

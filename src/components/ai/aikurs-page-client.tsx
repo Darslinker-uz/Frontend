@@ -32,7 +32,7 @@ export function AiKursPageClient() {
 
   const chat = useAiChat(AIKURS_SESSION_KEY);
 
-  const isSplit = chat.ui?.kind === "courses";
+  const hasCourseResults = chat.ui?.kind === "courses";
 
   const loadPanelCourses = useCallback(async (ui: Extract<WebAiUi, { kind: "courses" }>) => {
     setCoursesTitle(ui.title.replace(/^[^\w\u0400-\u04FF]+/u, "").trim() || "Mos kurslar");
@@ -55,18 +55,21 @@ export function AiKursPageClient() {
   }, [chat.ui, loadPanelCourses]);
 
   useEffect(() => {
-    if (!isSplit) return;
+    if (!started) return;
     document.body.style.backgroundColor = "#f0f2f3";
     document.documentElement.style.backgroundColor = "#f0f2f3";
     return () => {
       document.body.style.backgroundColor = "";
       document.documentElement.style.backgroundColor = "";
     };
-  }, [isSplit]);
+  }, [started]);
 
-  const startChat = async (action: WebAiAction, userLabel?: string) => {
+  const startChat = async (action: WebAiAction, userLabel?: string, fresh = false) => {
     setStarted(true);
-    await chat.ensureInit();
+    const sid = await chat.ensureInit(fresh ? { fresh: true } : undefined);
+    if (!sid && !localStorage.getItem(AIKURS_SESSION_KEY)) {
+      return;
+    }
     chat.queueAction(action, userLabel);
   };
 
@@ -74,16 +77,18 @@ export function AiKursPageClient() {
     const text = landingInput.trim();
     if (!text) return;
     setLandingInput("");
-    void startChat({ type: "message", text }, text);
+    void startChat({ type: "message", text }, text, true);
   };
 
   const backToLanding = () => {
+    chat.resetSession();
     setStarted(false);
     setCourses([]);
+    setCoursesError(null);
     chat.setInput("");
   };
 
-  if (isSplit) {
+  if (started) {
     return (
       <div className="aikurs-split-root flex h-[100dvh] flex-col overflow-hidden md:flex-row">
         <div className="aikurs-split-courses flex min-h-0 min-w-0 flex-1 flex-col">
@@ -91,26 +96,23 @@ export function AiKursPageClient() {
             courses={courses}
             loading={coursesLoading}
             error={coursesError}
-            title={coursesTitle}
-            subtitle="AI filtri bo'yicha mos kurslar"
+            title={hasCourseResults ? coursesTitle : "Kurslar"}
+            subtitle={
+              hasCourseResults ? "AI filtri bo'yicha mos kurslar" : "AI javobidan keyin ro'yxat chiqadi"
+            }
             compactHeader
-            showFormatFilters
+            showFormatFilters={hasCourseResults}
+            awaitingResults={!hasCourseResults && !coursesLoading && !coursesError}
           />
         </div>
         <aside className="aikurs-split-chat flex h-[45vh] min-h-[280px] w-full shrink-0 flex-col border-t border-[#dce6f2] md:h-full md:w-[32%] md:min-w-[300px] md:max-w-[400px] md:border-t-0 md:border-l">
-          <AiKursChatPanel chat={chat} variant="split" coursesInSidebar />
+          <AiKursChatPanel
+            chat={chat}
+            variant="split"
+            coursesInSidebar={hasCourseResults}
+            onBack={backToLanding}
+          />
         </aside>
-      </div>
-    );
-  }
-
-  if (started) {
-    return (
-      <div className="aikurs-chat-enter ai-landing ai-landing--day relative flex min-h-[100dvh] flex-col">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-          <div className="ai-landing-glow absolute left-1/2 top-[30%] h-[480px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
-        </div>
-        <AiKursChatPanel chat={chat} variant="full" onBack={backToLanding} />
       </div>
     );
   }
@@ -142,7 +144,7 @@ export function AiKursPageClient() {
           {LANDING_HEADING}
         </h1>
         <p className="ai-hint mt-3 max-w-lg text-center text-sm">
-          Ingliz tili, IT, marketing va boshqa yo&apos;nalishlarda kurs qidiring — mos variantlar yon panelda chiqadi
+          Ingliz tili, IT, marketing va boshqa yo&apos;nalishlarda kurs qidiring — mos variantlar chap panelda chiqadi
         </p>
 
         <div className="mt-10 w-full max-w-2xl">
@@ -162,7 +164,7 @@ export function AiKursPageClient() {
             <button
               type="button"
               onClick={submitLanding}
-              disabled={!landingInput.trim()}
+              disabled={!landingInput.trim() || chat.loading}
               className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#2d5a8a] text-white transition hover:bg-[#3a6a9a] disabled:opacity-30"
             >
               <Send className="size-4" />
@@ -170,7 +172,7 @@ export function AiKursPageClient() {
             <button
               type="button"
               onClick={submitLanding}
-              disabled={!landingInput.trim()}
+              disabled={!landingInput.trim() || chat.loading}
               className="ai-pill-icon-btn flex size-9 shrink-0 sm:hidden"
               aria-label="Yuborish"
             >
@@ -178,7 +180,7 @@ export function AiKursPageClient() {
             </button>
           </div>
           <p className="ai-hint mt-4 text-center text-xs">
-            «Python», «ingliz tili», «marketing» — yozing, AI mos kurslarni ko&apos;rsatadi
+            «Python», «ingliz tili», «marketing» — yozing; «salom» yoki «kurs kerak» desangiz AI bir necha savol beradi
           </p>
         </div>
       </main>

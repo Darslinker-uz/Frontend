@@ -91,14 +91,31 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
     [sessionId, applyResponse, sessionKey, surface]
   );
 
-  const ensureInit = useCallback(async () => {
+  const resetSession = useCallback(() => {
+    localStorage.removeItem(sessionKey);
+    initStarted.current = false;
+    setSessionId("");
+    setMessages([]);
+    setUi(null);
+    setError(null);
+    setReady(false);
+  }, [sessionKey]);
+
+  const ensureInit = useCallback(async (opts?: { fresh?: boolean }) => {
+    if (opts?.fresh) {
+      localStorage.removeItem(sessionKey);
+      initStarted.current = false;
+      setSessionId("");
+      setMessages([]);
+      setUi(null);
+    }
     const stored = localStorage.getItem(sessionKey);
-    if (stored) {
+    if (stored && !opts?.fresh) {
       setSessionId(stored);
       setReady(true);
       return stored;
     }
-    if (initStarted.current) return sessionId;
+    if (initStarted.current && !opts?.fresh) return sessionId || stored || null;
     initStarted.current = true;
     setLoading(true);
     try {
@@ -141,14 +158,18 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
       if (!p) return;
       setInput("");
       setPhone("");
-      void send({ type: "inquiry_phone", phone: p, listingId: ui.listingId }, p);
+      if (surface === "aikurs" && (!ui.listingId || ui.listingId === 0)) {
+        void send({ type: "message", text: p }, p);
+      } else {
+        void send({ type: "inquiry_phone", phone: p, listingId: ui.listingId }, p);
+      }
       return;
     }
     const t = input.trim();
     if (!t) return;
     setInput("");
     void send({ type: "message", text: t }, t);
-  }, [loading, ui, phone, input, send]);
+  }, [loading, ui, phone, input, send, surface]);
 
   return {
     sessionId,
@@ -164,6 +185,7 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
     bottomRef,
     send,
     ensureInit,
+    resetSession,
     queueAction,
     onSubmitText,
   };

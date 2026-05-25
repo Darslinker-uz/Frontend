@@ -134,6 +134,7 @@ export function AiKursCoursesPanel({
   subtitle = "AI maslahatchi yonida tanlang va solishtiring",
   compactHeader = false,
   showFormatFilters = false,
+  awaitingResults = false,
 }: {
   courses: Course[];
   loading?: boolean;
@@ -143,6 +144,8 @@ export function AiKursCoursesPanel({
   compactHeader?: boolean;
   /** Split rejimda format tugmalari (Barchasi, Online, …) */
   showFormatFilters?: boolean;
+  /** AI suhbat davom etmoqda — kurslar hali chiqmagan */
+  awaitingResults?: boolean;
 }) {
   const [formatFilter, setFormatFilter] = useState<CourseFormatFilterId>("all");
 
@@ -232,9 +235,19 @@ export function AiKursCoursesPanel({
               Qayta urinish
             </button>
           </div>
+        ) : awaitingResults && courses.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-[18px] border border-[#e4e7ea] bg-white py-16 px-6 text-center">
+            <p className="text-[15px] font-medium text-[#16181a]">Kurslar shu yerda chiqadi</p>
+            <p className="mt-2 max-w-sm text-[13px] text-[#6a7585]">
+              O&apos;ngdagi chatda savollarga javob bering yoki yo&apos;nalish yozing (masalan: ingliz tili, IT).
+            </p>
+          </div>
         ) : courses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-[18px] border border-[#e4e7ea] bg-white py-16">
+          <div className="flex flex-col items-center justify-center rounded-[18px] border border-[#e4e7ea] bg-white py-16 px-6 text-center">
             <p className="text-[15px] font-medium text-[#7c8490]">Kurs topilmadi</p>
+            <p className="mt-2 text-[12px] text-[#6a7585]">
+              Boshqa yo&apos;nalish yozing yoki filtrlarni o&apos;zgartiring.
+            </p>
           </div>
         ) : filteredCourses.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-[18px] border border-[#e4e7ea] bg-white py-16 px-6 text-center">

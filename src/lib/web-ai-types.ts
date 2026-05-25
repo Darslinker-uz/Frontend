@@ -66,3 +66,10 @@ export type WebAiResponse = {
 
 export const AI_QUESTION_KEYS = ["goal", "direction", "level", "time", "budget"] as const;
 export const AIKURS_QUIZ_KEYS = ["direction", "age", "level", "time"] as const;
+
+/** /aikurs quiz UI step → javob kaliti (2-qadam yosh matn bilan) */
+export const AIKURS_QUIZ_STEP_TO_KEY: Record<number, (typeof AIKURS_QUIZ_KEYS)[number]> = {
+  1: "direction",
+  3: "level",
+  4: "time",
+};

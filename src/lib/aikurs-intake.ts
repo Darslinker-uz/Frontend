@@ -370,10 +370,14 @@ export async function handleAikursAction(
     if (action.key === "time" && step === 4) {
       const phoneMeta: AikursSessionMeta = { ...meta, flow: "phone", quizStep: 0 };
       await api.save(key, { step: 5, answers: nextAnswers, meta: phoneMeta, chat });
-      return api.ok(sessionId, [
-        "Telefon raqamingizni yozib qoldiring — biz sizga aloqaga chiqamiz.",
-        "Masalan: +998901234567 yoki 901234567",
-      ]);
+      return api.ok(
+        sessionId,
+        [
+          "Telefon raqamingizni yozib qoldiring — biz sizga aloqaga chiqamiz.",
+          "Masalan: +998901234567 yoki 901234567",
+        ],
+        { kind: "phone", listingId: 0, courseTitle: "Aloqa uchun telefon" }
+      );
     }
     return api.fail(sessionId, "Noto'g'ri bosqich");
   }
@@ -439,7 +443,7 @@ export async function handleAikursAction(
 
     if (flow === "idle" || flow === "offer" || flow === "declined") {
       const browseEarly = await resolveBrowseIntentAsync(text, chat.history);
-      if (browseEarly !== null && (flow === "idle" || flow === "declined")) {
+      if (browseEarly !== null) {
         const ids = await searchCoursesByIntent(browseEarly);
         const title = browseListTitleFromIntent(browseEarly);
         const resultMeta: AikursSessionMeta = {
@@ -509,6 +513,10 @@ export async function handleAikursAction(
 
   if (action.type === "course_open" && meta?.flow === "results") {
     return api.fail(sessionId, "Kursni chap paneldan oching");
+  }
+
+  if (action.type === "inquiry_phone" && flow === "phone") {
+    return handleAikursAction(sessionId, key, { type: "message", text: action.phone }, api);
   }
 
   return api.fail(sessionId, "Noma'lum amal");
