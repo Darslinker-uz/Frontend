@@ -3,6 +3,8 @@
  * DB → Redis sync: DB_TO_REDIS_PERIOD (default 300s).
  */
 
+import "server-only";
+
 import { prisma } from "@/lib/prisma";
 import { getRedis, isRedisConfigured } from "@/lib/redis";
 

@@ -11,7 +11,7 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from "lucide-react";
-import type { WebAiUi, WebCourseDetail } from "@/lib/web-ai";
+import type { WebAiUi, WebCourseDetail } from "@/lib/web-ai-types";
 import { PhoneInput } from "@/components/phone-input";
 import type { useAiChat } from "@/components/ai/use-ai-chat";
 import { AI_QUESTION_KEYS, AIKURS_QUIZ_KEYS } from "@/components/ai/use-ai-chat";

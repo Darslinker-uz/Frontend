@@ -2,6 +2,8 @@
  * /aikurs — salom, yordam taklifi, anketа, telefon, admin Telegram, mos kurslar.
  */
 
+import "server-only";
+
 import type { ChatTurn } from "@/lib/openai";
 import { createTelegramClient, escHtml, normalizePhone } from "@/lib/telegram";
 import type { AiAnswers } from "@/lib/ai-shared";
@@ -13,7 +15,7 @@ import {
   searchCoursesByIntent,
 } from "@/lib/ai-shared";
 import type { CourseSearchIntent } from "@/lib/ai-course-search";
-import type { WebAiAction, WebAiResponse, WebAiUi } from "@/lib/web-ai";
+import type { WebAiAction, WebAiResponse, WebAiUi } from "@/lib/web-ai-types";
 
 export type AikursFlow =
   | "idle"
@@ -134,8 +136,6 @@ const QUIZ_BUTTON_STEPS = [
     ],
   },
 ];
-
-export const AIKURS_QUIZ_KEYS = ["direction", "age", "level", "time"] as const;
 
 const RE_GREETING = /^(assalomu?\s*alaykum|assalom|salom|salam|hello|hi)\b/i;
 const RE_IDENTITY =

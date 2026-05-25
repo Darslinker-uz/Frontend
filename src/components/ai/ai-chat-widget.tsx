@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { MessageCircle, X, Send, Sparkles } from "lucide-react";
-import type { WebAiAction } from "@/lib/web-ai";
+import type { WebAiAction } from "@/lib/web-ai-types";
 import { AiChatBody } from "@/components/ai/ai-chat-body";
 import { useAiChat } from "@/components/ai/use-ai-chat";
 

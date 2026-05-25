@@ -3,75 +3,34 @@
  * Telegram @darslinkerbot bilan bir xil mantiq, JSON javob.
  */
 
+import "server-only";
+
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma";
 import { chatCompletion, type ChatTurn } from "@/lib/openai";
 import { normalizePhone } from "@/lib/telegram";
 import type { AiAnswers } from "@/lib/ai-shared";
 import { getCachedCoursesByIds } from "@/lib/courses-redis";
+import type {
+  AiChatSurface,
+  WebAiAction,
+  WebAiResponse,
+  WebAiUi,
+  WebCourseCard,
+  WebCourseDetail,
+} from "@/lib/web-ai-types";
+
+export type {
+  AiChatSurface,
+  WebAiAction,
+  WebAiResponse,
+  WebAiUi,
+  WebCourseCard,
+  WebCourseDetail,
+} from "@/lib/web-ai-types";
 
 const PAGE_SIZE = 5;
 const SITE_BASE = process.env.AUTH_URL?.replace(/\/$/, "") || "https://darslinker.uz";
-
-export type WebAiAction =
-  | { type: "init" }
-  | { type: "message"; text: string }
-  | { type: "menu_match" }
-  | { type: "aikurs_consent"; consent: boolean }
-  | { type: "quiz_answer"; key: string; value: string }
-  | { type: "courses_page"; page: number }
-  | { type: "course_open"; index: number }
-  | { type: "course_inquiry"; listingId: number }
-  | { type: "inquiry_phone"; phone: string; listingId?: number };
-
-export type WebCourseCard = {
-  id: number;
-  title: string;
-  price: string;
-  format: string;
-  centerName: string;
-  categoryName: string;
-  url: string;
-};
-
-export type WebCourseDetail = WebCourseCard & {
-  duration: string | null;
-  level: string | null;
-  certificate: boolean;
-  demoLesson: boolean;
-  description: string | null;
-};
-
-export type WebAiUi =
-  | { kind: "menu"; buttons: { id: string; label: string }[] }
-  | {
-      kind: "quiz";
-      step: number;
-      total: number;
-      question: string;
-      options: { id: string; label: string }[];
-    }
-  | {
-      kind: "courses";
-      title: string;
-      courses: WebCourseCard[];
-      /** To'liq tartiblangan ID ro'yxati (sahifalashdan tashqari) */
-      resultIds: number[];
-      page: number;
-      totalPages: number;
-      total: number;
-    }
-  | { kind: "course"; course: WebCourseDetail }
-  | { kind: "phone"; listingId: number; courseTitle: string };
-
-export type WebAiResponse = {
-  ok: boolean;
-  error?: string;
-  sessionId: string;
-  assistantMessages: string[];
-  ui?: WebAiUi;
-  limitReached?: boolean;
-};
 
 // ——— Quiz savollar (student-ai bilan bir xil) ———
 
@@ -328,8 +287,6 @@ function ok(sessionId: string, msgs: string[], ui?: WebAiUi): WebAiResponse {
 function fail(sessionId: string, error: string, limit?: boolean): WebAiResponse {
   return { ok: false, sessionId, error, assistantMessages: [], limitReached: limit };
 }
-
-export type AiChatSurface = "web" | "aikurs";
 
 export async function processWebAi(
   sessionId: string,

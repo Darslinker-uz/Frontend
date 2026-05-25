@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ChevronLeft, Mic, Send, Sparkles, Target } from "lucide-react";
 import { AiFullPageChat } from "@/components/ai/ai-full-page-chat";
 import { useAiChat } from "@/components/ai/use-ai-chat";
-import type { WebAiAction } from "@/lib/web-ai";
+import type { WebAiAction } from "@/lib/web-ai-types";
 
 const HEADINGS = [
   "Bugun qanday kurs izlayapsiz?",

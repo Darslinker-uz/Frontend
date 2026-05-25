@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AiKursMiniChatDock } from "@/components/ai/aikursmini-chat-dock";
 import { AiKursMiniCoursesPanel } from "@/components/ai/aikursmini-courses-panel";
 import { useAiChat } from "@/components/ai/use-ai-chat";
-import type { WebAiUi } from "@/lib/web-ai";
+import type { WebAiUi } from "@/lib/web-ai-types";
 import type { Course } from "@/data/courses";
 import { apiListingToCourse, type ApiListing } from "@/lib/listing-mapper";
 

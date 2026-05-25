@@ -6,7 +6,7 @@ import { ChevronLeft, Mic, Send, Sparkles } from "lucide-react";
 import { AiKursChatPanel } from "@/components/ai/aikurs-chat-panel";
 import { AiKursCoursesPanel } from "@/components/ai/aikurs-courses-panel";
 import { useAiChat } from "@/components/ai/use-ai-chat";
-import type { WebAiAction, WebAiUi } from "@/lib/web-ai";
+import type { WebAiAction, WebAiUi } from "@/lib/web-ai-types";
 import type { Course } from "@/data/courses";
 import { apiListingToCourse, type ApiListing } from "@/lib/listing-mapper";
 

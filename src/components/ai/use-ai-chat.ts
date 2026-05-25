@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { WebAiAction, WebAiResponse, WebAiUi, AiChatSurface } from "@/lib/web-ai";
+import type { WebAiAction, WebAiResponse, WebAiUi, AiChatSurface } from "@/lib/web-ai-types";
 
 export type ChatMsg = { role: "user" | "assistant"; content: string };
 
@@ -169,5 +169,4 @@ export function useAiChat(sessionKey = DEFAULT_SESSION_KEY) {
   };
 }
 
-export const AI_QUESTION_KEYS = ["goal", "direction", "level", "time", "budget"];
-export { AIKURS_QUIZ_KEYS } from "@/lib/aikurs-intake";
+export { AI_QUESTION_KEYS, AIKURS_QUIZ_KEYS } from "@/lib/web-ai-types";

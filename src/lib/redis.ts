@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createClient } from "redis";
 
 type RedisClient = ReturnType<typeof createClient>;

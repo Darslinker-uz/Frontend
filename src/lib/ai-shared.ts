@@ -2,6 +2,8 @@
  * Darslinker AI — Telegram va veb uchun umumiy mantiq.
  */
 
+import "server-only";
+
 import { chatCompletion, type ChatTurn } from "@/lib/openai";
 import { createTelegramClient, escHtml } from "@/lib/telegram";
 import { cachedToAiRow, getAllCachedCourses, getCachedCourseById } from "@/lib/courses-redis";
