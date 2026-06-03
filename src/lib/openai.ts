@@ -10,6 +10,48 @@ export function getOpenAiConfig() {
 
 export type ChatTurn = { role: "user" | "assistant"; content: string };
 
+/** Promptsiz — faqat berilgan xabarlar ketma-ketligi */
+export async function chatCompletionMessages(params: {
+  messages: ChatTurn[];
+  maxTokens?: number;
+  temperature?: number;
+}): Promise<{ text: string | null; error?: string }> {
+  const { apiKey, model } = getOpenAiConfig();
+  if (!apiKey) {
+    return { text: null, error: "GPT_KEY yoki OPENAI_API_KEY sozlanmagan" };
+  }
+  if (!params.messages.length) {
+    return { text: null, error: "Xabarlar bo'sh" };
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        temperature: params.temperature ?? 0.7,
+        max_tokens: params.maxTokens ?? 1024,
+        messages: params.messages.map(m => ({ role: m.role, content: m.content })),
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data?.error?.message ?? `HTTP ${res.status}`;
+      console.error("[openai] API xato:", msg);
+      return { text: null, error: msg };
+    }
+    const text = data.choices?.[0]?.message?.content?.trim();
+    return { text: text || null };
+  } catch (e) {
+    console.error("[openai] so'rov xato:", e);
+    return { text: null, error: "Tarmoq xatosi" };
+  }
+}
+
 export async function chatCompletion(params: {
   system: string;
   user?: string;
