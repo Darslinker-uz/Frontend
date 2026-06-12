@@ -17,6 +17,29 @@ enum Role {
   assistant
 }
 
+// Provider turi — markaz egasi yoki shaxsiy repetitor
+// CENTER = O'quv markaz tashkiloti (filiallar, jamoa, ko'p kurs)
+// TUTOR  = Shaxsiy repetitor (1-on-1 yoki kichik guruh)
+// Faqat role=provider user'larga ahamiyatli; student/admin uchun default CENTER
+// MUHIM: User'ning ASOSIY (boshlang'ich) roli. Listing-level'da User
+// listingType orqali yana ikkala turdagi e'lon yaratishi mumkin (switch mode).
+enum UserProfileType {
+  CENTER
+  TUTOR
+}
+
+// E'lon turi — markaz kursi yoki repetitor xizmati
+// COURSE        = Markaz kursi (default, mavjud listing'lar)
+// TUTOR_SERVICE = Shaxsiy repetitor xizmati (individual yoki kichik guruh)
+// Dashboard'da mode switch orqali aniqlanadi; bitta user 2 turdagi e'lon
+// ham yaratishi mumkin. Public sahifalar listingType bilan filter qiladi:
+//   /oquv-markazlar/[slug] → faqat COURSE listing'lar
+//   /repetitorlar/[slug]   → faqat TUTOR_SERVICE listing'lar
+enum ListingType {
+  COURSE
+  TUTOR_SERVICE
+}
+
 // Kontent turlari (Manba + Blog)
 enum ArticleType {
   lugat       // "X nima?" — atama tushuntirish
@@ -117,6 +140,17 @@ model User {
   id              Int      @id @default(autoincrement())
   name            String
   centerName      String?  @map("center_name")
+  // Provider turi (role=provider uchun ahamiyatli):
+  //   CENTER - markaz egasi (filiallar, jamoa, ko'p kurs)
+  //   TUTOR  - shaxsiy repetitor (individual/kichik guruh)
+  // Default CENTER — mavjud provider'lar markaz egasi sifatida ro'yxatdan o'tgan
+  profileType     UserProfileType @default(CENTER) @map("profile_type")
+  // URL-friendly slug — /oquv-markazlar/[slug] yoki /repetitorlar/[slug] uchun
+  // Backfill: centerName ? slugify(centerName) : slugify(name), conflict bo'lsa -2, -3 qo'shiladi
+  // Migration paytida nullable, backfill'dan keyin NOT NULL + UNIQUE bo'ladi
+  slug            String?  @unique
+  // Markaz/repetitor tavsifi (300-500 so'z, SEO va AI tanish uchun muhim)
+  bio             String?  @db.Text
   phone           String   @unique
   email           String?
   passwordHash    String   @map("password_hash")
@@ -201,6 +235,9 @@ model Listing {
   id              Int             @id @default(autoincrement())
   userId          Int             @map("user_id")
   categoryId      Int             @map("category_id")
+  // E'lon turi — dashboard switch mode'da aniqlanadi (COURSE/TUTOR_SERVICE)
+  // Default COURSE: backward compatible — mavjud listing'lar avtomatik markaz kursi
+  listingType     ListingType     @default(COURSE) @map("listing_type")
   title           String
   slug            String          @unique
   description     String?

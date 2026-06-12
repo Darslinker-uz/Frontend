@@ -7,6 +7,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1.0 },
     { url: `${SITE_URL}/kurslar`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/repetitorlar`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/oquv-markazlar`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/oquv-markazlar/barchasi`, changeFrequency: "daily", priority: 0.85 },
+    { url: `${SITE_URL}/joylar`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/manba`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/blog/nega-oquv-markazlar-darslinker-tanlaydi`, changeFrequency: "monthly", priority: 0.7 },
@@ -16,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const [groups, categories, listings, articles, regions] = await Promise.all([
+    const [groups, categories, listings, articles, regions, centers, tutors] = await Promise.all([
       prisma.categoryGroup.findMany({ where: { active: true }, select: { slug: true } }),
       prisma.category.findMany({
         where: { active: true, pendingApproval: false },
@@ -25,6 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       prisma.listing.findMany({
         where: {
           status: "active",
+          listingType: "COURSE", // /kurslar/ URL'i faqat COURSE'lar uchun mavjud
           category: { active: true, pendingApproval: false },
         },
         select: {
@@ -43,6 +48,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       prisma.region.findMany({
         where: { active: true },
         select: { name: true, slug: true },
+      }),
+      // O'quv markazlar — listingType=COURSE bo'lganlar
+      prisma.user.findMany({
+        where: {
+          role: "provider",
+          banned: false,
+          slug: { not: null },
+          listings: {
+            some: {
+              status: "active",
+              listingType: "COURSE",
+              category: { active: true, pendingApproval: false },
+            },
+          },
+        },
+        select: { slug: true, lastActiveAt: true },
+      }),
+      // Repetitorlar — listingType=TUTOR_SERVICE bo'lganlar (switch mode bilan
+      // bir user ikkala turdagi listinglarga ham ega bo'lishi mumkin)
+      prisma.user.findMany({
+        where: {
+          role: "provider",
+          banned: false,
+          slug: { not: null },
+          listings: {
+            some: {
+              status: "active",
+              listingType: "TUTOR_SERVICE",
+              category: { active: true, pendingApproval: false },
+            },
+          },
+        },
+        select: { slug: true, lastActiveAt: true },
       }),
     ]);
 
@@ -136,7 +174,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       }));
 
-    return [...staticRoutes, ...groupRoutes, ...categoryRoutes, ...categoryRegionRoutes, ...groupRegionRoutes, ...listingRoutes, ...manbaRoutes, ...blogRoutes];
+    // O'quv markaz profil sahifalari — har bir aktiv markaz alohida URL
+    const centerRoutes: MetadataRoute.Sitemap = centers
+      .filter(c => c.slug)
+      .map(c => ({
+        url: `${SITE_URL}/oquv-markazlar/${c.slug}`,
+        lastModified: c.lastActiveAt,
+        changeFrequency: "weekly",
+        priority: 0.75,
+      }));
+
+    // Repetitor profil sahifalari
+    const tutorRoutes: MetadataRoute.Sitemap = tutors
+      .filter(t => t.slug)
+      .map(t => ({
+        url: `${SITE_URL}/repetitorlar/${t.slug}`,
+        lastModified: t.lastActiveAt,
+        changeFrequency: "weekly",
+        priority: 0.75,
+      }));
+
+    // /joylar/[hudud] — hudud bo'yicha location hub sahifalari (lokal SEO uchun kritik).
+    // Faqat aktiv viloyatlar (regions allaqachon active=true bilan filter qilingan).
+    const joylarRoutes: MetadataRoute.Sitemap = regions.map(r => ({
+      url: `${SITE_URL}/joylar/${r.slug}`,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
+
+    return [...staticRoutes, ...groupRoutes, ...categoryRoutes, ...categoryRegionRoutes, ...groupRegionRoutes, ...listingRoutes, ...manbaRoutes, ...blogRoutes, ...centerRoutes, ...tutorRoutes, ...joylarRoutes];
   } catch {
     return staticRoutes;
   }

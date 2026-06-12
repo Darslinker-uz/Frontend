@@ -1,17 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Home, BookOpen, Wifi, WifiOff, PenLine, MessageCircle, ChevronDown, Info } from "lucide-react";
+import { Menu, X, BookOpen, PenLine, MessageCircle, ChevronDown, GraduationCap, Building2, Home } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 
 const mobileBaseLinks = [
-  { href: "/", label: "Asosiy", icon: Home },
-  { href: "/kurslar?format=online", label: "Onlayn", icon: Wifi },
-  { href: "/kurslar?format=offline", label: "Oflayn", icon: WifiOff },
-  { href: "/blog", label: "Blog", icon: PenLine },
-  { href: "/haqimizda", label: "Haqimizda", icon: Info },
+  { href: "/", label: "Asosiy", icon: Home, primary: false },
+  { href: "/repetitorlar", label: "Repetitorlar", icon: GraduationCap, primary: true },
+  { href: "/oquv-markazlar", label: "Markazlar", icon: Building2, primary: true },
+  { href: "/blog", label: "Blog", icon: PenLine, primary: false },
 ];
 
 type ApiCategory = {
@@ -43,6 +43,25 @@ export function Navbar() {
   const [mobileExpandedGroup, setMobileExpandedGroup] = useState<string | null>(null);
   const megaRef = useRef<HTMLDivElement | null>(null);
   const megaPanelRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+
+  // Sahifa o'zgarganda menyu va akkordeon holatlarini tiklaymiz — Navbar layout
+  // ichida bo'lgani uchun unmount bo'lmaydi, holatlar saqlanib qolmasin.
+  useEffect(() => {
+    setOpen(false);
+    setMegaOpen(false);
+    setMobileKurslarOpen(false);
+    setMobileExpandedGroup(null);
+  }, [pathname]);
+
+  // Mobil menyu yopilganda (X tugmasi yoki backdrop) akkordeon ham yopilsin —
+  // keyingi safar ochilganda Kurslar tushgan holatda turmasin.
+  useEffect(() => {
+    if (!open) {
+      setMobileKurslarOpen(false);
+      setMobileExpandedGroup(null);
+    }
+  }, [open]);
 
   // Kategoriya + viloyat ma'lumotlarini bir marta olamiz.
   // Categories: groups[].categories[]._count.listings.
@@ -119,63 +138,50 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop Actions — center */}
-        <div className="hidden md:flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
+        {/* Desktop Actions — center (Outlined chips: border + hover fill) */}
+        <div className="hidden md:flex items-center gap-3 absolute left-1/2 -translate-x-1/2">
+          {/* Asosiy — secondary link */}
           <Link href="/">
-            <Button
-              variant="ghost"
-              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
-            >
+            <Button variant="ghost" className="rounded-[10px] text-[#16181a]/70 hover:text-[#16181a] hover:bg-[#f2f4f5] h-9 px-3 text-[14px] font-medium">
               Asosiy
             </Button>
           </Link>
-          {/* Kurslar — click-toggle megamenu trigger */}
-          <div className="relative" ref={megaRef}>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setMegaOpen((v) => !v)}
-              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium gap-1"
-              aria-expanded={megaOpen}
-              aria-haspopup="menu"
-            >
-              Kurslar
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${megaOpen ? "rotate-180" : ""}`} />
-            </Button>
+          <div className="flex items-center gap-2">
+            <Link href="/repetitorlar">
+              <Button variant="ghost" className="rounded-full bg-transparent border border-[#16181a]/20 text-[#16181a] hover:bg-[#16181a] hover:text-white hover:border-[#16181a] h-9 px-5 text-[14px] font-semibold transition-colors">
+                Repetitorlar
+              </Button>
+            </Link>
+            <Link href="/oquv-markazlar">
+              <Button variant="ghost" className="rounded-full bg-transparent border border-[#16181a]/20 text-[#16181a] hover:bg-[#16181a] hover:text-white hover:border-[#16181a] h-9 px-5 text-[14px] font-semibold transition-colors">
+                Markazlar
+              </Button>
+            </Link>
+            <div className="relative" ref={megaRef}>
+              <Button type="button" variant="ghost" onClick={() => setMegaOpen((v) => !v)} className="rounded-full bg-transparent border border-[#16181a]/20 text-[#16181a] hover:bg-[#16181a] hover:text-white hover:border-[#16181a] h-9 px-5 text-[14px] font-semibold transition-colors gap-1" aria-expanded={megaOpen} aria-haspopup="menu">
+                Kurslar
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${megaOpen ? "rotate-180" : ""}`} />
+              </Button>
+            </div>
           </div>
-          <Link href="/kurslar?format=online">
-            <Button
-              variant="ghost"
-              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
-            >
-              Onlayn
-            </Button>
-          </Link>
-          <Link href="/kurslar?format=offline">
-            <Button
-              variant="ghost"
-              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
-            >
-              Oflayn
-            </Button>
-          </Link>
+          {/* Blog — secondary link */}
           <Link href="/blog">
-            <Button
-              variant="ghost"
-              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
-            >
+            <Button variant="ghost" className="rounded-[10px] text-[#16181a]/70 hover:text-[#16181a] hover:bg-[#f2f4f5] h-9 px-3 text-[14px] font-medium">
               Blog
             </Button>
           </Link>
-          <Link href="/haqimizda">
-            <Button
-              variant="ghost"
-              className="rounded-[10px] text-[#16181a] hover:bg-[#f2f4f5] h-9 px-4 text-[14px] font-medium"
-            >
-              Haqimizda
-            </Button>
-          </Link>
         </div>
+
+        {/* Desktop Yordam button — o'ng burchakda */}
+        <a
+          href="https://t.me/Darslinker_Support"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden md:inline-flex items-center gap-2 h-9 px-4 rounded-[10px] bg-[#7ea2d4] text-white text-[14px] font-medium hover:bg-[#5b87c0] transition-colors"
+        >
+          <MessageCircle className="w-4 h-4" />
+          Yordam
+        </a>
 
         {/* Mobile Menu Trigger */}
         <button onClick={() => setOpen(!open)} className="md:hidden p-2 rounded-[10px] hover:bg-[#f2f4f5] transition-colors relative z-[60]">
@@ -278,29 +284,32 @@ export function Navbar() {
         <div className="flex flex-col h-full pt-[262px] pb-6 px-4 overflow-y-auto">
           <nav className="flex-1 flex flex-col items-center justify-center gap-1.5">
             <div className="w-full flex flex-col gap-1.5 items-center">
-              {/* Asosiy */}
-              <Link
-                href="/"
-                onClick={() => setOpen(false)}
-                className="w-full flex items-center py-4 text-[20px] font-semibold text-[#16181a]/70 hover:text-[#16181a] hover:bg-white/50 rounded-xl border border-[#16181a]/10 transition-colors"
-              >
-                <Home className="w-5 h-5 shrink-0 ml-auto mr-3" />
-                <span className="mr-auto">Asosiy</span>
-              </Link>
+              {/* Asosiy + Repetitorlar + Markazlar (Kurslar oldida) */}
+              {mobileBaseLinks.slice(0, 3).map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className={`w-full flex items-center justify-end gap-3 py-4 px-4 text-[20px] font-semibold rounded-xl border transition-colors ${link.primary ? "bg-white/55 backdrop-blur-xl text-[#16181a] border-white/70 shadow-lg shadow-black/5 hover:bg-white/70" : "text-[#16181a]/70 border-[#16181a]/10 hover:text-[#16181a] hover:bg-white/50"}`}
+                >
+                  <span>{link.label}</span>
+                  <link.icon className="w-5 h-5 shrink-0" />
+                </Link>
+              ))}
 
               {/* Kurslar — accordion */}
               <div className="w-full">
                 <button
                   type="button"
                   onClick={() => setMobileKurslarOpen((v) => !v)}
-                  className="w-full flex items-center py-4 text-[20px] font-semibold text-[#16181a]/70 hover:text-[#16181a] hover:bg-white/50 rounded-xl border border-[#16181a]/10 transition-colors"
+                  className="w-full flex items-center justify-end gap-3 py-4 px-4 text-[20px] font-semibold rounded-xl border bg-white/55 backdrop-blur-xl text-[#16181a] border-white/70 shadow-lg shadow-black/5 hover:bg-white/70 transition-colors"
                   aria-expanded={mobileKurslarOpen}
                 >
-                  <BookOpen className="w-5 h-5 shrink-0 ml-auto mr-3" />
-                  <span className="mr-auto flex items-center gap-2">
-                    Kurslar
+                  <span className="flex items-center gap-2">
                     <ChevronDown className={`w-4 h-4 transition-transform ${mobileKurslarOpen ? "rotate-180" : ""}`} />
+                    Kurslar
                   </span>
+                  <BookOpen className="w-5 h-5 shrink-0" />
                 </button>
                 {mobileKurslarOpen && (
                   <div className="mt-1.5 space-y-1.5">
@@ -352,23 +361,23 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Qolgan linklar */}
-              {mobileBaseLinks.slice(1).map((link) => (
+              {/* Blog va boshqalar (Kurslar dan keyin) */}
+              {mobileBaseLinks.slice(3).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="w-full flex items-center py-4 text-[20px] font-semibold text-[#16181a]/70 hover:text-[#16181a] hover:bg-white/50 rounded-xl border border-[#16181a]/10 transition-colors"
+                  className={`w-full flex items-center justify-end gap-3 py-4 px-4 text-[20px] font-semibold rounded-xl border transition-colors ${link.primary ? "bg-white/55 backdrop-blur-xl text-[#16181a] border-white/70 shadow-lg shadow-black/5 hover:bg-white/70" : "text-[#16181a]/70 border-[#16181a]/10 hover:text-[#16181a] hover:bg-white/50"}`}
                 >
-                  <link.icon className="w-5 h-5 shrink-0 ml-auto mr-3" />
-                  <span className="mr-auto">{link.label}</span>
+                  <span>{link.label}</span>
+                  <link.icon className="w-5 h-5 shrink-0" />
                 </Link>
               ))}
             </div>
           </nav>
           {/* Yordam tugma */}
           <a
-            href="https://t.me/DarslinkerSupport"
+            href="https://t.me/Darslinker_Support"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
@@ -387,6 +396,7 @@ export function Navbar() {
           onClick={() => setOpen(false)}
         />
       )}
+
     </header>
   );
 }

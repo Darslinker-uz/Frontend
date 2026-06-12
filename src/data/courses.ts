@@ -7,6 +7,8 @@ export interface Course {
   groupSlug?: string;
   format: "Online" | "Offline" | "Video" | "Bootcamp" | "Gibrid";
   provider: string;
+  providerSlug?: string | null;
+  providerType?: "COURSE" | "TUTOR_SERVICE" | null;
   location: string;
   region?: string | null;
   district?: string | null;

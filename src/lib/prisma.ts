@@ -1,4 +1,11 @@
-import "server-only";
+// server-only guard — Next.js webpack RSC context'da bundling vaqtida ishlaydi.
+// Node CLI scriptlar (bot-poll, sync-courses) uchun bypass qilamiz:
+// SKIP_SERVER_ONLY=1 yoki NEXT_RUNTIME yo'q bo'lganda.
+if (process.env.NEXT_RUNTIME && !process.env.SKIP_SERVER_ONLY) {
+  // Faqat Next.js context'da require — script'larda skip
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require("server-only");
+}
 
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";

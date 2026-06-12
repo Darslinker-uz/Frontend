@@ -304,7 +304,16 @@ export default async function KursDetailPage({ params }: Props) {
                   <span className="px-3 py-1 rounded-full bg-white/10 text-white/70 text-[12px]">{course.format}</span>
                 </div>
                 <h1 className="text-[24px] md:text-[32px] font-bold text-white leading-tight">{course.title}</h1>
-                <p className="text-[14px] text-white/50 mt-2">{course.provider}</p>
+                {course.providerSlug ? (
+                  <Link
+                    href={`/${course.providerType === "TUTOR_SERVICE" ? "repetitorlar" : "oquv-markazlar"}/${course.providerSlug}`}
+                    className="inline-flex items-center gap-1 text-[14px] text-white/70 hover:text-white mt-2 underline decoration-white/20 hover:decoration-white/60 underline-offset-4 transition-colors"
+                  >
+                    {course.provider}
+                  </Link>
+                ) : (
+                  <p className="text-[14px] text-white/50 mt-2">{course.provider}</p>
+                )}
                 <div className="flex flex-wrap items-center gap-4 mt-4">
                   {course.location && (
                     <div className="flex items-center gap-1.5 text-[13px] text-white/60">

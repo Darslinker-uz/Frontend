@@ -4,7 +4,7 @@ import { GRADIENT_OPTIONS, ICON_OPTIONS, type Course } from "@/data/courses";
 const DEFAULT_GRADIENT = GRADIENT_OPTIONS[0].value;
 const DEFAULT_ICON_PATH = ICON_OPTIONS[0].path;
 
-const FORMAT_LABELS: Record<"offline" | "online" | "video" | "hybrid", Course["format"]> = {
+export const FORMAT_LABELS: Record<"offline" | "online" | "video" | "hybrid", Course["format"]> = {
   offline: "Offline",
   online: "Online",
   video: "Video",
@@ -71,7 +71,7 @@ interface ListingFromDb {
   instagram?: string | null;
   telegram?: string | null;
   category: { name: string; slug: string; group?: { name: string; slug: string } | null } | null;
-  user: { name: string; centerName?: string | null } | null;
+  user: { name: string; centerName?: string | null; slug?: string | null } | null;
 }
 
 export function listingToCourse(l: ListingFromDb): Course {
@@ -94,6 +94,8 @@ export function listingToCourse(l: ListingFromDb): Course {
     groupSlug: l.category?.group?.slug,
     format: FORMAT_LABELS[l.format] ?? "Online",
     provider: l.user?.centerName ?? l.user?.name ?? "—",
+    providerSlug: l.user?.slug ?? null,
+    providerType: "COURSE" as const, // listings.ts barcha query'lari listingType=COURSE bilan filter qiladi
     location: l.location ?? "",
     region: l.region,
     district: l.district,
@@ -194,6 +196,7 @@ export async function getActiveListings(options?: {
   const listings = await prisma.listing.findMany({
     where: {
       status: "active",
+      listingType: "COURSE", // /kurslar — faqat markaz kurslari (repetitor xizmatlari emas)
       category: {
         active: true,
         pendingApproval: false,
@@ -210,7 +213,7 @@ export async function getActiveListings(options?: {
       language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true, phone: true, phoneShown: true, website: true, instagram: true, telegram: true,
       branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
-      user: { select: { name: true, centerName: true } },
+      user: { select: { name: true, centerName: true, slug: true } },
       ratings: { select: { stars: true } },
     },
   });
@@ -221,6 +224,7 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
   const listing = await prisma.listing.findFirst({
     where: {
       slug,
+      listingType: "COURSE", // /kurslar/[cat]/[slug] — faqat markaz kurslari uchun detail
       // Pending yo'nalishli e'lonlar publik detail'da ham ko'rinmasin
       category: { active: true, pendingApproval: false },
     },
@@ -231,7 +235,7 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
       branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
       status: true,
       category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
-      user: { select: { name: true, centerName: true } },
+      user: { select: { name: true, centerName: true, slug: true } },
       ratings: { select: { stars: true } },
     },
   });
@@ -256,17 +260,18 @@ export async function getFeaturedListings(): Promise<Course[]> {
     language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
     branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" as const } },
     category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
-    user: { select: { name: true, centerName: true } },
+    user: { select: { name: true, centerName: true, slug: true } },
     ratings: { select: { stars: true } },
   } as const;
 
-  // 1) Aktiv A-class boost'lardan (kunga aktiv)
+  // 1) Aktiv A-class boost'lardan (kunga aktiv) — faqat COURSE
   const boosts = await prisma.boost.findMany({
     where: {
       status: "active",
       type: "a_class",
       startDate: { lte: now },
       endDate: { gte: now },
+      listing: { listingType: "COURSE" },
     },
     take: MAX,
     orderBy: { startDate: "desc" },
@@ -285,6 +290,7 @@ export async function getFeaturedListings(): Promise<Course[]> {
     const others = await prisma.listing.findMany({
       where: {
         status: "active",
+        listingType: "COURSE", // Featured slider — faqat markaz kurslari
         id: { notIn: Array.from(paidIds) },
         category: { active: true, pendingApproval: false },
         imageUrl: { not: null }, // Faqat rasmli e'lonlarni random tanlaymiz
@@ -315,17 +321,18 @@ export async function getPopularListings(): Promise<Course[]> {
     language: true, languages: true, level: true, levels: true, studentLimit: true, schedule: true, certificate: true, demoLesson: true, discount: true, teacherName: true, teacherExperience: true, paymentType: true,
     branches: { select: { region: true, district: true, address: true, price: true, sortOrder: true }, orderBy: { sortOrder: "asc" as const } },
     category: { select: { name: true, slug: true, group: { select: { name: true, slug: true } } } },
-    user: { select: { name: true, centerName: true } },
+    user: { select: { name: true, centerName: true, slug: true } },
     ratings: { select: { stars: true } },
   } as const;
 
-  // 1) Aktiv B-class boost'lar — birinchi navbatda
+  // 1) Aktiv B-class boost'lar — birinchi navbatda, faqat COURSE
   const boosts = await prisma.boost.findMany({
     where: {
       status: "active",
       type: "b_class",
       startDate: { lte: now },
       endDate: { gte: now },
+      listing: { listingType: "COURSE" },
     },
     take: MAX,
     orderBy: { startDate: "desc" },
@@ -344,6 +351,7 @@ export async function getPopularListings(): Promise<Course[]> {
     popular = await prisma.listing.findMany({
       where: {
         status: "active",
+        listingType: "COURSE", // Popular slider — faqat markaz kurslari
         id: { notIn: Array.from(paidIds) },
         category: { active: true, pendingApproval: false },
         imageUrl: { not: null }, // Faqat rasmli e'lonlar — kartochka chiroyli ko'rinishi uchun

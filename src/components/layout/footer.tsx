@@ -3,8 +3,11 @@ import { getActiveCategoryGroups } from "@/lib/listings";
 
 const platformLinks = [
   { href: "/kurslar", label: "Barcha kurslar" },
+  { href: "/repetitorlar", label: "Repetitorlar" },
+  { href: "/oquv-markazlar", label: "Markazlar" },
   { href: "/kurslar?format=online", label: "Onlayn kurslar" },
   { href: "/kurslar?format=offline", label: "Oflayn kurslar" },
+  { href: "/joylar", label: "Joylar" },
   { href: "/manba", label: "Manba" },
   { href: "/blog", label: "Maqolalar" },
   { href: "/haqimizda", label: "Haqimizda" },

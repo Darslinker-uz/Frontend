@@ -36,6 +36,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
           siteName: "Darslinker.uz",
           title,
           description,
+          images: ["/og-image.png?v=4"],
+        },
+        twitter: {
+          card: "summary_large_image",
+          title,
+          description,
+          images: ["/og-image.png?v=4"],
         },
       };
     }
@@ -52,11 +59,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       siteName: "Darslinker.uz",
       title: "Barcha kurslar — Darslinker.uz",
       description: "O'zbekistondagi eng yaxshi kurslarni toping va solishtiring.",
+      images: ["/og-image.png?v=4"],
     },
     twitter: {
       card: "summary_large_image",
       title: "Barcha kurslar — Darslinker.uz",
       description: "O'zbekistondagi eng yaxshi kurslarni toping va solishtiring.",
+      images: ["/og-image.png?v=4"],
     },
   };
 }
