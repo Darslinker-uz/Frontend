@@ -121,7 +121,7 @@ export default async function BlogPostPage({ params }: Props) {
   };
 
   return (
-    <div className="bg-[#f0f2f3] min-h-screen">
+    <div className="bg-white md:bg-[#f0f2f3] min-h-screen">
       <ScrollToTop />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingLd) }} />
@@ -140,14 +140,14 @@ export default async function BlogPostPage({ params }: Props) {
           <ArrowLeft className="w-4 h-4" /> Blog
         </Link>
 
-        <article className="rounded-[18px] bg-white border border-[#e4e7ea] overflow-hidden">
+        <article className="overflow-hidden md:rounded-[18px] md:bg-white md:border md:border-[#e4e7ea]">
           {/* Cover */}
           {article.coverImage && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={article.coverImage} alt={article.title} className="w-full h-[200px] md:h-[320px] object-cover" />
+            <img src={article.coverImage} alt={article.title} className="w-full h-[200px] md:h-[320px] object-cover rounded-[14px] md:rounded-none" />
           )}
 
-          <div className="px-6 md:px-10 py-7 md:py-10">
+          <div className="px-0 md:px-10 py-6 md:py-10">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#7ea2d4]">{categoryLabel}</span>
             <h1 className="text-[26px] md:text-[38px] font-bold text-[#16181a] leading-[1.2] tracking-[-0.02em] mt-3">
               {article.title}

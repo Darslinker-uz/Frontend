@@ -3,7 +3,11 @@
  * DB → Redis sync: DB_TO_REDIS_PERIOD (default 300s).
  */
 
-import "server-only";
+// server-only guard — bypass for CLI scripts (bot-poll, sync-courses)
+if (process.env.NEXT_RUNTIME && !process.env.SKIP_SERVER_ONLY) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require("server-only");
+}
 
 import { prisma } from "@/lib/prisma";
 import { getRedis, isRedisConfigured } from "@/lib/redis";

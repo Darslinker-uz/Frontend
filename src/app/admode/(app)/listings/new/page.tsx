@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Check, Star, ArrowRight, AlertCircle, MapPin, Monitor, Smartphone, ShieldCheck, Plus, X, GripVertical, Search, ChevronDown } from "lucide-react";
 import { GRADIENT_OPTIONS, ICON_OPTIONS, ICON_CATEGORIES } from "@/data/courses";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { AdminTutorServiceForm } from "./admin-tutor-form";
 import { ImageUpload } from "@/components/image-upload";
 import { PriceScroll } from "@/components/price-scroll";
 import { REGIONS } from "@/data/regions";
@@ -31,7 +32,7 @@ const selectClass = "w-full h-[44px] px-3 rounded-[10px] text-[14px] focus:outli
 const textareaClass = "w-full px-4 py-3 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all resize-none";
 const labelClass = "text-[12px] mb-1.5 block";
 
-interface ProviderOption { id: number; name: string; centerName: string | null; phone: string }
+interface ProviderOption { id: number; name: string; centerName: string | null; phone: string; profileType?: "CENTER" | "TUTOR" }
 
 interface TaxonomyGroup {
   id: number;
@@ -59,12 +60,17 @@ function AdminNewListingPageInner() {
   const [providerOpen, setProviderOpen] = useState(false);
   const [addingNewCenter, setAddingNewCenter] = useState(false);
   const [newCenterName, setNewCenterName] = useState("");
+  // Listing turi — admin tanlaydi (COURSE = markaz kursi, TUTOR_SERVICE = repetitor xizmati)
+  // Default: CENTER (markaz kursi). Provider tanlangandan keyin uning profileType bo'yicha sozlash mumkin.
+  const [listingMode, setListingMode] = useState<"CENTER" | "TUTOR">("CENTER");
   const [groupId, setGroupId] = useState<number | "">("");
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [requestNewCategory, setRequestNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
 
   const [isFree, setIsFree] = useState(false);
+  // Admin tanlovi: darhol aktiv qilish yoki moderation kutsin
+  const [publishImmediately, setPublishImmediately] = useState(true);
   const [format, setFormat] = useState("");
   const [gradient, setGradient] = useState(GRADIENT_OPTIONS[0]);
   const [icon, setIcon] = useState(ICON_OPTIONS[0]);
@@ -161,6 +167,16 @@ function AdminNewListingPageInner() {
   }, []);
 
   const selectedProvider = providers.find(p => p.id === providerId);
+
+  // Auto-detect listingMode: provider tanlanganda uning profileType bo'yicha
+  // (lekin admin keyin qo'lda o'zgartirishi mumkin)
+  useEffect(() => {
+    if (selectedProvider?.profileType === "TUTOR") {
+      setListingMode("TUTOR");
+    } else if (selectedProvider?.profileType === "CENTER") {
+      setListingMode("CENTER");
+    }
+  }, [selectedProvider]);
   const selectedGroup = taxonomy.find(g => g.id === groupId);
   const availableCategories = selectedGroup?.categories ?? [];
   const selectedCategory = availableCategories.find(c => c.id === categoryId) ?? null;
@@ -209,6 +225,7 @@ function AdminNewListingPageInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          mode: listingMode, // CENTER (COURSE) yoki TUTOR (TUTOR_SERVICE)
           userId: addingNewCenter ? null : providerId,
           proposedCenterName: addingNewCenter ? newCenterName.trim() : undefined,
           categoryId: requestNewCategory ? null : (categoryId || null),
@@ -255,7 +272,7 @@ function AdminNewListingPageInner() {
           color: gradient.id,
           icon: icon.id,
           lessons: lessons.map(s => s.trim()).filter(s => s.length > 0),
-          status: "active",
+          status: publishImmediately ? "active" : "pending",
           // Eski bitta til — birinchisi (backward compat)
           language: languages[0] || "uz",
           languages,
@@ -435,6 +452,18 @@ function AdminNewListingPageInner() {
     );
   };
 
+  // TUTOR rejimi tanlanganda — alohida repetitor xizmat formasi (provider TutorServiceForm bilan
+  // bir xil maydonlar + repetitor tanlash). MUHIM: early return barcha hookslar'dan keyin.
+  if ((listingMode as string) === "TUTOR") {
+    return (
+      <AdminTutorServiceForm
+        providers={providers}
+        taxonomy={taxonomy}
+        initialProviderId={providerId}
+      />
+    );
+  }
+
   return (
     <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
       <Link href="/admode/listings" className="inline-flex items-center gap-2 text-[13px] font-medium mb-6" style={{ color: config.accent }}>
@@ -449,6 +478,56 @@ function AdminNewListingPageInner() {
         <p className="text-[12px] leading-relaxed" style={{ color: "#22c55e" }}>
           <b>Admin tomonidan yaratilgan.</b> E&apos;lon moderatsiyadan o&apos;tkazilmasdan darhol <b>aktiv</b> holatda saytga chiqadi.
         </p>
+      </div>
+
+      {/* LISTING TURI — admin alohida tanlaydi (yangi switch mode arxitekturasi) */}
+      <div className="rounded-[16px] p-4 sm:p-5 mb-5" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+        <h2 className="text-[15px] font-bold mb-2" style={{ color: config.text }}>E&apos;lon turi</h2>
+        <p className="text-[12px] mb-3" style={{ color: config.textMuted }}>
+          Markaz kursi → <code>/oquv-markazlar</code>/<code>/kurslar</code> sahifalarida ko&apos;rinadi.
+          Repetitor xizmati → <code>/repetitorlar</code> sahifasida ko&apos;rinadi.
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setListingMode("CENTER")}
+            className="flex items-center gap-3 p-3 rounded-[12px] text-left transition-colors"
+            style={{
+              backgroundColor: listingMode === "CENTER" ? "#3b82f6" + "20" : config.hover,
+              border: listingMode === "CENTER" ? "1px solid #3b82f6" : `1px solid ${config.surfaceBorder}`,
+            }}
+          >
+            <div className="w-8 h-8 rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: listingMode === "CENTER" ? "#3b82f6" : config.surfaceBorder, color: listingMode === "CENTER" ? "white" : config.textMuted }}>
+              🏢
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold" style={{ color: config.text }}>Markaz kursi</div>
+              <div className="text-[11px] mt-0.5" style={{ color: config.textMuted }}>COURSE — to&apos;liq kurs, filiallar bilan</div>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setListingMode("TUTOR")}
+            className="flex items-center gap-3 p-3 rounded-[12px] text-left transition-colors"
+            style={{
+              backgroundColor: listingMode === "TUTOR" ? "#a855f7" + "20" : config.hover,
+              border: listingMode === "TUTOR" ? "1px solid #a855f7" : `1px solid ${config.surfaceBorder}`,
+            }}
+          >
+            <div className="w-8 h-8 rounded-[8px] flex items-center justify-center shrink-0" style={{ backgroundColor: listingMode === "TUTOR" ? "#a855f7" : config.surfaceBorder, color: listingMode === "TUTOR" ? "white" : config.textMuted }}>
+              🎓
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold" style={{ color: config.text }}>Repetitor xizmati</div>
+              <div className="text-[11px] mt-0.5" style={{ color: config.textMuted }}>TUTOR_SERVICE — shaxsiy dars</div>
+            </div>
+          </button>
+        </div>
+        {selectedProvider?.profileType && (
+          <p className="text-[11px] mt-2" style={{ color: config.textMuted }}>
+            ℹ️ Tanlangan provider profil turi: <b>{selectedProvider.profileType === "TUTOR" ? "Repetitor" : "O'quv markaz"}</b> — avtomatik tanlangan, kerak bo&apos;lsa o&apos;zgartiring.
+          </p>
+        )}
       </div>
 
       <div className="space-y-5">
@@ -1150,6 +1229,28 @@ function AdminNewListingPageInner() {
           )}
         </div>
 
+        {/* Publish preference — admin tanlovi (Variant 3) */}
+        <div className="rounded-[16px] p-4" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={publishImmediately}
+              onChange={(e) => setPublishImmediately(e.target.checked)}
+              className="w-4 h-4 mt-0.5 shrink-0 accent-[#7ea2d4]"
+            />
+            <div>
+              <div className="text-[13px] font-semibold" style={{ color: config.text }}>
+                Saqlash va darhol aktiv qilish
+              </div>
+              <div className="text-[12px] mt-0.5" style={{ color: config.textMuted }}>
+                {publishImmediately
+                  ? "✓ E'lon darhol publik sahifada paydo bo'ladi"
+                  : "Moderatsiya ro'yxatiga tushadi — boshqa admin ko'rib chiqishi kerak"}
+              </div>
+            </div>
+          </label>
+        </div>
+
         {error && (
           <div className="flex items-start gap-2 p-3 rounded-[10px]" style={{ backgroundColor: "#ef444414", border: "1px solid #ef444433", color: "#ef4444" }}>
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -1163,7 +1264,7 @@ function AdminNewListingPageInner() {
           className="w-full h-[50px] rounded-[12px] text-[16px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ backgroundColor: config.accent, color: config.accentText }}
         >
-          {submitting ? "Yuborilmoqda..." : "E'lonni yaratish"}
+          {submitting ? "Yuborilmoqda..." : (publishImmediately ? "E'lonni darhol aktiv qilish" : "Moderatsiyaga yuborish")}
         </button>
       </div>
     </div>

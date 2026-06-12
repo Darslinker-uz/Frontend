@@ -156,6 +156,12 @@ model User {
   passwordHash    String   @map("password_hash")
   role            Role     @default(student)
   telegramChatId  String?  @map("telegram_chat_id")
+  // Telegram guruh routing — agar markaz/repetitor bot'ni o'z guruhiga qo'shsa,
+  // bu yerga guruh chat ID yoziladi va kelgan lid'lar guruhga (shaxsiy chat o'rniga) yuboriladi.
+  groupChatId     String?  @map("group_chat_id")
+  // Bir martalik token — guruhga qo'shilgan bot uni o'qib qaysi user ekanini aniqlaydi.
+  // Bog'langach NULL ga o'tadi (qayta bog'lash uchun yangi token kerak).
+  groupLinkToken  String?  @unique @map("group_link_token")
   balance         Int      @default(0)
   banned          Boolean  @default(false)
   onboardingCompleted Boolean @default(false) @map("onboarding_completed")

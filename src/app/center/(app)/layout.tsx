@@ -8,15 +8,34 @@ import { LayoutDashboard, FileText, Users, Wallet, LogOut, Settings, ExternalLin
 import { LeadsProvider } from "@/context/leads-context";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { DashboardThemeProvider, useDashboardTheme } from "@/context/dashboard-theme-context";
+import { DashboardModeSwitcher, useDashboardMode } from "@/components/dashboard-mode-switcher";
 
-const navItems: { href: string; label: string; icon: typeof LayoutDashboard; soon?: boolean }[] = [
-  { href: "/center/home", label: "Bosh sahifa", icon: LayoutDashboard },
-  { href: "/center/listings", label: "E'lonlar", icon: FileText },
-  { href: "/center/leads", label: "Arizalar", icon: Users },
-  { href: "/center/managers", label: "Menejerlar", icon: Shield, soon: true },
-  { href: "/center/balance", label: "Balans", icon: Wallet },
-  { href: "/center/settings", label: "Sozlamalar", icon: Settings },
-];
+type NavItem = { href: string; label: string; icon: typeof LayoutDashboard; soon?: boolean };
+
+// Nav items profileType'ga qarab moslashadi:
+// CENTER — barchasi (Menejerlar = jamoa boshqaruvi)
+// TUTOR  — Menejerlar tushib qoladi (shaxsiy o'qituvchida jamoa yo'q),
+//          E'lonlar → Xizmatlarim (semantik to'g'rilik)
+function getNavItems(profileType: "CENTER" | "TUTOR"): NavItem[] {
+  if (profileType === "TUTOR") {
+    return [
+      { href: "/center/home", label: "Bosh sahifa", icon: LayoutDashboard },
+      { href: "/center/listings", label: "Xizmatlarim", icon: FileText },
+      { href: "/center/leads", label: "Arizalar", icon: Users },
+      { href: "/center/balance", label: "Balans", icon: Wallet },
+      { href: "/center/settings", label: "Sozlamalar", icon: Settings },
+    ];
+  }
+  // CENTER (default)
+  return [
+    { href: "/center/home", label: "Bosh sahifa", icon: LayoutDashboard },
+    { href: "/center/listings", label: "E'lonlar", icon: FileText },
+    { href: "/center/leads", label: "Arizalar", icon: Users },
+    { href: "/center/managers", label: "Menejerlar", icon: Shield, soon: true },
+    { href: "/center/balance", label: "Balans", icon: Wallet },
+    { href: "/center/settings", label: "Sozlamalar", icon: Settings },
+  ];
+}
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -27,10 +46,16 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const [confirmLogout, setConfirmLogout] = useState(false);
 
   const isLight = config.id === "light" || config.id === "cream";
-  const user = session?.user as { name?: string; phone?: string; role?: string } | undefined;
+  const user = session?.user as { name?: string; phone?: string; role?: string; profileType?: "CENTER" | "TUTOR" } | undefined;
   const userName = user?.name ?? "Foydalanuvchi";
   const userPhone = user?.phone ?? "";
+  const profileType = user?.profileType ?? "CENTER";
   const initials = userName.split(" ").map(x => x[0]).slice(0, 2).join("").toUpperCase();
+  // Mode switch — joriy rejim sidebar'dagi switcher orqali boshqariladi
+  // Boshlang'ich qiymat: profileType (signup'da tanlangan)
+  const [currentMode] = useDashboardMode(profileType);
+  // Nav joriy mode bilan moslashadi (signup profileType emas)
+  const navItems = getNavItems(currentMode);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -71,8 +96,13 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
               </span>
             </div>
 
+            {/* Mode switcher — Markaz ↔ Repetitor */}
+            <div className="pt-4">
+              <DashboardModeSwitcher config={config} />
+            </div>
+
             {/* Nav */}
-            <nav className="flex-1 px-3 py-4 space-y-1">
+            <nav className="flex-1 px-3 pb-4 space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;

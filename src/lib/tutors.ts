@@ -160,7 +160,9 @@ function listingToTutorCourse(l: ListingForTutor): TutorCourseItem {
 }
 
 // Aktiv repetitorlar ro'yxati — public /repetitorlar uchun
-export async function getActiveTutors(): Promise<TutorListItem[]> {
+// opts.region — faqat shu viloyatda (region yoki branch.region match) xizmati bor repetitorlar
+export async function getActiveTutors(opts?: { region?: string }): Promise<TutorListItem[]> {
+  const regionFilter = opts?.region;
   const users = await prisma.user.findMany({
     where: {
       // profileType emas — listingType orqali filter (switch mode)
@@ -172,6 +174,14 @@ export async function getActiveTutors(): Promise<TutorListItem[]> {
           status: "active",
           listingType: "TUTOR_SERVICE", // /repetitorlar — faqat repetitor xizmatlari
           category: { active: true, pendingApproval: false },
+          ...(regionFilter
+            ? {
+                OR: [
+                  { region: regionFilter },
+                  { branches: { some: { region: regionFilter } } },
+                ],
+              }
+            : {}),
         },
       },
     },

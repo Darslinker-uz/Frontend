@@ -3,7 +3,7 @@
  * Telegram @darslinkerbot bilan bir xil mantiq, JSON javob.
  */
 
-import "server-only";
+if (process.env.NEXT_RUNTIME && !process.env.SKIP_SERVER_ONLY) { require("server-only"); }
 
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma";

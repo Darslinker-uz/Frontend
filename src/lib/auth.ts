@@ -35,7 +35,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           phone: user.phone,
           role: user.role,
           onboardingCompleted: user.onboardingCompleted,
-        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean };
+          profileType: user.profileType ?? "CENTER",
+        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean; profileType: string };
       },
     }),
     Credentials({
@@ -81,7 +82,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           phone: user.phone,
           role: user.role,
           onboardingCompleted: true,
-        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean };
+        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean; profileType: string };
       },
     }),
     Credentials({
@@ -130,7 +131,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           phone: user.phone,
           role: user.role,
           onboardingCompleted: user.onboardingCompleted,
-        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean };
+          profileType: user.profileType ?? "CENTER",
+        } as { id: string; name: string; phone: string; role: string; onboardingCompleted: boolean; profileType: string };
       },
     }),
   ],

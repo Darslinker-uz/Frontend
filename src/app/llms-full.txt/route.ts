@@ -9,7 +9,7 @@ export const revalidate = 0;
 // to'liq sayt mazmuni bitta markdown faylda. AEO uchun yangi standart.
 // llms.txt minimalist, llms-full.txt esa to'liq mazmun.
 export async function GET() {
-  const [groups, categories, articles, listings] = await Promise.all([
+  const [groups, categories, articles, listings, centers, tutors] = await Promise.all([
     prisma.categoryGroup.findMany({
       where: { active: true },
       orderBy: { order: "asc" },
@@ -42,6 +42,7 @@ export async function GET() {
     prisma.listing.findMany({
       where: {
         status: "active",
+        listingType: "COURSE",
         category: { active: true, pendingApproval: false },
       },
       orderBy: { views: "desc" },
@@ -56,6 +57,57 @@ export async function GET() {
         price: true,
         category: { select: { name: true, slug: true } },
         user: { select: { centerName: true, name: true } },
+      },
+    }),
+    // O'quv markazlar — kamida 1 ta COURSE listing'i bor user'lar
+    prisma.user.findMany({
+      where: {
+        role: "provider",
+        banned: false,
+        slug: { not: null },
+        listings: { some: { status: "active", listingType: "COURSE", category: { active: true, pendingApproval: false } } },
+      },
+      select: {
+        name: true,
+        centerName: true,
+        slug: true,
+        bio: true,
+        phone: true,
+        createdAt: true,
+        listings: {
+          where: { status: "active", listingType: "COURSE" },
+          select: {
+            title: true,
+            slug: true,
+            region: true,
+            category: { select: { name: true } },
+          },
+        },
+      },
+    }),
+    // Repetitorlar — kamida 1 ta TUTOR_SERVICE listing'i bor user'lar
+    prisma.user.findMany({
+      where: {
+        role: "provider",
+        banned: false,
+        slug: { not: null },
+        listings: { some: { status: "active", listingType: "TUTOR_SERVICE", category: { active: true, pendingApproval: false } } },
+      },
+      select: {
+        name: true,
+        slug: true,
+        bio: true,
+        phone: true,
+        createdAt: true,
+        listings: {
+          where: { status: "active", listingType: "TUTOR_SERVICE" },
+          select: {
+            title: true,
+            slug: true,
+            region: true,
+            category: { select: { name: true } },
+          },
+        },
       },
     }),
   ]);
@@ -136,6 +188,71 @@ export async function GET() {
       lines.push("---");
       lines.push("");
     }
+  }
+
+  // O'quv markazlar — har bir markaz alohida entity sifatida AI uchun
+  // AEO uchun muhim: "X markazi haqida" so'rovlarda iqtibos olinadi
+  if (centers.length > 0) {
+    lines.push("## O'quv markazlar (tekshirilgan, aktiv)");
+    lines.push("");
+    lines.push(`Darslinker katalogida ${centers.length} ta tekshirilgan o'quv markaz aktiv. Har biri admin tomonidan verify qilingan.`);
+    lines.push("");
+    for (const c of centers) {
+      const provider = c.centerName?.trim() || c.name;
+      const regions = Array.from(new Set(c.listings.map(l => l.region).filter(Boolean)));
+      const categories = Array.from(new Set(c.listings.map(l => l.category?.name).filter(Boolean)));
+      const foundedYear = c.createdAt.getFullYear();
+      lines.push(`### ${provider}`);
+      lines.push(`- **URL:** ${SITE_URL}/oquv-markazlar/${c.slug}`);
+      lines.push(`- **Telefon:** ${c.phone}`);
+      lines.push(`- **Faoliyat boshlangan:** ${foundedYear}-yil`);
+      if (regions.length > 0) lines.push(`- **Viloyatlar:** ${regions.join(", ")}`);
+      if (categories.length > 0) lines.push(`- **Yo'nalishlar:** ${categories.join(", ")}`);
+      lines.push(`- **Aktiv kurslar:** ${c.listings.length}`);
+      lines.push(`- **Status:** Tekshirilgan (Darslinker admin tomonidan)`);
+      if (c.bio && c.bio.trim().length > 0) {
+        lines.push("");
+        lines.push(c.bio);
+      }
+      if (c.listings.length > 0) {
+        lines.push("");
+        lines.push(`**Kurslari:**`);
+        for (const l of c.listings.slice(0, 10)) {
+          lines.push(`- ${l.title} (${l.category?.name ?? "—"})`);
+        }
+      }
+      lines.push("");
+    }
+    lines.push("---");
+    lines.push("");
+  }
+
+  // Repetitorlar — har bir TUTOR entity sifatida
+  if (tutors.length > 0) {
+    lines.push("## Repetitorlar (shaxsiy o'qituvchilar, tekshirilgan)");
+    lines.push("");
+    lines.push(`Darslinker katalogida ${tutors.length} ta tekshirilgan shaxsiy repetitor aktiv. Har biri admin tomonidan verify qilingan.`);
+    lines.push("");
+    for (const t of tutors) {
+      const subjects = Array.from(new Set(t.listings.map(l => l.category?.name).filter(Boolean)));
+      const regions = Array.from(new Set(t.listings.map(l => l.region).filter(Boolean)));
+      const startedYear = t.createdAt.getFullYear();
+      lines.push(`### ${t.name}`);
+      lines.push(`- **URL:** ${SITE_URL}/repetitorlar/${t.slug}`);
+      lines.push(`- **Telefon:** ${t.phone}`);
+      lines.push(`- **Ish boshlangan:** ${startedYear}-yil`);
+      if (regions.length > 0) lines.push(`- **Hududlar:** ${regions.join(", ")}`);
+      if (subjects.length > 0) lines.push(`- **Fanlar:** ${subjects.join(", ")}`);
+      lines.push(`- **Aktiv darslar:** ${t.listings.length}`);
+      lines.push(`- **Status:** Tekshirilgan (Darslinker admin tomonidan)`);
+      if (t.bio && t.bio.trim().length > 0) {
+        lines.push("");
+        lines.push(t.bio);
+      }
+      lines.push("");
+    }
+    lines.push("---");
+    lines.push("");
   }
 
   // Active listings (top 200)

@@ -30,13 +30,21 @@ const FORMAT_MAP: Record<string, "offline" | "online" | "video" | "hybrid"> = {
 };
 
 // GET /api/dashboard/listings — current teacher's listings
-export async function GET() {
+// Query param: ?mode=CENTER|TUTOR — listingType bo'yicha filter (switch mode'dan keladi)
+export async function GET(request: Request) {
   const session = await auth();
   const userId = Number((session?.user as { id?: string })?.id);
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { searchParams } = new URL(request.url);
+  const mode = searchParams.get("mode");
+  const listingType = mode === "TUTOR" ? "TUTOR_SERVICE" : mode === "CENTER" ? "COURSE" : null;
+
   const listings = await prisma.listing.findMany({
-    where: { userId },
+    where: {
+      userId,
+      ...(listingType ? { listingType: listingType as "COURSE" | "TUTOR_SERVICE" } : {}),
+    },
     orderBy: { createdAt: "desc" },
     include: {
       category: { select: { id: true, name: true, slug: true, color: true, pendingApproval: true, group: { select: { id: true, name: true, slug: true } } } },
@@ -196,10 +204,16 @@ export async function POST(request: Request) {
     .replace(/^-|-$/g, "")
     .slice(0, 60) + "-" + Math.random().toString(36).slice(2, 7);
 
+  // listingType — yaratish vaqtidagi dashboard mode'dan keladi (body.mode)
+  // CENTER (default) → COURSE, TUTOR → TUTOR_SERVICE
+  const modeFromBody = String(body.mode ?? "CENTER").toUpperCase();
+  const listingType = modeFromBody === "TUTOR" ? "TUTOR_SERVICE" as const : "COURSE" as const;
+
   const listing = await prisma.listing.create({
     data: {
       userId,
       categoryId: category.id,
+      listingType,
       title,
       slug,
       description,

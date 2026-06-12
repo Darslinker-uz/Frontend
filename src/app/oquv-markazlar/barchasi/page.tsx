@@ -46,8 +46,12 @@ export default async function BarchaMarkazlarPage() {
     getActiveCenters(),
   ]);
 
-  // Real markaz + fake demo (real avval, fake duplikatlarsiz)
+  // Production'da FAQAT real markazlar; fake demo'lar faqat development'da.
   const realProviders = new Set(realCenters.map(c => c.provider));
+  const fakeCentersToShow =
+    process.env.NODE_ENV === "production"
+      ? []
+      : FAKE_CENTERS.filter(f => !realProviders.has(f.provider));
   const combinedCenters = [
     ...realCenters.map(c => ({
       slug: c.slug,
@@ -64,7 +68,7 @@ export default async function BarchaMarkazlarPage() {
       firstCategorySlug: c.firstCategorySlug,
       certificate: c.certificate,
     })),
-    ...FAKE_CENTERS.filter(f => !realProviders.has(f.provider)),
+    ...fakeCentersToShow,
   ];
 
   // Filter uchun barcha unikal viloyatlar (real + fake + DB regions)

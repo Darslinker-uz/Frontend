@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Plus, MoreHorizontal, Edit, Trash2, Eye, EyeOff, Star, Users, Zap, Pause, Play, AlertCircle } from "lucide-react";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
+import { useDashboardMode } from "@/components/dashboard-mode-switcher";
 
 type DbStatus = "pending" | "active" | "paused" | "rejected";
 
@@ -73,6 +75,18 @@ const statusConfig = {
 
 export default function ListingsPage() {
   const { config } = useDashboardTheme();
+  const { data: session } = useSession();
+  const profileType = (session?.user as { profileType?: "CENTER" | "TUTOR" } | undefined)?.profileType ?? "CENTER";
+  // Joriy rejim — sidebar'dagi switcher orqali boshqariladi (signup profileType emas)
+  const [mode] = useDashboardMode(profileType);
+  const isTutor = mode === "TUTOR";
+  // Listingslar — markaz uchun "e'lon" (kurs e'loni), repetitor uchun "xizmat" (dars xizmati)
+  const labels = {
+    title: isTutor ? "Xizmatlarim" : "E'lonlar",
+    desc: isTutor ? "Barcha dars xizmatlaringizni boshqaring" : "Barcha e'lonlaringizni boshqaring",
+    addBtn: isTutor ? "Yangi xizmat" : "Yangi e'lon",
+    addBtnShort: isTutor ? "Xizmat qo'shish" : "E'lon qo'shish",
+  };
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
@@ -82,16 +96,18 @@ export default function ListingsPage() {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     (async () => {
       try {
-        const res = await fetch("/api/dashboard/listings", { cache: "no-store", credentials: "same-origin" });
+        // Joriy dashboard mode'ga qarab listingType filter
+        const res = await fetch(`/api/dashboard/listings?mode=${mode}`, { cache: "no-store", credentials: "same-origin" });
         const data: { listings: ApiListing[] } = await res.json();
         if (!cancelled) setListings((data.listings ?? []).map(fromApi));
       } catch (e) { console.error(e); }
       finally { if (!cancelled) setLoading(false); }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [mode]);
 
   const filtered = filter === "hammasi" ? listings : listings.filter(l => l.status === filter);
 
@@ -152,12 +168,12 @@ export default function ListingsPage() {
     <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>E&apos;lonlar</h1>
-          <p className="text-[14px] mt-0.5" style={{ color: config.textMuted }}>Barcha e&apos;lonlaringizni boshqaring</p>
+          <h1 className="text-[22px] md:text-[26px] font-bold" style={{ color: config.text }}>{labels.title}</h1>
+          <p className="text-[14px] mt-0.5" style={{ color: config.textMuted }}>{labels.desc}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/center/listings/new" className="h-[40px] px-4 rounded-[10px] text-[13px] font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: config.accent, color: config.accentText }}>
-            <Plus className="w-4 h-4" /> Yangi e&apos;lon
+            <Plus className="w-4 h-4" /> {labels.addBtn}
           </Link>
           <Link href="/center/boost" className="h-[40px] px-4 rounded-[10px] text-[13px] font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}>
             <Zap className="w-4 h-4" /> Boost
@@ -252,7 +268,7 @@ export default function ListingsPage() {
           </p>
           {filter === "hammasi" && (
             <Link href="/center/listings/new" className="h-[36px] px-4 rounded-[8px] text-[13px] font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: config.hover, color: config.text }}>
-              <Plus className="w-3.5 h-3.5" /> E&apos;lon qo&apos;shish
+              <Plus className="w-3.5 h-3.5" /> {labels.addBtnShort}
             </Link>
           )}
         </div>

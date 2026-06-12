@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { TrendingUp, Users, BarChart3, Wallet, Plus, ArrowRight, Phone, Clock } from "lucide-react";
 import { useLeads } from "@/context/leads-context";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
@@ -18,6 +19,9 @@ const fmt = (n: number) => new Intl.NumberFormat("uz-UZ").format(n);
 export default function DashboardPage() {
   const { leads, stats: leadStats } = useLeads();
   const { config } = useDashboardTheme();
+  const { data: session } = useSession();
+  const profileType = (session?.user as { profileType?: "CENTER" | "TUTOR" } | undefined)?.profileType ?? "CENTER";
+  const isTutor = profileType === "TUTOR";
   const [serverStats, setServerStats] = useState<Stats | null>(null);
   const recentLeads = leads.filter(l => l.status === "yangi").slice(0, 5);
 
@@ -93,7 +97,7 @@ export default function DashboardPage() {
         style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[16px] font-bold" style={{ color: config.text }}>Mening e&apos;lonlarim</h2>
+          <h2 className="text-[16px] font-bold" style={{ color: config.text }}>{isTutor ? "Mening xizmatlarim" : "Mening e'lonlarim"}</h2>
           <Link href="/center/listings" className="text-[13px] text-[#7ea2d4] font-medium flex items-center gap-1">
             Barchasi <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -102,7 +106,7 @@ export default function DashboardPage() {
           className="flex flex-col items-center justify-center py-12 rounded-[12px] border border-dashed"
           style={{ borderColor: config.surfaceBorder }}
         >
-          <p className="text-[14px] mb-3" style={{ color: config.textMuted }}>Hali e&apos;lon qo&apos;shilmagan</p>
+          <p className="text-[14px] mb-3" style={{ color: config.textMuted }}>{isTutor ? "Hali xizmat qo'shilmagan" : "Hali e'lon qo'shilmagan"}</p>
           <Link
             href="/center/listings/new"
             className="h-[36px] px-4 rounded-[8px] text-[13px] font-medium flex items-center gap-2 transition-colors"
@@ -110,7 +114,7 @@ export default function DashboardPage() {
             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = config.active; }}
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = config.hover; }}
           >
-            <Plus className="w-3.5 h-3.5" /> E&apos;lon qo&apos;shish
+            <Plus className="w-3.5 h-3.5" /> {isTutor ? "Xizmat qo'shish" : "E'lon qo'shish"}
           </Link>
         </div>
       </div>

@@ -1,4 +1,9 @@
-import "server-only";
+// server-only guard — webpack RSC context'da bundling vaqtida ishlaydi.
+// CLI scriptlar (bot-poll, sync-courses) uchun bypass qilinadi.
+if (process.env.NEXT_RUNTIME && !process.env.SKIP_SERVER_ONLY) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require("server-only");
+}
 
 import { createClient } from "redis";
 

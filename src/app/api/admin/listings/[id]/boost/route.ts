@@ -58,13 +58,16 @@ export async function POST(request: Request, { params }: Ctx) {
   const listing = await prisma.listing.findUnique({
     where: { id: listingId },
     select: {
-      id: true, status: true, title: true,
+      id: true, status: true, title: true, listingType: true,
       user: { select: { id: true, telegramChatId: true } },
     },
   });
   if (!listing) return NextResponse.json({ error: "E'lon topilmadi" }, { status: 404 });
   if (listing.status !== "active") {
     return NextResponse.json({ error: "Faqat aktiv e'lonni boost qilish mumkin" }, { status: 400 });
+  }
+  if (listing.listingType !== "COURSE") {
+    return NextResponse.json({ error: "Hozircha boost faqat o'quv markaz kurslariga mavjud. Repetitor xizmatlari uchun keyinroq qo'shamiz." }, { status: 400 });
   }
 
   // Boshlanish kuni — ertangidan oldin bo'lmasligi kerak (markaz flow bilan bir xil)

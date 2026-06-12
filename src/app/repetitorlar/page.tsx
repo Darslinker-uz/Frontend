@@ -85,14 +85,15 @@ export default async function RepetitorlarPage() {
     getActiveTutors(),
   ]);
 
-  // Real tutorlarni FakeTutor formatiga konvertatsiya qilamiz va fake'lar bilan birlashtiramiz
-  // Backend tayyor bo'lib real tutorlar ko'p bo'lsa, fake'lar avtomatik tushib qoladi
+  // Real tutorlarni FakeTutor formatiga konvertatsiya qilamiz.
+  // Production'da FAQAT real repetitorlar ko'rsatiladi; fake demo'lar faqat
+  // development'da to'ldiruvchi sifatida qo'shiladi (UI sinash uchun).
   const realAsFake = realTutors.map(tutorToSlideFormat);
   const realNames = new Set(realAsFake.map(t => t.name));
-  const slidersTutors: FakeTutor[] = [
-    ...realAsFake,
-    ...FAKE_TUTORS.filter(f => !realNames.has(f.name)),
-  ];
+  const slidersTutors: FakeTutor[] =
+    process.env.NODE_ENV === "production"
+      ? realAsFake
+      : [...realAsFake, ...FAKE_TUTORS.filter(f => !realNames.has(f.name))];
 
   // FAQ — repetitor bo'limiga maxsus
   const faqs = [
@@ -183,16 +184,18 @@ export default async function RepetitorlarPage() {
         groups={groups.map((g) => ({ slug: g.slug, name: g.name, count: g.listingsCount }))}
       />
 
-      {/* REPETITORLAR — slider */}
-      <section className="max-w-[1600px] mx-auto px-5 md:px-20 py-10 md:py-14">
-        <div className="flex items-end justify-between gap-4 mb-6 md:mb-8">
-          <div>
-            <h2 className="text-[26px] md:text-[36px] font-bold text-[#16181a] tracking-[-0.03em]">Repetitorlar</h2>
+      {/* REPETITORLAR — slider. Real repetitor bo'lmasa (prod) bo'lim yashiriladi */}
+      {slidersTutors.length > 0 && (
+        <section className="max-w-[1600px] mx-auto px-5 md:px-20 py-10 md:py-14">
+          <div className="flex items-end justify-between gap-4 mb-6 md:mb-8">
+            <div>
+              <h2 className="text-[26px] md:text-[36px] font-bold text-[#16181a] tracking-[-0.03em]">Repetitorlar</h2>
+            </div>
           </div>
-        </div>
 
-        <RepetitorlarSlider tutors={slidersTutors} />
-      </section>
+          <RepetitorlarSlider tutors={slidersTutors} />
+        </section>
+      )}
 
       {/* BROWSE BY FAN */}
       <section className="bg-white border-y border-[#e4e7ea] py-10 md:py-14">

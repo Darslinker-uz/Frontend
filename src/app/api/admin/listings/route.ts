@@ -160,10 +160,16 @@ export async function POST(request: Request) {
   const instagram = body.instagram ? String(body.instagram).trim().slice(0, 200) || null : null;
   const telegram = body.telegram ? String(body.telegram).trim().slice(0, 200) || null : null;
 
+  // listingType — admin tomonidan tanlanadi (mode field) yoki user profileType'idan
+  // Default COURSE: backward compat
+  const modeFromBody = String(body.mode ?? "").toUpperCase();
+  const listingType = modeFromBody === "TUTOR" ? "TUTOR_SERVICE" as const : "COURSE" as const;
+
   const listing = await prisma.listing.create({
     data: {
       userId,
       categoryId,
+      listingType,
       title: body.title,
       slug,
       description: body.description ?? null,

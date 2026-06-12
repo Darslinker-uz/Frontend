@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Phone, MessageSquare, Handshake, Check, X, Send, Building2, GraduationCap, User as UserIcon, ChevronDown, ChevronRight, MapPin, Calendar } from "lucide-react";
+import { Search, Phone, MessageSquare, Handshake, Check, X, Send, Building2, GraduationCap, User as UserIcon, ChevronDown, ChevronRight, ChevronLeft, MapPin, Calendar } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
 
 type Tab = "students" | "yordam" | "hamkorlik";
@@ -153,48 +153,46 @@ function AdminLeadsContent() {
         <p className="text-[13px] mt-1" style={{ color: config.textMuted }}>O'quvchilar, yordam so'rovlari va hamkorlik arizalari</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-5">
-        {/* Sidebar nav */}
-        <div className="rounded-[14px] overflow-hidden h-fit" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
-          {(["students", "yordam", "hamkorlik"] as Tab[]).map((k, i, arr) => {
-            const m = TAB_META[k];
-            const Icon = m.icon;
-            const isActive = tab === k;
-            return (
-              <button
-                key={k}
-                onClick={() => setTab(k)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all"
+      {/* Top tabs — horizontal */}
+      <div
+        className="flex items-center gap-1 p-1 rounded-[14px] mb-5 overflow-x-auto"
+        style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}
+      >
+        {(["students", "yordam", "hamkorlik"] as Tab[]).map((k) => {
+          const m = TAB_META[k];
+          const Icon = m.icon;
+          const isActive = tab === k;
+          return (
+            <button
+              key={k}
+              onClick={() => setTab(k)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] transition-all shrink-0"
+              style={{
+                backgroundColor: isActive ? `${m.color}1a` : "transparent",
+                color: isActive ? m.color : config.textMuted,
+              }}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="text-[13px] font-semibold">{m.label}</span>
+              <span
+                className="h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center"
                 style={{
-                  backgroundColor: isActive ? `${m.color}1a` : "transparent",
-                  borderBottom: i < arr.length - 1 ? `1px solid ${config.surfaceBorder}` : "none",
-                  borderLeft: isActive ? `3px solid ${m.color}` : "3px solid transparent",
+                  backgroundColor: isActive ? `${m.color}33` : config.hover,
+                  color: isActive ? m.color : config.textMuted,
                 }}
               >
-                <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ backgroundColor: isActive ? `${m.color}26` : config.hover }}>
-                  <Icon className="w-4 h-4" style={{ color: isActive ? m.color : config.textMuted }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold" style={{ color: isActive ? config.text : config.text }}>{m.label}</p>
-                  <p className="text-[11px] truncate" style={{ color: config.textMuted }}>{m.subtitle}</p>
-                </div>
-                <span
-                  className="h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: isActive ? `${m.color}33` : config.hover, color: isActive ? m.color : config.textMuted }}
-                >
-                  {counts[k]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                {counts[k]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Main content */}
-        <div>
-          {tab === "students" && <StudentsTab config={config} isLight={isLight} centers={centers} loading={loadingStudents} />}
-          {tab === "yordam" && <HelpTab config={config} isLight={isLight} helpLeads={helpLeads} setHelpLeads={setHelpLeads} loading={loadingHelp} />}
-          {tab === "hamkorlik" && <PartnerTab config={config} isLight={isLight} partnerLeads={partnerLeads} setPartnerLeads={setPartnerLeads} loading={loadingPartner} />}
-        </div>
+      {/* Main content */}
+      <div>
+        {tab === "students" && <StudentsTab config={config} isLight={isLight} centers={centers} loading={loadingStudents} />}
+        {tab === "yordam" && <HelpTab config={config} isLight={isLight} helpLeads={helpLeads} setHelpLeads={setHelpLeads} loading={loadingHelp} />}
+        {tab === "hamkorlik" && <PartnerTab config={config} isLight={isLight} partnerLeads={partnerLeads} setPartnerLeads={setPartnerLeads} loading={loadingPartner} />}
       </div>
     </div>
   );
@@ -202,10 +200,378 @@ function AdminLeadsContent() {
 
 // ==================== STUDENTS TAB ====================
 
-function StudentsTab({ config, isLight, centers, loading }: { config: ReturnType<typeof useAdminTheme>["config"]; isLight: boolean; centers: CenterGroup[]; loading: boolean }) {
+type DatePreset = "bugun" | "7" | "30" | "this_month" | "specific_month" | "all" | "custom";
+const DATE_PRESETS: { id: DatePreset; label: string }[] = [
+  { id: "bugun", label: "Bugun" },
+  { id: "7", label: "7 kun" },
+  { id: "30", label: "30 kun" },
+  { id: "this_month", label: "Bu oy" },
+  { id: "all", label: "Barchasi" },
+];
+
+const UZ_MONTHS = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"];
+function formatYearMonth(ym: string): string {
+  // "2026-06" → "Iyun 2026"
+  const [y, m] = ym.split("-").map(Number);
+  if (!y || !m) return ym;
+  return `${UZ_MONTHS[m - 1]} ${y}`;
+}
+
+function datePresetCutoff(p: DatePreset, customFrom?: string, customTo?: string, specificMonth?: string): { from?: Date; to?: Date } {
+  const now = new Date();
+  if (p === "all") return {};
+  if (p === "bugun") {
+    const from = new Date(now); from.setHours(0, 0, 0, 0);
+    return { from };
+  }
+  if (p === "7") return { from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) };
+  if (p === "30") return { from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) };
+  if (p === "this_month") {
+    return { from: new Date(now.getFullYear(), now.getMonth(), 1) };
+  }
+  if (p === "specific_month" && specificMonth) {
+    // YYYY-MM format → birinchi va oxirgi kun
+    const [y, m] = specificMonth.split("-").map(Number);
+    return {
+      from: new Date(y, m - 1, 1, 0, 0, 0),
+      to: new Date(y, m, 0, 23, 59, 59), // oxirgi kun (day=0 of next month)
+    };
+  }
+  if (p === "custom") {
+    return {
+      from: customFrom ? new Date(customFrom + "T00:00:00") : undefined,
+      to: customTo ? new Date(customTo + "T23:59:59") : undefined,
+    };
+  }
+  return {};
+}
+
+// ==================== REUSABLE FILTER COMPONENTS ====================
+
+type ThemeConfig = ReturnType<typeof useAdminTheme>["config"];
+
+// Date filter button + popover (preset + oy picker + custom range)
+function DateFilter({
+  datePreset, setDatePreset,
+  customFrom, setCustomFrom,
+  customTo, setCustomTo,
+  specificMonth, setSpecificMonth,
+  config, isLight,
+}: {
+  datePreset: DatePreset;
+  setDatePreset: (p: DatePreset) => void;
+  customFrom: string;
+  setCustomFrom: (s: string) => void;
+  customTo: string;
+  setCustomTo: (s: string) => void;
+  specificMonth: string;
+  setSpecificMonth: (s: string) => void;
+  config: ThemeConfig;
+  isLight: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [monthGridOpen, setMonthGridOpen] = useState(false);
+  const [pickerYear, setPickerYear] = useState<number>(new Date().getFullYear());
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="h-10 px-3 rounded-[12px] text-[12.5px] font-semibold flex items-center gap-2 transition-colors"
+        style={{
+          backgroundColor: datePreset !== "30" ? "#3b82f622" : config.surface,
+          color: datePreset !== "30" ? "#3b82f6" : config.text,
+          border: `1px solid ${datePreset !== "30" ? "#3b82f640" : config.surfaceBorder}`,
+        }}
+      >
+        <Calendar className="w-4 h-4" />
+        {datePreset === "custom"
+          ? customFrom && customTo ? `${customFrom.slice(5)} — ${customTo.slice(5)}` : "Sana tanlash"
+          : datePreset === "specific_month" && specificMonth ? formatYearMonth(specificMonth)
+          : DATE_PRESETS.find(p => p.id === datePreset)?.label}
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute top-12 left-0 z-30 rounded-[14px] p-3 min-w-[300px] shadow-xl" style={{ backgroundColor: isLight ? "#fff" : config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: config.textDim }}>Tezkor tanlov</p>
+          <div className="grid grid-cols-2 gap-1.5 mb-3">
+            {DATE_PRESETS.filter(p => p.id !== "all").map(p => (
+              <button
+                key={p.id}
+                onClick={() => { setDatePreset(p.id); setOpen(false); }}
+                className="h-9 px-3 rounded-[10px] text-[12.5px] font-semibold transition-colors"
+                style={{
+                  backgroundColor: datePreset === p.id ? "#3b82f6" : config.hover,
+                  color: datePreset === p.id ? "#fff" : config.text,
+                }}
+              >
+                {p.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                if (specificMonth) {
+                  const [y] = specificMonth.split("-").map(Number);
+                  setPickerYear(y);
+                }
+                setMonthGridOpen(o => !o);
+              }}
+              className="h-9 px-3 rounded-[10px] text-[12.5px] font-semibold flex items-center justify-between gap-1 transition-colors"
+              style={{
+                backgroundColor: datePreset === "specific_month" ? "#3b82f6" : config.hover,
+                color: datePreset === "specific_month" ? "#fff" : config.text,
+              }}
+            >
+              <span className="truncate">
+                {datePreset === "specific_month" && specificMonth ? formatYearMonth(specificMonth) : "Oy tanlash"}
+              </span>
+              <ChevronDown className={`w-3 h-3 shrink-0 transition-transform ${monthGridOpen ? "rotate-180" : ""}`} />
+            </button>
+            <button
+              onClick={() => { setDatePreset("all"); setOpen(false); setMonthGridOpen(false); }}
+              className="h-9 px-3 rounded-[10px] text-[12.5px] font-semibold transition-colors"
+              style={{
+                backgroundColor: datePreset === "all" ? "#3b82f6" : config.hover,
+                color: datePreset === "all" ? "#fff" : config.text,
+              }}
+            >
+              Barchasi
+            </button>
+          </div>
+          {monthGridOpen && (
+            <div className="mb-3 rounded-[12px] p-3" style={{ backgroundColor: isLight ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.04)", border: `1px solid ${config.surfaceBorder}` }}>
+              <div className="flex items-center justify-between mb-3">
+                <button type="button" onClick={() => setPickerYear(y => y - 1)} className="w-8 h-8 rounded-[8px] flex items-center justify-center"
+                  style={{ color: config.text, backgroundColor: isLight ? "#ffffff" : "rgba(255,255,255,0.08)", border: `1px solid ${config.surfaceBorder}` }}>
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-[15px] font-bold" style={{ color: config.text }}>{pickerYear}</span>
+                <button type="button" onClick={() => setPickerYear(y => y + 1)} disabled={pickerYear >= new Date().getFullYear()}
+                  className="w-8 h-8 rounded-[8px] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ color: config.text, backgroundColor: isLight ? "#ffffff" : "rgba(255,255,255,0.08)", border: `1px solid ${config.surfaceBorder}` }}>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {UZ_MONTHS.map((label, idx) => {
+                  const m = idx + 1;
+                  const ym = `${pickerYear}-${String(m).padStart(2, "0")}`;
+                  const isSelected = specificMonth === ym && datePreset === "specific_month";
+                  const now = new Date();
+                  const isFuture = pickerYear === now.getFullYear() && m > now.getMonth() + 1;
+                  return (
+                    <button key={m} type="button" disabled={isFuture}
+                      onClick={() => { setSpecificMonth(ym); setDatePreset("specific_month"); setMonthGridOpen(false); setOpen(false); }}
+                      className="h-10 rounded-[8px] text-[12.5px] font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor: isSelected ? "#3b82f6" : isLight ? "#ffffff" : "rgba(255,255,255,0.08)",
+                        color: isSelected ? "#ffffff" : config.text,
+                        border: `1px solid ${isSelected ? "#3b82f6" : isLight ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.12)"}`,
+                      }}>
+                      {label.slice(0, 3)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          <div style={{ borderTop: `1px solid ${config.surfaceBorder}` }} className="pt-3">
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: config.textDim }}>Yoki aniq sana oraliq</p>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex-1">
+                <label className="text-[10px] mb-1 block" style={{ color: config.textMuted }}>Boshlanish</label>
+                <input type="date" value={customFrom}
+                  onChange={e => { setCustomFrom(e.target.value); setDatePreset("custom"); }}
+                  className="w-full h-9 px-2 rounded-[8px] text-[12px] focus:outline-none"
+                  style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
+              </div>
+              <div className="flex-1">
+                <label className="text-[10px] mb-1 block" style={{ color: config.textMuted }}>Tugash</label>
+                <input type="date" value={customTo}
+                  onChange={e => { setCustomTo(e.target.value); setDatePreset("custom"); }}
+                  className="w-full h-9 px-2 rounded-[8px] text-[12px] focus:outline-none"
+                  style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }} />
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)}
+              disabled={datePreset === "custom" && (!customFrom || !customTo)}
+              className="w-full h-9 rounded-[10px] text-[12.5px] font-semibold transition-colors"
+              style={{
+                backgroundColor: datePreset === "custom" && customFrom && customTo ? "#3b82f6" : config.hover,
+                color: datePreset === "custom" && customFrom && customTo ? "#fff" : config.textMuted,
+              }}>
+              Qo&apos;llash
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Generic single-select dropdown with optional search
+function SelectFilter<T extends string | number>({
+  value, onChange, options, allLabel, placeholder, color, icon: Icon, withSearch,
+  config, isLight,
+}: {
+  value: T | "all";
+  onChange: (v: T | "all") => void;
+  options: { value: T; label: string }[];
+  allLabel: string;
+  placeholder: string;
+  color: string; // hex eg "#10b981"
+  icon: React.ComponentType<{ className?: string }>;
+  withSearch?: boolean;
+  config: ThemeConfig;
+  isLight: boolean;
+}) {
+  const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (!open) setSearch(""); }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [open]);
+
+  const selectedLabel = value === "all" ? placeholder : (options.find(o => o.value === value)?.label ?? String(value));
+  const filtered = withSearch && search
+    ? options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
+    : options;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="h-10 px-3 rounded-[12px] text-[12.5px] font-semibold flex items-center gap-2 transition-colors"
+        style={{
+          backgroundColor: value !== "all" ? `${color}22` : config.surface,
+          color: value !== "all" ? color : config.text,
+          border: `1px solid ${value !== "all" ? `${color}40` : config.surfaceBorder}`,
+        }}
+      >
+        <Icon className="w-4 h-4" />
+        <span className="truncate max-w-[140px]">{selectedLabel}</span>
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className={`absolute top-12 left-0 z-30 rounded-[12px] shadow-xl overflow-hidden ${withSearch ? "min-w-[260px]" : "min-w-[200px]"}`}
+          style={{ backgroundColor: isLight ? "#fff" : config.sidebar, border: `1px solid ${config.surfaceBorder}` }}>
+          {withSearch && (
+            <div className="p-2" style={{ borderBottom: `1px solid ${config.surfaceBorder}` }}>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: config.textDim }} />
+                <input
+                  autoFocus
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder={`${placeholder} qidirish...`}
+                  className="w-full h-9 pl-8 pr-3 rounded-[8px] text-[12.5px] focus:outline-none"
+                  style={{ backgroundColor: isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.06)", border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+                />
+              </div>
+            </div>
+          )}
+          <div className="p-2 max-h-[260px] overflow-y-auto">
+            <button
+              onClick={() => { onChange("all"); setOpen(false); }}
+              className="w-full h-9 px-3 rounded-[8px] text-[12.5px] text-left transition-colors"
+              style={{ backgroundColor: value === "all" ? `${color}22` : "transparent", color: value === "all" ? color : config.text }}
+            >
+              {allLabel} ({options.length})
+            </button>
+            {filtered.length === 0 ? (
+              <p className="text-[12px] py-3 px-3 text-center" style={{ color: config.textMuted }}>Topilmadi</p>
+            ) : (
+              filtered.map(o => (
+                <button
+                  key={String(o.value)}
+                  onClick={() => { onChange(o.value); setOpen(false); }}
+                  className="w-full h-9 px-3 rounded-[8px] text-[12.5px] text-left truncate transition-colors"
+                  style={{ backgroundColor: value === o.value ? `${color}22` : "transparent", color: value === o.value ? color : config.text }}
+                >
+                  {o.label}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Search-first filter bar wrapper
+function FilterBar({
+  search, setSearch, placeholder, totalCount, activeFiltersCount, onClear, config, children,
+}: {
+  search: string;
+  setSearch: (s: string) => void;
+  placeholder: string;
+  totalCount: number;
+  activeFiltersCount: number;
+  onClear: () => void;
+  config: ThemeConfig;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mb-4">
+      <div className="rounded-[20px] p-1.5 flex items-center gap-2" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}` }}>
+        <Search className="w-5 h-5 ml-3" style={{ color: config.textMuted }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={placeholder}
+          className="flex-1 h-12 px-2 text-[15px] focus:outline-none bg-transparent" style={{ color: config.text }} />
+        <span className="text-[12px] mr-2" style={{ color: config.textDim }}>{totalCount} ta</span>
+        {activeFiltersCount > 0 && (
+          <button onClick={onClear} className="h-10 px-3 rounded-[14px] text-[12px] font-semibold flex items-center gap-1" style={{ backgroundColor: config.hover, color: config.text }}>
+            <X className="w-3 h-3" /> {activeFiltersCount}
+          </button>
+        )}
+      </div>
+      <div className="flex items-center gap-2 mt-3 flex-wrap">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function StudentsTab({ config, isLight, centers, loading }: { config: ReturnType<typeof useAdminTheme>["config"]; isLight: boolean; centers: CenterGroup[]; loading: boolean }) {
   const [openCenter, setOpenCenter] = useState<number | null>(null);
   const [openLead, setOpenLead] = useState<{ lead: StudentLead; center: CenterGroup } | null>(null);
+
+  // ==================== FILTERLAR ====================
+  const [datePreset, setDatePreset] = useState<DatePreset>("30");
+  const [customFrom, setCustomFrom] = useState<string>("");
+  const [customTo, setCustomTo] = useState<string>("");
+  const [specificMonth, setSpecificMonth] = useState<string>(""); // YYYY-MM format
+  // (Variants olib tashlandi: advancedOpen, openDropdown, dropdownSearch — reusable komponentlar o'zi boshqaradi)
+  const [centerFilter, setCenterFilter] = useState<number | "all">("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [courseFilter, setCourseFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (openCenter === null && centers.length > 0) {
@@ -213,32 +579,108 @@ function StudentsTab({ config, isLight, centers, loading }: { config: ReturnType
     }
   }, [centers, openCenter]);
 
-  const q = search.toLowerCase();
-  const filtered = centers.map(c => {
-    const matchCenter = !q || c.name.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || c.category.toLowerCase().includes(q);
-    const matchLeads = c.leads.filter(l => !q || l.name.toLowerCase().includes(q) || l.phone.includes(search) || l.course.toLowerCase().includes(q));
-    return { ...c, _match: matchCenter || matchLeads.length > 0, _leads: matchCenter ? c.leads : matchLeads };
-  }).filter(c => c._match);
+  // Unique kategoriyalar va kurslar — filter dropdown'lar uchun
+  const allCategories = Array.from(new Set(centers.map(c => c.category).filter(Boolean))).sort();
+  const allCourses = Array.from(new Set(centers.flatMap(c => c.leads.map(l => l.course)).filter(Boolean))).sort();
+
+  // Filter logika
+  const { from, to } = datePresetCutoff(datePreset, customFrom, customTo, specificMonth);
+  const q = search.toLowerCase().trim();
+  const filtered = centers
+    .filter(c => centerFilter === "all" || c.id === centerFilter)
+    .filter(c => categoryFilter === "all" || c.category === categoryFilter)
+    .map(c => {
+      const filteredLeads = c.leads.filter(l => {
+        const leadDate = new Date(l.time);
+        if (from && leadDate < from) return false;
+        if (to && leadDate > to) return false;
+        if (courseFilter !== "all" && l.course !== courseFilter) return false;
+        if (q && !l.name.toLowerCase().includes(q) && !l.phone.includes(search) && !l.course.toLowerCase().includes(q)) return false;
+        return true;
+      });
+      return { ...c, _leads: filteredLeads };
+    })
+    .filter(c => c._leads.length > 0);
+
+  const totalLeads = filtered.reduce((s, c) => s + c._leads.length, 0);
+  const activeFiltersCount =
+    (centerFilter !== "all" ? 1 : 0) +
+    (categoryFilter !== "all" ? 1 : 0) +
+    (courseFilter !== "all" ? 1 : 0) +
+    (q ? 1 : 0);
+
+  // Tozalash funksiyasi (barcha variantlar ishlatadi)
+  const clearAllFilters = () => {
+    setCenterFilter("all");
+    setCategoryFilter("all");
+    setCourseFilter("all");
+    setSearch("");
+    setDatePreset("30");
+    setCustomFrom("");
+    setCustomTo("");
+    setSpecificMonth("");
+  };
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="w-5 h-5" style={{ color: "#3b82f6" }} />
-          <h2 className="text-[18px] font-bold" style={{ color: config.text }}>O&apos;quvchilar</h2>
-          <span className="text-[12px]" style={{ color: config.textMuted }}>· {centers.length} ta markaz, {centers.reduce((s, c) => s + c.leads.length, 0)} ta lead</span>
-        </div>
-        <div className="relative w-full md:w-[280px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: config.textDim }} />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Markaz, o'quvchi, kurs..."
-            className="w-full h-[40px] pl-10 pr-4 rounded-[10px] text-[13px] focus:outline-none"
-            style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
-          />
-        </div>
+      {/* SARLAVHA */}
+      <div className="flex items-center gap-2 mb-4">
+        <GraduationCap className="w-5 h-5" style={{ color: "#3b82f6" }} />
+        <h2 className="text-[18px] font-bold" style={{ color: config.text }}>O&apos;quvchilar</h2>
+        <span className="text-[12px]" style={{ color: config.textMuted }}>· {totalLeads} ta lead topildi</span>
       </div>
+
+      {/* FILTER BAR */}
+      <FilterBar
+        search={search}
+        setSearch={setSearch}
+        placeholder="Lid izlash: ism, telefon yoki kurs..."
+        totalCount={totalLeads}
+        activeFiltersCount={activeFiltersCount}
+        onClear={clearAllFilters}
+        config={config}
+      >
+        <DateFilter
+          datePreset={datePreset} setDatePreset={setDatePreset}
+          customFrom={customFrom} setCustomFrom={setCustomFrom}
+          customTo={customTo} setCustomTo={setCustomTo}
+          specificMonth={specificMonth} setSpecificMonth={setSpecificMonth}
+          config={config} isLight={isLight}
+        />
+        <SelectFilter
+          value={centerFilter}
+          onChange={setCenterFilter}
+          options={centers.map(c => ({ value: c.id, label: c.name }))}
+          allLabel="Barchasi"
+          placeholder="Markaz"
+          color="#10b981"
+          icon={Building2}
+          withSearch
+          config={config} isLight={isLight}
+        />
+        <SelectFilter
+          value={categoryFilter}
+          onChange={setCategoryFilter}
+          options={allCategories.map(c => ({ value: c, label: c }))}
+          allLabel="Barchasi"
+          placeholder="Yo'nalish"
+          color="#a855f7"
+          icon={MessageSquare}
+          withSearch
+          config={config} isLight={isLight}
+        />
+        <SelectFilter
+          value={courseFilter}
+          onChange={setCourseFilter}
+          options={allCourses.map(c => ({ value: c, label: c }))}
+          allLabel="Barchasi"
+          placeholder="Kurs"
+          color="#f97316"
+          icon={UserIcon}
+          withSearch
+          config={config} isLight={isLight}
+        />
+      </FilterBar>
 
       {loading ? (
         <div className="rounded-[14px] p-12 text-center" style={{ backgroundColor: config.surface, border: `1px dashed ${config.surfaceBorder}` }}>
@@ -374,10 +816,42 @@ function HelpTab({ config, isLight, helpLeads, setHelpLeads, loading }: { config
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState<HelpLead | null>(null);
 
+  // Filterlar
+  const [datePreset, setDatePreset] = useState<DatePreset>("30");
+  const [customFrom, setCustomFrom] = useState<string>("");
+  const [customTo, setCustomTo] = useState<string>("");
+  const [specificMonth, setSpecificMonth] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<HelpStatus | "all">("all");
+  const [interestFilter, setInterestFilter] = useState<string>("all");
+
+  const allInterests = Array.from(new Set(helpLeads.map(l => l.interest).filter(Boolean))).sort();
+
+  const { from, to } = datePresetCutoff(datePreset, customFrom, customTo, specificMonth);
   const q = search.toLowerCase();
-  const filtered = helpLeads.filter(l =>
-    !q || l.name.toLowerCase().includes(q) || l.phone.includes(search) || l.interest.toLowerCase().includes(q)
-  );
+  const filtered = helpLeads.filter(l => {
+    const created = new Date(l.createdAt);
+    if (from && created < from) return false;
+    if (to && created > to) return false;
+    if (statusFilter !== "all" && l.status !== statusFilter) return false;
+    if (interestFilter !== "all" && l.interest !== interestFilter) return false;
+    if (q && !l.name.toLowerCase().includes(q) && !l.phone.includes(search) && !l.interest.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const activeFiltersCount =
+    (statusFilter !== "all" ? 1 : 0) +
+    (interestFilter !== "all" ? 1 : 0) +
+    (q ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setInterestFilter("all");
+    setDatePreset("30");
+    setCustomFrom("");
+    setCustomTo("");
+    setSpecificMonth("");
+  };
 
   const handleStatus = async (lead: HelpLead, status: "answered" | "closed") => {
     const prev = helpLeads;
@@ -399,23 +873,52 @@ function HelpTab({ config, isLight, helpLeads, setHelpLeads, loading }: { config
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5" style={{ color: "#f59e0b" }} />
-          <h2 className="text-[18px] font-bold" style={{ color: config.text }}>Yordam so&apos;rovlari</h2>
-          <span className="text-[12px]" style={{ color: config.textMuted }}>· {helpLeads.length} ta</span>
-        </div>
-        <div className="relative w-full md:w-[280px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: config.textDim }} />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Ism, telefon, yo'nalish..."
-            className="w-full h-[40px] pl-10 pr-4 rounded-[10px] text-[13px] focus:outline-none"
-            style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
-          />
-        </div>
+      <div className="flex items-center gap-2 mb-4">
+        <MessageSquare className="w-5 h-5" style={{ color: "#f59e0b" }} />
+        <h2 className="text-[18px] font-bold" style={{ color: config.text }}>Yordam so&apos;rovlari</h2>
+        <span className="text-[12px]" style={{ color: config.textMuted }}>· {filtered.length} ta topildi</span>
       </div>
+
+      <FilterBar
+        search={search}
+        setSearch={setSearch}
+        placeholder="Ism, telefon yoki yo'nalish..."
+        totalCount={filtered.length}
+        activeFiltersCount={activeFiltersCount}
+        onClear={clearAllFilters}
+        config={config}
+      >
+        <DateFilter
+          datePreset={datePreset} setDatePreset={setDatePreset}
+          customFrom={customFrom} setCustomFrom={setCustomFrom}
+          customTo={customTo} setCustomTo={setCustomTo}
+          specificMonth={specificMonth} setSpecificMonth={setSpecificMonth}
+          config={config} isLight={isLight}
+        />
+        <SelectFilter
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={(["new_req", "answered", "closed"] as HelpStatus[]).map(s => ({ value: s, label: HELP_STATUS_MAP[s].label }))}
+          allLabel="Barchasi"
+          placeholder="Status"
+          color="#f59e0b"
+          icon={Check}
+          config={config} isLight={isLight}
+        />
+        {allInterests.length > 0 && (
+          <SelectFilter
+            value={interestFilter}
+            onChange={setInterestFilter}
+            options={allInterests.map(i => ({ value: i, label: i }))}
+            allLabel="Barchasi"
+            placeholder="Yo'nalish"
+            color="#a855f7"
+            icon={MessageSquare}
+            withSearch
+            config={config} isLight={isLight}
+          />
+        )}
+      </FilterBar>
 
       {loading ? (
         <div className="rounded-[14px] p-12 text-center" style={{ backgroundColor: config.surface, border: `1px dashed ${config.surfaceBorder}` }}>
@@ -536,10 +1039,47 @@ function PartnerTab({ config, isLight, partnerLeads, setPartnerLeads, loading }:
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState<PartnerLead | null>(null);
 
+  // Filterlar
+  const [datePreset, setDatePreset] = useState<DatePreset>("30");
+  const [customFrom, setCustomFrom] = useState<string>("");
+  const [customTo, setCustomTo] = useState<string>("");
+  const [specificMonth, setSpecificMonth] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<PartnerStatus | "all">("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [cityFilter, setCityFilter] = useState<string>("all");
+
+  const allCategories = Array.from(new Set(partnerLeads.map(l => l.category).filter(Boolean))).sort();
+  const allCities = Array.from(new Set(partnerLeads.map(l => l.city).filter(Boolean))).sort();
+
+  const { from, to } = datePresetCutoff(datePreset, customFrom, customTo, specificMonth);
   const q = search.toLowerCase();
-  const filtered = partnerLeads.filter(l =>
-    !q || l.name.toLowerCase().includes(q) || l.phone.includes(search) || l.centerName.toLowerCase().includes(q) || l.category.toLowerCase().includes(q) || l.city.toLowerCase().includes(q)
-  );
+  const filtered = partnerLeads.filter(l => {
+    const created = new Date(l.createdAt);
+    if (from && created < from) return false;
+    if (to && created > to) return false;
+    if (statusFilter !== "all" && l.status !== statusFilter) return false;
+    if (categoryFilter !== "all" && l.category !== categoryFilter) return false;
+    if (cityFilter !== "all" && l.city !== cityFilter) return false;
+    if (q && !l.name.toLowerCase().includes(q) && !l.phone.includes(search) && !l.centerName.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const activeFiltersCount =
+    (statusFilter !== "all" ? 1 : 0) +
+    (categoryFilter !== "all" ? 1 : 0) +
+    (cityFilter !== "all" ? 1 : 0) +
+    (q ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setCategoryFilter("all");
+    setCityFilter("all");
+    setDatePreset("30");
+    setCustomFrom("");
+    setCustomTo("");
+    setSpecificMonth("");
+  };
 
   const updateStatus = async (lead: PartnerLead, status: PartnerStatus) => {
     const prev = partnerLeads;
@@ -561,23 +1101,65 @@ function PartnerTab({ config, isLight, partnerLeads, setPartnerLeads, loading }:
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Handshake className="w-5 h-5" style={{ color: "#22c55e" }} />
-          <h2 className="text-[18px] font-bold" style={{ color: config.text }}>Hamkorlik arizalari</h2>
-          <span className="text-[12px]" style={{ color: config.textMuted }}>· {partnerLeads.length} ta</span>
-        </div>
-        <div className="relative w-full md:w-[280px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: config.textDim }} />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Markaz nomi, shahar..."
-            className="w-full h-[40px] pl-10 pr-4 rounded-[10px] text-[13px] focus:outline-none"
-            style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
-          />
-        </div>
+      <div className="flex items-center gap-2 mb-4">
+        <Handshake className="w-5 h-5" style={{ color: "#22c55e" }} />
+        <h2 className="text-[18px] font-bold" style={{ color: config.text }}>Hamkorlik arizalari</h2>
+        <span className="text-[12px]" style={{ color: config.textMuted }}>· {filtered.length} ta topildi</span>
       </div>
+
+      <FilterBar
+        search={search}
+        setSearch={setSearch}
+        placeholder="Ism, telefon yoki markaz nomi..."
+        totalCount={filtered.length}
+        activeFiltersCount={activeFiltersCount}
+        onClear={clearAllFilters}
+        config={config}
+      >
+        <DateFilter
+          datePreset={datePreset} setDatePreset={setDatePreset}
+          customFrom={customFrom} setCustomFrom={setCustomFrom}
+          customTo={customTo} setCustomTo={setCustomTo}
+          specificMonth={specificMonth} setSpecificMonth={setSpecificMonth}
+          config={config} isLight={isLight}
+        />
+        <SelectFilter
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={(["new_app", "in_progress", "accepted", "rejected"] as PartnerStatus[]).map(s => ({ value: s, label: PARTNER_STATUS_MAP[s].label }))}
+          allLabel="Barchasi"
+          placeholder="Status"
+          color="#22c55e"
+          icon={Check}
+          config={config} isLight={isLight}
+        />
+        {allCategories.length > 0 && (
+          <SelectFilter
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            options={allCategories.map(c => ({ value: c, label: c }))}
+            allLabel="Barchasi"
+            placeholder="Yo'nalish"
+            color="#a855f7"
+            icon={MessageSquare}
+            withSearch
+            config={config} isLight={isLight}
+          />
+        )}
+        {allCities.length > 0 && (
+          <SelectFilter
+            value={cityFilter}
+            onChange={setCityFilter}
+            options={allCities.map(c => ({ value: c, label: c }))}
+            allLabel="Barchasi"
+            placeholder="Shahar"
+            color="#0ea5e9"
+            icon={MapPin}
+            withSearch
+            config={config} isLight={isLight}
+          />
+        )}
+      </FilterBar>
 
       {loading ? (
         <div className="rounded-[14px] p-12 text-center" style={{ backgroundColor: config.surface, border: `1px dashed ${config.surfaceBorder}` }}>

@@ -10,7 +10,7 @@ function TutorSlideCard({ t }: { t: FakeTutor }) {
   // Real repetitor (slug bor) → uning detail sahifasiga, fake → /repetitorlar/barcha
   const href = t.slug ? `/repetitorlar/${t.slug}` : "/repetitorlar/barcha";
   return (
-    <Link href={href} className="group relative overflow-hidden rounded-[22px] flex flex-col shrink-0 w-[360px] h-[500px] md:h-[560px] cursor-pointer" style={{ background: t.gradient }}>
+    <Link href={href} className="group relative overflow-hidden rounded-[22px] flex flex-col shrink-0 w-[360px] max-w-[85vw] md:max-w-none h-[500px] md:h-[560px] cursor-pointer snap-center md:snap-align-none" style={{ background: t.gradient }}>
       {/* Dot pattern */}
       <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
       {/* Watermark icon */}
@@ -64,8 +64,10 @@ function TutorSlideCard({ t }: { t: FakeTutor }) {
 }
 
 export function RepetitorlarSlider({ tutors }: { tutors?: FakeTutor[] }) {
-  // Dastlabki 10 ta repetitor (props bo'lsa real+fake, bo'lmasa faqat fake demo)
-  const TUTORS = (tutors && tutors.length > 0 ? tutors : FAKE_TUTORS).slice(0, 10);
+  // Dastlabki 10 ta repetitor. Prop berilsa (hatto bo'sh bo'lsa ham) o'shani
+  // ishlatamiz — production'da real bo'lmasa fake'ga qaytmaymiz. Prop umuman
+  // berilmasa (standalone demo) — fake ko'rsatiladi.
+  const TUTORS = (tutors ?? FAKE_TUTORS).slice(0, 10);
   const ref = useRef<HTMLDivElement>(null);
   const onPrevRef = useRef(() => {});
   const onNextRef = useRef(() => {});
@@ -74,10 +76,8 @@ export function RepetitorlarSlider({ tutors }: { tutors?: FakeTutor[] }) {
     const el = ref.current;
     if (!el) return;
 
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return;
-
     let animating = false;
+    let rafId = 0;
     let autoTimer: ReturnType<typeof setTimeout>;
 
     const getStep = () => {
@@ -85,9 +85,24 @@ export function RepetitorlarSlider({ tutors }: { tutors?: FakeTutor[] }) {
       return first.offsetWidth + 20; // card width + gap
     };
 
+    // Snap faqat mobil'da kerak. JS animatsiyasi davomida snap o'chiriladi,
+    // aks holda brauzer scroll'ni snap nuqtaga tortib qotirib qo'yadi.
+    const isMobile = window.innerWidth < 768;
+    const snapRest = isMobile ? "x mandatory" : "none";
+    const setSnap = (on: boolean) => {
+      el.style.scrollSnapType = on ? snapRest : "none";
+    };
+
+    const cancelAnim = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = 0;
+      animating = false;
+    };
+
     const animateScroll = (distance: number, onDone: () => void) => {
       if (animating) return;
       animating = true;
+      setSnap(false); // animatsiya davomida snap kurashmasin
       const start = el.scrollLeft;
       const end = start + distance;
       const duration = 400;
@@ -99,14 +114,16 @@ export function RepetitorlarSlider({ tutors }: { tutors?: FakeTutor[] }) {
         const ease = 1 - Math.pow(1 - progress, 3);
         el.scrollLeft = start + distance * ease;
         if (progress < 1) {
-          requestAnimationFrame(tick);
+          rafId = requestAnimationFrame(tick);
         } else {
           el.scrollLeft = end;
           animating = false;
+          rafId = 0;
           onDone();
+          setSnap(true); // reorder + scrollLeft tuzatilgach snap qayta yoqiladi
         }
       };
-      requestAnimationFrame(tick);
+      rafId = requestAnimationFrame(tick);
     };
 
     const moveNext = () => {
@@ -131,10 +148,12 @@ export function RepetitorlarSlider({ tutors }: { tutors?: FakeTutor[] }) {
 
     onNextRef.current = () => {
       clearTimeout(autoTimer);
+      cancelAnim();
       moveNext();
     };
     onPrevRef.current = () => {
       clearTimeout(autoTimer);
+      cancelAnim();
       movePrev();
     };
 
@@ -145,8 +164,28 @@ export function RepetitorlarSlider({ tutors }: { tutors?: FakeTutor[] }) {
       }, 3000);
     };
 
+    // Qo'l bilan surilganda (mobil touch) autoplay to'xtaydi va native scroll
+    // barmoq harakatiga amal qiladi; barmoq olingach harakatsizlikdan so'ng davom etadi.
+    const onTouchStart = () => {
+      clearTimeout(autoTimer);
+      cancelAnim();
+      setSnap(true); // qo'l harakatida native snap ishlasin
+    };
+    const onTouchEnd = () => {
+      startAuto();
+    };
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
     startAuto();
-    return () => clearTimeout(autoTimer);
+    return () => {
+      clearTimeout(autoTimer);
+      cancelAnim();
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
+    };
   }, []);
 
   const handlePrev = useCallback(() => onPrevRef.current(), []);
@@ -154,7 +193,7 @@ export function RepetitorlarSlider({ tutors }: { tutors?: FakeTutor[] }) {
 
   return (
     <div>
-      <div ref={ref} className="flex gap-5 overflow-x-auto md:overflow-hidden scrollbar-hide" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+      <div ref={ref} className="flex gap-5 overflow-x-auto md:overflow-hidden scrollbar-hide snap-x snap-mandatory md:snap-none" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
         {TUTORS.map((t, i) => <TutorSlideCard key={i} t={t} />)}
       </div>
 

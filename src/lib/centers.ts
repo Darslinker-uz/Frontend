@@ -164,7 +164,9 @@ function listingToCenterCourse(l: ListingForCenter): CenterCourseItem {
 
 // Aktiv markazlar ro'yxati — public /oquv-markazlar uchun
 // CENTER profileType + aktiv listing'i bor + slug to'ldirilgan
-export async function getActiveCenters(): Promise<CenterListItem[]> {
+// opts.region — faqat shu viloyatda (region yoki branch.region match) listing'i bor markazlar
+export async function getActiveCenters(opts?: { region?: string }): Promise<CenterListItem[]> {
+  const regionFilter = opts?.region;
   const users = await prisma.user.findMany({
     where: {
       // profileType emas — listingType orqali filter qilamiz
@@ -178,6 +180,14 @@ export async function getActiveCenters(): Promise<CenterListItem[]> {
           status: "active",
           listingType: "COURSE", // /oquv-markazlar — faqat markaz kurslari
           category: { active: true, pendingApproval: false },
+          ...(regionFilter
+            ? {
+                OR: [
+                  { region: regionFilter },
+                  { branches: { some: { region: regionFilter } } },
+                ],
+              }
+            : {}),
         },
       },
     },

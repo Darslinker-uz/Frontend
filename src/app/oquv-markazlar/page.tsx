@@ -82,10 +82,13 @@ export default async function OquvMarkazlarPage() {
     return b.courseCount - a.courseCount;
   });
 
-  // Display markazlar: REAL markazlar avval, fake'lar demo uchun to'ldiradi
-  // Backend tayyor bo'lib markazlar 10+ bo'lganda — fake'lar avtomatik tushib qoladi
+  // Display markazlar: production'da FAQAT real markazlar; fake demo'lar faqat
+  // development'da to'ldiruvchi sifatida qo'shiladi (UI sinash uchun).
   const realProviders = new Set(centers.map(c => c.provider));
-  const fakesToShow = FAKE_CENTERS.filter(f => !realProviders.has(f.provider));
+  const fakesToShow =
+    process.env.NODE_ENV === "production"
+      ? []
+      : FAKE_CENTERS.filter(f => !realProviders.has(f.provider));
   // Real shape va fake shape biroz farq qiladi — ikkalasi ham grid uchun mos
   const displayCenters: Array<{
     slug: string;
@@ -245,39 +248,41 @@ export default async function OquvMarkazlarPage() {
         topRegions={topRegions.map(r => ({ slug: r.slug, name: r.name }))}
       />
 
-      {/* TOP MARKAZLAR — center-focused cards (dedupe by provider) */}
-      <section className="max-w-[1600px] mx-auto px-5 md:px-20 py-12 md:py-16">
-        <div className="flex items-end justify-between gap-4 mb-8 md:mb-10">
-          <div>
-            <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 mb-3">
-              <Star className="w-3 h-3 fill-emerald-700 text-emerald-700" />
-              <span className="text-[11px] font-semibold text-emerald-800 tracking-wider uppercase">Top reytingli</span>
+      {/* TOP MARKAZLAR — center-focused cards. Real markaz bo'lmasa (prod) yashiriladi */}
+      {displayCenters.length > 0 && (
+        <section className="max-w-[1600px] mx-auto px-5 md:px-20 py-12 md:py-16">
+          <div className="flex items-end justify-between gap-4 mb-8 md:mb-10">
+            <div>
+              <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 mb-3">
+                <Star className="w-3 h-3 fill-emerald-700 text-emerald-700" />
+                <span className="text-[11px] font-semibold text-emerald-800 tracking-wider uppercase">Top reytingli</span>
+              </div>
+              <h2 className="text-[26px] md:text-[36px] font-bold text-[#16181a] tracking-[-0.03em]">O&apos;quv markazlar</h2>
+              <p className="text-[14px] md:text-[16px] text-[#7c8490] mt-1.5">O&apos;quvchilar tomonidan eng yuqori baholangan tekshirilgan markazlar</p>
             </div>
-            <h2 className="text-[26px] md:text-[36px] font-bold text-[#16181a] tracking-[-0.03em]">O&apos;quv markazlar</h2>
-            <p className="text-[14px] md:text-[16px] text-[#7c8490] mt-1.5">O&apos;quvchilar tomonidan eng yuqori baholangan tekshirilgan markazlar</p>
+            <Link href="/oquv-markazlar/barchasi" className="hidden md:inline-flex items-center gap-1.5 text-[14px] font-semibold text-emerald-700 hover:text-emerald-800 shrink-0">
+              Barcha markazlar <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-          <Link href="/oquv-markazlar/barchasi" className="hidden md:inline-flex items-center gap-1.5 text-[14px] font-semibold text-emerald-700 hover:text-emerald-800 shrink-0">
-            Barcha markazlar <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
 
-        <OquvMarkazlarGrid
-          pageSize={12}
-          centers={displayCenters.map(c => ({
-            slug: c.slug,
-            provider: c.provider,
-            categories: c.categories,
-            regions: c.regions,
-            avgRating: c.avgRating,
-            ratingCount: c.ratingCount,
-            courseCount: c.courseCount,
-            imageUrl: c.imageUrl,
-            gradient: c.gradient,
-            firstSlug: c.firstSlug,
-            firstCategorySlug: c.firstCategorySlug,
-          }))}
-        />
-      </section>
+          <OquvMarkazlarGrid
+            pageSize={12}
+            centers={displayCenters.map(c => ({
+              slug: c.slug,
+              provider: c.provider,
+              categories: c.categories,
+              regions: c.regions,
+              avgRating: c.avgRating,
+              ratingCount: c.ratingCount,
+              courseCount: c.courseCount,
+              imageUrl: c.imageUrl,
+              gradient: c.gradient,
+              firstSlug: c.firstSlug,
+              firstCategorySlug: c.firstCategorySlug,
+            }))}
+          />
+        </section>
+      )}
 
       {/* YO'NALISH BO'YICHA — improved category grid */}
       <section className="bg-white border-y border-[#e4e7ea] py-12 md:py-16">

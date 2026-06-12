@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { FaqList } from "@/components/faq-item";
 import { getActiveListings, getActiveCategories } from "@/lib/listings";
 import { findRegionBySlugDb, getActiveRegions } from "@/lib/regions";
+import { getActiveCenters } from "@/lib/centers";
+import { getActiveTutors } from "@/lib/tutors";
 
 export const dynamic = "force-dynamic";
 
@@ -41,10 +43,12 @@ export default async function JoylarHududPage({ params }: Props) {
   const region = await findRegionBySlugDb(hudud);
   if (!region) notFound();
 
-  const [allInRegion, categories, allRegions] = await Promise.all([
+  const [allInRegion, categories, allRegions, centersInRegion, tutorsInRegion] = await Promise.all([
     getActiveListings({ region: region.name, includeRemote: false }),
     getActiveCategories(),
     getActiveRegions(),
+    getActiveCenters({ region: region.name }),
+    getActiveTutors({ region: region.name }),
   ]);
 
   const listings = allInRegion.slice(0, 12);
@@ -82,7 +86,7 @@ export default async function JoylarHududPage({ params }: Props) {
   const url = `${SITE_URL}/joylar/${hudud}`;
 
   const faqs = [
-    { q: `${region.name}da qancha o'quv markaz bor?`, a: `Hozirda Darslinker katalogida ${region.name} bo'yicha ${allInRegion.length} ta aktiv kurs joylashtirilgan.` },
+    { q: `${region.name}da qancha o'quv markaz bor?`, a: `Hozirda Darslinker katalogida ${region.name} bo'yicha ${centersInRegion.length} ta tekshirilgan o'quv markaz, ${tutorsInRegion.length} ta repetitor va ${allInRegion.length} ta aktiv kurs mavjud.` },
     { q: `${region.name}da qaysi yo'nalishlar mashhur?`, a: popularCategories.length > 0 ? `${region.name}da eng mashhur yo'nalishlar: ${popularCategories.slice(0, 3).map((c) => c.name).join(", ")}.` : `${region.name}da turli yo'nalishlar mavjud.` },
     { q: `${region.name}dan boshqa hududlarga onlayn qatnashish mumkinmi?`, a: `Ha. Aksariyat o'quv markazlar onlayn formatda ham ishlaydi va istalgan hududdan qatnashish mumkin.` },
     { q: `${region.name}dagi kurslar narxi qancha?`, a: `Narxlar yo'nalish va o'quv markaziga qarab farq qiladi. Har kurs sahifasida aniq narx ko'rsatilgan.` },
@@ -172,6 +176,102 @@ export default async function JoylarHududPage({ params }: Props) {
                     <div className="mt-3 text-[12px] font-semibold text-[#7ea2d4] group-hover:text-white">
                       Ko&apos;rish →
                     </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* MARKAZLAR — white section */}
+        {centersInRegion.length > 0 && (
+          <section className="bg-white border-y border-[#e4e7ea]">
+            <div className="max-w-[1280px] mx-auto px-5 md:px-6 py-10">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h2 className="text-[22px] md:text-[28px] font-bold text-[#16181a]">
+                    {region.name}dagi o&apos;quv markazlari
+                  </h2>
+                  <p className="text-[14px] text-[#7c8490] mt-1">{centersInRegion.length} ta tekshirilgan markaz</p>
+                </div>
+                <Link
+                  href="/oquv-markazlar"
+                  className="hidden md:inline-flex text-[14px] font-semibold text-[#16181a] hover:underline"
+                >
+                  Barcha markazlar →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {centersInRegion.slice(0, 6).map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/oquv-markazlar/${c.slug}`}
+                    className="group block bg-[#f8f9fa] rounded-[16px] p-5 hover:bg-[#16181a] hover:text-white transition-all"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-[12px] flex items-center justify-center text-white text-[18px] font-bold shrink-0" style={{ background: c.gradient }}>
+                        {c.provider.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-[16px] font-semibold text-[#16181a] group-hover:text-white leading-snug line-clamp-2">
+                          {c.provider}
+                        </h3>
+                        <p className="text-[12px] text-[#7c8490] group-hover:text-white/70 mt-1">{c.courseCount} ta kurs</p>
+                      </div>
+                    </div>
+                    {c.categories.length > 0 && (
+                      <p className="text-[12px] text-[#7c8490] group-hover:text-white/60 line-clamp-1">
+                        {c.categories.slice(0, 3).join(" · ")}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* REPETITORLAR — gray section */}
+        {tutorsInRegion.length > 0 && (
+          <section className="bg-[#f0f2f3]">
+            <div className="max-w-[1280px] mx-auto px-5 md:px-6 py-10">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h2 className="text-[22px] md:text-[28px] font-bold text-[#16181a]">
+                    {region.name}dagi repetitorlar
+                  </h2>
+                  <p className="text-[14px] text-[#7c8490] mt-1">{tutorsInRegion.length} ta shaxsiy o&apos;qituvchi</p>
+                </div>
+                <Link
+                  href="/repetitorlar"
+                  className="hidden md:inline-flex text-[14px] font-semibold text-[#16181a] hover:underline"
+                >
+                  Barcha repetitorlar →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {tutorsInRegion.slice(0, 6).map((t) => (
+                  <Link
+                    key={t.slug}
+                    href={`/repetitorlar/${t.slug}`}
+                    className="group block bg-white rounded-[16px] p-5 hover:bg-[#16181a] hover:text-white border border-[#e4e7ea] transition-all"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-[18px] font-bold shrink-0" style={{ background: t.gradient }}>
+                        {t.fullName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-[16px] font-semibold text-[#16181a] group-hover:text-white leading-snug line-clamp-2">
+                          {t.fullName}
+                        </h3>
+                        <p className="text-[12px] text-[#7c8490] group-hover:text-white/70 mt-1">{t.courseCount} ta xizmat</p>
+                      </div>
+                    </div>
+                    {t.subjects.length > 0 && (
+                      <p className="text-[12px] text-[#7c8490] group-hover:text-white/60 line-clamp-1">
+                        {t.subjects.slice(0, 3).join(" · ")}
+                      </p>
+                    )}
                   </Link>
                 ))}
               </div>

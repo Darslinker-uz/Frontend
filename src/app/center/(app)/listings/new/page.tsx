@@ -7,7 +7,9 @@ import { useSession } from "next-auth/react";
 import { ArrowLeft, Plus, GripVertical, X, Check, Star, ArrowRight, AlertCircle, MapPin, Monitor, Smartphone } from "lucide-react";
 import { GRADIENT_OPTIONS, ICON_OPTIONS, ICON_CATEGORIES } from "@/data/courses";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
+import { useDashboardMode } from "@/components/dashboard-mode-switcher";
 import { ImageUpload } from "@/components/image-upload";
+import { TutorServiceForm } from "./tutor-service-form";
 import { PriceScroll } from "@/components/price-scroll";
 import { REGIONS } from "@/data/regions";
 import { formatUzPhone, UZ_PHONE_PREFIX, hasUzPhoneContent } from "@/lib/phone-format";
@@ -36,7 +38,20 @@ const labelClass = "text-[12px] mb-1.5 block";
 export default function NewListingPage() {
   const { config } = useDashboardTheme();
   const { data: session } = useSession();
-  const providerName = (session?.user as { name?: string })?.name ?? "Sizning markazingiz";
+  const sessionUser = session?.user as { name?: string; profileType?: "CENTER" | "TUTOR" } | undefined;
+  const profileType = sessionUser?.profileType ?? "CENTER";
+  // Joriy dashboard mode — TUTOR bo'lsa butunlay boshqa forma render qilamiz
+  const [currentMode] = useDashboardMode(profileType);
+  const isTutor = currentMode === "TUTOR";
+  const providerName = sessionUser?.name ?? (isTutor ? "Sizning ismingiz" : "Sizning markazingiz");
+
+  // Manzil terminologiyasi currentMode'ga moslashadi
+  const branchLabel = isTutor ? "Dars manzillari" : "Filiallar (manzillar)";
+  const branchItemLabel = isTutor ? "Manzil" : "Filial";
+  const branchAddBtn = isTutor ? "Yana manzil qo'shish" : "Yana filial qo'shish";
+  const branchPricePlaceholder = isTutor
+    ? "Bu manzil uchun maxsus narx (ixtiyoriy)"
+    : "Filial uchun maxsus narx (ixtiyoriy) — bo'sh qoldirsa asosiy narx";
   const inputStyle = { backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text };
   const selectStyle = { backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.textMuted };
   const labelStyle = { color: config.textDim };
@@ -150,6 +165,7 @@ export default function NewListingPage() {
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          mode: currentMode, // dashboard mode → listingType
           title,
           categoryId: requestNewCategory ? null : (categoryId || null),
           proposedCategoryName: requestNewCategory ? newCategoryName.trim() : undefined,
@@ -372,6 +388,13 @@ export default function NewListingPage() {
     );
   };
 
+  // TUTOR rejimida — repetitor xizmati uchun alohida forma
+  // MUHIM: hooks barcha render'larda bir xil tartibda chaqirilishi kerak,
+  // shuning uchun early return faqat barcha useState/useEffect dan KEYIN
+  if (isTutor) {
+    return <TutorServiceForm providerName={providerName} />;
+  }
+
   return (
     <div className="px-3 sm:px-5 md:px-8 py-6 md:py-8 pb-24 md:pb-8">
       <Link href="/center/home" className="inline-flex items-center gap-2 text-[13px] text-[#7ea2d4] font-medium mb-6">
@@ -508,13 +531,13 @@ export default function NewListingPage() {
           {showLocation && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className={labelClass} style={labelStyle}>Filiallar (manzillar)</label>
+                <label className={labelClass} style={labelStyle}>{branchLabel}</label>
                 <span className="text-[11px]" style={{ color: config.textDim }}>{branches.length} / 10</span>
               </div>
               {branches.map((br, i) => (
                 <div key={i} className="rounded-[10px] p-3 space-y-2" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}` }}>
                   <div className="flex items-center justify-between">
-                    <span className="text-[12px] font-semibold" style={{ color: config.text }}>Filial {i + 1}</span>
+                    <span className="text-[12px] font-semibold" style={{ color: config.text }}>{branchItemLabel} {i + 1}</span>
                     {branches.length > 1 && (
                       <button
                         type="button"
@@ -577,7 +600,7 @@ export default function NewListingPage() {
                       next[i] = { ...next[i], price: raw ? Math.min(100_000_000, Number(raw)) : null };
                       setBranches(next);
                     }}
-                    placeholder="Filial uchun maxsus narx (ixtiyoriy) — bo'sh qoldirsa asosiy narx"
+                    placeholder={branchPricePlaceholder}
                     className={inputClass}
                     style={inputStyle}
                   />
@@ -590,7 +613,7 @@ export default function NewListingPage() {
                   className="w-full h-[40px] rounded-[10px] border border-dashed text-[13px] font-medium hover:border-[#7ea2d4]/40 hover:text-[#7ea2d4] hover:bg-[#7ea2d4]/5 transition-all flex items-center justify-center gap-2"
                   style={{ borderColor: config.surfaceBorder, color: config.textMuted }}
                 >
-                  <Plus className="w-4 h-4" /> Yana filial qo&apos;shish
+                  <Plus className="w-4 h-4" /> {branchAddBtn}
                 </button>
               )}
             </div>

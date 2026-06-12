@@ -30,12 +30,16 @@ function Toggle({ checked, onChange, config }: { checked: boolean; onChange: (v:
 export default function SettingsPage() {
   const { theme, config, setTheme } = useDashboardTheme();
   const { data: session, update: updateSession } = useSession();
-  const sessionUser = session?.user as { name?: string; role?: string; phone?: string } | undefined;
+  const sessionUser = session?.user as { name?: string; role?: string; phone?: string; profileType?: "CENTER" | "TUTOR" } | undefined;
+  const profileType = sessionUser?.profileType ?? "CENTER";
+  const isTutor = profileType === "TUTOR";
 
   // Profil
   const [name, setName] = useState("");
   const [centerName, setCenterName] = useState("");
   const [emailAddr, setEmailAddr] = useState("");
+  const [bio, setBio] = useState("");
+  const [slugDisplay, setSlugDisplay] = useState("");
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
@@ -75,11 +79,13 @@ export default function SettingsPage() {
       try {
         const res = await fetch("/api/dashboard/profile", { cache: "no-store" });
         if (!res.ok) return;
-        const data = await res.json() as { user: { name: string; centerName: string | null; email: string | null; phone: string } };
+        const data = await res.json() as { user: { name: string; centerName: string | null; email: string | null; phone: string; bio: string | null; slug: string | null } };
         if (cancelled) return;
         setName(data.user.name ?? "");
         setCenterName(data.user.centerName ?? "");
         setEmailAddr(data.user.email ?? "");
+        setBio(data.user.bio ?? "");
+        setSlugDisplay(data.user.slug ?? "");
       } catch (e) {
         console.error("[settings] load profile failed", e);
       } finally {
@@ -100,7 +106,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/dashboard/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: emailAddr.trim() || null, centerName: centerName.trim() || null }),
+        body: JSON.stringify({ name: name.trim(), email: emailAddr.trim() || null, centerName: centerName.trim() || null, bio: bio.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -226,7 +232,9 @@ export default function SettingsPage() {
                 {sessionUser?.name ?? "Foydalanuvchi"}
               </p>
               <p className="text-[12px]" style={{ color: config.textDim }}>
-                {sessionUser?.role ? (ROLE_LABEL[sessionUser.role] ?? sessionUser.role) : ""}
+                {sessionUser?.role === "provider"
+                  ? (isTutor ? "Repetitor" : "O'quv markaz egasi")
+                  : (sessionUser?.role ? (ROLE_LABEL[sessionUser.role] ?? sessionUser.role) : "")}
               </p>
             </div>
           </div>
@@ -243,20 +251,33 @@ export default function SettingsPage() {
                 style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
               />
             </div>
-            <div>
-              <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Markaz nomi (agar bor bo&apos;lsa)</label>
-              <input
-                value={profileLoading ? "" : centerName}
-                onChange={(e) => setCenterName(e.target.value)}
-                placeholder={profileLoading ? "Yuklanmoqda..." : "Masalan: IT Park Academy"}
-                disabled={profileLoading}
-                className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none"
-                style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
-              />
-              <p className="text-[11px] mt-1.5" style={{ color: config.textDim }}>
-                Kurs egasi sifatida e&apos;lonlarda ko&apos;rinadi. Bo&apos;sh qoldirsangiz, ismingiz ishlatiladi.
-              </p>
-            </div>
+            {!isTutor && (
+              <div>
+                <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>O&apos;quv markaz nomi</label>
+                <input
+                  value={profileLoading ? "" : centerName}
+                  onChange={(e) => setCenterName(e.target.value)}
+                  placeholder={profileLoading ? "Yuklanmoqda..." : "Masalan: IT Park Academy"}
+                  disabled={profileLoading}
+                  className="w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none"
+                  style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+                />
+                <p className="text-[11px] mt-1.5" style={{ color: config.textDim }}>
+                  E&apos;lonlarda va katalog sahifasida shu nom ko&apos;rinadi. Bo&apos;sh qoldirsangiz, ismingiz ishlatiladi.
+                </p>
+              </div>
+            )}
+            {isTutor && (
+              <div className="rounded-[10px] p-3.5 flex items-start gap-2.5" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}` }}>
+                <User className="w-4 h-4 mt-0.5 shrink-0" style={{ color: config.textMuted }} />
+                <div>
+                  <p className="text-[12.5px] font-semibold" style={{ color: config.text }}>Repetitor profili</p>
+                  <p className="text-[11.5px] mt-1" style={{ color: config.textDim }}>
+                    Sizning ismingiz to&apos;g&apos;ridan-to&apos;g&apos;ri katalog va e&apos;lonlarda ko&apos;rinadi. Markaz nomi kerak emas.
+                  </p>
+                </div>
+              </div>
+            )}
             <div>
               <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>Telefon raqam</label>
               <div
@@ -278,6 +299,49 @@ export default function SettingsPage() {
                 style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
               />
             </div>
+
+            {/* Bio — SEO/AEO uchun muhim */}
+            <div>
+              <label className="text-[12px] mb-1.5 block" style={{ color: config.textMuted }}>
+                {isTutor ? "O'zingiz haqingizda" : "Markaz haqida"} (tavsif)
+              </label>
+              <textarea
+                value={profileLoading ? "" : bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder={profileLoading ? "Yuklanmoqda..." : isTutor
+                  ? "Misol: 8 yil tajribali matematika repetitori. DTM va maktab dasturlari bo'yicha individual darslar..."
+                  : "Misol: 2015-yildan beri faoliyat yuritamiz. IT, dizayn va marketing yo'nalishlarida..."}
+                disabled={profileLoading}
+                rows={4}
+                maxLength={2000}
+                className="w-full px-4 py-3 rounded-[10px] text-[14px] placeholder:text-white/20 focus:outline-none resize-none"
+                style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+              />
+              <p className="text-[11px] mt-1.5 flex items-center justify-between" style={{ color: config.textDim }}>
+                <span>Google va AI'larda topilish uchun — qancha aniq yozsangiz, shuncha yaxshi.</span>
+                <span>{bio.length}/2000</span>
+              </p>
+            </div>
+
+            {/* Public sahifa link'i — agar slug bor bo'lsa */}
+            {slugDisplay && sessionUser?.role === "provider" && (
+              <div className="rounded-[10px] p-3.5 flex items-start gap-2.5" style={{ backgroundColor: config.hover, border: `1px solid ${config.surfaceBorder}` }}>
+                <Eye className="w-4 h-4 mt-0.5 shrink-0" style={{ color: config.textMuted }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] font-semibold" style={{ color: config.text }}>Sizning public sahifa</p>
+                  <a
+                    href={`/${isTutor ? "repetitorlar" : "oquv-markazlar"}/${slugDisplay}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[12px] font-mono mt-0.5 underline truncate block hover:opacity-80"
+                    style={{ color: config.accent }}
+                  >
+                    /{isTutor ? "repetitorlar" : "oquv-markazlar"}/{slugDisplay}
+                  </a>
+                </div>
+              </div>
+            )}
+
             {profileMsg && (
               <p className="text-[12px]" style={{ color: profileMsg.kind === "ok" ? "#22c55e" : "#ef4444" }}>
                 {profileMsg.text}

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, FileText, MessageSquare, CreditCard, BarChart3, Settings,
-  LogOut, ExternalLink, Layers,
+  LogOut, ExternalLink, Layers, Building2,
 } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { AdminThemeProvider, useAdminTheme } from "@/context/admin-theme-context";
@@ -47,6 +47,7 @@ const navItems: NavItem[] = [
     badgeKeys: ["students", "partners"],
   },
   { href: "/admode/users", label: "Foydalanuvchilar", icon: Users, perm: "user.view" },
+  { href: "/admode/centers", label: "Markazlar", icon: Building2, perm: "user.view" },
   { href: "/admode/payments", label: "To'lovlar", icon: CreditCard, perm: "payment.view" },
   {
     href: "/admode/categories",

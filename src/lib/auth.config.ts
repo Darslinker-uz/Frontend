@@ -9,16 +9,21 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        const u = user as unknown as { id: string; role: string; phone: string; onboardingCompleted?: boolean };
+        const u = user as unknown as { id: string; role: string; phone: string; onboardingCompleted?: boolean; profileType?: string };
         token.userId = u.id;
         token.role = u.role;
         token.phone = u.phone;
         token.onboardingCompleted = u.onboardingCompleted ?? true;
+        token.profileType = u.profileType ?? "CENTER";
       }
       // When session is updated (useSession().update()) after completing onboarding,
       // flip the flag in the token so subsequent middleware checks see it true.
       if (trigger === "update" && session?.onboardingCompleted === true) {
         token.onboardingCompleted = true;
+      }
+      // Onboarding tugagandan keyin profileType ham yangilanishi mumkin
+      if (trigger === "update" && session?.profileType) {
+        token.profileType = session.profileType;
       }
       return token;
     },
@@ -30,6 +35,7 @@ export const authConfig: NextAuthConfig = {
         s.role = token.role;
         s.phone = token.phone;
         s.onboardingCompleted = token.onboardingCompleted ?? true;
+        s.profileType = token.profileType ?? "CENTER";
       }
       return session;
     },

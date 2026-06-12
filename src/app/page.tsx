@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, GraduationCap, Building2, BookOpen } from "lucide-react";
 import { FeaturedSlider } from "@/components/featured-slider";
 import { courseToSlide } from "@/lib/featured-slide";
 import { CoursesSlider } from "@/components/courses-slider";
@@ -62,7 +62,7 @@ export default async function HomePage() {
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer support",
-      "url": "https://t.me/DarslinkerSupport",
+      "url": "https://t.me/Darslinker_Support",
       "availableLanguage": ["Uzbek", "uz"],
     },
   };
@@ -101,6 +101,28 @@ export default async function HomePage() {
 
           {/* FEATURED SLIDER */}
           <FeaturedSlider initialSlides={featuredSlides} />
+
+          {/* TEZKOR YO'NALTIRISH — Repetitorlar / Markazlar / Kurslar */}
+          <nav aria-label="Asosiy bo'limlar" className="grid grid-cols-3 gap-2.5 md:gap-4">
+            {[
+              { href: "/repetitorlar", label: "Repetitorlar", desc: "Shaxsiy ustozlar", Icon: GraduationCap },
+              { href: "/oquv-markazlar", label: "Markazlar", desc: "O'quv markazlari", Icon: Building2 },
+              { href: "/kurslar", label: "Kurslar", desc: "Barcha yo'nalishlar", Icon: BookOpen },
+            ].map((c) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className="group flex flex-col gap-2 md:gap-3 rounded-[16px] md:rounded-[20px] bg-gradient-to-br from-[#7ea2d4] to-[#5b87c0] p-4 md:p-6 shadow-lg shadow-[#7ea2d4]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+              >
+                <c.Icon className="h-7 w-7 md:h-9 md:w-9 text-white" strokeWidth={2} />
+                <span className="flex items-center justify-between gap-1">
+                  <span className="text-[14px] md:text-[18px] font-bold text-white leading-tight">{c.label}</span>
+                  <ArrowRight className="hidden md:block w-4 h-4 text-white/70 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                </span>
+                <span className="text-[11px] md:text-[13px] text-white/80 leading-tight">{c.desc}</span>
+              </Link>
+            ))}
+          </nav>
         </div>
 
         {/* KATEGORIYALAR */}

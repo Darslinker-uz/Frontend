@@ -27,6 +27,16 @@ function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
+// Guruh bog'lash uchun bir martalik token (16 belgi, URL-safe)
+function generateGroupLinkToken(): string {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let s = "";
+  for (let i = 0; i < 16; i++) s += alphabet[Math.floor(Math.random() * alphabet.length)];
+  return s;
+}
+
+const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME ?? "Darslinker_cbot";
+
 let _studentClient: TelegramClient | null = null;
 function getClient(mode: BotMode): TelegramClient {
   if (mode === "student") {
@@ -79,6 +89,81 @@ export async function handleUpdate(update: TgUpdate, mode: BotMode = "provider")
 async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMode, client: TelegramClient) {
   const chatId = msg.chat.id;
   const role: Role = mode === "student" ? "student" : "provider";
+  const isGroupChat = msg.chat.type === "group" || msg.chat.type === "supergroup";
+
+  // ==================== GURUH CHAT'DA — LINK FLOW + SILENT BY DEFAULT ====================
+  // Provider bot guruhda har qanday xabarga "Tushunmadim" javob bermasligi kerak.
+  // Faqat 3 ta aniq komandaga javob beradi: /start link_<token>, /unlinkgroup, /groupid
+  // Boshqa hech qanday xabarga (matn, foto, sticker, kontakt — har qanday turdagi) javob yo'q.
+  if (mode === "provider" && isGroupChat) {
+    if (!msg.text) {
+      return; // Matn emas (foto, sticker, kontakt va h.k.) — sukut saqlab return
+    }
+    const linkMatch = msg.text.match(/^\/start(?:@\w+)?\s+link_([a-z0-9]{16})$/i);
+    if (linkMatch) {
+      const token = linkMatch[1].toLowerCase();
+      const user = await prisma.user.findUnique({ where: { groupLinkToken: token } });
+      if (!user) {
+        await client.sendMessage(chatId,
+          "❌ Bog'lash tokeni topilmadi yoki muddati o'tgan.\n\n" +
+          "Iltimos, dashboard'dan yangi token oling va qaytadan urinib ko'ring.",
+          { parse_mode: "HTML" },
+        );
+        return;
+      }
+      // Bog'laymiz: groupChatId saqlaymiz, token'ni tozalaymiz (bir martalik)
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { groupChatId: String(chatId), groupLinkToken: null },
+      });
+      const groupTitle = msg.chat.title ?? "guruh";
+      const displayName = user.centerName ?? user.name;
+      await client.sendMessage(chatId,
+        `✅ <b>Bog'landi!</b>\n\n` +
+        `<b>${escHtml(displayName)}</b> uchun yangi arizalar endi shu guruhga keladi.\n\n` +
+        `Bog'lashni bekor qilish: /unlinkgroup`,
+        { parse_mode: "HTML" },
+      );
+      // User'ning shaxsiy chatiga ham xabar
+      if (user.telegramChatId) {
+        await client.sendMessage(user.telegramChatId,
+          `✅ <b>Guruh bog'landi:</b> ${escHtml(groupTitle)}\n\n` +
+          `Endi sizning barcha lid'laringiz shu guruhga yuboriladi (shaxsiy chatga emas).\n\n` +
+          `Bog'lashni bekor qilish uchun /unlinkgroup buyrug'ini guruhda yoki bu yerda yuboring.`,
+          { parse_mode: "HTML" },
+        );
+      }
+      return;
+    }
+
+    // /unlinkgroup — guruhda ham ishlaydi
+    if (msg.text === "/unlinkgroup" || msg.text === `/unlinkgroup@${BOT_USERNAME}`) {
+      const user = await prisma.user.findFirst({ where: { groupChatId: String(chatId) } });
+      if (!user) {
+        await client.sendMessage(chatId, "Bu guruh hech qaysi markazga bog'lanmagan.", { parse_mode: "HTML" });
+        return;
+      }
+      await prisma.user.update({ where: { id: user.id }, data: { groupChatId: null } });
+      await client.sendMessage(chatId, "✅ Bog'lash bekor qilindi. Endi lid'lar yana shaxsiy chatga keladi.", { parse_mode: "HTML" });
+      if (user.telegramChatId) {
+        await client.sendMessage(user.telegramChatId, "ℹ️ Guruh bog'lashi bekor qilindi. Lid'lar yana sizning shaxsiy chatingizga keladi.", { parse_mode: "HTML" });
+      }
+      return;
+    }
+
+    // /groupid — guruh ID olish (debug uchun)
+    if (msg.text === "/groupid" || msg.text === `/groupid@${BOT_USERNAME}`) {
+      const info = `Guruh turi: ${msg.chat.type}\n` +
+        `Guruh nomi: ${escHtml(msg.chat.title ?? "—")}\n` +
+        `Guruh ID: <code>${chatId}</code>`;
+      await client.sendMessage(chatId, info, { parse_mode: "HTML" });
+      return;
+    }
+
+    // Guruh ichida boshqa hech qaysi xabarga javob bermaymiz (no "tushunmadim").
+    // Callback button'lar (Bog'landim, Sotib oldi va h.k.) handleCallback orqali ishlaydi.
+    return;
+  }
 
   // /groupid — for guruh orqali admin ID olish (provider bot only)
   if (mode === "provider" && (msg.text === "/groupid" || msg.text === "/groupid@Darslinker_cbot")) {
@@ -157,12 +242,15 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
     });
 
     const loginUrl = mode === "student" ? "darslinker.uz/student" : "darslinker.uz/center";
+    const providerExtra = mode === "provider"
+      ? `\n\n👥 Jamoa bo'lib ishlaysizmi? /guruh — lid'lar shaxsiy chat o'rniga guruhingizga keladi.`
+      : "";
     await client.sendMessage(chatId,
       `✅ Telefon qabul qilindi!\n\n` +
       `Saytga kirish uchun kod:\n\n` +
       `<code>${code}</code>\n\n` +
       `Kod ${CODE_TTL_MINUTES} daqiqa davomida amal qiladi.\n` +
-      `Bu kodni <b>${loginUrl}</b> sahifasiga kiriting.`,
+      `Bu kodni <b>${loginUrl}</b> sahifasiga kiriting.${providerExtra}`,
       {
         parse_mode: "HTML",
         reply_markup: { remove_keyboard: true },
@@ -183,10 +271,69 @@ async function handleMessage(msg: NonNullable<TgUpdate["message"]>, mode: BotMod
     const helpProvider =
       "ℹ️ <b>Yordam</b>\n\n" +
       "/start — Ro'yxatdan o'tish\n" +
-      "/code — Yangi kod so'rash (agar avval ro'yxatdan o'tgan bo'lsangiz)";
+      "/code — Yangi kod so'rash\n" +
+      "/guruh — Jamoa guruhini bog'lash (lid'lar guruhga keladi)\n" +
+      "/unlinkgroup — Guruh bog'lashini bekor qilish";
     await client.sendMessage(chatId, mode === "student" ? helpStudent : helpProvider, {
       parse_mode: "HTML",
     });
+    return;
+  }
+
+  // /guruh — provider uchun guruhga qo'shish flow (shaxsiy chatda)
+  if (mode === "provider" && (msg.text === "/guruh" || msg.text === "/guruh@Darslinker_cbot" || msg.text === "/linkgroup")) {
+    const user = await prisma.user.findFirst({ where: { telegramChatId: String(chatId) } });
+    if (!user) {
+      await client.sendMessage(chatId, "❌ Avval /start bosing va ro'yxatdan o'ting.");
+      return;
+    }
+    // Agar allaqachon guruh bog'langan bo'lsa — eslatma
+    if (user.groupChatId) {
+      await client.sendMessage(chatId,
+        `ℹ️ Sizning lid'laringiz allaqachon guruhga yuborilmoqda.\n\n` +
+        `Bog'lashni bekor qilish: /unlinkgroup\n` +
+        `Yangi guruhga o'tish: avval /unlinkgroup, keyin qaytadan /guruh`,
+        { parse_mode: "HTML" },
+      );
+      return;
+    }
+    // Token generatsiya — eski bo'lsa qayta yoziladi
+    const token = generateGroupLinkToken();
+    await prisma.user.update({ where: { id: user.id }, data: { groupLinkToken: token } });
+    const url = `https://t.me/${BOT_USERNAME}?startgroup=link_${token}`;
+    await client.sendMessage(chatId,
+      `👥 <b>Jamoa guruhiga bog'lash</b>\n\n` +
+      `Quyidagi tugmani bosing va botni o'z guruhingizga qo'shing.\n\n` +
+      `Botni qo'shgach, men sizga "Bog'landi" deb javob beraman va kelajakdagi lid'lar shaxsiy chat o'rniga shu guruhga keladi.\n\n` +
+      `⚠️ Botga guruhda <b>admin</b> huquqi berilishi tavsiya etiladi.`,
+      {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [[
+            { text: "📲 Guruhga qo'shish", url },
+          ]],
+        },
+      },
+    );
+    return;
+  }
+
+  // /unlinkgroup — shaxsiy chatdan ham
+  if (mode === "provider" && (msg.text === "/unlinkgroup" || msg.text === `/unlinkgroup@${BOT_USERNAME}`)) {
+    const user = await prisma.user.findFirst({ where: { telegramChatId: String(chatId) } });
+    if (!user) {
+      await client.sendMessage(chatId, "❌ Avval /start bosing.");
+      return;
+    }
+    if (!user.groupChatId) {
+      await client.sendMessage(chatId, "Sizda bog'langan guruh yo'q.");
+      return;
+    }
+    const oldGroup = user.groupChatId;
+    await prisma.user.update({ where: { id: user.id }, data: { groupChatId: null } });
+    await client.sendMessage(chatId, "✅ Guruh bog'lashi bekor qilindi. Endi lid'lar yana shaxsiy chatingizga keladi.");
+    // Guruhga ham xabar
+    await client.sendMessage(oldGroup, "ℹ️ Markaz egasi guruh bog'lashini bekor qildi. Lid'lar endi shu guruhga kelmaydi.").catch(() => null);
     return;
   }
 
@@ -340,12 +487,15 @@ async function handleCallback(q: NonNullable<TgUpdate["callback_query"]>) {
   const leadId = Number(m[1]);
   const action = m[2];
 
-  // Ownership check
+  // Ownership check — chat ID provider'ning shaxsiy chati YOKI bog'langan guruh chat'i bo'lishi mumkin.
+  // Bu strict isolation: faqat lid egasining chat'idan (shaxsiy yoki guruh) callback qabul qilamiz.
   const lead = await prisma.lead.findUnique({
     where: { id: leadId },
-    include: { listing: { include: { user: { select: { telegramChatId: true } } } } },
+    include: { listing: { include: { user: { select: { telegramChatId: true, groupChatId: true } } } } },
   });
-  if (!lead || lead.listing.user.telegramChatId !== String(chatId)) {
+  const owner = lead?.listing.user;
+  const isOwner = owner && (owner.telegramChatId === String(chatId) || owner.groupChatId === String(chatId));
+  if (!lead || !isOwner) {
     await answerCallbackQuery(q.id, "Ruxsat yo'q");
     return;
   }
@@ -375,8 +525,22 @@ async function handleCallback(q: NonNullable<TgUpdate["callback_query"]>) {
     return;
   }
 
-  // Normal flow: set contacted, ask for optional note
+  // Normal flow: set contacted
   await prisma.lead.update({ where: { id: leadId }, data: { status: "contacted" } });
+
+  // Guruh chat'da izoh kutilmaydi (kim yozsa ham aniq emas) — to'g'ridan-to'g'ri yopiladi.
+  const isGroup = q.message.chat.type === "group" || q.message.chat.type === "supergroup";
+  if (isGroup) {
+    const text = await renderLeadMessage(leadId);
+    if (text) await editMessageText(chatId, messageId, text, {
+      parse_mode: "HTML", disable_web_page_preview: true,
+      reply_markup: undefined,
+    });
+    await answerCallbackQuery(q.id, "✅ Bog'landim");
+    return;
+  }
+
+  // Shaxsiy chat: izoh kutiladi
   await prisma.botPendingAction.upsert({
     where: { chatId: String(chatId) },
     create: { chatId: String(chatId), leadId, action: "note_for_contacted", messageId },
@@ -512,6 +676,7 @@ export async function notifyAdminGroup(params: {
   studentPhone: string;
   message?: string | null;
   createdAt?: Date;
+  listingType?: "COURSE" | "TUTOR_SERVICE";
 }) {
   const groupId = process.env.TELEGRAM_ADMIN_GROUP_ID;
   if (!groupId) return;
@@ -538,11 +703,15 @@ export async function notifyAdminGroup(params: {
     minute: "2-digit",
   });
 
+  const isTutor = params.listingType === "TUTOR_SERVICE";
+  const providerLabel = isTutor ? "Repetitor" : "Markaz";
+  const providerIcon = isTutor ? "👨‍🏫" : "🏫";
+  const subjectLabel = isTutor ? "Xizmat" : "Kurs";
   const lines = [
     "📥 <b>Yangi lead</b>",
     "",
-    `🏫 <b>Markaz:</b> ${escHtml(params.centerName)}`,
-    `📚 <b>Kurs:</b> ${escHtml(params.course)}`,
+    `${providerIcon} <b>${providerLabel}:</b> ${escHtml(params.centerName)}`,
+    `📚 <b>${subjectLabel}:</b> ${escHtml(params.course)}`,
     "",
     `👤 <b>Ism:</b> ${escHtml(params.studentName)}`,
     `📞 <b>Telefon:</b> ${escHtml(params.studentPhone)}`,

@@ -18,6 +18,9 @@ export async function GET() {
       phone: true,
       role: true,
       telegramChatId: true,
+      profileType: true,
+      slug: true,
+      bio: true,
     },
   });
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -60,6 +63,18 @@ export async function PATCH(request: Request) {
       data.centerName = centerName || null;
     }
   }
+  // Bio — SEO/AEO uchun muhim, foydalanuvchi o'zi yangilashi mumkin
+  if (body.bio !== undefined) {
+    if (body.bio === null || body.bio === "") {
+      data.bio = null;
+    } else if (typeof body.bio === "string") {
+      const bio = body.bio.trim();
+      if (bio.length > 2000) {
+        return NextResponse.json({ error: "Tavsif juda uzun (maksimum 2000 belgi)" }, { status: 400 });
+      }
+      data.bio = bio || null;
+    }
+  }
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
@@ -68,7 +83,7 @@ export async function PATCH(request: Request) {
   const user = await prisma.user.update({
     where: { id: userId },
     data,
-    select: { id: true, name: true, centerName: true, email: true, phone: true, role: true },
+    select: { id: true, name: true, centerName: true, email: true, phone: true, role: true, bio: true, slug: true },
   });
 
   return NextResponse.json({ user });

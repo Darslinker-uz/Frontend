@@ -41,7 +41,9 @@ export async function POST(request: Request) {
       id: true,
       title: true,
       status: true,
-      user: { select: { name: true, centerName: true, telegramChatId: true } },
+      listingType: true,
+      // groupChatId mavjud bo'lsa lid faqat guruhga yuboriladi (shaxsiy chatga emas).
+      user: { select: { name: true, centerName: true, telegramChatId: true, groupChatId: true } },
     },
   });
   if (!listing || listing.status !== "active") {
@@ -58,16 +60,20 @@ export async function POST(request: Request) {
 
   // Lead yaratamiz, keyin provider Telegramiga xabar. Xabar yuborilmasa ham lead
   // saqlanadi (o'quvchi uchun 201); admin guruhga xabar alohida yuboriladi.
-  // telegramChatId yo'q bo'lsa — bot bilan ulanmagan markaz, faqat admin copy (agar sozlangan).
+  // Routing qoidasi (strict isolation):
+  //   - user.groupChatId bo'lsa → faqat guruhga (shaxsiy chat tashlanadi)
+  //   - aks holda → user.telegramChatId (shaxsiy chat)
+  // Har bir user faqat O'Z lid'larini ko'radi — bu lib chaqiruvi user'ning o'z chat'iga jo'natadi.
   const lead = await prisma.lead.create({
     data: { listingId, name, phone, message, status: "new_lead" },
   });
 
   let telegramNotifyFailed = false;
-  if (listing.user.telegramChatId) {
+  const targetChatId = listing.user.groupChatId ?? listing.user.telegramChatId;
+  if (targetChatId) {
     const providerOk = await notifyNewLead({
       leadId: lead.id,
-      teacherChatId: listing.user.telegramChatId,
+      teacherChatId: targetChatId,
       studentName: name,
       studentPhone: phone,
       course: listing.title,
@@ -82,6 +88,7 @@ export async function POST(request: Request) {
       console.error("[lead] Telegram xabar yuborilmadi (chat_id noto'g'ri yoki bot ulanmagan) — lead saqlanadi", {
         leadId: lead.id,
         listingId,
+        viaGroup: !!listing.user.groupChatId,
       });
     }
   }
@@ -94,6 +101,7 @@ export async function POST(request: Request) {
     studentPhone: phone,
     message,
     createdAt: lead.createdAt,
+    listingType: listing.listingType,
   }).catch(e => console.error("[lead] admin group notify failed", e));
 
   return NextResponse.json(

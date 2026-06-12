@@ -3,7 +3,7 @@
  * Mijoz matnidan intent → filtrlash + relevantsiya balli.
  */
 
-import "server-only";
+if (process.env.NEXT_RUNTIME && !process.env.SKIP_SERVER_ONLY) { require("server-only"); }
 
 import { chatCompletion, type ChatTurn } from "@/lib/openai";
 import { getAllCachedCourses, type CachedCourse } from "@/lib/courses-redis";

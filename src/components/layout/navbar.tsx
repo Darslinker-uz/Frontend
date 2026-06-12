@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, BookOpen, PenLine, MessageCircle, ChevronDown, GraduationCap, Building2, Home } from "lucide-react";
+import { Menu, X, BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Home } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 
 const mobileBaseLinks = [
   { href: "/", label: "Asosiy", icon: Home, primary: false },
   { href: "/repetitorlar", label: "Repetitorlar", icon: GraduationCap, primary: true },
   { href: "/oquv-markazlar", label: "Markazlar", icon: Building2, primary: true },
-  { href: "/blog", label: "Blog", icon: PenLine, primary: false },
+  { href: "/joylar", label: "Joylar", icon: MapPin, primary: false },
 ];
 
 type ApiCategory = {
@@ -164,10 +164,10 @@ export function Navbar() {
               </Button>
             </div>
           </div>
-          {/* Blog — secondary link */}
-          <Link href="/blog">
+          {/* Joylar — secondary link (hudud bo'yicha lokal SEO sahifa) */}
+          <Link href="/joylar">
             <Button variant="ghost" className="rounded-[10px] text-[#16181a]/70 hover:text-[#16181a] hover:bg-[#f2f4f5] h-9 px-3 text-[14px] font-medium">
-              Blog
+              Joylar
             </Button>
           </Link>
         </div>
@@ -361,7 +361,7 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Blog va boshqalar (Kurslar dan keyin) */}
+              {/* Joylar va boshqalar (Kurslar dan keyin) */}
               {mobileBaseLinks.slice(3).map((link) => (
                 <Link
                   key={link.href}
