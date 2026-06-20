@@ -23,8 +23,8 @@ export async function POST(request: Request) {
   const interest = String(body.interest ?? "").trim();
   const message = body.message ? String(body.message).trim() : null;
 
-  if (!name || !phone || !interest) {
-    return NextResponse.json({ error: "name, phone, interest majburiy" }, { status: 400 });
+  if (!name || !phone) {
+    return NextResponse.json({ error: "name, phone majburiy" }, { status: 400 });
   }
   if (name.length < 2) {
     return NextResponse.json({ error: "Ism juda qisqa" }, { status: 400 });

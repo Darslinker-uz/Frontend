@@ -13,10 +13,12 @@ export function HelpForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
 
+  const canSubmit = name.trim() !== "" && phone.trim() !== "";
+
   const submit = async () => {
     setError(null);
-    if (!name.trim() || !phone.trim() || !interest.trim()) {
-      setError("Ism, telefon va yo'nalish majburiy");
+    if (!name.trim() || !phone.trim()) {
+      setError("Ism va telefon majburiy");
       return;
     }
     setStatus("submitting");
@@ -48,7 +50,7 @@ export function HelpForm() {
           <svg className="w-6 h-6 text-[#2d5a8a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
         <p className="text-[17px] font-bold text-[#16181a]">Ariza yuborildi!</p>
-        <p className="text-[13px] text-[#6a7585] mt-1">Tez orada siz bilan bog'lanamiz</p>
+        <p className="text-[13px] text-[#6a7585] mt-1">Tez orada siz bilan bog&apos;lanamiz</p>
         <button
           onClick={() => setStatus("idle")}
           className="mt-4 text-[13px] text-[#2d5a8a] font-medium hover:underline"
@@ -65,7 +67,10 @@ export function HelpForm() {
     <div className="max-w-[520px] mx-auto space-y-3">
       <input
         value={name}
-        onChange={e => setName(e.target.value)}
+        onChange={e => {
+          const v = e.target.value;
+          setName(v ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase() : v);
+        }}
         placeholder="Ismingiz"
         className={baseInput}
         disabled={status === "submitting"}
@@ -94,8 +99,8 @@ export function HelpForm() {
       )}
       <button
         onClick={submit}
-        disabled={status === "submitting"}
-        className="w-full h-[52px] rounded-[12px] bg-[#2d5a8a] text-white text-[15px] font-semibold hover:bg-[#2d5a8a]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={status === "submitting" || !canSubmit}
+        className="w-full h-[52px] rounded-[12px] bg-[#2d5a8a] text-white text-[15px] font-semibold hover:bg-[#2d5a8a]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {status === "submitting" ? "Yuborilmoqda..." : "Ariza yuborish"}
       </button>
