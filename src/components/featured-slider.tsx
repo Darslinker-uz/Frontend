@@ -18,8 +18,14 @@ function shuffle<T>(arr: T[]): T[] {
 
 export function FeaturedSlider({ initialSlides }: { initialSlides: Slide[] }) {
   // Server'dan kelgan slides darhol ishlatiladi — fetch yoki loading yo'q.
-  // Random shuffle mount paytida bir marta (per session).
-  const [slides] = useState<Slide[]>(() => shuffle(initialSlides));
+  // MUHIM: shuffle'ni render paytida qilmaymiz — aks holda server (A tartib) va
+  // client (B tartib) mos kelmay hydration mismatch (React #418) yuz beradi va
+  // butun sahifa interaktivligi buziladi (mobil'da kartalar bosilmaydi).
+  // Shuning uchun SSR + birinchi client render = initialSlides, shuffle mount'dan keyin.
+  const [slides, setSlides] = useState<Slide[]>(initialSlides);
+  useEffect(() => {
+    setSlides((prev) => shuffle(prev));
+  }, []);
   const [current, setCurrent] = useState(0);
   const [prevIndex, setPrevIndex] = useState(-1);
   const [progress, setProgress] = useState(0);
