@@ -143,7 +143,7 @@ export async function Footer() {
         <div className="border-t border-[#e4e7ea] mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[13px] text-[#7c8490]">
             &copy; {new Date().getFullYear()} Darslinker. Barcha huquqlar
-            himoyalangan.
+            himoyalangan
           </p>
           <div className="flex items-center gap-2">
             {/* Telegram */}
