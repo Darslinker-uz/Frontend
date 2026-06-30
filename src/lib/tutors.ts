@@ -4,6 +4,34 @@ if (process.env.NEXT_RUNTIME && !process.env.SKIP_SERVER_ONLY) { require("server
 
 import { prisma } from "@/lib/prisma";
 import { FORMAT_LABELS } from "@/lib/listings";
+import type { FakeTutor } from "@/data/fake-tutors";
+
+// Real repetitor (TutorListItem) → kartochka formati (FakeTutor shape).
+// /repetitorlar va /repetitorlar/barcha shu formatda render qiladi (fake'larsiz).
+export function tutorToCardFormat(t: TutorListItem): FakeTutor {
+  const G = [
+    "linear-gradient(135deg,#7a3d8a,#3a1e4f)",
+    "linear-gradient(135deg,#d946ef,#7a3d8a)",
+    "linear-gradient(135deg,#6d28d9,#3a1e4f)",
+    "linear-gradient(135deg,#a21caf,#581c87)",
+  ];
+  const firstSubject = t.subjects[0] ?? "Repetitor";
+  const isOnline = t.regions.length === 0 || t.regions.includes("Onlayn");
+  const region = t.regions[0] ?? "Onlayn";
+  return {
+    slug: t.slug,
+    name: t.fullName,
+    subject: firstSubject,
+    subjectKey: firstSubject.toLowerCase().replace(/\s+/g, "-"),
+    rating: Math.round((t.avgRating || 4.7) * 10) / 10,
+    reviews: t.ratingCount || 0,
+    online: isOnline,
+    region,
+    experience: new Date().getFullYear() - 2020,
+    price: 50000, // TODO: real per-repetitor narx (listing'lardan) — keyingi yaxshilash
+    gradient: G[t.id % G.length],
+  };
+}
 
 // Repetitor uchun deterministik gradient — markazlardan farqli rang palitra
 // (vizual ajratish: markaz — sovuq ranglar, repetitor — issiq ranglar)

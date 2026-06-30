@@ -7,7 +7,7 @@ import { RepetitorlarHero } from "@/components/repetitorlar-hero";
 import { RepetitorlarSlider } from "@/components/repetitorlar-slider";
 import { getActiveCategoryGroups } from "@/lib/listings";
 import { getActiveRegions } from "@/lib/regions";
-import { getActiveTutors } from "@/lib/tutors";
+import { getActiveTutors, tutorToCardFormat } from "@/lib/tutors";
 import { FAKE_TUTORS, type FakeTutor } from "@/data/fake-tutors";
 
 export const dynamic = "force-dynamic";
@@ -51,33 +51,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Tutor lib turini slider FakeTutor turiga moslashtirish
-function tutorToSlideFormat(t: Awaited<ReturnType<typeof getActiveTutors>>[number]): FakeTutor {
-  const G = [
-    "linear-gradient(135deg,#7a3d8a,#3a1e4f)",
-    "linear-gradient(135deg,#d946ef,#7a3d8a)",
-    "linear-gradient(135deg,#6d28d9,#3a1e4f)",
-    "linear-gradient(135deg,#a21caf,#581c87)",
-  ];
-  // Eng birinchi fan (subject) — listing kategoriyalaridan
-  const firstSubject = t.subjects[0] ?? "Repetitor";
-  const isOnline = t.regions.length === 0 || t.regions.includes("Onlayn");
-  const region = t.regions[0] ?? "Onlayn";
-  return {
-    slug: t.slug,
-    name: t.fullName,
-    subject: firstSubject,
-    subjectKey: firstSubject.toLowerCase().replace(/\s+/g, "-"),
-    rating: Math.round((t.avgRating || 4.7) * 10) / 10,
-    reviews: t.ratingCount || 0,
-    online: isOnline,
-    region,
-    experience: new Date().getFullYear() - 2020, // taxminiy, kelajakda User.experience field
-    price: 50000, // taxminiy, kurslardan
-    gradient: G[t.id % G.length],
-  };
-}
-
 export default async function RepetitorlarPage() {
   const [groups, regions, realTutors] = await Promise.all([
     // Faqat repetitor xizmatlari (TUTOR_SERVICE) bo'lgan yo'nalishlar — /repetitorlar sahifasi uchun
@@ -89,7 +62,7 @@ export default async function RepetitorlarPage() {
   // Real tutorlarni FakeTutor formatiga konvertatsiya qilamiz.
   // Production'da FAQAT real repetitorlar ko'rsatiladi; fake demo'lar faqat
   // development'da to'ldiruvchi sifatida qo'shiladi (UI sinash uchun).
-  const realAsFake = realTutors.map(tutorToSlideFormat);
+  const realAsFake = realTutors.map(tutorToCardFormat);
   const realNames = new Set(realAsFake.map(t => t.name));
   const slidersTutors: FakeTutor[] =
     process.env.NODE_ENV === "production"

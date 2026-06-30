@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { RepetitorlarBarchaClient } from "./repetitorlar-barcha-client";
+import { getActiveTutors, tutorToCardFormat } from "@/lib/tutors";
+
+export const dynamic = "force-dynamic";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
@@ -9,11 +12,14 @@ export const metadata: Metadata = {
   title: "Barcha repetitorlar — O'zbekistondagi shaxsiy o'qituvchilar",
   description: "O'zbekiston bo'ylab shaxsiy repetitorlarni fan, format va hudud bo'yicha filtrlab toping. Matematika, ingliz tili, fizika va boshqa fanlardan 1-on-1 darslar.",
   alternates: { canonical: `${SITE_URL}/repetitorlar/barcha` },
-  // Demo ma'lumotlar — haqiqiy repetitor ma'lumotlari ulanmaguncha indekslanmaydi
+  // Repetitorlar soni hali kam — sahifa siyrak bo'lgani uchun vaqtincha noindex
+  // (kontent yetarli to'planganda index: true qilinadi). follow — link equity oqadi.
   robots: { index: false, follow: true },
 };
 
-export default function BarchaRepetitorlarPage() {
+export default async function BarchaRepetitorlarPage() {
+  // Faqat REAL repetitorlar (demo/fake yo'q)
+  const tutors = (await getActiveTutors()).map(tutorToCardFormat);
   const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -43,7 +49,7 @@ export default function BarchaRepetitorlarPage() {
           <p className="text-[14px] md:text-[16px] text-[#7c8490] mt-1.5">Fan, format va hudud bo&apos;yicha filtrlab, sizga mos shaxsiy o&apos;qituvchini toping</p>
         </div>
 
-        <RepetitorlarBarchaClient />
+        <RepetitorlarBarchaClient tutors={tutors} />
       </div>
     </div>
   );

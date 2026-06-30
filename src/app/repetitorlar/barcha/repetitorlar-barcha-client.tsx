@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Search, X, ArrowUpDown, Video, MapPin, SlidersHorizontal } from "lucide-react";
-import { FAKE_TUTORS } from "@/data/fake-tutors";
+import type { FakeTutor } from "@/data/fake-tutors";
 import { TutorCard } from "@/components/tutor-card";
 
 const SUBJECT_LABELS: Record<string, string> = {
@@ -42,7 +42,7 @@ const FilterLabel = ({ children }: { children: React.ReactNode }) => (
   <span className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wide shrink-0">{children}</span>
 );
 
-export function RepetitorlarBarchaClient() {
+export function RepetitorlarBarchaClient({ tutors }: { tutors: FakeTutor[] }) {
   const [search, setSearch] = useState("");
   const [subject, setSubject] = useState<string>("all");
   const [format, setFormat] = useState<Format>("all");
@@ -53,23 +53,23 @@ export function RepetitorlarBarchaClient() {
 
   const subjectFacets = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const t of FAKE_TUTORS) counts.set(t.subjectKey, (counts.get(t.subjectKey) ?? 0) + 1);
+    for (const t of tutors) counts.set(t.subjectKey, (counts.get(t.subjectKey) ?? 0) + 1);
     return [...counts.entries()]
       .map(([key, count]) => ({ key, label: SUBJECT_LABELS[key] ?? key, count }))
       .sort((a, b) => b.count - a.count);
-  }, []);
+  }, [tutors]);
 
   const regionOptions = useMemo(() => {
-    const set = new Set(FAKE_TUTORS.map((t) => t.region));
+    const set = new Set(tutors.map((t) => t.region));
     return [...set].sort((a, b) => (a === "Onlayn" ? -1 : b === "Onlayn" ? 1 : a.localeCompare(b)));
-  }, []);
+  }, [tutors]);
 
   const inPrice = (p: number) =>
     price === "all" ? true : price === "lt50" ? p < 50000 : price === "mid" ? p >= 50000 && p <= 70000 : p > 70000;
 
   const result = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const list = FAKE_TUTORS.filter((t) => {
+    const list = tutors.filter((t) => {
       if (subject !== "all" && t.subjectKey !== subject) return false;
       if (format === "online" && !t.online) return false;
       if (format === "offline" && t.online) return false;
@@ -89,7 +89,7 @@ export function RepetitorlarBarchaClient() {
     }
     return sorted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, subject, format, price, region, sort]);
+  }, [tutors, search, subject, format, price, region, sort]);
 
   // Ikkilamchi filtrlar soni (mobil "Filtrlar" badge uchun)
   const secondaryCount = (format !== "all" ? 1 : 0) + (price !== "all" ? 1 : 0) + (region !== "all" ? 1 : 0);
