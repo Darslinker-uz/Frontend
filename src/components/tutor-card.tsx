@@ -3,8 +3,10 @@ import { Star, ArrowRight, Video, MapPin, UserCheck } from "lucide-react";
 import { type FakeTutor, tutorInitials } from "@/data/fake-tutors";
 
 export function TutorCard({ t }: { t: FakeTutor }) {
+  // Real repetitor (slug bor) → o'z profil sahifasi; slug yo'q bo'lsa → barcha repetitorlar
+  const href = t.slug ? `/repetitorlar/${t.slug}` : "/repetitorlar/barcha";
   return (
-    <Link href="/kurslar" className="group block w-full h-full bg-white rounded-[20px] border border-[#e4e7ea] p-5 hover:shadow-lg hover:shadow-black/5 hover:border-fuchsia-300 transition-all">
+    <Link href={href} className="group block w-full h-full bg-white rounded-[20px] border border-[#e4e7ea] p-5 hover:shadow-lg hover:shadow-black/5 hover:border-fuchsia-300 transition-all">
       {/* Avatar + name */}
       <div className="flex items-center gap-3.5">
         <div className="relative shrink-0">
