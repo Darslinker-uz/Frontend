@@ -11,7 +11,8 @@ export function slugify(input: string): string {
   return input
     .toLowerCase()
     .trim()
-    .replace(/'/g, "")              // apostrof olib tashlanadi
+    .normalize("NFD").replace(/[̀-ͯ]/g, "") // urg'uli harflar → ASCII (é→e, õ→o, ç→c)
+    .replace(/['ʼ‘’`]/g, "")        // apostrof variantlari olib tashlanadi
     .replace(/[^a-z0-9]+/g, "-")    // qolgan non-alphanumeric → dash
     .replace(/^-+|-+$/g, "")        // boshlanish/oxiridagi dashlarni olib tashlash
     .slice(0, 120);                  // max uzunlik (User.slug VARCHAR(120))
