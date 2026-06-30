@@ -1,6 +1,11 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 
+// Sitemap'ni har soatda qayta generatsiya qilamiz — yangi markaz/repetitor/e'lon
+// (va churned/slug o'zgarishlari) build'siz ham sitemap'ga tushadi (SEO uchun muhim).
+// Default static bo'lsa, sitemap faqat deploy paytida yangilanardi.
+export const revalidate = 3600;
+
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
