@@ -420,7 +420,15 @@ export async function getActiveCategories() {
 }
 
 // Guruhlar (top-level taxonomy) — bosh sahifa va megamenu uchun.
-export async function getActiveCategoryGroups(opts?: { homepageOnly?: boolean }) {
+// listingType berilsa — kurslar faqat shu tur bo'yicha sanaladi (COURSE =
+// markaz kurslari, TUTOR_SERVICE = repetitor xizmatlari) va o'sha turdan
+// hech narsasi yo'q guruhlar ro'yxatdan chiqariladi. Shu orqali /oquv-markazlar
+// faqat markaz-yo'nalishlarini, /repetitorlar faqat repetitor-yo'nalishlarini ko'rsatadi.
+export async function getActiveCategoryGroups(opts?: { homepageOnly?: boolean; listingType?: "COURSE" | "TUTOR_SERVICE" }) {
+  const listingWhere = {
+    status: "active" as const,
+    ...(opts?.listingType ? { listingType: opts.listingType } : {}),
+  };
   const groups = await prisma.categoryGroup.findMany({
     where: {
       active: true,
@@ -441,24 +449,26 @@ export async function getActiveCategoryGroups(opts?: { homepageOnly?: boolean })
         select: {
           name: true,
           slug: true,
-          _count: { select: { listings: { where: { status: "active" } } } },
+          _count: { select: { listings: { where: listingWhere } } },
         },
       },
     },
   });
-  return groups.map(g => ({
-    name: g.name,
-    slug: g.slug,
-    desc: g.description ?? "",
-    icon: g.icon,
-    color: g.color,
-    showOnHomepage: g.showOnHomepage,
-    categoriesCount: g._count.categories,
-    listingsCount: g.categories.reduce((sum, c) => sum + c._count.listings, 0),
-    categories: g.categories.map(c => ({
-      name: c.name,
-      slug: c.slug,
-      count: c._count.listings,
-    })),
-  }));
+  return groups
+    .map(g => ({
+      name: g.name,
+      slug: g.slug,
+      desc: g.description ?? "",
+      icon: g.icon,
+      color: g.color,
+      showOnHomepage: g.showOnHomepage,
+      categoriesCount: g._count.categories,
+      listingsCount: g.categories.reduce((sum, c) => sum + c._count.listings, 0),
+      categories: g.categories
+        .map(c => ({ name: c.name, slug: c.slug, count: c._count.listings }))
+        // type berilganda — bo'sh kategoriyalarni ham yashiramiz
+        .filter(c => !opts?.listingType || c.count > 0),
+    }))
+    // type berilganda — o'sha turdan hech narsasi yo'q guruhlarni chiqarib tashlaymiz
+    .filter(g => !opts?.listingType || g.listingsCount > 0);
 }

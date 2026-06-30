@@ -80,7 +80,8 @@ function tutorToSlideFormat(t: Awaited<ReturnType<typeof getActiveTutors>>[numbe
 
 export default async function RepetitorlarPage() {
   const [groups, regions, realTutors] = await Promise.all([
-    getActiveCategoryGroups({ homepageOnly: true }),
+    // Faqat repetitor xizmatlari (TUTOR_SERVICE) bo'lgan yo'nalishlar — /repetitorlar sahifasi uchun
+    getActiveCategoryGroups({ listingType: "TUTOR_SERVICE" }),
     getActiveRegions(),
     getActiveTutors(),
   ]);
@@ -209,7 +210,8 @@ export default async function RepetitorlarPage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
             {groups.map((g) => (
-              <Link key={g.slug} href={`/kurslar/g/${g.slug}`} className="group relative overflow-hidden bg-gradient-to-br from-[#fbf8fc] to-[#f4eef8] hover:from-fuchsia-50 hover:to-fuchsia-100 border border-[#e4e7ea] hover:border-fuchsia-200 rounded-[16px] p-5 md:p-6 transition-all">
+              // Repetitor yo'nalishi → repetitorlar browse sahifasi (/kurslar/g/ markaz kurslarini ko'rsatadi, repetitorni emas)
+              <Link key={g.slug} href="/repetitorlar/barcha" className="group relative overflow-hidden bg-gradient-to-br from-[#fbf8fc] to-[#f4eef8] hover:from-fuchsia-50 hover:to-fuchsia-100 border border-[#e4e7ea] hover:border-fuchsia-200 rounded-[16px] p-5 md:p-6 transition-all">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="text-[16px] md:text-[18px] font-bold text-[#16181a] tracking-[-0.02em] leading-tight">{g.name}</div>

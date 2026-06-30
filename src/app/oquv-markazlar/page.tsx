@@ -53,7 +53,8 @@ export const metadata: Metadata = {
 
 export default async function OquvMarkazlarPage() {
   const [groups, featured, popular, regions, realCenters] = await Promise.all([
-    getActiveCategoryGroups({ homepageOnly: true }),
+    // Faqat markaz kurslari (COURSE) bo'lgan yo'nalishlar — /oquv-markazlar sahifasi uchun
+    getActiveCategoryGroups({ listingType: "COURSE" }),
     getFeaturedListings(),
     getPopularListings(),
     getActiveRegions(),
