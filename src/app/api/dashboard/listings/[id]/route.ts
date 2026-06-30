@@ -76,6 +76,10 @@ export async function PATCH(request: Request, { params }: Ctx) {
     if (existing.status === "pending" || existing.status === "rejected") {
       return NextResponse.json({ error: "Bu e'lon hali tasdiqlanmagan" }, { status: 400 });
     }
+    // churned (shartnoma bekor) — markaz o'zi qayta faollashtira olmaydi, faqat admin
+    if (existing.status === "churned") {
+      return NextResponse.json({ error: "Shartnoma bekor qilingan. Qayta ulanish uchun admin bilan bog'laning." }, { status: 400 });
+    }
     data.status = body.status;
   }
 

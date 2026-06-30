@@ -90,7 +90,10 @@ export default async function KursDetailPage({ params }: Props) {
     getActiveCategories(),
   ]);
   if (!result) notFound();
-  const { course, id: listingId } = result;
+  const { course, id: listingId, status } = result;
+  // Shartnoma bekor qilingan e'lon — sahifa SEO uchun tirik, lekin lead/kontakt yo'q,
+  // o'rniga "hamkor emas" banner + o'xshash (faol) kurslar ko'rsatiladi.
+  const isChurned = status === "churned";
 
   // Sharhlar — har doim ko'rinadi (yulduz reytingdan mustaqil).
   // Faqat izoh qoldirgan foydalanuvchilar ko'rsatiladi (yulduzsiz baholashlar emas).
@@ -340,7 +343,7 @@ export default async function KursDetailPage({ params }: Props) {
             </div>
 
             {/* Mobile contact strip — card'dan keyin (faqat mobil/tablet uchun) */}
-            {((course.phoneShown && course.phone) || course.website || course.instagram || course.telegram) && (
+            {!isChurned && ((course.phoneShown && course.phone) || course.website || course.instagram || course.telegram) && (
               <div className="lg:hidden rounded-[18px] bg-white border border-[#e4e7ea] p-4">
                 {course.phoneShown && course.phone && (
                   <a
@@ -563,7 +566,7 @@ export default async function KursDetailPage({ params }: Props) {
                     </div>
                   </div>
                 )}
-                {course.phoneShown && course.phone && (
+                {!isChurned && course.phoneShown && course.phone && (
                   <a href={`tel:${course.phone.replace(/[^+\d]/g, "")}`} className="flex items-start gap-3 hover:opacity-80 transition-opacity">
                     <div className="w-9 h-9 rounded-[10px] bg-[#7ea2d4]/10 flex items-center justify-center shrink-0">
                       <Phone className="w-4 h-4 text-[#7ea2d4]" />
@@ -574,7 +577,7 @@ export default async function KursDetailPage({ params }: Props) {
                     </div>
                   </a>
                 )}
-                {course.website && (
+                {!isChurned && course.website && (
                   <a
                     href={course.website.startsWith("http") ? course.website : `https://${course.website}`}
                     target="_blank"
@@ -590,7 +593,7 @@ export default async function KursDetailPage({ params }: Props) {
                     </div>
                   </a>
                 )}
-                {course.instagram && (
+                {!isChurned && course.instagram && (
                   <a
                     href={(() => {
                       const v = course.instagram.trim();
@@ -610,7 +613,7 @@ export default async function KursDetailPage({ params }: Props) {
                     </div>
                   </a>
                 )}
-                {course.telegram && (
+                {!isChurned && course.telegram && (
                   <a
                     href={(() => {
                       const v = course.telegram.trim();
@@ -713,7 +716,7 @@ export default async function KursDetailPage({ params }: Props) {
               </div>
 
               {/* Desktop contact strip — narx ostida */}
-              {((course.phoneShown && course.phone) || course.website || course.instagram || course.telegram) && (
+              {!isChurned && ((course.phoneShown && course.phone) || course.website || course.instagram || course.telegram) && (
                 <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-4">
                   {course.phoneShown && course.phone && (
                     <a
@@ -772,12 +775,27 @@ export default async function KursDetailPage({ params }: Props) {
                 </div>
               )}
 
-              {/* Ariza form */}
-              <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6">
-                <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Ariza qoldirish</h3>
-                <p className="text-[13px] text-[#7c8490] mb-5">Ma&apos;lumotlaringizni qoldiring — markaz siz bilan bog&apos;lanadi</p>
-                <CourseLeadForm listingId={listingId} />
-              </div>
+              {/* Ariza form — shartnoma bekor qilingan bo'lsa o'rniga "hamkor emas" CTA */}
+              {isChurned ? (
+                <div className="rounded-[18px] bg-[#fff7ed] border border-[#fdba74] p-6">
+                  <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Bu markaz hozir Darslinker hamkori emas</h3>
+                  <p className="text-[13px] text-[#7c8490] mb-4">
+                    {course.provider} hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida shu yo&apos;nalishdagi faol kurslarni ko&apos;rishingiz mumkin.
+                  </p>
+                  <Link
+                    href={course.categorySlug ? `/kurslar/${course.categorySlug}` : "/kurslar"}
+                    className="inline-flex items-center justify-center h-[44px] px-5 rounded-[10px] bg-[#7ea2d4] text-white text-[14px] font-semibold hover:bg-[#5b87c0] transition-colors"
+                  >
+                    O&apos;xshash kurslarni ko&apos;rish &rarr;
+                  </Link>
+                </div>
+              ) : (
+                <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6">
+                  <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Ariza qoldirish</h3>
+                  <p className="text-[13px] text-[#7c8490] mb-5">Ma&apos;lumotlaringizni qoldiring — markaz siz bilan bog&apos;lanadi</p>
+                  <CourseLeadForm listingId={listingId} />
+                </div>
+              )}
 
             </div>
           </div>

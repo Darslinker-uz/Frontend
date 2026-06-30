@@ -35,13 +35,14 @@ interface TaxonomyGroup {
   categories: { id: number; name: string; slug: string }[];
 }
 
-type Status = "pending" | "active" | "paused" | "rejected";
+type Status = "pending" | "active" | "paused" | "rejected" | "churned";
 
 const STATUS_META: Record<Status, { label: string; color: string }> = {
   pending: { label: "Tekshiruvda", color: "#f59e0b" },
   active: { label: "Aktiv", color: "#22c55e" },
   paused: { label: "To'xtatilgan", color: "#94a3b8" },
   rejected: { label: "Rad etilgan", color: "#ef4444" },
+  churned: { label: "Hamkor emas", color: "#a855f7" },
 };
 
 const inputClass = "w-full h-[44px] px-4 rounded-[10px] text-[15px] placeholder:text-white/20 focus:outline-none focus:border-[#7ea2d4]/40 transition-all";

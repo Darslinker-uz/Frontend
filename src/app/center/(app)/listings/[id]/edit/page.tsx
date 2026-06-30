@@ -64,7 +64,7 @@ interface ApiListing {
   imageCZoom: number;
   imageCMZoom: number;
   imageDarkness?: number;
-  status: "pending" | "active" | "paused" | "rejected";
+  status: "pending" | "active" | "paused" | "rejected" | "churned";
   category: { id: number; name: string; slug: string; group?: { id: number; name: string; slug: string } | null };
   language: string;
   languages?: string[];

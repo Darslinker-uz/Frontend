@@ -28,7 +28,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }),
       prisma.listing.findMany({
         where: {
-          status: "active",
+          // churned ham qoladi — sahifa tirik (SEO), indeksda saqlanadi, lead boshqalarga ketadi
+          status: { in: ["active", "churned"] },
           listingType: "COURSE", // /kurslar/ URL'i faqat COURSE'lar uchun mavjud
           category: { active: true, pendingApproval: false },
         },

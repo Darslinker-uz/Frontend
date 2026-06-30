@@ -31,6 +31,7 @@ const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   pending: { label: "Tekshiruvda", color: "#f59e0b" },
   paused: { label: "To'xtatilgan", color: "#94a3b8" },
   rejected: { label: "Rad etilgan", color: "#ef4444" },
+  churned: { label: "Hamkor emas", color: "#a855f7" },
 };
 
 export function ListingsTab({ period }: { period: PeriodId }) {

@@ -7,7 +7,7 @@ import { Plus, MoreHorizontal, Edit, Trash2, Eye, EyeOff, Star, Users, Zap, Paus
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
 import { useDashboardMode } from "@/components/dashboard-mode-switcher";
 
-type DbStatus = "pending" | "active" | "paused" | "rejected";
+type DbStatus = "pending" | "active" | "paused" | "rejected" | "churned";
 
 interface ApiListing {
   id: number;
@@ -29,7 +29,7 @@ interface Listing {
   format: string;
   price: string;
   priceFree: boolean;
-  status: "aktiv" | "pauza" | "rad_etilgan" | "moderatsiyada";
+  status: "aktiv" | "pauza" | "rad_etilgan" | "moderatsiyada" | "hamkor_emas";
   boost: null | "A" | "B";
   views: number;
   leads: number;
@@ -41,6 +41,7 @@ const STATUS_MAP: Record<DbStatus, Listing["status"]> = {
   paused: "pauza",
   rejected: "rad_etilgan",
   pending: "moderatsiyada",
+  churned: "hamkor_emas",
 };
 
 const FORMAT_MAP: Record<ApiListing["format"], string> = {
@@ -71,6 +72,7 @@ const statusConfig = {
   pauza: { label: "Pauza", color: "#f59e0b", icon: Pause },
   rad_etilgan: { label: "Rad etilgan", color: "#ef4444", icon: AlertCircle },
   moderatsiyada: { label: "Tekshiruvda", color: "#3b82f6", icon: Eye },
+  hamkor_emas: { label: "Hamkor emas", color: "#a855f7", icon: AlertCircle },
 };
 
 export default function ListingsPage() {
@@ -240,10 +242,13 @@ export default function ListingsPage() {
                           <Link href={`/center/listings/${listing.id}/edit`} onClick={() => setMenuOpen(null)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] transition-all" style={{ color: config.textMuted }}>
                             <Edit className="w-3.5 h-3.5" /> Tahrirlash
                           </Link>
-                          <Link href={`/center/listings/${listing.id}/boost`} onClick={() => setMenuOpen(null)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#7ea2d4] hover:bg-[#7ea2d4]/10 transition-all">
-                            <Zap className="w-3.5 h-3.5" /> Boost qilish
-                          </Link>
-                          {listing.status !== "moderatsiyada" && (
+                          {listing.status !== "hamkor_emas" && (
+                            <Link href={`/center/listings/${listing.id}/boost`} onClick={() => setMenuOpen(null)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-[#7ea2d4] hover:bg-[#7ea2d4]/10 transition-all">
+                              <Zap className="w-3.5 h-3.5" /> Boost qilish
+                            </Link>
+                          )}
+                          {/* churned (hamkor_emas) — markaz o'zi qayta faollashtira olmaydi (faqat admin) */}
+                          {listing.status !== "moderatsiyada" && listing.status !== "hamkor_emas" && (
                             <button onClick={() => openPauseModal(listing)} className="w-full flex items-center gap-2 px-3 py-2 text-[13px] transition-all" style={{ color: config.textMuted }}>
                               {listing.status === "aktiv" ? <><Pause className="w-3.5 h-3.5" /> Pauzaga qo&apos;yish</> : <><Play className="w-3.5 h-3.5" /> Aktivlashtirish</>}
                             </button>

@@ -220,7 +220,7 @@ export async function getActiveListings(options?: {
   return listings.map(listingToCourse);
 }
 
-export async function getListingBySlug(slug: string): Promise<{ course: Course; id: number } | null> {
+export async function getListingBySlug(slug: string): Promise<{ course: Course; id: number; status: string } | null> {
   const listing = await prisma.listing.findFirst({
     where: {
       slug,
@@ -239,10 +239,12 @@ export async function getListingBySlug(slug: string): Promise<{ course: Course; 
       ratings: { select: { stars: true } },
     },
   });
-  if (!listing || listing.status !== "active") return null;
+  // active → normal; churned → sahifa tirik (SEO), lekin "hamkor emas" UI bilan.
+  // Boshqa statuslar (pending/paused/rejected) → 404.
+  if (!listing || (listing.status !== "active" && listing.status !== "churned")) return null;
   // View increment endi client-side (POST /api/listings/[id]/view) orqali —
   // Next.js prefetch va StrictMode tufayli sahifa server render har gal +1 qo'shar edi.
-  return { course: listingToCourse(listing), id: listing.id };
+  return { course: listingToCourse(listing), id: listing.id, status: listing.status };
 }
 
 // Bosh sahifa FeaturedSlider (A-class) — paid'lar avval, qolgani random non-paid bilan to'ldiriladi.

@@ -66,6 +66,7 @@ enum ListingStatus {
   active
   paused
   rejected
+  churned // shartnoma bekor qilindi — sahifa tirik (SEO), lead yo'q, public'da "hamkor emas + o'xshash kurslar"
 }
 
 enum AdmissionStatus {

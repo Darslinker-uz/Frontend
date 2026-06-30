@@ -8,7 +8,7 @@ import { requirePermission } from "@/lib/require-permission";
 
 interface Ctx { params: Promise<{ id: string }> }
 
-const ALLOWED_STATUS: ListingStatus[] = ["pending", "active", "paused", "rejected"];
+const ALLOWED_STATUS: ListingStatus[] = ["pending", "active", "paused", "rejected", "churned"];
 
 // Assistant tahrirlaganda re-moderation triggerlovchi maydonlar
 // (vizual sozlamalar — pos/zoom/darkness — re-moderation triggerlamasin)

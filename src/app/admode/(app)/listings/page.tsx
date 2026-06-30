@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Check, X, Eye, MoreHorizontal, AlertCircle, Clock, Zap, MapPin, Pause, Play, Trash2, Pencil, Plus, Star, ArrowRight } from "lucide-react";
+import { Search, Check, X, Eye, MoreHorizontal, AlertCircle, Clock, Zap, MapPin, Pause, Play, Trash2, Pencil, Plus, Star, ArrowRight, Ban } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
 import { GRADIENT_OPTIONS, ICON_OPTIONS } from "@/data/courses";
 import { ElonlarTabs } from "../_components/elonlar-tabs";
 
-type Status = "pending" | "active" | "paused" | "rejected";
+type Status = "pending" | "active" | "paused" | "rejected" | "churned";
 
 interface Listing {
   id: number;
@@ -40,6 +40,7 @@ const STATUS_CONFIG: Record<Status, { label: string; color: string }> = {
   active: { label: "Aktiv", color: "#22c55e" },
   paused: { label: "Pauza", color: "#64748b" },
   rejected: { label: "Rad etilgan", color: "#ef4444" },
+  churned: { label: "Hamkor emas", color: "#a855f7" },
 };
 
 const fmt = (n: number) => new Intl.NumberFormat("uz-UZ").format(n);
@@ -93,6 +94,7 @@ export default function AdminListingsPage() {
     active: listings.filter(l => l.status === "active").length,
     paused: listings.filter(l => l.status === "paused").length,
     rejected: listings.filter(l => l.status === "rejected").length,
+    churned: listings.filter(l => l.status === "churned").length,
   };
 
   const updateStatus = async (id: number, patch: { status?: Status; rejectReason?: string }) => {
@@ -114,6 +116,13 @@ export default function AdminListingsPage() {
     setConfirmApprove(null);
   };
   const togglePause = (l: Listing) => { updateStatus(l.id, { status: l.status === "active" ? "paused" : "active" }); setMenuOpen(null); };
+  // Shartnoma bekor — sahifa SEO uchun tirik qoladi, lead yo'q, public'da "hamkor emas + o'xshash kurslar"
+  const churnListing = (l: Listing) => {
+    if (!confirm(`"${l.title}" — shartnoma bekor qilinsinmi?\n\nSahifa SEO uchun tirik qoladi, lekin lead qabul qilinmaydi va saytda "hamkor emas + o'xshash kurslar" ko'rsatiladi. Keyin qayta faollashtirish mumkin.`)) return;
+    updateStatus(l.id, { status: "churned" });
+    setMenuOpen(null);
+  };
+  const reactivateListing = (l: Listing) => { updateStatus(l.id, { status: "active" }); setMenuOpen(null); };
 
   const reject = () => {
     if (!rejectModal || !rejectReason.trim()) return;
@@ -174,6 +183,7 @@ export default function AdminListingsPage() {
           { key: "active" as const, label: "Aktiv", count: counts.active },
           { key: "paused" as const, label: "Pauza", count: counts.paused },
           { key: "rejected" as const, label: "Rad etilgan", count: counts.rejected },
+          { key: "churned" as const, label: "Hamkor emas", count: counts.churned },
           { key: "hammasi" as const, label: "Hammasi", count: counts.hammasi },
         ].map((t) => {
           const isActive = tab === t.key;
@@ -314,6 +324,22 @@ export default function AdminListingsPage() {
                               label={l.status === "active" ? "Pauzaga qo'yish" : "Aktivlashtirish"}
                               color={config.text}
                               onClick={() => togglePause(l)}
+                            />
+                          )}
+                          {(l.status === "active" || l.status === "paused") && (
+                            <MenuItem
+                              icon={Ban}
+                              label="Shartnoma bekor qilindi"
+                              color="#a855f7"
+                              onClick={() => churnListing(l)}
+                            />
+                          )}
+                          {l.status === "churned" && (
+                            <MenuItem
+                              icon={Play}
+                              label="Qayta faollashtirish"
+                              color="#22c55e"
+                              onClick={() => reactivateListing(l)}
                             />
                           )}
                           {l.status === "pending" && (
