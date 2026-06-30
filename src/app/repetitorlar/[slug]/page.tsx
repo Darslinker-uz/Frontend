@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight, ChevronRight, Home, MapPin, Star, GraduationCap, BookOpen, Calendar, Phone, Wifi, Building2 } from "lucide-react";
 import { getTutorBySlug, getRelatedTutors } from "@/lib/tutors";
 import { TutorLeadForm } from "./tutor-lead-form";
+import { FloatingApplyButton } from "@/components/floating-apply-button";
 
 export const dynamic = "force-dynamic";
 
@@ -170,6 +171,7 @@ export default async function TutorPage({ params }: Props) {
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      <FloatingApplyButton targetId="ariza-qoldirish" colorClass="bg-fuchsia-600 hover:bg-fuchsia-700" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }} />
@@ -331,7 +333,7 @@ export default async function TutorPage({ params }: Props) {
 
           {/* SIDEBAR: Form + kontakt */}
           <aside className="space-y-5 lg:sticky lg:top-24 self-start">
-            <div>
+            <div id="ariza-qoldirish">
               <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-t-[20px] px-5 md:px-6 pt-5 pb-3">
                 <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a] tracking-[-0.02em]">Dars uchun ariza</h2>
                 <p className="text-[12.5px] text-[#475569] mt-1.5">

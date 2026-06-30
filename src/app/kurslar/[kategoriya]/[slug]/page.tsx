@@ -9,6 +9,7 @@ import { RatingForm } from "@/components/rating-form";
 import { RatingComments } from "@/components/rating-comments";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { ViewTracker } from "@/components/view-tracker";
+import { FloatingApplyButton } from "@/components/floating-apply-button";
 import { MIN_RATINGS_TO_SHOW } from "@/data/courses";
 
 export const dynamic = "force-dynamic";
@@ -250,6 +251,7 @@ export default async function KursDetailPage({ params }: Props) {
     <div className="bg-[#f0f2f3] min-h-screen">
       <ScrollToTop />
       <ViewTracker slug={slug} />
+      {!isChurned && <FloatingApplyButton targetId="ariza-qoldirish" />}
       {/* eslint-disable-next-line @next/next/no-head-element */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
@@ -790,7 +792,7 @@ export default async function KursDetailPage({ params }: Props) {
                   </Link>
                 </div>
               ) : (
-                <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-6">
+                <div id="ariza-qoldirish" className="rounded-[18px] bg-white border border-[#e4e7ea] p-6">
                   <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Ariza qoldirish</h3>
                   <p className="text-[13px] text-[#7c8490] mb-5">Ma&apos;lumotlaringizni qoldiring — markaz siz bilan bog&apos;lanadi</p>
                   <CourseLeadForm listingId={listingId} />

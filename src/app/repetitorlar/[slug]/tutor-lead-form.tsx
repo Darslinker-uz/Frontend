@@ -87,7 +87,7 @@ export function TutorLeadForm({ tutorName, firstListingId }: Props) {
             onChange={(e) => setName(e.target.value)}
             placeholder="Ism va familiya"
             required
-            className="flex-1 bg-transparent text-[14px] text-[#16181a] py-2.5 outline-none placeholder:text-[#7c8490]"
+            className="flex-1 bg-transparent text-[16px] text-[#16181a] py-2.5 outline-none placeholder:text-[#7c8490]"
           />
         </div>
       </div>
@@ -102,7 +102,7 @@ export function TutorLeadForm({ tutorName, firstListingId }: Props) {
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+998 90 123 45 67"
             required
-            className="flex-1 bg-transparent text-[14px] text-[#16181a] py-2.5 outline-none placeholder:text-[#7c8490]"
+            className="flex-1 bg-transparent text-[16px] text-[#16181a] py-2.5 outline-none placeholder:text-[#7c8490]"
           />
         </div>
       </div>
@@ -116,7 +116,7 @@ export function TutorLeadForm({ tutorName, firstListingId }: Props) {
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Qaysi fan, qaysi daraja?"
             rows={3}
-            className="flex-1 bg-transparent text-[14px] text-[#16181a] py-2.5 outline-none resize-none placeholder:text-[#7c8490]"
+            className="flex-1 bg-transparent text-[16px] text-[#16181a] py-2.5 outline-none resize-none placeholder:text-[#7c8490]"
           />
         </div>
       </div>

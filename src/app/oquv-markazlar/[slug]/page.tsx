@@ -5,6 +5,7 @@ import { ArrowRight, ChevronRight, Home, MapPin, Star, ShieldCheck, BookOpen, Aw
 import { FAKE_CENTERS, findFakeCenterBySlug, generateFakeCoursesForCenter } from "@/data/fake-centers";
 import { getCenterBySlug, getRelatedCenters } from "@/lib/centers";
 import { MarkazLeadForm } from "./markaz-lead-form";
+import { FloatingApplyButton } from "@/components/floating-apply-button";
 
 export const dynamic = "force-dynamic";
 
@@ -339,6 +340,7 @@ export default async function MarkazPage({ params }: Props) {
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
+      <FloatingApplyButton targetId="ariza-qoldirish" colorClass="bg-emerald-600 hover:bg-emerald-700" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageLd) }} />
@@ -542,7 +544,7 @@ export default async function MarkazPage({ params }: Props) {
           {/* RIGHT SIDEBAR: Form + Contact */}
           <aside className="space-y-5 lg:sticky lg:top-24 self-start">
             {/* Application form */}
-            <div>
+            <div id="ariza-qoldirish">
               <div className="bg-emerald-50 border border-emerald-100 rounded-t-[20px] px-5 md:px-6 pt-5 pb-3">
                 <div className="inline-flex items-center gap-1.5 bg-white border border-emerald-200 rounded-full px-2.5 py-1 mb-3">
                   <Send className="w-3 h-3 text-emerald-700" />

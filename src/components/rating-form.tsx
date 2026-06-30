@@ -163,7 +163,7 @@ export function RatingForm({ listingId }: { listingId: number }) {
                       placeholder="77 123 45 67"
                       maxLength={12}
                       disabled={submitting}
-                      className="w-full h-[44px] pl-[68px] pr-3 text-[14px] rounded-[10px] bg-white border border-[#e4e7ea] focus:outline-none focus:border-[#7ea2d4] transition-colors"
+                      className="w-full h-[44px] pl-[68px] pr-3 text-[16px] rounded-[10px] bg-white border border-[#e4e7ea] focus:outline-none focus:border-[#7ea2d4] transition-colors"
                     />
                   </div>
                 </div>
@@ -197,7 +197,7 @@ export function RatingForm({ listingId }: { listingId: number }) {
                       placeholder="Kurs haqida fikringizni yozing..."
                       rows={3}
                       disabled={submitting}
-                      className="w-full pl-10 pr-3 py-2.5 text-[13px] rounded-[10px] bg-white border border-[#e4e7ea] focus:outline-none focus:border-[#7ea2d4] transition-colors resize-none"
+                      className="w-full pl-10 pr-3 py-2.5 text-[16px] rounded-[10px] bg-white border border-[#e4e7ea] focus:outline-none focus:border-[#7ea2d4] transition-colors resize-none"
                     />
                   </div>
                   <p className="text-[10px] text-[#7c8490] mt-1">{comment.length}/500</p>
