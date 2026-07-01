@@ -38,13 +38,13 @@ export function FloatingApplyButton({
   if (!armed || formVisible) return null;
 
   return (
-    <div className="md:hidden fixed bottom-5 left-4 right-20 z-[65]">
+    <div className="floating-cta-enter md:hidden fixed left-1/2 bottom-5 z-[65]">
       <button
         type="button"
         onClick={() => {
           document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
-        className={`floating-cta-enter w-full flex items-center justify-center gap-2 h-[52px] rounded-full text-white text-[15px] font-semibold shadow-[0_10px_28px_rgba(0,0,0,0.28)] transition-colors ${colorClass}`}
+        className={`flex items-center justify-center gap-2 h-[52px] px-6 rounded-full text-white text-[15px] font-semibold whitespace-nowrap shadow-[0_10px_28px_rgba(0,0,0,0.28)] transition-colors ${colorClass}`}
       >
         <Send className="w-4 h-4" />
         {label}
