@@ -31,10 +31,17 @@ export async function GET(request: Request) {
           where: { userId: u.id, type: "topup", status: "success" },
           _sum: { amount: true },
         });
+        // phonePublic — repetitor/markaz profil sahifasida (getTutorBySlug/getCenterBySlug)
+        // telefon ko'rinishi shu bilan bir xil mezon: kamida 1 ta listing'da phoneShown=true
+        const shownListing = await prisma.listing.findFirst({
+          where: { userId: u.id, status: { in: ["active", "churned"] }, phoneShown: true },
+          select: { id: true },
+        });
         return {
           ...u,
           listingsCount: u._count.listings,
           revenue: revenue._sum.amount ?? 0,
+          phonePublic: Boolean(shownListing),
         };
       }
       if (u.role === "student") {

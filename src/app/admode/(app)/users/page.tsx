@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, MoreHorizontal, Shield, GraduationCap, User as UserIcon, UserCog, Ban, CheckCircle2, Trash2, Eye, Phone, Calendar, X, Wallet, Plus, Minus, FilePlus2 } from "lucide-react";
+import { Search, MoreHorizontal, Shield, GraduationCap, User as UserIcon, UserCog, Ban, CheckCircle2, Trash2, Eye, Phone, Calendar, X, Wallet, Plus, Minus, FilePlus2, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { formatUzPhone, UZ_PHONE_PREFIX, hasUzPhoneContent } from "@/lib/phone-format";
 
 type Role = "admin" | "provider" | "student" | "assistant";
 
@@ -22,6 +23,8 @@ interface User {
   listingsCount: number;
   revenue?: number;
   leadsCount?: number;
+  // provider uchun — repetitor/markaz profil sahifasida telefon ko'rinadimi
+  phonePublic?: boolean;
 }
 
 const ROLE_CONFIG: Record<Role, { label: string; icon: typeof Shield; color: string }> = {
@@ -139,6 +142,18 @@ export default function AdminUsersPage() {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const savePhone = async (userId: number, phone: string, phonePublic: boolean) => {
+    const r = await fetch(`/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, phonePublic }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data?.error ?? "Xatolik");
+    setUsers(p => p.map(u => (u.id === userId ? { ...u, phone, phonePublic } : u)));
+    setOpenUser(ou => (ou && ou.id === userId ? { ...ou, phone, phonePublic } : ou));
   };
 
   const topup = async (userId: number, amount: number, note: string) => {
@@ -338,6 +353,7 @@ export default function AdminUsersPage() {
           onToggleBlock={() => toggleBlock(openUser)}
           onDelete={() => deleteUser(openUser.id)}
           onClearTelegram={() => clearUserTelegram(openUser)}
+          onSavePhone={(phone, phonePublic) => savePhone(openUser.id, phone, phonePublic)}
         />
       )}
 
@@ -519,15 +535,23 @@ function UserDetailModal({
   onToggleBlock,
   onDelete,
   onClearTelegram,
+  onSavePhone,
 }: {
   user: User;
   onClose: () => void;
   onToggleBlock: () => void;
   onDelete: () => void;
   onClearTelegram: () => void | Promise<void>;
+  onSavePhone: (phone: string, phonePublic: boolean) => void | Promise<void>;
 }) {
   const { config } = useAdminTheme();
   const [clearingTg, setClearingTg] = useState(false);
+  const isPendingPhone = user.phone.startsWith("pending-");
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [phoneInput, setPhoneInput] = useState(isPendingPhone ? UZ_PHONE_PREFIX : formatUzPhone(user.phone));
+  const [phonePublicInput, setPhonePublicInput] = useState(user.phonePublic ?? false);
+  const [savingPhone, setSavingPhone] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const Icon = ROLE_CONFIG[user.role].icon;
   const roleColor = ROLE_CONFIG[user.role].color;
   const isLight = config.id === "light" || config.id === "cream";
@@ -561,10 +585,71 @@ function UserDetailModal({
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-wider mb-2.5" style={{ color: config.textDim }}>Kontakt</p>
             <div className="rounded-[12px] p-4 space-y-2.5" style={{ backgroundColor: config.hover }}>
-              <div className="flex items-center gap-2 text-[13px]" style={{ color: config.text }}>
-                <Phone className="w-3.5 h-3.5" style={{ color: config.textMuted }} />
-                {user.phone}
-              </div>
+              {editingPhone ? (
+                <div className="space-y-2">
+                  <input
+                    type="tel"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(formatUzPhone(e.target.value) || UZ_PHONE_PREFIX)}
+                    placeholder="+998 90 123 45 67"
+                    className="w-full h-[38px] px-3 rounded-[8px] text-[13px] focus:outline-none"
+                    style={{ backgroundColor: isLight ? "#ffffff" : config.sidebar, border: `1px solid ${config.surfaceBorder}`, color: config.text }}
+                  />
+                  {user.role === "provider" && (
+                    <label className="flex items-center gap-2 text-[12.5px] cursor-pointer" style={{ color: config.textMuted }}>
+                      <input type="checkbox" checked={phonePublicInput} onChange={(e) => setPhonePublicInput(e.target.checked)} />
+                      Repetitor/markaz profil sahifasida ko&apos;rsatish
+                    </label>
+                  )}
+                  {phoneError && <p className="text-[12px]" style={{ color: "#ef4444" }}>{phoneError}</p>}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={savingPhone}
+                      onClick={async () => {
+                        if (!hasUzPhoneContent(phoneInput)) { setPhoneError("Raqamni to'liq kiriting"); return; }
+                        setSavingPhone(true);
+                        setPhoneError(null);
+                        try {
+                          await onSavePhone(phoneInput.trim(), phonePublicInput);
+                          setEditingPhone(false);
+                        } catch (e) {
+                          setPhoneError(e instanceof Error ? e.message : "Xatolik");
+                        } finally {
+                          setSavingPhone(false);
+                        }
+                      }}
+                      className="flex-1 h-[36px] rounded-[8px] text-[12.5px] font-medium disabled:opacity-50"
+                      style={{ backgroundColor: config.accent, color: config.accentText }}
+                    >
+                      {savingPhone ? "Saqlanmoqda..." : "Saqlash"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setEditingPhone(false); setPhoneError(null); setPhoneInput(isPendingPhone ? UZ_PHONE_PREFIX : formatUzPhone(user.phone)); setPhonePublicInput(user.phonePublic ?? false); }}
+                      className="flex-1 h-[36px] rounded-[8px] text-[12.5px] font-medium"
+                      style={{ backgroundColor: "transparent", border: `1px solid ${config.surfaceBorder}`, color: config.textMuted }}
+                    >
+                      Bekor qilish
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-[13px] min-w-0" style={{ color: isPendingPhone ? "#ef4444" : config.text }}>
+                    <Phone className="w-3.5 h-3.5 shrink-0" style={{ color: isPendingPhone ? "#ef4444" : config.textMuted }} />
+                    <span className="truncate">{isPendingPhone ? "Raqam kiritilmagan" : user.phone}</span>
+                    {user.role === "provider" && !isPendingPhone && (
+                      <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded-full shrink-0" style={{ backgroundColor: user.phonePublic ? "#22c55e22" : `${config.textDim}22`, color: user.phonePublic ? "#22c55e" : config.textDim }}>
+                        {user.phonePublic ? "Public" : "Yashirin"}
+                      </span>
+                    )}
+                  </div>
+                  <button type="button" onClick={() => setEditingPhone(true)} className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: isLight ? "#ffffff" : config.sidebar, color: config.textMuted }}>
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
               {user.telegramChatId && (
                 <div className="flex items-center gap-2 text-[13px]" style={{ color: config.text }}>
                   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" style={{ color: config.textMuted }}>
