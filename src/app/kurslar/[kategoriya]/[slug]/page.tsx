@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Clock, Star, BookOpen, Award, Users, Globe, CreditCard, Gift, Calendar, GraduationCap, Wallet, Tag, Eye, Phone } from "lucide-react";
 import { InstagramIcon, TelegramIcon } from "@/components/social-icons";
-import { notFound } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { getListingBySlug, getActiveCategories, getActiveListings, getRecentComments } from "@/lib/listings";
 import { CourseLeadForm } from "@/components/course-lead-form";
 import { RatingForm } from "@/components/rating-form";
@@ -90,7 +90,13 @@ export default async function KursDetailPage({ params }: Props) {
     getListingBySlug(slug),
     getActiveCategories(),
   ]);
-  if (!result) notFound();
+  // Kurs butunlay o'chirilgan (churned emas, chunki churned bo'lsa getListingBySlug
+  // hamon obyekt qaytaradi) — mavzu bo'yicha yaqin sahifaga 301/308 redirect
+  // (bosh sahifaga emas — Google buni "soft 404" deb belgilashi mumkin).
+  if (!result) {
+    const catExists = categories.some((c) => c.slug === kategoriya);
+    permanentRedirect(catExists ? `/kurslar/${kategoriya}` : "/kurslar");
+  }
   const { course, id: listingId, status } = result;
   // Shartnoma bekor qilingan e'lon — sahifa SEO uchun tirik, lekin lead/kontakt yo'q,
   // o'rniga "hamkor emas" banner + o'xshash (faol) kurslar ko'rsatiladi.
