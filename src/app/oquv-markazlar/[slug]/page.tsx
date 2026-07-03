@@ -208,7 +208,7 @@ export default async function MarkazPage({ params }: Props) {
     "url": `${SITE_URL}/oquv-markazlar/${center.slug}`,
     "inLanguage": "uz",
     "foundingDate": center.foundedYear.toString(),
-    ...(!isChurned ? { "telephone": center.phone } : {}),
+    ...(!isChurned && center.phone ? { "telephone": center.phone } : {}),
     "areaServed": center.regions.map(r => ({
       "@type": "City",
       "name": r,
@@ -222,7 +222,7 @@ export default async function MarkazPage({ params }: Props) {
         "addressCountry": "UZ",
       },
     } : {}),
-    ...(!isChurned ? {
+    ...(!isChurned && center.phone ? {
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": center.phone,
@@ -300,8 +300,8 @@ export default async function MarkazPage({ params }: Props) {
         "acceptedAnswer": {
           "@type": "Answer",
           "text": center.regions.length > 0
-            ? `${center.provider} ${center.regions.join(", ")} ${center.regions.length > 1 ? "viloyatlarida" : "viloyatida"} faoliyat yuritadi. Aniq manzil va kontakt uchun markazga ${center.phone} raqami orqali bog'laning.`
-            : `${center.provider} O'zbekistonda faoliyat yuritadi. Kontakt: ${center.phone}.`,
+            ? `${center.provider} ${center.regions.join(", ")} ${center.regions.length > 1 ? "viloyatlarida" : "viloyatida"} faoliyat yuritadi.${center.phone ? ` Aniq manzil va kontakt uchun markazga ${center.phone} raqami orqali bog'laning.` : " Aniq manzil va kontakt uchun Darslinker profilidagi ariza formasini to'ldiring."}`
+            : `${center.provider} O'zbekistonda faoliyat yuritadi.${center.phone ? ` Kontakt: ${center.phone}.` : ""}`,
         },
       },
       {
@@ -329,7 +329,9 @@ export default async function MarkazPage({ params }: Props) {
           "@type": "Answer",
           "text": center.certificate
             ? `Ha, ${center.provider} kurslari tugaganidan keyin rasmiy sertifikat beradi. Sertifikat CV va portfolio uchun ishlatilishi mumkin.`
-            : `${center.provider} sertifikat berishi haqida aniq ma'lumot uchun markazga ${center.phone} orqali murojaat qiling.`,
+            : center.phone
+              ? `${center.provider} sertifikat berishi haqida aniq ma'lumot uchun markazga ${center.phone} orqali murojaat qiling.`
+              : `${center.provider} sertifikat berishi haqida aniq ma'lumot uchun Darslinker profilidagi ariza formasini to'ldiring.`,
         },
       },
       {
@@ -337,7 +339,9 @@ export default async function MarkazPage({ params }: Props) {
         "name": `${center.provider}ga qanday yozilish mumkin?`,
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": `${center.provider}ga 2 yo'l bilan yozilishingiz mumkin: 1) Telefon: ${center.phone} 2) Darslinker katalogidagi profil sahifasida "Markazga ariza" formasini to'ldiring — markaz vakili 24 soat ichida bog'lanadi.`,
+          "text": center.phone
+            ? `${center.provider}ga 2 yo'l bilan yozilishingiz mumkin: 1) Telefon: ${center.phone} 2) Darslinker katalogidagi profil sahifasida "Markazga ariza" formasini to'ldiring — markaz vakili 24 soat ichida bog'lanadi.`
+            : `Darslinker katalogidagi profil sahifasida "Markazga ariza" formasini to'ldiring — markaz vakili 24 soat ichida bog'lanadi.`,
         },
       },
     ],
@@ -586,15 +590,18 @@ export default async function MarkazPage({ params }: Props) {
                   </div>
                 </div>
 
-                {/* Quick contact (kontakt malumotlar) */}
+                {/* Quick contact (kontakt malumotlar) — hech biri bo'lmasa karta o'zi ko'rinmaydi */}
+                {(center.phone || center.telegram || center.instagram || center.website) && (
                 <div className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6">
                   <h3 className="text-[14px] font-bold text-[#16181a] tracking-[-0.01em] mb-3">Kontakt ma&apos;lumotlari</h3>
-                  <a href={`tel:${center.phone.replace(/\s/g, "")}`} className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
-                    <div className="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-                      <Phone className="w-4 h-4" />
-                    </div>
-                    <span className="font-medium">{center.phone}</span>
-                  </a>
+                  {center.phone && (
+                    <a href={`tel:${center.phone.replace(/\s/g, "")}`} className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
+                      <div className="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <span className="font-medium">{center.phone}</span>
+                    </a>
+                  )}
                   {center.telegram && (
                     <a href={`https://t.me/${center.telegram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
                       <div className="w-8 h-8 rounded-[10px] bg-sky-50 text-sky-700 flex items-center justify-center shrink-0">
@@ -620,6 +627,7 @@ export default async function MarkazPage({ params }: Props) {
                     </a>
                   )}
                 </div>
+                )}
               </>
             )}
           </aside>

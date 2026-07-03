@@ -91,7 +91,9 @@ export type TutorCourseItem = {
 };
 
 export type TutorDetail = TutorListItem & {
-  phone: string;
+  // null — raqam hali kiritilmagan (admin "pending-" placeholder) yoki provider
+  // uni public'da yashirgan (phoneShown: false barcha listing'larida)
+  phone: string | null;
   telegram: string | null;
   instagram: string | null;
   website: string | null;
@@ -342,10 +344,15 @@ export async function getTutorBySlug(slug: string): Promise<TutorDetail | null> 
   const firstListingWithLinks = u.listings.find(l => l.telegram || l.instagram || l.website) ?? null;
   // Kamida 1 ta faol listing bo'lsa — profil "active"; hammasi churned bo'lsa — "churned"
   const status: "active" | "churned" = u.listings.some(l => l.status === "active") ? "active" : "churned";
+  // Admin tez qo'shganda vaqtinchalik "pending-..." raqam beriladi — bu hech qachon
+  // public'da ko'rsatilmasin. Shuningdek, provider hech bir listing'ida telefon
+  // ko'rsatishga rozi bo'lmagan bo'lsa (phoneShown: false hammasida) — yashiramiz.
+  const isPlaceholderPhone = u.phone.startsWith("pending-");
+  const phoneIsPublic = !isPlaceholderPhone && u.listings.some(l => l.phoneShown);
 
   return {
     ...base,
-    phone: u.phone,
+    phone: phoneIsPublic ? u.phone : null,
     telegram: firstListingWithLinks?.telegram ?? null,
     instagram: firstListingWithLinks?.instagram ?? null,
     website: firstListingWithLinks?.website ?? null,

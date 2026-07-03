@@ -94,7 +94,7 @@ export default async function TutorPage({ params }: Props) {
     "name": tutor.fullName,
     "description": tutor.description,
     "url": `${SITE_URL}/repetitorlar/${tutor.slug}`,
-    ...(!isChurned ? { "telephone": tutor.phone } : {}),
+    ...(!isChurned && tutor.phone ? { "telephone": tutor.phone } : {}),
     "jobTitle": tutor.subjects.length > 0 ? `${tutor.subjects[0]} repetitori` : "Shaxsiy repetitor",
     "knowsAbout": tutor.subjects,
     "knowsLanguage": ["uz", "ru"],
@@ -169,7 +169,9 @@ export default async function TutorPage({ params }: Props) {
       {
         "@type": "Question",
         "name": `${tutor.fullName}ga qanday yozilish mumkin?`,
-        "acceptedAnswer": { "@type": "Answer", "text": `2 yo'l bilan: 1) Telefon ${tutor.phone} 2) Darslinker profili: ${SITE_URL}/repetitorlar/${tutor.slug} — "Repetitorga ariza" formasi.` },
+        "acceptedAnswer": { "@type": "Answer", "text": tutor.phone
+          ? `2 yo'l bilan: 1) Telefon ${tutor.phone} 2) Darslinker profili: ${SITE_URL}/repetitorlar/${tutor.slug} — "Repetitorga ariza" formasi.`
+          : `Darslinker profilidagi "Repetitorga ariza" formasini to'ldiring: ${SITE_URL}/repetitorlar/${tutor.slug} — repetitor 24 soat ichida bog'lanadi.` },
       },
     ],
     "speakable": { "@type": "SpeakableSpecification", "cssSelector": ["h2", "h3"] },
@@ -366,7 +368,7 @@ export default async function TutorPage({ params }: Props) {
               </div>
             )}
 
-            {!isChurned && (
+            {!isChurned && tutor.phone && (
               <div className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6">
                 <h3 className="text-[14px] font-bold text-[#16181a] tracking-[-0.01em] mb-3">Kontakt</h3>
                 <a href={`tel:${tutor.phone.replace(/\s/g, "")}`} className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-fuchsia-700 transition-colors">
