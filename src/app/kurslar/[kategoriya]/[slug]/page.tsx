@@ -93,9 +93,11 @@ export default async function KursDetailPage({ params }: Props) {
   // Kurs butunlay o'chirilgan (churned emas, chunki churned bo'lsa getListingBySlug
   // hamon obyekt qaytaradi) — mavzu bo'yicha yaqin sahifaga 301/308 redirect
   // (bosh sahifaga emas — Google buni "soft 404" deb belgilashi mumkin).
+  // Kategoriyada boshqa faol kurs qolmagan bo'lsa (masalan o'chirilgan yagona
+  // kurs edi) — bo'sh kategoriya sahifasiga emas, umumiy /kurslar'ga yo'naltiramiz.
   if (!result) {
-    const catExists = categories.some((c) => c.slug === kategoriya);
-    permanentRedirect(catExists ? `/kurslar/${kategoriya}` : "/kurslar");
+    const cat = categories.find((c) => c.slug === kategoriya);
+    permanentRedirect(cat && cat.count > 0 ? `/kurslar/${kategoriya}` : "/kurslar");
   }
   const { course, id: listingId, status } = result;
   // Shartnoma bekor qilingan e'lon — sahifa SEO uchun tirik, lekin lead/kontakt yo'q,
