@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { ArrowRight, ChevronRight, Home, MapPin, Star, GraduationCap, BookOpen, Calendar, Phone, Wifi, Building2 } from "lucide-react";
 import { getTutorBySlug, getRelatedTutors } from "@/lib/tutors";
 import { TutorLeadForm } from "./tutor-lead-form";
@@ -61,11 +61,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TutorPage({ params }: Props) {
   const { slug } = await params;
   const tutor = await getTutorBySlug(slug);
-  if (!tutor) notFound();
+  // Repetitor butunlay o'chirilgan (churned emas, chunki churned bo'lsa getTutorBySlug
+  // hamon obyekt qaytaradi) — mavzu bo'yicha yaqin sahifaga 301/308 redirect (SEO uchun
+  // bosh sahifaga emas, chunki Google buni "soft 404" deb belgilashi mumkin).
+  if (!tutor) permanentRedirect("/repetitorlar/barcha");
 
   const initial = tutor.fullName.charAt(0).toUpperCase();
   const rating = tutor.avgRating > 0 ? tutor.avgRating.toFixed(1) : null;
   const yearsExperience = new Date().getFullYear() - tutor.startedYear;
+  // Shartnoma bekor qilingan repetitor — sahifa SEO uchun tirik, lekin ariza
+  // formasi o'rniga "hamkor emas" banner ko'rsatiladi (kurslar sahifasidagi bilan bir xil pattern).
+  const isChurned = tutor.status === "churned";
 
   const relatedTutors = await getRelatedTutors(tutor.id, tutor.subjects, 3);
 
@@ -88,7 +94,7 @@ export default async function TutorPage({ params }: Props) {
     "name": tutor.fullName,
     "description": tutor.description,
     "url": `${SITE_URL}/repetitorlar/${tutor.slug}`,
-    "telephone": tutor.phone,
+    ...(!isChurned ? { "telephone": tutor.phone } : {}),
     "jobTitle": tutor.subjects.length > 0 ? `${tutor.subjects[0]} repetitori` : "Shaxsiy repetitor",
     "knowsAbout": tutor.subjects,
     "knowsLanguage": ["uz", "ru"],
@@ -171,7 +177,7 @@ export default async function TutorPage({ params }: Props) {
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
-      <FloatingApplyButton targetId="ariza-qoldirish" colorClass="bg-fuchsia-600 hover:bg-fuchsia-700" />
+      {!isChurned && <FloatingApplyButton targetId="ariza-qoldirish" colorClass="bg-fuchsia-600 hover:bg-fuchsia-700" />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }} />
@@ -333,27 +339,44 @@ export default async function TutorPage({ params }: Props) {
 
           {/* SIDEBAR: Form + kontakt */}
           <aside className="space-y-5 lg:sticky lg:top-24 self-start">
-            <div id="ariza-qoldirish">
-              <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-t-[20px] px-5 md:px-6 pt-5 pb-3">
-                <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a] tracking-[-0.02em]">Dars uchun ariza</h2>
-                <p className="text-[12.5px] text-[#475569] mt-1.5">
-                  <span className="font-semibold">{tutor.fullName}</span> 24 soat ichida bog&apos;lanadi.
+            {isChurned ? (
+              <div id="ariza-qoldirish" className="rounded-[20px] bg-[#fff7ed] border border-[#fdba74] p-6">
+                <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Bu repetitor hozir Darslinker hamkori emas</h3>
+                <p className="text-[13px] text-[#7c8490] mb-4">
+                  {tutor.fullName} hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida o&apos;xshash repetitorlarni ko&apos;rishingiz mumkin.
                 </p>
+                <Link
+                  href="/repetitorlar/barcha"
+                  className="inline-flex items-center justify-center h-[44px] px-5 rounded-[10px] bg-fuchsia-600 text-white text-[14px] font-semibold hover:bg-fuchsia-700 transition-colors"
+                >
+                  O&apos;xshash repetitorlarni ko&apos;rish &rarr;
+                </Link>
               </div>
-              <div className="-mt-1">
-                <TutorLeadForm tutorName={tutor.fullName} firstListingId={tutor.courses[0]?.id ?? null} />
-              </div>
-            </div>
-
-            <div className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6">
-              <h3 className="text-[14px] font-bold text-[#16181a] tracking-[-0.01em] mb-3">Kontakt</h3>
-              <a href={`tel:${tutor.phone.replace(/\s/g, "")}`} className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-fuchsia-700 transition-colors">
-                <div className="w-8 h-8 rounded-[10px] bg-fuchsia-50 text-fuchsia-700 flex items-center justify-center shrink-0">
-                  <Phone className="w-4 h-4" />
+            ) : (
+              <div id="ariza-qoldirish">
+                <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-t-[20px] px-5 md:px-6 pt-5 pb-3">
+                  <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a] tracking-[-0.02em]">Dars uchun ariza</h2>
+                  <p className="text-[12.5px] text-[#475569] mt-1.5">
+                    <span className="font-semibold">{tutor.fullName}</span> 24 soat ichida bog&apos;lanadi.
+                  </p>
                 </div>
-                <span className="font-medium">{tutor.phone}</span>
-              </a>
-            </div>
+                <div className="-mt-1">
+                  <TutorLeadForm tutorName={tutor.fullName} firstListingId={tutor.courses[0]?.id ?? null} />
+                </div>
+              </div>
+            )}
+
+            {!isChurned && (
+              <div className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6">
+                <h3 className="text-[14px] font-bold text-[#16181a] tracking-[-0.01em] mb-3">Kontakt</h3>
+                <a href={`tel:${tutor.phone.replace(/\s/g, "")}`} className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-fuchsia-700 transition-colors">
+                  <div className="w-8 h-8 rounded-[10px] bg-fuchsia-50 text-fuchsia-700 flex items-center justify-center shrink-0">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <span className="font-medium">{tutor.phone}</span>
+                </a>
+              </div>
+            )}
           </aside>
         </div>
 

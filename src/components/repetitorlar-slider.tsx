@@ -39,9 +39,11 @@ function TutorSlideCard({ t }: { t: FakeTutor }) {
             {t.online ? <Video className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
             {t.region}
           </span>
-          <span className="inline-flex items-center text-[12px] font-medium text-white bg-white/15 border border-white/15 rounded-full px-2.5 py-1">
-            {t.experience} yil tajriba
-          </span>
+          {t.experience != null && (
+            <span className="inline-flex items-center text-[12px] font-medium text-white bg-white/15 border border-white/15 rounded-full px-2.5 py-1">
+              {t.experience} yil tajriba
+            </span>
+          )}
         </div>
 
         {/* Rating */}

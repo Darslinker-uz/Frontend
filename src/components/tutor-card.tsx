@@ -10,9 +10,14 @@ export function TutorCard({ t }: { t: FakeTutor }) {
       {/* Avatar + name */}
       <div className="flex items-center gap-3.5">
         <div className="relative shrink-0">
-          <div className="w-[58px] h-[58px] rounded-full flex items-center justify-center text-[20px] font-bold text-white" style={{ background: t.gradient }}>
-            {tutorInitials(t.name)}
-          </div>
+          {t.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={t.imageUrl} alt={t.name} className="w-[58px] h-[58px] rounded-full object-cover" />
+          ) : (
+            <div className="w-[58px] h-[58px] rounded-full flex items-center justify-center text-[20px] font-bold text-white" style={{ background: t.gradient }}>
+              {tutorInitials(t.name)}
+            </div>
+          )}
           <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-fuchsia-600 border-2 border-white flex items-center justify-center" title="Tekshirilgan">
             <UserCheck className="w-2.5 h-2.5 text-white" />
           </div>
@@ -30,15 +35,22 @@ export function TutorCard({ t }: { t: FakeTutor }) {
         <span className="text-[12px] text-[#7c8490]">({t.reviews} sharh)</span>
       </div>
 
+      {/* Bio — bo'lsa qisqacha, 2 qatorgacha */}
+      {t.description && (
+        <p className="text-[12.5px] text-[#6a7585] leading-relaxed mt-2 line-clamp-2">{t.description}</p>
+      )}
+
       {/* Badges */}
       <div className="flex flex-wrap items-center gap-1.5 mt-3">
         <span className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#16181a]/70 bg-[#f2f4f5] rounded-full px-2.5 py-1">
           {t.online ? <Video className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
           {t.region}
         </span>
-        <span className="inline-flex items-center text-[11.5px] font-medium text-[#16181a]/70 bg-[#f2f4f5] rounded-full px-2.5 py-1">
-          {t.experience} yil tajriba
-        </span>
+        {t.experience != null && (
+          <span className="inline-flex items-center text-[11.5px] font-medium text-[#16181a]/70 bg-[#f2f4f5] rounded-full px-2.5 py-1">
+            {t.experience} yil tajriba
+          </span>
+        )}
       </div>
 
       {/* Price */}

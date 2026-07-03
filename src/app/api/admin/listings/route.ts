@@ -49,7 +49,12 @@ export async function POST(request: Request) {
     }
   }
 
-  // Yangi markaz qo'shish: placeholder User yaratamiz
+  // listingType — admin tomonidan tanlanadi (mode field). Yangi provider
+  // yaratilganda ham shu asosda profileType belgilanadi (pastda ishlatiladi).
+  const modeFromBody = String(body.mode ?? "").toUpperCase();
+  const listingType = modeFromBody === "TUTOR" ? "TUTOR_SERVICE" as const : "COURSE" as const;
+
+  // Yangi markaz/repetitor qo'shish: placeholder User yaratamiz
   let userId = body.userId ? Number(body.userId) : 0;
   if (hasProposedCenter) {
     const centerName = String(body.proposedCenterName).trim().slice(0, 120);
@@ -65,6 +70,7 @@ export async function POST(request: Request) {
         phone: placeholderPhone,
         passwordHash: "",
         role: "provider",
+        profileType: modeFromBody === "TUTOR" ? "TUTOR" : "CENTER",
         onboardingCompleted: false,
       },
     });
@@ -159,11 +165,6 @@ export async function POST(request: Request) {
   const website = body.website ? String(body.website).trim().slice(0, 300) || null : null;
   const instagram = body.instagram ? String(body.instagram).trim().slice(0, 200) || null : null;
   const telegram = body.telegram ? String(body.telegram).trim().slice(0, 200) || null : null;
-
-  // listingType — admin tomonidan tanlanadi (mode field) yoki user profileType'idan
-  // Default COURSE: backward compat
-  const modeFromBody = String(body.mode ?? "").toUpperCase();
-  const listingType = modeFromBody === "TUTOR" ? "TUTOR_SERVICE" as const : "COURSE" as const;
 
   const listing = await prisma.listing.create({
     data: {

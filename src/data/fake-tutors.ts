@@ -12,9 +12,12 @@ export type FakeTutor = {
   reviews: number;
   online: boolean;       // true → Onlayn, false → Oflayn (region shaharda)
   region: string;        // "Onlayn" yoki shahar nomi
-  experience: number;    // yil
+  experience: number | null; // yil — real repetitorda ma'lumot bo'lmasa null (fake'da doim bor)
   price: number;         // so'm/soat
   gradient: string;      // avatar gradient
+  // Quyidagilar faqat real repetitorlar uchun — fake'larda yo'q (undefined)
+  description?: string | null; // bio qisqacha
+  imageUrl?: string | null;
 };
 
 const G = {

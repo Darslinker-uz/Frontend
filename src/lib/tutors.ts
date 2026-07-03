@@ -27,9 +27,11 @@ export function tutorToCardFormat(t: TutorListItem): FakeTutor {
     reviews: t.ratingCount || 0,
     online: isOnline,
     region,
-    experience: new Date().getFullYear() - 2020,
-    price: 50000, // TODO: real per-repetitor narx (listing'lardan) — keyingi yaxshilash
+    experience: t.experienceYears,
+    price: t.minPrice ?? 0,
     gradient: G[t.id % G.length],
+    description: t.description,
+    imageUrl: t.imageUrl,
   };
 }
 
@@ -68,6 +70,8 @@ export type TutorListItem = {
   ratingCount: number;
   courseCount: number;
   imageUrl: string | null;
+  minPrice: number | null;
+  experienceYears: number | null;
   gradient: string;
   firstSlug: string;
   firstCategorySlug: string;
@@ -94,6 +98,8 @@ export type TutorDetail = TutorListItem & {
   // Repetitor uchun "founded year" o'rniga "ish boshlangan yil"
   startedYear: number;
   courses: TutorCourseItem[];
+  // active → normal; churned → sahifa SEO uchun tirik, lekin "hamkor emas" UI bilan
+  status: "active" | "churned";
 };
 
 type ListingForTutor = {
@@ -110,10 +116,21 @@ type ListingForTutor = {
   website: string | null;
   instagram: string | null;
   telegram: string | null;
+  imageUrl: string | null;
+  teacherExperience: string | null;
+  status: string;
   branches: { region: string | null }[];
   category: { name: string; slug: string };
   ratings: { stars: number }[];
 };
+
+// "8 yil tajriba" kabi matndan boshidagi sonni ajratib olamiz — forma har doim
+// shu formatda yozadi (admin-tutor-form.tsx va tutor-service-form.tsx)
+function parseExperienceYears(text: string | null): number | null {
+  if (!text) return null;
+  const m = text.match(/^(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
 
 type UserWithListings = {
   id: number;
@@ -136,6 +153,9 @@ function userToTutorListItem(u: UserWithListings): TutorListItem {
   let firstSlug = "";
   let firstCategorySlug = "";
   let firstListing = true;
+  let minPrice: number | null = null;
+  let imageUrl: string | null = null;
+  let experienceYears: number | null = null;
 
   for (const l of u.listings) {
     if (firstListing) {
@@ -150,6 +170,9 @@ function userToTutorListItem(u: UserWithListings): TutorListItem {
       ratingSum += r.stars;
       ratingCount++;
     }
+    if (minPrice === null || l.price < minPrice) minPrice = l.price;
+    if (imageUrl === null && l.imageUrl) imageUrl = l.imageUrl;
+    if (experienceYears === null) experienceYears = parseExperienceYears(l.teacherExperience);
   }
   const avgRating = ratingCount > 0 ? ratingSum / ratingCount : 0;
 
@@ -163,7 +186,9 @@ function userToTutorListItem(u: UserWithListings): TutorListItem {
     avgRating,
     ratingCount,
     courseCount: u.listings.length,
-    imageUrl: null,
+    imageUrl,
+    minPrice,
+    experienceYears,
     gradient: gradientForUser(u.id),
     firstSlug,
     firstCategorySlug,
@@ -241,6 +266,9 @@ export async function getActiveTutors(opts?: { region?: string }): Promise<Tutor
           website: true,
           instagram: true,
           telegram: true,
+          imageUrl: true,
+          teacherExperience: true,
+          status: true,
           branches: { select: { region: true } },
           category: { select: { name: true, slug: true } },
           ratings: { select: { stars: true } },
@@ -259,10 +287,11 @@ export async function getTutorBySlug(slug: string): Promise<TutorDetail | null> 
       slug,
       role: "provider",
       banned: false,
-      // Repetitor sahifasi — kamida 1 ta TUTOR_SERVICE listing bo'lishi shart
+      // Repetitor sahifasi — kamida 1 ta TUTOR_SERVICE listing bo'lishi shart.
+      // churned ham kiradi — shartnoma bekor qilingan repetitor sahifasi SEO uchun tirik qoladi.
       listings: {
         some: {
-          status: "active",
+          status: { in: ["active", "churned"] },
           listingType: "TUTOR_SERVICE",
           category: { active: true, pendingApproval: false },
         },
@@ -278,7 +307,7 @@ export async function getTutorBySlug(slug: string): Promise<TutorDetail | null> 
       createdAt: true,
       listings: {
         where: {
-          status: "active",
+          status: { in: ["active", "churned"] },
           listingType: "TUTOR_SERVICE", // detail sahifa — faqat repetitor xizmatlari
           category: { active: true, pendingApproval: false },
         },
@@ -296,6 +325,9 @@ export async function getTutorBySlug(slug: string): Promise<TutorDetail | null> 
           website: true,
           instagram: true,
           telegram: true,
+          imageUrl: true,
+          teacherExperience: true,
+          status: true,
           branches: { select: { region: true } },
           category: { select: { name: true, slug: true } },
           ratings: { select: { stars: true } },
@@ -308,6 +340,8 @@ export async function getTutorBySlug(slug: string): Promise<TutorDetail | null> 
 
   const base = userToTutorListItem(u);
   const firstListingWithLinks = u.listings.find(l => l.telegram || l.instagram || l.website) ?? null;
+  // Kamida 1 ta faol listing bo'lsa — profil "active"; hammasi churned bo'lsa — "churned"
+  const status: "active" | "churned" = u.listings.some(l => l.status === "active") ? "active" : "churned";
 
   return {
     ...base,
@@ -317,6 +351,7 @@ export async function getTutorBySlug(slug: string): Promise<TutorDetail | null> 
     website: firstListingWithLinks?.website ?? null,
     startedYear: u.createdAt.getFullYear(),
     courses: u.listings.map(listingToTutorCourse),
+    status,
   };
 }
 
@@ -333,6 +368,7 @@ export async function getRelatedTutors(currentId: number, subjects: string[], li
       listings: {
         some: {
           status: "active",
+          listingType: "TUTOR_SERVICE", // faqat repetitor xizmatlari — markazlar chiqmasin
           category: {
             name: { in: subjects },
             active: true,
@@ -370,6 +406,9 @@ export async function getRelatedTutors(currentId: number, subjects: string[], li
           website: true,
           instagram: true,
           telegram: true,
+          imageUrl: true,
+          teacherExperience: true,
+          status: true,
           branches: { select: { region: true } },
           category: { select: { name: true, slug: true } },
           ratings: { select: { stars: true } },

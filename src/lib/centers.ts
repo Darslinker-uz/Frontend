@@ -65,6 +65,8 @@ export type CenterDetail = CenterListItem & {
   website: string | null;
   foundedYear: number;
   courses: CenterCourseItem[];
+  // active → normal; churned → sahifa SEO uchun tirik, lekin "hamkor emas" UI bilan
+  status: "active" | "churned";
 };
 
 // Markaz uchun listing shape — Prisma select bilan moslashtirilgan
@@ -82,6 +84,7 @@ type ListingForCenter = {
   website: string | null;
   instagram: string | null;
   telegram: string | null;
+  status: string;
   branches: { region: string | null }[];
   category: { name: string; slug: string };
   ratings: { stars: number }[];
@@ -219,6 +222,7 @@ export async function getActiveCenters(opts?: { region?: string }): Promise<Cent
           website: true,
           instagram: true,
           telegram: true,
+          status: true,
           branches: { select: { region: true } },
           category: { select: { name: true, slug: true } },
           ratings: { select: { stars: true } },
@@ -237,10 +241,11 @@ export async function getCenterBySlug(slug: string): Promise<CenterDetail | null
       slug,
       role: "provider",
       banned: false,
-      // Markaz sahifasi — kamida 1 ta COURSE listing'i bo'lsin
+      // Markaz sahifasi — kamida 1 ta COURSE listing'i bo'lsin.
+      // churned ham kiradi — shartnoma bekor qilingan markaz sahifasi SEO uchun tirik qoladi.
       listings: {
         some: {
-          status: "active",
+          status: { in: ["active", "churned"] },
           listingType: "COURSE",
           category: { active: true, pendingApproval: false },
         },
@@ -256,7 +261,7 @@ export async function getCenterBySlug(slug: string): Promise<CenterDetail | null
       createdAt: true,
       listings: {
         where: {
-          status: "active",
+          status: { in: ["active", "churned"] },
           listingType: "COURSE", // detail sahifa — faqat markaz kurslari
           category: { active: true, pendingApproval: false },
         },
@@ -274,6 +279,7 @@ export async function getCenterBySlug(slug: string): Promise<CenterDetail | null
           website: true,
           instagram: true,
           telegram: true,
+          status: true,
           branches: { select: { region: true } },
           category: { select: { name: true, slug: true } },
           ratings: { select: { stars: true } },
@@ -287,6 +293,8 @@ export async function getCenterBySlug(slug: string): Promise<CenterDetail | null
   const base = userToCenterListItem(u);
   // Telegram/Instagram/Website — bizda User'da yo'q, listing'lardan birinchi mavjudini olamiz
   const firstListingWithLinks = u.listings.find(l => l.telegram || l.instagram || l.website) ?? null;
+  // Kamida 1 ta faol listing bo'lsa — profil "active"; hammasi churned bo'lsa — "churned"
+  const status: "active" | "churned" = u.listings.some(l => l.status === "active") ? "active" : "churned";
 
   return {
     ...base,
@@ -296,6 +304,7 @@ export async function getCenterBySlug(slug: string): Promise<CenterDetail | null
     website: firstListingWithLinks?.website ?? null,
     foundedYear: u.createdAt.getFullYear(),
     courses: u.listings.map(listingToCenterCourse),
+    status,
   };
 }
 
@@ -313,6 +322,7 @@ export async function getRelatedCenters(currentId: number, categories: string[],
       listings: {
         some: {
           status: "active",
+          listingType: "COURSE", // faqat markaz kurslari — repetitorlar chiqmasin
           category: {
             name: { in: categories },
             active: true,
@@ -350,6 +360,7 @@ export async function getRelatedCenters(currentId: number, categories: string[],
           website: true,
           instagram: true,
           telegram: true,
+          status: true,
           branches: { select: { region: true } },
           category: { select: { name: true, slug: true } },
           ratings: { select: { stars: true } },

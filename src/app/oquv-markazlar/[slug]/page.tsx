@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { ArrowRight, ChevronRight, Home, MapPin, Star, ShieldCheck, BookOpen, Award, Calendar, Phone, Send, Building2, Wifi, GraduationCap } from "lucide-react";
 import { FAKE_CENTERS, findFakeCenterBySlug, generateFakeCoursesForCenter } from "@/data/fake-centers";
 import { getCenterBySlug, getRelatedCenters } from "@/lib/centers";
@@ -52,6 +52,7 @@ async function loadCenter(slug: string) {
       firstListingId: real.courses[0]?.id ?? null,
       isReal: true as const,
       centerId: real.id,
+      status: real.status,
     };
   }
   // 2. Fake fallback (demo)
@@ -88,6 +89,7 @@ async function loadCenter(slug: string) {
       firstListingId: null, // fake markazda real listing yo'q → form simulate qiladi
       isReal: false as const,
       centerId: null,
+      status: "active" as const,
     };
   }
   return null;
@@ -140,13 +142,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function MarkazPage({ params }: Props) {
   const { slug } = await params;
   const center = await loadCenter(slug);
+  // Markaz butunlay o'chirilgan (na real, na fake topilmadi) — mavzu bo'yicha
+  // yaqin sahifaga 301/308 redirect (bosh sahifaga emas — "soft 404" bo'lmasin).
   if (!center) {
-    notFound();
+    permanentRedirect("/oquv-markazlar");
   }
 
   const courses = center.courses;
   const initial = center.provider.charAt(0).toUpperCase();
   const rating = center.avgRating > 0 ? center.avgRating.toFixed(1) : null;
+  // Shartnoma bekor qilingan markaz — sahifa SEO uchun tirik, lekin ariza
+  // formasi o'rniga "hamkor emas" banner ko'rsatiladi (kurslar sahifasidagi bilan bir xil pattern).
+  const isChurned = center.status === "churned";
 
   // Boshqa markazlar — real yoki fake
   let otherCenters: Array<{ slug: string; provider: string; gradient: string; avgRating: number; ratingCount: number; }> = [];
@@ -201,7 +208,7 @@ export default async function MarkazPage({ params }: Props) {
     "url": `${SITE_URL}/oquv-markazlar/${center.slug}`,
     "inLanguage": "uz",
     "foundingDate": center.foundedYear.toString(),
-    "telephone": center.phone,
+    ...(!isChurned ? { "telephone": center.phone } : {}),
     "areaServed": center.regions.map(r => ({
       "@type": "City",
       "name": r,
@@ -215,13 +222,15 @@ export default async function MarkazPage({ params }: Props) {
         "addressCountry": "UZ",
       },
     } : {}),
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": center.phone,
-      "contactType": "customer service",
-      "areaServed": "UZ",
-      "availableLanguage": ["uz", "ru"],
-    },
+    ...(!isChurned ? {
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": center.phone,
+        "contactType": "customer service",
+        "areaServed": "UZ",
+        "availableLanguage": ["uz", "ru"],
+      },
+    } : {}),
     "knowsAbout": center.categories,
     "knowsLanguage": ["uz", "ru"],
     "hasOfferCatalog": {
@@ -340,7 +349,7 @@ export default async function MarkazPage({ params }: Props) {
 
   return (
     <div className="bg-[#f0f2f3] min-h-screen">
-      <FloatingApplyButton targetId="ariza-qoldirish" colorClass="bg-emerald-600 hover:bg-emerald-700" />
+      {!isChurned && <FloatingApplyButton targetId="ariza-qoldirish" colorClass="bg-emerald-600 hover:bg-emerald-700" />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageLd) }} />
@@ -543,59 +552,76 @@ export default async function MarkazPage({ params }: Props) {
 
           {/* RIGHT SIDEBAR: Form + Contact */}
           <aside className="space-y-5 lg:sticky lg:top-24 self-start">
-            {/* Application form */}
-            <div id="ariza-qoldirish">
-              <div className="bg-emerald-50 border border-emerald-100 rounded-t-[20px] px-5 md:px-6 pt-5 pb-3">
-                <div className="inline-flex items-center gap-1.5 bg-white border border-emerald-200 rounded-full px-2.5 py-1 mb-3">
-                  <Send className="w-3 h-3 text-emerald-700" />
-                  <span className="text-[10.5px] font-bold text-emerald-800 tracking-wider uppercase">Markazga ariza</span>
-                </div>
-                <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a] tracking-[-0.02em]">
-                  Bog&apos;lanish uchun ariza qoldiring
-                </h2>
-                <p className="text-[12.5px] text-[#475569] mt-1.5">
-                  <span className="font-semibold">{center.provider}</span> vakili siz bilan 24 soat ichida bog&apos;lanadi.
+            {isChurned ? (
+              <div id="ariza-qoldirish" className="rounded-[20px] bg-[#fff7ed] border border-[#fdba74] p-6">
+                <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Bu markaz hozir Darslinker hamkori emas</h3>
+                <p className="text-[13px] text-[#7c8490] mb-4">
+                  {center.provider} hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida o&apos;xshash markazlarni ko&apos;rishingiz mumkin.
                 </p>
+                <Link
+                  href="/oquv-markazlar"
+                  className="inline-flex items-center justify-center h-[44px] px-5 rounded-[10px] bg-emerald-600 text-white text-[14px] font-semibold hover:bg-emerald-700 transition-colors"
+                >
+                  O&apos;xshash markazlarni ko&apos;rish &rarr;
+                </Link>
               </div>
-              <div className="-mt-1">
-                <MarkazLeadForm centerName={center.provider} firstListingId={center.firstListingId} />
-              </div>
-            </div>
-
-            {/* Quick contact (kontakt malumotlar) */}
-            <div className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6">
-              <h3 className="text-[14px] font-bold text-[#16181a] tracking-[-0.01em] mb-3">Kontakt ma&apos;lumotlari</h3>
-              <a href={`tel:${center.phone.replace(/\s/g, "")}`} className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
-                <div className="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Phone className="w-4 h-4" />
+            ) : (
+              <>
+                {/* Application form */}
+                <div id="ariza-qoldirish">
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-t-[20px] px-5 md:px-6 pt-5 pb-3">
+                    <div className="inline-flex items-center gap-1.5 bg-white border border-emerald-200 rounded-full px-2.5 py-1 mb-3">
+                      <Send className="w-3 h-3 text-emerald-700" />
+                      <span className="text-[10.5px] font-bold text-emerald-800 tracking-wider uppercase">Markazga ariza</span>
+                    </div>
+                    <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a] tracking-[-0.02em]">
+                      Bog&apos;lanish uchun ariza qoldiring
+                    </h2>
+                    <p className="text-[12.5px] text-[#475569] mt-1.5">
+                      <span className="font-semibold">{center.provider}</span> vakili siz bilan 24 soat ichida bog&apos;lanadi.
+                    </p>
+                  </div>
+                  <div className="-mt-1">
+                    <MarkazLeadForm centerName={center.provider} firstListingId={center.firstListingId} />
+                  </div>
                 </div>
-                <span className="font-medium">{center.phone}</span>
-              </a>
-              {center.telegram && (
-                <a href={`https://t.me/${center.telegram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
-                  <div className="w-8 h-8 rounded-[10px] bg-sky-50 text-sky-700 flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
-                  </div>
-                  <span className="font-medium">@{center.telegram}</span>
-                </a>
-              )}
-              {center.instagram && (
-                <a href={`https://instagram.com/${center.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
-                  <div className="w-8 h-8 rounded-[10px] bg-pink-50 text-pink-700 flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
-                  </div>
-                  <span className="font-medium">@{center.instagram}</span>
-                </a>
-              )}
-              {center.website && (
-                <a href={`https://${center.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors">
-                  <div className="w-8 h-8 rounded-[10px] bg-[#f2f4f5] text-[#16181a]/70 flex items-center justify-center shrink-0">
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                  <span className="font-medium">{center.website}</span>
-                </a>
-              )}
-            </div>
+
+                {/* Quick contact (kontakt malumotlar) */}
+                <div className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6">
+                  <h3 className="text-[14px] font-bold text-[#16181a] tracking-[-0.01em] mb-3">Kontakt ma&apos;lumotlari</h3>
+                  <a href={`tel:${center.phone.replace(/\s/g, "")}`} className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
+                    <div className="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <span className="font-medium">{center.phone}</span>
+                  </a>
+                  {center.telegram && (
+                    <a href={`https://t.me/${center.telegram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
+                      <div className="w-8 h-8 rounded-[10px] bg-sky-50 text-sky-700 flex items-center justify-center shrink-0">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+                      </div>
+                      <span className="font-medium">@{center.telegram}</span>
+                    </a>
+                  )}
+                  {center.instagram && (
+                    <a href={`https://instagram.com/${center.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors mb-2.5">
+                      <div className="w-8 h-8 rounded-[10px] bg-pink-50 text-pink-700 flex items-center justify-center shrink-0">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
+                      </div>
+                      <span className="font-medium">@{center.instagram}</span>
+                    </a>
+                  )}
+                  {center.website && (
+                    <a href={`https://${center.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors">
+                      <div className="w-8 h-8 rounded-[10px] bg-[#f2f4f5] text-[#16181a]/70 flex items-center justify-center shrink-0">
+                        <ArrowRight className="w-4 h-4" />
+                      </div>
+                      <span className="font-medium">{center.website}</span>
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
           </aside>
         </div>
       </div>

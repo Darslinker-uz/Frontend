@@ -140,9 +140,9 @@ function AdminNewListingPageInner() {
         if (uRes.ok) {
           const { users } = await uRes.json();
           if (!cancelled) {
-            const list = (users as Array<{ id: number; name: string; centerName: string | null; phone: string; role: string }>)
+            const list = (users as Array<{ id: number; name: string; centerName: string | null; phone: string; role: string; profileType?: "CENTER" | "TUTOR" }>)
               .filter(u => u.role === "provider")
-              .map(u => ({ id: u.id, name: u.name, centerName: u.centerName ?? null, phone: u.phone }));
+              .map(u => ({ id: u.id, name: u.name, centerName: u.centerName ?? null, phone: u.phone, profileType: u.profileType }));
             setProviders(list);
             // Preselect from ?providerId= (when admin lands here from the users page menu)
             if (initialProviderId) {

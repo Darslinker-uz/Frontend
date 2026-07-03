@@ -83,7 +83,7 @@ export function RepetitorlarBarchaClient({ tutors }: { tutors: FakeTutor[] }) {
       case "reyting": sorted.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews); break;
       case "narx-asc": sorted.sort((a, b) => a.price - b.price); break;
       case "narx-desc": sorted.sort((a, b) => b.price - a.price); break;
-      case "tajriba": sorted.sort((a, b) => b.experience - a.experience); break;
+      case "tajriba": sorted.sort((a, b) => (b.experience ?? -1) - (a.experience ?? -1)); break;
       case "sharh": sorted.sort((a, b) => b.reviews - a.reviews); break;
       default: break; // tavsiya — original tartib
     }
