@@ -343,6 +343,12 @@ model Lead {
   botMessageId Int?       @map("bot_message_id")
   createdAt    DateTime   @default(now()) @map("created_at")
 
+  // Ixtiyoriy kvalifikatsiya javoblari (ariza yuborishdan oldingi modal).
+  // Kodlar src/lib/lead-qualify.ts dagi ro'yxatlar bilan cheklangan.
+  startTiming    String?  @map("start_timing")
+  preferredTimes String[] @default([]) @map("preferred_times")
+  budget         String?
+
   listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
   review  Review?
 

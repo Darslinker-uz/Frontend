@@ -29,6 +29,9 @@ interface ApiLead {
   status: "new_lead" | "contacted" | "callback" | "converted" | "not_interested" | "disputed";
   note: string | null;
   createdAt: string;
+  startTiming: string | null;
+  preferredTimes: string[] | null;
+  budget: string | null;
   listing: { id: number; title: string; slug: string };
 }
 
@@ -52,6 +55,9 @@ function fromApi(l: ApiLead): Lead {
     time: timeAgo(l.createdAt),
     status: STATUS_TO_UI[l.status] ?? "yangi",
     note: l.note ?? undefined,
+    startTiming: l.startTiming ?? undefined,
+    preferredTimes: l.preferredTimes ?? undefined,
+    budget: l.budget ?? undefined,
   };
 }
 

@@ -6,8 +6,36 @@ import { useLeads } from "@/context/leads-context";
 import { useDashboardTheme } from "@/context/dashboard-theme-context";
 import type { Lead } from "@/data/leads";
 import type { ThemeConfig } from "@/context/admin-theme-context";
+import { startTimingLabel, preferredTimesLabel, budgetLabel } from "@/lib/lead-qualify";
 
 interface Column { key: string; title: string; color: string; locked: boolean; }
+
+/**
+ * Ariza yuborishdan oldingi ixtiyoriy savollar javoblari.
+ * Hech biri to'ldirilmagan bo'lsa — umuman ko'rsatilmaydi.
+ */
+function QualifyBlock({ lead, config }: { lead: Lead; config: ThemeConfig }) {
+  const rows = [
+    { label: "Boshlash", value: startTimingLabel(lead.startTiming) },
+    { label: "Qulay vaqt", value: preferredTimesLabel(lead.preferredTimes) },
+    { label: "Byudjet", value: budgetLabel(lead.budget) },
+  ].filter(r => r.value);
+  if (rows.length === 0) return null;
+
+  return (
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-wider mb-2.5" style={{ color: config.textDim }}>Ariza savollari</p>
+      <div className="rounded-[12px] divide-y" style={{ backgroundColor: config.surface, border: `1px solid ${config.surfaceBorder}`, borderColor: config.surfaceBorder }}>
+        {rows.map(r => (
+          <div key={r.label} className="flex items-center justify-between gap-3 px-4 py-2.5" style={{ borderColor: config.surfaceBorder }}>
+            <span className="text-[12px]" style={{ color: config.textDim }}>{r.label}</span>
+            <span className="text-[13px] font-medium text-right" style={{ color: config.text }}>{r.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const COLORS = [
   { hex: "#3b82f6", name: "Ko'k" },
@@ -539,6 +567,9 @@ export default function LeadsPage() {
                   <p className="text-[14px] font-medium" style={{ color: config.text }}>{openLead.course}</p>
                 </div>
               </div>
+
+              {/* Ariza savollari — o'quvchi to'ldirgan bo'lsa */}
+              <QualifyBlock lead={openLead} config={config} />
 
               {/* Izoh */}
               {openLead.note && (

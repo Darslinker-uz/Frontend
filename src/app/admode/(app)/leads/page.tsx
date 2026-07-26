@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, Phone, MessageSquare, Handshake, Check, X, Send, Building2, GraduationCap, User as UserIcon, ChevronDown, ChevronRight, ChevronLeft, MapPin, Calendar } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
+import { startTimingLabel, preferredTimesLabel, budgetLabel } from "@/lib/lead-qualify";
 
 type Tab = "students" | "yordam" | "hamkorlik";
 
@@ -18,6 +19,10 @@ interface StudentLead {
   course: string;
   status: StudentStatus;
   time: string; // ISO date
+  // Ariza modalidagi ixtiyoriy javoblar (kodlar — src/lib/lead-qualify.ts)
+  startTiming?: string | null;
+  preferredTimes?: string[] | null;
+  budget?: string | null;
 }
 
 interface CenterGroup {
@@ -802,6 +807,27 @@ function StudentsTab({ config, isLight, centers, loading }: { config: ReturnType
                   <p className="text-[14px] font-semibold" style={{ color: config.text }}>{openLead.lead.course}</p>
                 </div>
               </div>
+              {(() => {
+                const rows = [
+                  { label: "Boshlash", value: startTimingLabel(openLead.lead.startTiming) },
+                  { label: "Qulay vaqt", value: preferredTimesLabel(openLead.lead.preferredTimes) },
+                  { label: "Byudjet", value: budgetLabel(openLead.lead.budget) },
+                ].filter(r => r.value);
+                if (rows.length === 0) return null;
+                return (
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: config.textDim }}>Ariza savollari</p>
+                    <div className="rounded-[12px] p-3 space-y-2" style={{ backgroundColor: config.hover }}>
+                      {rows.map(r => (
+                        <div key={r.label} className="flex items-center justify-between gap-3">
+                          <span className="text-[12px]" style={{ color: config.textMuted }}>{r.label}</span>
+                          <span className="text-[13px] font-semibold text-right" style={{ color: config.text }}>{r.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

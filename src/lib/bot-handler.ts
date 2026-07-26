@@ -11,6 +11,7 @@ import {
 } from "@/lib/telegram";
 import type { LeadStatus, Role } from "@/generated/prisma";
 import { handleStudentAiCallback, tryCompleteInquiryFromContact, tryStudentAi } from "@/lib/student-ai";
+import { qualifyLines } from "@/lib/lead-qualify";
 
 // ==================== HANDLER ====================
 // Shared update processor — used by both webhook and polling.
@@ -463,6 +464,8 @@ async function renderLeadMessage(leadId: number): Promise<string | null> {
   ];
   if (telegram) lines.push(`✈️ <b>Telegram:</b> ${escHtml(telegram)}`);
   lines.push(`🕐 <b>Vaqt:</b> ${escHtml(formatted)}`);
+  const qualify = qualifyLines(lead);
+  if (qualify.length > 0) lines.push("", ...qualify);
   if (msgRest) lines.push("", `💬 <b>Xabar:</b> ${escHtml(msgRest)}`);
 
   if (lead.status !== "new_lead") {
@@ -568,6 +571,9 @@ export async function notifyNewLead(params: {
   course: string;
   message?: string | null;
   createdAt?: Date;
+  startTiming?: string | null;
+  preferredTimes?: readonly string[] | null;
+  budget?: string | null;
 }) {
   // Extract optional "Telegram: ..." line from message for a clean display
   let telegram: string | null = null;
@@ -605,6 +611,8 @@ export async function notifyNewLead(params: {
     lines.push(`✈️ <b>Telegram:</b> ${escHtml(telegram)}`);
   }
   lines.push(`🕐 <b>Vaqt:</b> ${escHtml(formatted)}`);
+  const qualify = qualifyLines(params);
+  if (qualify.length > 0) lines.push("", ...qualify);
   if (rest) {
     lines.push("", `💬 <b>Izoh:</b> ${escHtml(rest)}`);
   }
@@ -677,6 +685,9 @@ export async function notifyAdminGroup(params: {
   message?: string | null;
   createdAt?: Date;
   listingType?: "COURSE" | "TUTOR_SERVICE";
+  startTiming?: string | null;
+  preferredTimes?: readonly string[] | null;
+  budget?: string | null;
 }) {
   const groupId = process.env.TELEGRAM_ADMIN_GROUP_ID;
   if (!groupId) return;
@@ -718,6 +729,8 @@ export async function notifyAdminGroup(params: {
   ];
   if (telegram) lines.push(`✈️ <b>Telegram:</b> ${escHtml(telegram)}`);
   lines.push(`🕐 <b>Vaqt:</b> ${escHtml(formatted)}`);
+  const qualify = qualifyLines(params);
+  if (qualify.length > 0) lines.push("", ...qualify);
   if (rest) lines.push("", `💬 <b>Izoh:</b> ${escHtml(rest)}`);
   lines.push("", "Panel: darslinker.uz/admode/leads");
 

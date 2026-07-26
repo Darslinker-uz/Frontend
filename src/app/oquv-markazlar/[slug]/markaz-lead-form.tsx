@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { Send, CheckCircle2, MessageSquare, User, Phone } from "lucide-react";
+import { LeadQualifyModal } from "@/components/lead-qualify-modal";
+import type { LeadQualifyAnswers } from "@/lib/lead-qualify";
+import { validateLeadContact } from "@/lib/lead-validation";
 
 type Props = {
   centerName: string;
@@ -16,14 +19,27 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
   const [message, setMessage] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  /** Ism/telefon to'ldirilgach chiqadigan ixtiyoriy 3 savol */
+  const [qualifyOpen, setQualifyOpen] = useState(false);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  // "Yuborish" darhol yubormaydi — avval to'liq tekshiradi (server bilan bir xil
+  // qoida), keyin ixtiyoriy savollar modalini ochadi.
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const invalid = validateLeadContact(name, phone);
+    setError(invalid);
+    if (invalid) return;
+    setQualifyOpen(true);
+  };
+
+  /** Xatolik chiqqanda modalni yopib, formani tuzatishga qaytarish */
+  const cancelQualify = () => {
+    setQualifyOpen(false);
+    setState("idle");
+  };
+
+  const send = async (answers: LeadQualifyAnswers) => {
     setError(null);
-    if (!name.trim() || !phone.trim()) {
-      setError("Ism va telefon raqamingizni kiriting");
-      return;
-    }
     setState("sending");
 
     // Real markaz: /api/leads ga POST qilamiz
@@ -37,6 +53,7 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
             name: name.trim(),
             phone: phone.trim(),
             message: message.trim() ? `[Markaz kontakti] ${message.trim()}` : "[Markaz kontakti]",
+            ...answers,
           }),
         });
         if (!res.ok) {
@@ -45,6 +62,7 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
           setState("idle");
           return;
         }
+        setQualifyOpen(false);
         setState("sent");
       } catch {
         setError("Tarmoq xatosi. Qaytadan urinib ko'ring.");
@@ -55,6 +73,7 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
 
     // Fake markaz (demo) — simulate
     await new Promise((r) => setTimeout(r, 800));
+    setQualifyOpen(false);
     setState("sent");
   };
 
@@ -74,6 +93,7 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
             setName("");
             setPhone("");
             setMessage("");
+            setQualifyOpen(false);
             setState("idle");
           }}
           className="mt-5 text-[13px] text-emerald-700 hover:text-emerald-800 font-semibold"
@@ -86,6 +106,14 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6 space-y-3">
+      <LeadQualifyModal
+        open={qualifyOpen}
+        accent="emerald"
+        submitting={state === "sending"}
+        error={error}
+        onSubmit={send}
+        onCancel={cancelQualify}
+      />
       <div>
         <label className="block text-[12px] font-semibold text-[#16181a] mb-1.5">Ismingiz</label>
         <div className="flex items-center gap-2 px-3 bg-[#f8fbfa] border border-[#e4e7ea] rounded-[12px] focus-within:border-emerald-400">
@@ -130,7 +158,7 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
         </div>
       </div>
 
-      {error && (
+      {error && !qualifyOpen && (
         <div className="text-[12.5px] text-red-600 bg-red-50 border border-red-100 rounded-[10px] px-3 py-2">
           {error}
         </div>

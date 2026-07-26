@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Send, CheckCircle2 } from "lucide-react";
 import { PhoneInput, TelegramInput } from "@/components/phone-input";
+import { LeadQualifyModal } from "@/components/lead-qualify-modal";
+import type { LeadQualifyAnswers } from "@/lib/lead-qualify";
+import { validateLeadContact } from "@/lib/lead-validation";
 
 type Status = "idle" | "submitting" | "success" | "error" | "duplicate";
 
@@ -15,22 +18,34 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
   const [telegram, setTelegram] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
+  /** Ism/telefon to'ldirilgach chiqadigan ixtiyoriy 3 savol */
+  const [qualifyOpen, setQualifyOpen] = useState(false);
   /** Telegram bot markazga xabar yubora olmadi — ariza baribir saqlandi */
   const [telegramNotifyWarn, setTelegramNotifyWarn] = useState(false);
 
-  const submit = async () => {
+  // Modal ochilishidan OLDIN to'liq tekshiramiz — server bilan bir xil qoida.
+  const openQualify = () => {
+    const invalid = validateLeadContact(name, phone);
+    setError(invalid);
+    if (invalid) return;
+    setQualifyOpen(true);
+  };
+
+  /** Xatolik chiqqanda modalni yopib, formani tuzatishga qaytarish */
+  const cancelQualify = () => {
+    setQualifyOpen(false);
+    setStatus("idle");
+  };
+
+  const submit = async (answers: LeadQualifyAnswers) => {
     setError(null);
-    if (!name.trim() || !phone.trim()) {
-      setError("Ism va telefon majburiy");
-      return;
-    }
     setStatus("submitting");
     try {
       const message = telegram.trim() ? `Telegram: ${telegram.trim()}` : null;
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingId, name, phone, message }),
+        body: JSON.stringify({ listingId, name, phone, message, ...answers }),
       });
       const data = await res.json();
       if (res.status === 409) {
@@ -73,6 +88,14 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
 
   return (
     <div className="space-y-3">
+      <LeadQualifyModal
+        open={qualifyOpen}
+        accent="dark"
+        submitting={status === "submitting"}
+        error={error}
+        onSubmit={submit}
+        onCancel={cancelQualify}
+      />
       <div>
         <Label htmlFor="lead-name" className="text-[12px] text-[#7c8490] mb-1.5">Ismingiz</Label>
         <Input
@@ -102,9 +125,9 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
           className="w-full h-11 px-4 text-[16px] rounded-[10px] border border-[#e4e7ea] text-[#16181a] placeholder:text-[#7c8490]/50 focus:outline-none focus:border-[#7ea2d4] transition-colors"
         />
       </div>
-      {error && <p className="text-[13px] text-red-600">{error}</p>}
+      {error && !qualifyOpen && <p className="text-[13px] text-red-600">{error}</p>}
       <Button
-        onClick={submit}
+        onClick={openQualify}
         disabled={status === "submitting"}
         className="w-full h-12 rounded-[12px] bg-[#16181a] text-white text-[15px] font-medium hover:bg-[#16181a]/80 border-0 flex items-center gap-2 disabled:opacity-50"
       >

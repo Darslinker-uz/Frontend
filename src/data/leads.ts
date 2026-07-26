@@ -7,6 +7,10 @@ export interface Lead {
   time: string;
   status: string;
   note?: string;
+  // Ixtiyoriy kvalifikatsiya javoblari — src/lib/lead-qualify.ts dagi kodlar
+  startTiming?: string;
+  preferredTimes?: string[];
+  budget?: string;
 }
 
 export const initialLeads: Lead[] = [

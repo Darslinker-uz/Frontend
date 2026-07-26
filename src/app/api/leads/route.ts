@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notifyNewLead, notifyAdminGroup } from "@/lib/bot-handler";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { sanitizeStartTiming, sanitizePreferredTimes, sanitizeBudget } from "@/lib/lead-qualify";
+import { validateLeadContact } from "@/lib/lead-validation";
 
-// POST /api/leads — body: { listingId, name, phone, message? }
+// POST /api/leads — body: { listingId, name, phone, message?, startTiming?, preferredTimes?, budget? }
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   const rl = rateLimit(`lead:${ip}`, { limit: 5, windowMs: 60_000 });
@@ -11,7 +13,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Juda ko'p so'rov. Biroz kuting." }, { status: 429 });
   }
 
-  let body: { listingId?: unknown; name?: unknown; phone?: unknown; message?: unknown };
+  let body: {
+    listingId?: unknown; name?: unknown; phone?: unknown; message?: unknown;
+    startTiming?: unknown; preferredTimes?: unknown; budget?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
@@ -23,16 +28,19 @@ export async function POST(request: Request) {
   const phone = String(body.phone ?? "").trim();
   const message = body.message ? String(body.message).trim() : null;
 
-  if (!listingId || !name || !phone) {
-    return NextResponse.json({ error: "listingId, name, phone majburiy" }, { status: 400 });
+  // Kvalifikatsiya javoblari ixtiyoriy. Noto'g'ri/noma'lum kod kelsa jimgina
+  // tashlab yuboriladi — ariza baribir saqlanadi (ism + telefon yetarli).
+  const startTiming = sanitizeStartTiming(body.startTiming);
+  const preferredTimes = sanitizePreferredTimes(body.preferredTimes);
+  const budget = sanitizeBudget(body.budget);
+
+  if (!listingId) {
+    return NextResponse.json({ error: "listingId majburiy" }, { status: 400 });
   }
-  if (name.length < 2) {
-    return NextResponse.json({ error: "Ism juda qisqa" }, { status: 400 });
-  }
-  // Minimal phone validation (UZ): 9-13 raqamdan iborat
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length < 9 || digits.length > 15) {
-    return NextResponse.json({ error: "Telefon formati noto'g'ri" }, { status: 400 });
+  // Formadagi tekshiruv bilan bir xil qoida (src/lib/lead-validation.ts)
+  const contactError = validateLeadContact(name, phone);
+  if (contactError) {
+    return NextResponse.json({ error: contactError }, { status: 400 });
   }
 
   const listing = await prisma.listing.findUnique({
@@ -65,7 +73,7 @@ export async function POST(request: Request) {
   //   - aks holda → user.telegramChatId (shaxsiy chat)
   // Har bir user faqat O'Z lid'larini ko'radi — bu lib chaqiruvi user'ning o'z chat'iga jo'natadi.
   const lead = await prisma.lead.create({
-    data: { listingId, name, phone, message, status: "new_lead" },
+    data: { listingId, name, phone, message, status: "new_lead", startTiming, preferredTimes, budget },
   });
 
   let telegramNotifyFailed = false;
@@ -79,6 +87,7 @@ export async function POST(request: Request) {
       course: listing.title,
       message,
       createdAt: lead.createdAt,
+      startTiming, preferredTimes, budget,
     }).catch(e => {
       console.error("[lead] provider notify failed", e);
       return false;
@@ -102,6 +111,7 @@ export async function POST(request: Request) {
     message,
     createdAt: lead.createdAt,
     listingType: listing.listingType,
+    startTiming, preferredTimes, budget,
   }).catch(e => console.error("[lead] admin group notify failed", e));
 
   return NextResponse.json(
