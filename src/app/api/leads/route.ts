@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { notifyNewLead, notifyAdminGroup } from "@/lib/bot-handler";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { sanitizeStartTiming, sanitizePreferredTimes, sanitizeBudget } from "@/lib/lead-qualify";
-import { validateLeadContact } from "@/lib/lead-validation";
+import { validateLeadContact, sanitizeTelegramHandle } from "@/lib/lead-validation";
+import { normalizePhone } from "@/lib/telegram";
 
 // POST /api/leads — body: { listingId, name, phone, message?, startTiming?, preferredTimes?, budget? }
 export async function POST(request: Request) {
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
   }
 
   let body: {
-    listingId?: unknown; name?: unknown; phone?: unknown; message?: unknown;
+    listingId?: unknown; name?: unknown; phone?: unknown; message?: unknown; telegram?: unknown;
     startTiming?: unknown; preferredTimes?: unknown; budget?: unknown;
   };
   try {
@@ -25,8 +26,9 @@ export async function POST(request: Request) {
 
   const listingId = Number(body.listingId);
   const name = String(body.name ?? "").trim();
-  const phone = String(body.phone ?? "").trim();
+  const rawPhone = String(body.phone ?? "").trim();
   const message = body.message ? String(body.message).trim() : null;
+  const telegram = sanitizeTelegramHandle(body.telegram);
 
   // Kvalifikatsiya javoblari ixtiyoriy. Noto'g'ri/noma'lum kod kelsa jimgina
   // tashlab yuboriladi — ariza baribir saqlanadi (ism + telefon yetarli).
@@ -38,10 +40,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "listingId majburiy" }, { status: 400 });
   }
   // Formadagi tekshiruv bilan bir xil qoida (src/lib/lead-validation.ts)
-  const contactError = validateLeadContact(name, phone);
+  const contactError = validateLeadContact(name, rawPhone);
   if (contactError) {
     return NextResponse.json({ error: contactError }, { status: 400 });
   }
+
+  // Yagona format: +998XXXXXXXXX. Ilgari kurs formasi "77 123 45 67",
+  // markaz/repetitor formasi esa "+998 90 ..." saqlagani uchun bir xil odam
+  // ikki xil qator bo'lib tushar, [phone, listingId] dublikat tekshiruvi ham
+  // ishlamasdi.
+  const phone = normalizePhone(rawPhone);
 
   const listing = await prisma.listing.findUnique({
     where: { id: listingId },
@@ -73,7 +81,7 @@ export async function POST(request: Request) {
   //   - aks holda → user.telegramChatId (shaxsiy chat)
   // Har bir user faqat O'Z lid'larini ko'radi — bu lib chaqiruvi user'ning o'z chat'iga jo'natadi.
   const lead = await prisma.lead.create({
-    data: { listingId, name, phone, message, status: "new_lead", startTiming, preferredTimes, budget },
+    data: { listingId, name, phone, telegram, message, status: "new_lead", startTiming, preferredTimes, budget },
   });
 
   let telegramNotifyFailed = false;
@@ -86,6 +94,7 @@ export async function POST(request: Request) {
       studentPhone: phone,
       course: listing.title,
       message,
+      telegram,
       createdAt: lead.createdAt,
       startTiming, preferredTimes, budget,
     }).catch(e => {
@@ -109,6 +118,7 @@ export async function POST(request: Request) {
     studentName: name,
     studentPhone: phone,
     message,
+    telegram,
     createdAt: lead.createdAt,
     listingType: listing.listingType,
     startTiming, preferredTimes, budget,

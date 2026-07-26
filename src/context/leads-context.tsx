@@ -28,6 +28,7 @@ interface ApiLead {
   message: string | null;
   status: "new_lead" | "contacted" | "callback" | "converted" | "not_interested" | "disputed";
   note: string | null;
+  telegram: string | null;
   createdAt: string;
   startTiming: string | null;
   preferredTimes: string[] | null;
@@ -45,12 +46,11 @@ function timeAgo(iso: string) {
 }
 
 function fromApi(l: ApiLead): Lead {
-  const tgMatch = l.message?.match(/Telegram:\s*(@?\w+)/i);
   return {
     id: l.id,
     name: l.name,
     phone: l.phone,
-    telegram: tgMatch ? tgMatch[1] : undefined,
+    telegram: l.telegram ? "@" + l.telegram : undefined,
     course: l.listing.title,
     time: timeAgo(l.createdAt),
     status: STATUS_TO_UI[l.status] ?? "yangi",

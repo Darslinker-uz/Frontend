@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 
 interface Ctx { params: Promise<{ id: string }> }
 
 // PATCH /api/admin/leads/help/:id — { status: "new_req" | "answered" | "closed" }
 export async function PATCH(request: Request, { params }: Ctx) {
-  const deny = await requireAdmin();
+  const deny = await requirePermission("lead.edit");
   if (deny) return deny;
   const { id } = await params;
   const leadId = Number(id);
@@ -27,7 +27,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
 
 // DELETE /api/admin/leads/help/:id
 export async function DELETE(_request: Request, { params }: Ctx) {
-  const deny = await requireAdmin();
+  const deny = await requirePermission("lead.edit");
   if (deny) return deny;
   const { id } = await params;
   const leadId = Number(id);

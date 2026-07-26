@@ -10,7 +10,10 @@ type Tab = "students" | "yordam" | "hamkorlik";
 
 // ==================== TYPES ====================
 
-type StudentStatus = "new_lead" | "contacted" | "converted" | "disputed";
+// DB'dagi LeadStatus enum'ining BARCHA qiymatlari. Ilgari bu yerda faqat 4 tasi
+// bor edi — markaz leadni "Qayta aloqa" yoki "Sotib olmadi"ga ko'chirsa, admin
+// panel STUDENT_STATUS_MAP[status] undefined bo'lib crash berardi.
+type StudentStatus = "new_lead" | "contacted" | "callback" | "converted" | "not_interested" | "disputed";
 
 interface StudentLead {
   id: number;
@@ -31,6 +34,8 @@ interface CenterGroup {
   city: string;
   category: string;
   totalLeads: number;
+  /** API qaytargan lead soni — totalLeads'dan kam bo'lsa ro'yxat kesilgan */
+  shownLeads: number;
   boughtThisWeek: number;
   leads: StudentLead[];
 }
@@ -89,9 +94,16 @@ const TAB_META: Record<Tab, { label: string; subtitle: string; icon: typeof Mess
 const STUDENT_STATUS_MAP: Record<StudentStatus, { label: string; color: string }> = {
   new_lead: { label: "Yangi", color: "#3b82f6" },
   contacted: { label: "Jarayonda", color: "#f59e0b" },
+  callback: { label: "Qayta aloqa", color: "#8b5cf6" },
   converted: { label: "Sotib oldi", color: "#22c55e" },
+  not_interested: { label: "Sotib olmadi", color: "#ec4899" },
   disputed: { label: "Sifatsiz", color: "#ef4444" },
 };
+
+// Kutilmagan status kelsa ham sahifa yiqilmasin (masalan DB'ga yangi enum
+// qiymati qo'shilib, bu fayl yangilanmay qolsa).
+const studentStatus = (s: StudentStatus) =>
+  STUDENT_STATUS_MAP[s] ?? { label: s, color: "#7c8490" };
 
 const HELP_STATUS_MAP: Record<HelpStatus, { label: string; color: string }> = {
   new_req: { label: "Javob kutmoqda", color: "#f59e0b" },
@@ -736,7 +748,7 @@ function StudentsTab({ config, isLight, centers, loading }: { config: ReturnType
                 {isOpen && leads.length > 0 && (
                   <div style={{ borderTop: `1px solid ${config.surfaceBorder}` }}>
                     {leads.map((lead, idx) => {
-                      const s = STUDENT_STATUS_MAP[lead.status];
+                      const s = studentStatus(lead.status);
                       return (
                         <button
                           key={lead.id}
@@ -756,6 +768,11 @@ function StudentsTab({ config, isLight, centers, loading }: { config: ReturnType
                         </button>
                       );
                     })}
+                    {center.shownLeads < center.totalLeads && (
+                      <p className="px-4 py-2.5 text-[11.5px]" style={{ color: config.textDim, borderTop: `1px solid ${config.surfaceBorder}` }}>
+                        Eng so&apos;nggi {center.shownLeads} ta ko&apos;rsatilyapti ({center.totalLeads} tadan)
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

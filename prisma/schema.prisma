@@ -336,6 +336,9 @@ model Lead {
   listingId    Int        @map("listing_id")
   name         String
   phone        String
+  // Telegram username, @ siz saqlanadi. Ilgari `message` ichiga
+  // "Telegram: @user" matni sifatida tiqilar, 4 joyda regex bilan ajratilardi.
+  telegram     String?
   message      String?
   status       LeadStatus @default(new_lead)
   note         String?

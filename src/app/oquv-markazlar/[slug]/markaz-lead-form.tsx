@@ -40,41 +40,41 @@ export function MarkazLeadForm({ centerName, firstListingId }: Props) {
 
   const send = async (answers: LeadQualifyAnswers) => {
     setError(null);
-    setState("sending");
 
-    // Real markaz: /api/leads ga POST qilamiz
-    if (firstListingId) {
-      try {
-        const res = await fetch("/api/leads", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            listingId: firstListingId,
-            name: name.trim(),
-            phone: phone.trim(),
-            message: message.trim() ? `[Markaz kontakti] ${message.trim()}` : "[Markaz kontakti]",
-            ...answers,
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          setError(data.error ?? "Yuborishda xatolik. Qaytadan urinib ko'ring.");
-          setState("idle");
-          return;
-        }
-        setQualifyOpen(false);
-        setState("sent");
-      } catch {
-        setError("Tarmoq xatosi. Qaytadan urinib ko'ring.");
-        setState("idle");
-      }
+    // E'lon bo'lmasa ariza saqlanmaydi va markazga xabar ham bormaydi.
+    // Ilgari bu holatda 800ms kutib "qabul qilindi" deb ko'rsatilardi —
+    // foydalanuvchi javob kutib qolardi, lekin hech kim xabardor bo'lmasdi.
+    if (!firstListingId) {
+      setError("Bu markazda hozircha ochiq kurs yo'q. Iltimos, quyidagi kontaktlar orqali bog'laning.");
+      setState("idle");
       return;
     }
 
-    // Fake markaz (demo) — simulate
-    await new Promise((r) => setTimeout(r, 800));
-    setQualifyOpen(false);
-    setState("sent");
+    setState("sending");
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listingId: firstListingId,
+          name: name.trim(),
+          phone: phone.trim(),
+          message: message.trim() ? `[Markaz kontakti] ${message.trim()}` : "[Markaz kontakti]",
+          ...answers,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Yuborishda xatolik. Qaytadan urinib ko'ring.");
+        setState("idle");
+        return;
+      }
+      setQualifyOpen(false);
+      setState("sent");
+    } catch {
+      setError("Tarmoq xatosi. Qaytadan urinib ko'ring.");
+      setState("idle");
+    }
   };
 
   if (state === "sent") {

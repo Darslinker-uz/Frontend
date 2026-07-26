@@ -18,3 +18,18 @@ export function validateLeadContact(name: string, phone: string): string | null 
 
   return null;
 }
+
+/**
+ * Telegram username — faqat toza handle saqlanadi (@ va t.me/ prefikslarsiz).
+ * Ko'rsatishda "@" qo'shiladi. Yaroqsiz bo'lsa null — ariza baribir saqlanadi.
+ */
+export function sanitizeTelegramHandle(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const handle = raw
+    .trim()
+    .replace(/^(https?:\/\/)?(t\.me\/|telegram\.me\/)/i, "")
+    .replace(/^@+/, "")
+    .trim();
+  // Telegram qoidasi: 5-32 belgi, harf/raqam/pastki chiziq
+  return /^\w{5,32}$/.test(handle) ? handle : null;
+}

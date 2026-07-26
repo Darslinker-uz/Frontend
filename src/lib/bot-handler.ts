@@ -436,17 +436,8 @@ async function renderLeadMessage(leadId: number): Promise<string | null> {
   });
   if (!lead) return null;
 
-  let telegram: string | null = null;
-  let msgRest: string | null = null;
-  if (lead.message) {
-    const tgMatch = lead.message.match(/Telegram:\s*@?(\w+)/i);
-    if (tgMatch) {
-      telegram = "@" + tgMatch[1];
-      msgRest = lead.message.replace(/Telegram:\s*@?\w+/i, "").trim() || null;
-    } else {
-      msgRest = lead.message;
-    }
-  }
+  const telegram = lead.telegram ? "@" + lead.telegram : null;
+  const msgRest = lead.message?.trim() || null;
 
   const formatted = lead.createdAt.toLocaleString("uz-UZ", {
     timeZone: "Asia/Tashkent",
@@ -570,23 +561,14 @@ export async function notifyNewLead(params: {
   studentPhone: string;
   course: string;
   message?: string | null;
+  telegram?: string | null;
   createdAt?: Date;
   startTiming?: string | null;
   preferredTimes?: readonly string[] | null;
   budget?: string | null;
 }) {
-  // Extract optional "Telegram: ..." line from message for a clean display
-  let telegram: string | null = null;
-  let rest: string | null = null;
-  if (params.message) {
-    const tgMatch = params.message.match(/Telegram:\s*@?(\w+)/i);
-    if (tgMatch) {
-      telegram = "@" + tgMatch[1];
-      rest = params.message.replace(/Telegram:\s*@?\w+/i, "").trim() || null;
-    } else {
-      rest = params.message;
-    }
-  }
+  const telegram = params.telegram ? "@" + params.telegram : null;
+  const rest = params.message?.trim() || null;
 
   // Format time in Tashkent timezone (UTC+5)
   const d = params.createdAt ?? new Date();
@@ -683,6 +665,7 @@ export async function notifyAdminGroup(params: {
   studentName: string;
   studentPhone: string;
   message?: string | null;
+  telegram?: string | null;
   createdAt?: Date;
   listingType?: "COURSE" | "TUTOR_SERVICE";
   startTiming?: string | null;
@@ -692,17 +675,8 @@ export async function notifyAdminGroup(params: {
   const groupId = process.env.TELEGRAM_ADMIN_GROUP_ID;
   if (!groupId) return;
 
-  let telegram: string | null = null;
-  let rest: string | null = null;
-  if (params.message) {
-    const tgMatch = params.message.match(/Telegram:\s*@?(\w+)/i);
-    if (tgMatch) {
-      telegram = "@" + tgMatch[1];
-      rest = params.message.replace(/Telegram:\s*@?\w+/i, "").trim() || null;
-    } else {
-      rest = params.message;
-    }
-  }
+  const telegram = params.telegram ? "@" + params.telegram : null;
+  const rest = params.message?.trim() || null;
 
   const d = params.createdAt ?? new Date();
   const formatted = d.toLocaleString("uz-UZ", {

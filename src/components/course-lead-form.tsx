@@ -41,11 +41,10 @@ export function CourseLeadForm({ listingId }: { listingId: number }) {
     setError(null);
     setStatus("submitting");
     try {
-      const message = telegram.trim() ? `Telegram: ${telegram.trim()}` : null;
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingId, name, phone, message, ...answers }),
+        body: JSON.stringify({ listingId, name, phone, telegram: telegram.trim() || null, ...answers }),
       });
       const data = await res.json();
       if (res.status === 409) {
