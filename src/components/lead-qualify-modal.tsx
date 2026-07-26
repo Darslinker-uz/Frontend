@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Check, ArrowLeft, Send, CalendarClock, Clock, Wallet, AlertCircle } from "lucide-react";
 import {
   START_TIMING_OPTIONS,
@@ -71,6 +72,7 @@ type Props = {
  * qaytaradi, aks holda foydalanuvchi noto'g'ri raqamni tuzata olmay qolardi.
  */
 export function LeadQualifyModal({ open, accent = "dark", submitting, error, onSubmit, onCancel }: Props) {
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(0);
   const [startTiming, setStartTiming] = useState<StartTiming | null>(null);
   const [preferredTimes, setPreferredTimes] = useState<PreferredTime[]>([]);
@@ -79,6 +81,9 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
   const submitNow = () => onSubmit({ startTiming, preferredTimes, budget });
   // Xato bo'lsa yopish = formaga qaytish, aks holda = shu javoblar bilan yuborish.
   const dismiss = () => (error ? onCancel() : submitNow());
+
+  // Portal faqat brauzerda ishlaydi — SSR paytida hech narsa render qilinmaydi.
+  useEffect(() => setMounted(true), []);
 
   // Qayta ochilganda birinchi savoldan boshlanadi (javoblar saqlanib qoladi).
   useEffect(() => {
@@ -100,7 +105,7 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, submitting, error, startTiming, preferredTimes, budget]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const a = ACCENT[accent];
   const current = STEPS[step];
@@ -132,7 +137,10 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
     else setBudget(prev => (prev === value ? null : (value as Budget)));
   };
 
-  return (
+  // MUHIM: portal orqali to'g'ridan-to'g'ri body ga chiqariladi. Forma o'rab
+  // turgan bloklarda transform/overflow bo'lsa, "fixed" viewport'ga emas o'sha
+  // blokka nisbatan hisoblanardi — modal sahifa ichiga kirib, kesilib qolardi.
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/55 backdrop-blur-[2px] p-0 sm:p-4"
       role="dialog"
@@ -266,6 +274,7 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
