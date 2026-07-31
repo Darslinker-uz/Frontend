@@ -64,7 +64,9 @@ export default function Page() {
           </nav>
 
           <header className="mb-8">
-            <div className="text-[12px] text-[#7c8490] mb-2">Yangilangan: 2026-05</div>
+            <div className="text-[12px] text-[#7c8490] mb-2">
+              Nashr etilgan: <time dateTime="2026-05-04">4-may, 2026</time> · O&apos;quvchilar uchun
+            </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Kursni qanday to&apos;g&apos;ri tanlash kerak: 7 ta mezon 2026
             </h1>

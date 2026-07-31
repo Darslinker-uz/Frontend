@@ -134,7 +134,9 @@ export default function Page() {
           </nav>
 
           <header className="mb-8">
-            <div className="text-[12px] text-[#7c8490] mb-2">Yangilangan: 2026-07 · O&apos;quvchilar uchun</div>
+            <div className="text-[12px] text-[#7c8490] mb-2">
+              Nashr etilgan: <time dateTime="2026-07-31">31-iyul, 2026</time> · O&apos;quvchilar uchun
+            </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Ishonchli o&apos;quv markazni qanday tekshirish kerak? 5 mezon (2026)
             </h1>

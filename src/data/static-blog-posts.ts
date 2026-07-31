@@ -1,0 +1,70 @@
+// Kod ichida yozilgan (DB'da bo'lmagan) blog postlari — yagona manba.
+// Bu ro'yxatdan /blog indeksi ham, sitemap.ts ham foydalanadi, shuning uchun
+// yangi static blog qo'shganda faqat shu yerga bitta qator qo'shish kifoya.
+//
+// `date` — maqola nashr etilgan aniq sana (ISO, YYYY-MM-DD). Post sahifasidagi
+// JSON-LD `datePublished` bilan bir xil bo'lishi shart.
+
+export type StaticBlogPost = {
+  slug: string;
+  date: string;
+  title: string;
+  excerpt: string;
+  category: string;
+};
+
+export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
+  {
+    slug: "ishonchli-oquv-markazni-qanday-tekshirish",
+    date: "2026-07-31",
+    title: "Ishonchli o'quv markazni qanday tekshirish kerak? 5 mezon (2026)",
+    excerpt:
+      "To'lovdan oldin tekshiriladigan 5 mezon — yuridik ro'yxat, ruxsat hujjati, shartnoma va pul qaytarish sharti, \"2+6\" davlat dasturi va manzil. Rasmiy manbalar bilan.",
+    category: "O'quvchilar uchun",
+  },
+  {
+    slug: "kurslarni-qayerdan-topish-mumkin",
+    date: "2026-07-02",
+    title: "O'zbekistonda kurslarni qayerdan topish mumkin? (2026 qo'llanma)",
+    excerpt:
+      "Kurs va o'quv markazlarini qanday topish mumkin — ijtimoiy tarmoq, tavsiya yoki katalog orqali. Yo'nalish, shahar va narx bo'yicha qidirish uchun amaliy qo'llanma.",
+    category: "O'quvchilar uchun",
+  },
+  {
+    slug: "nega-oquv-markazlar-darslinker-tanlaydi",
+    date: "2026-05-10",
+    title: "Nega o'quv markazlar Darslinker'ni tanlaydi? 5 ta sabab (2026)",
+    excerpt:
+      "Darslinker o'quv markazlarga nima beradi? SEO, marketplace katalog, real-time Telegram lid, CRM kabinet va organik ko'rinish — bir platformada. 5 ta asosiy imkoniyat batafsil.",
+    category: "O'quv markazlar uchun",
+  },
+  {
+    slug: "kursni-qanday-tanlash-7-mezon",
+    date: "2026-05-04",
+    title: "Kursni qanday to'g'ri tanlash kerak: 7 ta mezon 2026",
+    excerpt:
+      "Kurs tanlashda 7 ta asosiy mezon — format, narx, o'qituvchi, sertifikat va boshqalar. Vaqt va pulni yo'qotmaslik uchun amaliy yondashuv.",
+    category: "O'quvchilar uchun",
+  },
+  {
+    slug: "oquv-markaz-yangi-oquvchi-topish",
+    date: "2026-05-04",
+    title: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya 2026",
+    excerpt:
+      "O'quv markaz uchun yangi o'quvchi topishning 5 ta strategiyasi — SEO, marketplace, ijtimoiy tarmoqlar, referrals, hamkorlik. CPL va vaqt bilan qiyoslangan.",
+    category: "O'quv markazlar uchun",
+  },
+];
+
+const UZ_MONTHS = [
+  "yanvar", "fevral", "mart", "aprel", "may", "iyun",
+  "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr",
+];
+
+/** "2026-07-31" → "31-iyul, 2026". Noto'g'ri sana bo'lsa bo'sh satr qaytaradi. */
+export function formatUzDate(input: string | Date | null | undefined): string {
+  if (!input) return "";
+  const d = input instanceof Date ? input : new Date(`${input}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getUTCDate()}-${UZ_MONTHS[d.getUTCMonth()]}, ${d.getUTCFullYear()}`;
+}

@@ -111,7 +111,9 @@ export default function Page() {
           </nav>
 
           <header className="mb-8">
-            <div className="text-[12px] text-[#7c8490] mb-2">Yangilangan: 2026-05 • O&apos;quv markaz egalari uchun</div>
+            <div className="text-[12px] text-[#7c8490] mb-2">
+              Nashr etilgan: <time dateTime="2026-05-04">4-may, 2026</time> • O&apos;quv markaz egalari uchun
+            </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Yangi o&apos;quvchi topish: o&apos;quv markaz uchun 5 strategiya 2026
             </h1>

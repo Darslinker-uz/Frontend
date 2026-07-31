@@ -120,7 +120,9 @@ export default function Page() {
 
           {/* Header */}
           <header className="mb-8">
-            <div className="text-[12px] text-[#7c8490] mb-2">Yangilangan: 2026-05 • O&apos;quv markaz egalari uchun</div>
+            <div className="text-[12px] text-[#7c8490] mb-2">
+              Nashr etilgan: <time dateTime="2026-05-10">10-may, 2026</time> • O&apos;quv markaz egalari uchun
+            </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Nega o&apos;quv markazlar Darslinker&apos;ni tanlaydi? 5 ta sabab (2026)
             </h1>

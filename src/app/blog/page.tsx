@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, ArrowRight, Calendar } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { estimateReadTime } from "@/lib/markdown";
+import { STATIC_BLOG_POSTS, formatUzDate } from "@/data/static-blog-posts";
 
 export const dynamic = "force-dynamic";
 
@@ -28,10 +29,15 @@ export const metadata: Metadata = {
   },
 };
 
-function formatDate(d: Date | null): string {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("uz-UZ", { day: "numeric", month: "long", year: "numeric" });
-}
+type BlogCard = {
+  slug: string;
+  /** ISO sana (YYYY-MM-DD) — saralash uchun */
+  date: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  readTime?: string;
+};
 
 export default async function BlogPage() {
   const articles = await prisma.article.findMany({
@@ -54,15 +60,29 @@ export default async function BlogPage() {
     },
   });
 
+  // Kod ichidagi static postlar va DB maqolalari bitta ro'yxatga birlashtiriladi,
+  // so'ng nashr sanasi bo'yicha yangidan eskiga saralanadi — eng yangi post doim tepada.
+  const posts: BlogCard[] = [
+    ...STATIC_BLOG_POSTS,
+    ...articles.map((a) => ({
+      slug: a.slug,
+      date: (a.publishedAt ?? a.createdAt).toISOString().slice(0, 10),
+      title: a.title,
+      excerpt: a.excerpt ?? "",
+      category: a.category?.name ?? a.group?.name ?? "Maqola",
+      readTime: a.readTime ?? estimateReadTime(a.content),
+    })),
+  ].sort((a, b) => b.date.localeCompare(a.date));
+
   // ItemList JSON-LD (post listing for rich results)
   const itemListLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": articles.map((a, i) => ({
+    "itemListElement": posts.map((p, i) => ({
       "@type": "ListItem",
       "position": i + 1,
-      "url": `${SITE_URL}/blog/${a.slug}`,
-      "name": a.title,
+      "url": `${SITE_URL}/blog/${p.slug}`,
+      "name": p.title,
     })),
   };
 
@@ -87,12 +107,12 @@ export default async function BlogPage() {
       "name": "Darslinker.uz",
       "url": SITE_URL,
     },
-    "blogPost": articles.slice(0, 10).map((a) => ({
+    "blogPost": posts.slice(0, 10).map((p) => ({
       "@type": "BlogPosting",
-      "headline": a.title,
-      "url": `${SITE_URL}/blog/${a.slug}`,
-      "datePublished": (a.publishedAt ?? a.createdAt).toISOString(),
-      "author": { "@type": "Person", "name": a.author ?? "Darslinker.uz" },
+      "headline": p.title,
+      "url": `${SITE_URL}/blog/${p.slug}`,
+      "datePublished": p.date,
+      "author": { "@type": "Organization", "name": "Darslinker.uz" },
     })),
   };
 
@@ -113,23 +133,27 @@ export default async function BlogPage() {
           </p>
         </div>
 
-        {/* HARDCODED static blogs (until DB migration) — sorted newest first by `date` */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
-          {[
-            { slug: "ishonchli-oquv-markazni-qanday-tekshirish", date: "2026-07-31", title: "Ishonchli o'quv markazni qanday tekshirish kerak? 5 mezon (2026)", excerpt: "To'lovdan oldin tekshiriladigan 5 mezon — yuridik ro'yxat, ruxsat hujjati, shartnoma va pul qaytarish sharti, \"2+6\" davlat dasturi va manzil. Rasmiy manbalar bilan.", category: "O'quvchilar uchun" },
-            { slug: "kurslarni-qayerdan-topish-mumkin", date: "2026-07-02", title: "O'zbekistonda kurslarni qayerdan topish mumkin? (2026 qo'llanma)", excerpt: "Kurs va o'quv markazlarini qanday topish mumkin — ijtimoiy tarmoq, tavsiya yoki katalog orqali. Yo'nalish, shahar va narx bo'yicha qidirish uchun amaliy qo'llanma.", category: "O'quvchilar uchun" },
-            { slug: "nega-oquv-markazlar-darslinker-tanlaydi", date: "2026-05-10", title: "Nega o'quv markazlar Darslinker'ni tanlaydi? 5 ta sabab (2026)", excerpt: "Darslinker o'quv markazlarga nima beradi? SEO, marketplace katalog, real-time Telegram lid, CRM kabinet va organik ko'rinish — bir platformada. 5 ta asosiy imkoniyat batafsil.", category: "O'quv markazlar uchun" },
-            { slug: "kursni-qanday-tanlash-7-mezon", date: "2026-05-04", title: "Kursni qanday to'g'ri tanlash kerak: 7 ta mezon 2026", excerpt: "Kurs tanlashda 7 ta asosiy mezon — format, narx, o'qituvchi, sertifikat va boshqalar. Vaqt va pulni yo'qotmaslik uchun amaliy yondashuv.", category: "O'quvchilar uchun" },
-            { slug: "oquv-markaz-yangi-oquvchi-topish", date: "2026-05-04", title: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya 2026", excerpt: "O'quv markaz uchun yangi o'quvchi topishning 5 ta strategiyasi — SEO, marketplace, ijtimoiy tarmoqlar, referrals, hamkorlik. CPL va vaqt bilan qiyoslangan.", category: "O'quv markazlar uchun" },
-          ]
-            .sort((a, b) => b.date.localeCompare(a.date))
-            .map((post) => (
+        {/* Static va DB postlari bitta ro'yxatda — nashr sanasi bo'yicha yangidan eskiga */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          {posts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
               <article className="rounded-[20px] border-2 border-[#e4e7ea] p-6 hover:border-[#16181a] transition-all duration-300 h-full flex flex-col bg-white">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#7c8490]">{post.category}</span>
                 <h2 className="text-[19px] font-bold text-[#16181a] leading-tight mt-3">{post.title}</h2>
-                <p className="text-[14px] text-[#7c8490] mt-3 line-clamp-2 flex-1">{post.excerpt}</p>
-                <div className="flex items-center justify-end mt-5 pt-4 border-t border-[#e4e7ea]">
+                {post.excerpt && (
+                  <p className="text-[14px] text-[#7c8490] mt-3 line-clamp-2 flex-1">{post.excerpt}</p>
+                )}
+                <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#e4e7ea]">
+                  <div className="flex items-center gap-3 text-[12px] text-[#7c8490]">
+                    <time dateTime={post.date} className="inline-flex items-center gap-1">
+                      <Calendar className="w-3 h-3" /> {formatUzDate(post.date)}
+                    </time>
+                    {post.readTime && (
+                      <span className="inline-flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {post.readTime}
+                      </span>
+                    )}
+                  </div>
                   <div className="w-8 h-8 rounded-full border border-[#e4e7ea] group-hover:border-[#16181a] flex items-center justify-center transition-all">
                     <ArrowRight className="w-4 h-4 text-[#7c8490] group-hover:text-[#16181a] transition-colors" />
                   </div>
@@ -138,45 +162,6 @@ export default async function BlogPage() {
             </Link>
           ))}
         </div>
-
-        {articles.length === 0 ? (
-          <div className="rounded-[20px] border-2 border-dashed border-[#e4e7ea] p-10 text-center">
-            <p className="text-[15px] text-[#7c8490]">Hozircha real DB maqolalari yo&apos;q. Yuqoridagi DEMO maqolalarni ko&apos;rib chiqing.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {articles.map((article) => {
-              const readTime = article.readTime ?? estimateReadTime(article.content);
-              const categoryLabel = article.category?.name ?? article.group?.name ?? "Maqola";
-              return (
-                <Link key={article.id} href={`/blog/${article.slug}`} className="group block">
-                  <article className="rounded-[20px] border-2 border-[#e4e7ea] p-6 hover:border-[#16181a] transition-all duration-300 h-full flex flex-col bg-white">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#7c8490]">{categoryLabel}</span>
-                    <h2 className="text-[19px] font-bold text-[#16181a] leading-tight mt-3">{article.title}</h2>
-                    {article.excerpt && (
-                      <p className="text-[14px] text-[#7c8490] mt-3 line-clamp-2 flex-1">{article.excerpt}</p>
-                    )}
-                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#e4e7ea]">
-                      <div className="flex items-center gap-3 text-[12px] text-[#7c8490]">
-                        {article.publishedAt && (
-                          <span className="inline-flex items-center gap-1">
-                            <Calendar className="w-3 h-3" /> {formatDate(article.publishedAt)}
-                          </span>
-                        )}
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {readTime}
-                        </span>
-                      </div>
-                      <div className="w-8 h-8 rounded-full border border-[#e4e7ea] group-hover:border-[#16181a] flex items-center justify-center transition-all">
-                        <ArrowRight className="w-4 h-4 text-[#7c8490] group-hover:text-[#16181a] transition-colors" />
-                      </div>
-                    </div>
-                  </article>
-                </Link>
-              );
-            })}
-          </div>
-        )}
       </div>
     </div>
   );

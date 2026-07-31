@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { STATIC_BLOG_POSTS } from "@/data/static-blog-posts";
 
 // Sitemap'ni har soatda qayta generatsiya qilamiz — yangi markaz/repetitor/e'lon
 // (va churned/slug o'zgarishlari) build'siz ham sitemap'ga tushadi (SEO uchun muhim).
@@ -18,11 +19,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/joylar`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/manba`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${SITE_URL}/blog/nega-oquv-markazlar-darslinker-tanlaydi`, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${SITE_URL}/blog/ishonchli-oquv-markazni-qanday-tekshirish`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/hamkorlik`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/haqimizda`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/check`, changeFrequency: "monthly", priority: 0.3 },
+    // Kod ichida yozilgan blog postlari — ro'yxat `src/data/static-blog-posts.ts` da,
+    // shuning uchun yangi post qo'shilganda sitemap avtomatik yangilanadi.
+    ...STATIC_BLOG_POSTS.map((p) => ({
+      url: `${SITE_URL}/blog/${p.slug}`,
+      lastModified: new Date(`${p.date}T00:00:00Z`),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
   ];
 
   try {
