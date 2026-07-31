@@ -113,14 +113,17 @@ export default async function BlogPage() {
           </p>
         </div>
 
-        {/* HARDCODED static blogs (until DB migration) */}
+        {/* HARDCODED static blogs (until DB migration) — sorted newest first by `date` */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
           {[
-            { slug: "nega-oquv-markazlar-darslinker-tanlaydi", title: "Nega o'quv markazlar Darslinker'ni tanlaydi? 5 ta sabab (2026)", excerpt: "Darslinker o'quv markazlarga nima beradi? SEO, marketplace katalog, real-time Telegram lid, CRM kabinet va organik ko'rinish — bir platformada. 5 ta asosiy imkoniyat batafsil.", category: "O'quv markazlar uchun" },
-            { slug: "kursni-qanday-tanlash-7-mezon", title: "Kursni qanday to'g'ri tanlash kerak: 7 ta mezon 2026", excerpt: "Kurs tanlashda 7 ta asosiy mezon — format, narx, o'qituvchi, sertifikat va boshqalar. Vaqt va pulni yo'qotmaslik uchun amaliy yondashuv.", category: "O'quvchilar uchun" },
-            { slug: "oquv-markaz-yangi-oquvchi-topish", title: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya 2026", excerpt: "O'quv markaz uchun yangi o'quvchi topishning 5 ta strategiyasi — SEO, marketplace, ijtimoiy tarmoqlar, referrals, hamkorlik. CPL va vaqt bilan qiyoslangan.", category: "O'quv markazlar uchun" },
-            { slug: "kurslarni-qayerdan-topish-mumkin", title: "O'zbekistonda kurslarni qayerdan topish mumkin? (2026 qo'llanma)", excerpt: "Kurs va o'quv markazlarini qanday topish mumkin — ijtimoiy tarmoq, tavsiya yoki katalog orqali. Yo'nalish, shahar va narx bo'yicha qidirish uchun amaliy qo'llanma.", category: "O'quvchilar uchun" },
-          ].map((post) => (
+            { slug: "ishonchli-oquv-markazni-qanday-tekshirish", date: "2026-07-31", title: "Ishonchli o'quv markazni qanday tekshirish kerak? 5 mezon (2026)", excerpt: "To'lovdan oldin tekshiriladigan 5 mezon — yuridik ro'yxat, ruxsat hujjati, shartnoma va pul qaytarish sharti, \"2+6\" davlat dasturi va manzil. Rasmiy manbalar bilan.", category: "O'quvchilar uchun" },
+            { slug: "kurslarni-qayerdan-topish-mumkin", date: "2026-07-02", title: "O'zbekistonda kurslarni qayerdan topish mumkin? (2026 qo'llanma)", excerpt: "Kurs va o'quv markazlarini qanday topish mumkin — ijtimoiy tarmoq, tavsiya yoki katalog orqali. Yo'nalish, shahar va narx bo'yicha qidirish uchun amaliy qo'llanma.", category: "O'quvchilar uchun" },
+            { slug: "nega-oquv-markazlar-darslinker-tanlaydi", date: "2026-05-10", title: "Nega o'quv markazlar Darslinker'ni tanlaydi? 5 ta sabab (2026)", excerpt: "Darslinker o'quv markazlarga nima beradi? SEO, marketplace katalog, real-time Telegram lid, CRM kabinet va organik ko'rinish — bir platformada. 5 ta asosiy imkoniyat batafsil.", category: "O'quv markazlar uchun" },
+            { slug: "kursni-qanday-tanlash-7-mezon", date: "2026-05-04", title: "Kursni qanday to'g'ri tanlash kerak: 7 ta mezon 2026", excerpt: "Kurs tanlashda 7 ta asosiy mezon — format, narx, o'qituvchi, sertifikat va boshqalar. Vaqt va pulni yo'qotmaslik uchun amaliy yondashuv.", category: "O'quvchilar uchun" },
+            { slug: "oquv-markaz-yangi-oquvchi-topish", date: "2026-05-04", title: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya 2026", excerpt: "O'quv markaz uchun yangi o'quvchi topishning 5 ta strategiyasi — SEO, marketplace, ijtimoiy tarmoqlar, referrals, hamkorlik. CPL va vaqt bilan qiyoslangan.", category: "O'quv markazlar uchun" },
+          ]
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
               <article className="rounded-[20px] border-2 border-[#e4e7ea] p-6 hover:border-[#16181a] transition-all duration-300 h-full flex flex-col bg-white">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#7c8490]">{post.category}</span>
