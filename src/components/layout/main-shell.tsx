@@ -22,7 +22,8 @@ export function MainShell({
   const isAdmin = pathname.startsWith("/admode");
   const isAuth = pathname === "/auth";
   // Yopiq demo / pitch sahifalari — o'z layout'ida ishlaydi, navbar/footer kerakmas.
-  const isLanding = pathname.startsWith("/hamkorlik/demo");
+  const isLanding =
+    pathname.startsWith("/hamkorlik/demo") || pathname.startsWith("/hamkorlik/seo");
   const hideChrome = isDashboard || isAdmin || isAuth || isLanding || isChromelessPage;
 
   // Dashboard da body qora bo'lishi kerak. Admin'da AdminThemeProvider o'zi body'ni
