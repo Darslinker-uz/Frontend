@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "smm-mutaxassisi-qancha-ishlaydi",
+    date: "2026-08-09",
+    title: "O'zbekistonda SMM mutaxassisi qancha ishlaydi? (2026)",
+    excerpt:
+      "hh.uz va GorodRabot.uz vakansiyalari asosida: boshlovchi 3-5 mln, o'rta daraja 5-10 mln, senior 15-18 mln so'm. Milliy o'rtacha ish haqi va freelance narxlari bilan taqqoslangan.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "ishonchli-oquv-markazni-qanday-tekshirish",
     date: "2026-07-31",
     title: "Ishonchli o'quv markazni qanday tekshirish kerak? 5 mezon (2026)",
