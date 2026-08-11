@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "frontend-dasturchi-maoshi",
+    date: "2026-08-11",
+    title: "O'zbekistonda frontend dasturchi maoshi va talab (2026)",
+    excerpt:
+      "hh.uz'dagi 82 ta ochiq e'lon qo'lda tahlil qilindi: middle daraja 15-20 mln so'm, dollar takliflari $200-1000, junior o'rin esa atigi bitta. Agregator o'rtachalari nega noto'g'ri ekani ham ko'rsatilgan.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "smm-mutaxassisi-qancha-ishlaydi",
     date: "2026-08-09",
     title: "O'zbekistonda SMM mutaxassisi qancha ishlaydi? (2026)",
