@@ -4,14 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Home } from "lucide-react";
+import { Menu, X, BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 
+// "Asosiy" ataylab yo'q: logotipning o'zi `/` ga link, takroriy ichki link
+// bosh sahifaga hech narsa qo'shmaydi — slot Blog'ga berildi.
 const mobileBaseLinks = [
-  { href: "/", label: "Asosiy", icon: Home, primary: false },
   { href: "/repetitorlar", label: "Repetitorlar", icon: GraduationCap, primary: true },
   { href: "/oquv-markazlar", label: "Markazlar", icon: Building2, primary: true },
   { href: "/joylar", label: "Joylar", icon: MapPin, primary: false },
+  { href: "/blog", label: "Blog", icon: Newspaper, primary: false },
 ];
 
 type ApiCategory = {
@@ -140,10 +142,10 @@ export function Navbar() {
 
         {/* Desktop Actions — center (Outlined chips: border + hover fill) */}
         <div className="hidden md:flex items-center gap-3 absolute left-1/2 -translate-x-1/2">
-          {/* Asosiy — secondary link */}
-          <Link href="/">
+          {/* Joylar — secondary link (hudud bo'yicha lokal SEO sahifa) */}
+          <Link href="/joylar">
             <Button variant="ghost" className="rounded-[10px] text-[#16181a]/70 hover:text-[#16181a] hover:bg-[#f2f4f5] h-9 px-3 text-[14px] font-medium">
-              Asosiy
+              Joylar
             </Button>
           </Link>
           <div className="flex items-center gap-2">
@@ -164,10 +166,10 @@ export function Navbar() {
               </Button>
             </div>
           </div>
-          {/* Joylar — secondary link (hudud bo'yicha lokal SEO sahifa) */}
-          <Link href="/joylar">
+          {/* Blog — secondary link (tahliliy maqolalar, topical authority) */}
+          <Link href="/blog">
             <Button variant="ghost" className="rounded-[10px] text-[#16181a]/70 hover:text-[#16181a] hover:bg-[#f2f4f5] h-9 px-3 text-[14px] font-medium">
-              Joylar
+              Blog
             </Button>
           </Link>
         </div>
@@ -284,8 +286,8 @@ export function Navbar() {
         <div className="flex flex-col h-full pt-[262px] pb-6 px-4 overflow-y-auto">
           <nav className="flex-1 flex flex-col items-center justify-center gap-1.5">
             <div className="w-full flex flex-col gap-1.5 items-center">
-              {/* Asosiy + Repetitorlar + Markazlar (Kurslar oldida) */}
-              {mobileBaseLinks.slice(0, 3).map((link) => (
+              {/* Repetitorlar + Markazlar (Kurslar oldida) */}
+              {mobileBaseLinks.slice(0, 2).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -361,8 +363,8 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Joylar va boshqalar (Kurslar dan keyin) */}
-              {mobileBaseLinks.slice(3).map((link) => (
+              {/* Joylar va Blog (Kurslar dan keyin) */}
+              {mobileBaseLinks.slice(2).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
