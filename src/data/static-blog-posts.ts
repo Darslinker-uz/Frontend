@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "ui-ux-dizayner-maoshi",
+    date: "2026-08-12",
+    title: "O'zbekistonda UI/UX dizayner: maosh, talab va portfolio (2026)",
+    excerpt:
+      "Toshkentdagi 22 ta ochiq dizayn e'loni qo'lda ajratildi: maosh atigi bittasida yozilgan, talabning 9 tasi bank va fintechdan, \"junior\" yorlig'i esa umuman yo'q. Portfolio uchun uch oqim qoidasi.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "frontend-dasturchi-maoshi",
     date: "2026-08-11",
     title: "O'zbekistonda frontend dasturchi maoshi va talab (2026)",
