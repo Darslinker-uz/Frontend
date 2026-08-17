@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "ai-qaysi-kasblarni-ozgartiryapti",
+    date: "2026-08-17",
+    title: "AI O'zbekistonda qaysi kasblarni o'zgartiryapti? (2026)",
+    excerpt:
+      "Banklar call-markaz uchun ovozli AI'ni sinamoqda, Soliq qo'mitasi AI Soliq portalini ishga tushirdi. hh.uz vakansiyalari va davlat dasturlari asosida qaysi kasblar birinchi bo'lib o'zgarayotgani tahlil qilindi.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "ui-ux-dizayner-maoshi",
     date: "2026-08-12",
     title: "O'zbekistonda UI/UX dizayner: maosh, talab va portfolio (2026)",
