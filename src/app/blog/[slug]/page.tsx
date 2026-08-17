@@ -112,7 +112,7 @@ export default async function BlogPostPage({ params }: Props) {
       "@type": "Organization",
       "name": "Darslinker.uz",
       "url": SITE_URL,
-      "logo": { "@type": "ImageObject", "url": `${SITE_URL}/favicon-96x96.png` },
+      "logo": { "@type": "ImageObject", "url": `${SITE_URL}/icon-512.png` },
     },
     "mainEntityOfPage": { "@type": "WebPage", "@id": url },
     "articleSection": categoryLabel,
