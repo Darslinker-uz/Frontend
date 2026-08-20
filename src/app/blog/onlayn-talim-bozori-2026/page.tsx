@@ -328,7 +328,9 @@ export default function Page() {
             <p className="text-[15.5px] text-[#16181a] leading-relaxed">
               Beshta fakt bitta yo&apos;nalishga ishora qiladi. Internet endi texnik to&apos;siq emas — aholining 94,2%i ulangan. uzbekcoders.uz&apos;dagi 1,4 million foydalanuvchi va 2024-yilda professional sertifikatga yozilishning 206%ga o&apos;sishi — talab allaqachon real ekanini ko&apos;rsatadi. Davlat &ldquo;Bir million dasturchi&rdquo; va &ldquo;Besh million AI yetakchilari&rdquo; kabi dasturlar bilan yana millionlab kishini raqamli ko&apos;nikmalarga o&apos;qitishni rejalashtirmoqda. IT Park rezidentlari esa minglab yangi ish o&apos;rnini — shu jumladan mahalliy kadr talab qiladigan o&apos;rinlarni — ochmoqda. Global onlayn ta&apos;lim bozori esa allaqachon $389 mlrd ga yetib, yiliga 20% o&apos;smoqda — ya&apos;ni bu modelning o&apos;zi ishlashi allaqachon isbotlangan. Ammo bularning barchasini bog&apos;laydigan, tizimli va ishonchli onlayn kurs manbai O&apos;zbekistonda hali keng tarqalmagan — ko&apos;pchilik hamon{" "}
               <Link href="/blog/kurslarni-qayerdan-topish-mumkin" className="text-[#7ea2d4] hover:underline">ijtimoiy tarmoqdagi tarqoq e&apos;lonlar orqali kurs qidiradi</Link>
-              . Talab ham, infratuzilma ham tayyor — bo&apos;shliq shu ikkisini bog&apos;laydigan qismda.
+              . Talab ham, infratuzilma ham tayyor — bo&apos;shliq shu ikkisini bog&apos;laydigan qismda. O&apos;quv markaz yoki repetitor uchun bu ikki amaliy yo&apos;l degani: mavjud katalogda ko&apos;rinish, yoki{" "}
+              <a href="https://darslink.uz" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Darslink</a>
+              {" "}kabi tayyor infratuzilma orqali o&apos;zining shaxsiy onlayn kurs platformasini ochish.
             </p>
           </section>
 
