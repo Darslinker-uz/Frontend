@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "smm-ni-noldan-organish-3-oylik-reja",
+    date: "2026-08-20",
+    title: "SMM'ni noldan o'rganish: 3 oylik reja (2026)",
+    excerpt:
+      "Nol tajribadan boshlang'ich SMM lavozimigacha 3 oylik amaliy reja: 1-oy asos, 2-oy AI vositalar va reklama testi, 3-oy portfolio va birinchi mijoz. hh.uz talablari asosida.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "ai-qaysi-kasblarni-ozgartiryapti",
     date: "2026-08-17",
     title: "AI O'zbekistonda qaysi kasblarni o'zgartiryapti? (2026)",
