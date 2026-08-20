@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "onlayn-talim-bozori-2026",
+    date: "2026-08-20",
+    title: "O'zbekistonda onlayn ta'lim bozori: 2026-yil raqamlari",
+    excerpt:
+      "Internet qamrovi 94,2%ga yetdi, uzbekcoders.uz'da (Coursera) 1,4 mln foydalanuvchi, global bozor $389 mlrd. IT Park va davlat dasturlari statistikasi bitta joyda.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "smm-ni-noldan-organish-3-oylik-reja",
     date: "2026-08-20",
     title: "SMM'ni noldan o'rganish: 3 oylik reja (2026)",
