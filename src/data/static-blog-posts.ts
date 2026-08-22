@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "dasturlashni-noldan-organish-6-oylik-yol-xaritasi",
+    date: "2026-08-22",
+    title: "Dasturlashni noldan o'rganish: 6 oylik yo'l xaritasi (2026)",
+    excerpt:
+      "6 oylik amaliy reja: 1-2 oy asos, 3-4 oy frontend yoki backend tanlash, 5-oy portfolio, 6-oy ish qidiruv. hh.uz, Najot Ta'lim va School 21 ma'lumoti asosida.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "onlayn-talim-bozori-2026",
     date: "2026-08-20",
     title: "O'zbekistonda onlayn ta'lim bozori: 2026-yil raqamlari",
