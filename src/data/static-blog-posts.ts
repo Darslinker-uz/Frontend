@@ -15,6 +15,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "suniy-intellekt-strategiyasi-2030-yangi-imkoniyatlar",
+    date: "2026-08-28",
+    title: "O'zbekiston sun'iy intellekt strategiyasi (2030): kimlar uchun yangi imkoniyat ochadi?",
+    excerpt:
+      "$6 mlrd xususiy investitsiya, 800 MVt infratuzilma, 200+ loyiha 7 sohada. AI strategiyasi 2030 talaba, mutaxassis va tadbirkor uchun qanday imkoniyat ochayotgani.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "dasturlashni-noldan-organish-6-oylik-yol-xaritasi",
     date: "2026-08-22",
     title: "Dasturlashni noldan o'rganish: 6 oylik yo'l xaritasi (2026)",
