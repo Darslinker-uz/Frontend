@@ -1,0 +1,193 @@
+# Go Darslinker! — arxitektura rejasi
+
+> Holat: **loyihalash bosqichi**. Bu hujjat kod emas — login'dan ball/reyting tizimigacha
+> bo'lgan arxitektura qarorlarini qayd etadi. UI implementatsiyasi alohida (Codex)
+> tomonidan olib borilmoqda; bu yerda faqat backend/data-model/flow arxitekturasi bor.
+
+## 1. Kontekst
+
+**Go Darslinker!** — go.darslinker.uz subdomenida ishlaydigan, bepul, interaktiv,
+o'yinlashtirilgan til o'rganish platformasi. Telegram Mini App sifatida ishlaydi.
+Maqsad: Darslinker Telegram kanaliga auditoriya yig'ish (kanalga obuna bo'lmasdan
+darslarga kirish yo'q) va bu auditoriyani kelajakdagi onlayn video kurslar
+platformasiga (darslinker.uz'ning video-kurslar tomon o'tishi) tayyor auditoriya
+sifatida ishlatish.
+
+**Infratuzilma:** mavjud darslinker.uz bilan bir xil server/hosting, lekin **alohida
+Postgres baza**. Alohida yangi loyiha (repo) sifatida quriladi, monorepo ichiga
+kiritilmaydi.
+
+**MVP doirasi:** faqat Ingliz tili, faqat Boshlang'ich daraja. Referral (do'stga
+yuborish) mexanikasi, boshqa tillar, audio/yozib-javob mashqlari va spaced-repetition
+eslatmalari — barchasi keyingi bosqichga qoldirilgan (7-bo'limga qarang).
+
+## 2. Autentifikatsiya
+
+Alohida parol/ro'yxatdan o'tish shakli yo'q. Foydalanuvchi Telegram bot orqali Mini
+App'ni ochganda, Telegram `initData` (foydalanuvchi id, ism, username, photo, HMAC
+imzo) beradi.
+
+- Backend `initData`'ni bot tokeni bilan HMAC orqali tasdiqlaydi (Telegram'ning rasmiy
+  validatsiya algoritmi).
+- Tasdiqlangach, `telegramId` bo'yicha `User` topiladi yoki yaratiladi.
+- Sessiya uchun qisqa muddatli token (masalan JWT, mini-app frontend'ga qaytariladi va
+  keyingi API so'rovlarida ishlatiladi) beriladi.
+
+## 3. Kanalga obuna — kirish sharti
+
+Darslarga kirishning yagona sharti: Darslinker Telegram kanaliga obuna bo'lish
+(referral hozircha shart emas — 7-bo'limga qarang).
+
+- Bot Darslinker kanalida **admin** bo'lishi kerak (`getChatMember` chaqirish uchun).
+- Birinchi kirishda backend `getChatMember(channelId, userId)` orqali tekshiradi,
+  natijani `User.channelSubscribed` + `User.channelCheckedAt` sifatida saqlaydi.
+- **Muhim qoida (foydalanuvchi talabi):** obuna bo'lgach, keyingi har safar qayta
+  so'ralmaydi — cache'langan holatga ishoniladi.
+- Holatni yangilab turish uchun bot `chat_member` update'larini qabul qiladigan qilib
+  sozlanadi (webhook `allowed_updates` ichida `chat_member`). Foydalanuvchi kanaldan
+  chiqsa, Telegram shu update'ni yuboradi → `channelSubscribed = false` qilinadi.
+  Shu orqali doimiy qayta-tekshirish (polling) shart emas.
+- Agar `channelSubscribed = false` bo'lsa — darslar yopiq, faqat "Kanalga obuna
+  bo'ling" ekrani + "Tekshirish" tugmasi (bosilganda jonli tekshiruv qayta ishga
+  tushadi).
+
+## 4. Ma'lumotlar modeli
+
+```
+Language        { id, code, name, flagEmoji, isActive, order }
+Level           { id, languageId, name, order }              // MVP: faqat "Boshlang'ich"
+Module          { id, levelId, title, icon, order }
+Lesson          { id, moduleId, title, type: standard|review, order }
+Question        { id, lessonId, type, prompt, payload(json), order }
+
+User            { id, telegramId, username, firstName, photoUrl,
+                  channelSubscribed, channelCheckedAt,
+                  totalBall, currentStreak, longestStreak, lastActiveDate, createdAt }
+
+UserLessonProgress { id, userId, lessonId, status: locked|unlocked|completed,
+                      completedAt, ballEarned }
+
+BallEvent       { id, userId, amount, source, lessonId?, languageId?, createdAt }
+```
+
+`BallEvent` — ballning o'zgarmas jurnali (ledger). `User.totalBall` bu jurnaldan
+hisoblangan/keshlangan qiymat. Sabab: faqat bitta sonni to'g'ridan-to'g'ri o'zgartirib
+qo'ymaslik — kelajakda "nega ball shuncha" deb tekshirish, xato tuzatish yoki
+statistikalarni (kunlik/haftalik/tilga bo'lingan) chiqarish uchun jurnal kerak bo'ladi.
+
+## 5. Til → Daraja → Modul → Dars → Savol ierarxiyasi
+
+- **Modul darajasida** ketma-ket ochilish bor: Modul N to'liq tugamaguncha Modul N+1
+  qulflangan.
+- **Modul ichidagi darslar** — barchasi bir vaqtning o'zida ochiq. Foydalanuvchi
+  xohlagan tartibda o'rganaveradi. Tugatilgan darslar belgi (check/badge) bilan
+  ko'rsatiladi.
+- Har bir modulda oddiy darslardan tashqari bitta **"review" turidagi yakuniy dars**
+  bor — bu modulning barcha darslaridan aralashtirilgan savollarni o'z ichiga oladi.
+  Review darsi, modulning barcha oddiy darslari tugatilmaguncha qulflangan.
+- **Modul "to'liq tugadi"** hisoblanishi = barcha oddiy darslar + review darsi
+  tugatilgani. Shundan keyin keyingi modul ochiladi.
+- Takrorlash/eslatma tizimi (spaced repetition) — **keyingi bosqichga qoldirildi**,
+  MVP'da yo'q.
+
+## 6. Mashq turlari (MVP)
+
+To'rt turdagi savol, `Question.type` orqali farqlanadi, `payload` maydoni turga qarab
+boshqa shaklda bo'ladi:
+
+1. **4 variantli tanlov** — matn savol, 4 variant, 1 to'g'ri.
+2. **So'z–tarjima moslashtirish** — juftliklarni ulash (masalan 4 juft so'z/tarjima).
+3. **Jumla tuzish** — so'z bo'laklarini to'g'ri tartibda joylashtirish.
+4. **Rasm–so'z moslashtirish** — rasm ko'rsatiladi, mos so'z variantlardan tanlanadi.
+
+Audio (tinglab topish) va erkin matn yozish turlari keyingi bosqichga qoldirildi —
+ular tayyor audio kontent va orfografik xato kechirish logikasini talab qiladi.
+
+## 7. Ball tizimi
+
+- **Yurak/lives yo'q** — jarima mexanikasi umuman ishlatilmaydi.
+- To'g'ri javob = **+10 ball**.
+- Noto'g'ri javob = **0 ball**; to'g'ri javob ko'rsatiladi va foydalanuvchi keyingi
+  savolga o'tadi (qayta urinish yo'q). *(Bu band aniq tasdiqlanmagan — standart qaror
+  sifatida qabul qilindi, kerak bo'lsa o'zgartiramiz.)*
+- Dars to'liq tugatilganda qo'shimcha bonus ball beriladi (aniq miqdor — masalan +20 —
+  keyinroq sozlanadi, hozircha o'zgaruvchan qiymat sifatida qoldiriladi).
+- Review darsi tugatilgani uchun alohida (kattaroq) bonus ball beriladi.
+- Har bir ball hodisasi `BallEvent`'ga yoziladi (`source`: `question_correct` |
+  `lesson_complete` | `module_review_complete`).
+
+## 8. Streak va analitika
+
+- Har kuni kamida 1 dars tugatilsa, `currentStreak` +1; kun o'tkazib yuborilsa 0'ga
+  tushadi. `longestStreak` alohida saqlanadi.
+- Profilda **analitika ekrani**: kalendar-issiqlik xaritasi (faol kunlar), joriy
+  streak, eng uzun streak, haftalik ball grafigi.
+- Jarima/maxsus bonus yo'q — hozircha faqat motivatsion ko'rsatkich.
+
+## 9. Reyting (Leaderboard)
+
+Uch xil reyting bo'ladi:
+
+1. **Har bir til bo'yicha alohida reyting** (all-time) — shu tildagi `BallEvent`larning
+   yig'indisi bo'yicha.
+2. **Umumiy reyting** (all-time) — barcha tillar bo'yicha jami ball (`User.totalBall`).
+3. **Haftalik faollar jadvali** — har dushanba kuni nolga tushadigan, shu hafta
+   ichida to'plangan ball bo'yicha reyting (BallEvent'lardan joriy hafta oralig'ida
+   agregatsiya qilinadi).
+
+Har uchala reytingda bir xil ko'rinish qoidasi:
+
+- **Top 3** maxsus (masalan pьedestal/medal) ko'rinishda ko'rsatiladi.
+- **Top 25** ro'yxat sifatida chiqadi.
+- Foydalanuvchi top 25'dan tashqarida bo'lsa, ro'yxat pastida **alohida, "yopishqoq"
+  qator** sifatida uning haqiqiy o'rni doim ko'rsatiladi (masalan "Siz — 297-o'rin").
+
+MVP'da hisoblash on-the-fly agregatsion so'rov orqali qilinadi (`BallEvent` ustida
+`GROUP BY user, SUM(amount)`, davr filtri bilan). Foydalanuvchi soni ko'payib,
+so'rovlar sekinlashsa, haftalik/umumiy reytingni davriy job orqali alohida jadvalga
+(`LeaderboardSnapshot`) oldindan hisoblab qo'yish keyingi optimallashtirish bosqichi
+bo'ladi.
+
+*(Aniqlashtirish kerak bo'lgan bitta band: haftalik jadval — global (barcha tillar
+aralash) hisoblanadimi, yoki u ham til bo'yicha alohida bo'lishi kerakmi? Hozircha
+**global** deb qabul qildim — "faollar jadvali" so'zi shunga ishora qilyapti.)*
+
+## 10. API kontrakti (Mini App frontend uchun)
+
+Mini-app UI (Codex tomonidan quriladi) ushbu endpoint'lar bilan ishlaydi:
+
+```
+POST  /api/auth/telegram          initData tasdiqlash, User yaratish/topish, sessiya
+GET   /api/me                     profil + statistika (ball, streak, obuna holati)
+POST  /api/channel/check          jonli obuna tekshiruvi (foydalanuvchi "Tekshirish" bosganda)
+GET   /api/languages              tillar ro'yxati (faol / tez-orada)
+GET   /api/languages/:code/modules   modul+dars ro'yxati, joriy foydalanuvchi progressi bilan
+GET   /api/lessons/:id            dars tafsiloti + savollar
+POST  /api/lessons/:id/answer     bitta savolga javob, natija + berilgan ball qaytadi
+POST  /api/lessons/:id/complete   darsni yakunlash, bonus ball, unlock mantiqi ishga tushadi
+GET   /api/leaderboard/:langCode  til bo'yicha reyting (top25 + o'z o'rni)
+GET   /api/leaderboard/global     umumiy reyting
+GET   /api/leaderboard/weekly     haftalik faollar jadvali
+GET   /api/stats/me               streak/analitika ma'lumotlari (heatmap, haftalik grafik)
+```
+
+Bot tomoni (Telegram webhook, alohida): `/start` komandasi mini-app tugmasini ochadi;
+`chat_member` update handler kanal-tark-etish holatini kuzatadi (3-bo'limga qarang).
+
+## 11. MVP dan tashqarida (keyingi bosqichlar)
+
+- Referral / do'stga yuborish mexanikasi (shart yoki bonus — hali qaror qilinmagan).
+- Boshqa tillar (Rus, Arab, Koreys...) va yuqori darajalar (O'rta, Yuqori).
+- Audio asosidagi mashqlar (tinglab topish) va erkin matn yozish turi.
+- Spaced-repetition takrorlash tizimi/eslatmalari.
+- `@darslinkerbot`ni to'liq shu platformaga repurpose qilish (token almashinuvi —
+  loyiha oxirida).
+- Reyting hisoblashni `LeaderboardSnapshot` jadvaliga ko'chirish (agar kerak bo'lsa).
+- Pullik o'yin darslari (uzoq muddatli, hozircha rejalashtirilmagan).
+
+## 12. Ochiq savollar / tasdiqlash kerak bo'lgan taxminlar
+
+- Noto'g'ri javobda qayta urinish yo'q, degan qoida — standart qaror, tasdiqlanmagan.
+- Dars/review tugatish bonus ball miqdorlari — aniq raqamlar kelishilmagan.
+- Haftalik faollar jadvali global (til bo'yicha emas) — taxmin sifatida qabul
+  qilindi.
