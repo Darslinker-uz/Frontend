@@ -15,7 +15,11 @@ sifatida ishlatish.
 
 **Infratuzilma:** mavjud darslinker.uz bilan bir xil server/hosting, lekin **alohida
 Postgres baza**. Alohida yangi loyiha (repo) sifatida quriladi, monorepo ichiga
-kiritilmaydi.
+kiritilmaydi. (Amalga oshirilgan holat — 13-bo'limga qarang.)
+
+**Bot:** `@darslinkerbot`ni repurpose qilish rejasi bekor qilindi — o'rniga **butunlay
+yangi, mustaqil bot** ishlatiladi: `t.me/godarslinkerbot`. Eski bot (marketplace/kurs
+maslahatchisi) o'zgarishsiz qoladi.
 
 **MVP doirasi:** faqat Ingliz tili, faqat Boshlang'ich daraja. Referral (do'stga
 yuborish) mexanikasi, boshqa tillar, audio/yozib-javob mashqlari va spaced-repetition
@@ -23,9 +27,15 @@ eslatmalari — barchasi keyingi bosqichga qoldirilgan (7-bo'limga qarang).
 
 ## 2. Autentifikatsiya
 
-Alohida parol/ro'yxatdan o'tish shakli yo'q. Foydalanuvchi Telegram bot orqali Mini
-App'ni ochganda, Telegram `initData` (foydalanuvchi id, ism, username, photo, HMAC
-imzo) beradi.
+Alohida parol/ro'yxatdan o'tish shakli yo'q. Platformaga oddiy brauzer orqali
+kirgan anonim foydalanuvchi har bir modulning **birinchi darsini autentifikatsiyasiz
+ochib ko'rishi mumkin**. Ikkinchi va undan keyingi darslarni ochish uchun Telegram
+orqali kirish talab qilinadi.
+
+Foydalanuvchi Telegram bot orqali Mini App'ni ochganda, Telegram `initData`
+(foydalanuvchi id, ism, username, photo, HMAC imzo) beradi. Frontend Telegram Mini
+App muhitini avtomatik aniqlaydi va `initData` mavjud bo'lsa, alohida login tugmasini
+bosdirish o'rniga autentifikatsiya jarayonini avtomatik boshlaydi.
 
 - Backend `initData`'ni bot tokeni bilan HMAC orqali tasdiqlaydi (Telegram'ning rasmiy
   validatsiya algoritmi).
@@ -35,8 +45,13 @@ imzo) beradi.
 
 ## 3. Kanalga obuna — kirish sharti
 
-Darslarga kirishning yagona sharti: Darslinker Telegram kanaliga obuna bo'lish
-(referral hozircha shart emas — 7-bo'limga qarang).
+Darslarga to'liq kirish sharti: Telegram orqali autentifikatsiya va Darslinker
+Telegram kanaliga obuna bo'lish (referral hozircha shart emas — 7-bo'limga qarang).
+
+**Ochiq demo istisnosi:** har bir modulning birinchi darsi barcha foydalanuvchilar
+uchun ochiq. Uni ko'rish uchun Telegram orqali kirish ham, kanalga obuna bo'lish ham
+shart emas. Ikkinchi va undan keyingi darslarda foydalanuvchi avval Telegram orqali
+kirishi, so'ng kanalga obuna bo'lishi majburiy.
 
 - Bot Darslinker kanalida **admin** bo'lishi kerak (`getChatMember` chaqirish uchun).
 - Birinchi kirishda backend `getChatMember(channelId, userId)` orqali tekshiradi,
@@ -47,9 +62,9 @@ Darslarga kirishning yagona sharti: Darslinker Telegram kanaliga obuna bo'lish
   sozlanadi (webhook `allowed_updates` ichida `chat_member`). Foydalanuvchi kanaldan
   chiqsa, Telegram shu update'ni yuboradi → `channelSubscribed = false` qilinadi.
   Shu orqali doimiy qayta-tekshirish (polling) shart emas.
-- Agar `channelSubscribed = false` bo'lsa — darslar yopiq, faqat "Kanalga obuna
-  bo'ling" ekrani + "Tekshirish" tugmasi (bosilganda jonli tekshiruv qayta ishga
-  tushadi).
+- Agar `channelSubscribed = false` bo'lsa — ochiq birinchi darsdan tashqari qolgan
+  darslar yopiq. Ularda "Kanalga obuna bo'ling" ekrani + "Tekshirish" tugmasi
+  ko'rsatiladi (bosilganda jonli tekshiruv qayta ishga tushadi).
 
 ## 4. Ma'lumotlar modeli
 
@@ -80,8 +95,10 @@ statistikalarni (kunlik/haftalik/tilga bo'lingan) chiqarish uchun jurnal kerak b
 - **Modul darajasida** ketma-ket ochilish bor: Modul N to'liq tugamaguncha Modul N+1
   qulflangan.
 - **Modul ichidagi darslar** — barchasi bir vaqtning o'zida ochiq. Foydalanuvchi
-  xohlagan tartibda o'rganaveradi. Tugatilgan darslar belgi (check/badge) bilan
-  ko'rsatiladi.
+  xohlagan tartibda o'rganaveradi, lekin kirish darajasi autentifikatsiyaga bog'liq:
+  modulning birinchi darsi anonim demo sifatida ochiq; ikkinchi va keyingi darslar
+  Telegram autentifikatsiyasi hamda kanal obunasidan keyin ochiladi. Tugatilgan
+  darslar belgi (check/badge) bilan ko'rsatiladi.
 - Har bir modulda oddiy darslardan tashqari bitta **"review" turidagi yakuniy dars**
   bor — bu modulning barcha darslaridan aralashtirilgan savollarni o'z ichiga oladi.
   Review darsi, modulning barcha oddiy darslari tugatilmaguncha qulflangan.
@@ -157,12 +174,14 @@ aralash) hisoblanadimi, yoki u ham til bo'yicha alohida bo'lishi kerakmi? Hozirc
 Mini-app UI (Codex tomonidan quriladi) ushbu endpoint'lar bilan ishlaydi:
 
 ```
-POST  /api/auth/telegram          initData tasdiqlash, User yaratish/topish, sessiya
+POST  /api/auth/telegram          initData tasdiqlash, User yaratish/topish, sessiya;
+                                  Mini App ichida frontend tomonidan avtomatik chaqiriladi
 GET   /api/me                     profil + statistika (ball, streak, obuna holati)
 POST  /api/channel/check          jonli obuna tekshiruvi (foydalanuvchi "Tekshirish" bosganda)
 GET   /api/languages              tillar ro'yxati (faol / tez-orada)
 GET   /api/languages/:code/modules   modul+dars ro'yxati, joriy foydalanuvchi progressi bilan
-GET   /api/lessons/:id            dars tafsiloti + savollar
+GET   /api/lessons/:id            dars tafsiloti + savollar; modulning birinchi darsi
+                                  anonim ochiq, qolganlari auth + obuna talab qiladi
 POST  /api/lessons/:id/answer     bitta savolga javob, natija + berilgan ball qaytadi
 POST  /api/lessons/:id/complete   darsni yakunlash, bonus ball, unlock mantiqi ishga tushadi
 GET   /api/leaderboard/:langCode  til bo'yicha reyting (top25 + o'z o'rni)
@@ -180,8 +199,6 @@ Bot tomoni (Telegram webhook, alohida): `/start` komandasi mini-app tugmasini oc
 - Boshqa tillar (Rus, Arab, Koreys...) va yuqori darajalar (O'rta, Yuqori).
 - Audio asosidagi mashqlar (tinglab topish) va erkin matn yozish turi.
 - Spaced-repetition takrorlash tizimi/eslatmalari.
-- `@darslinkerbot`ni to'liq shu platformaga repurpose qilish (token almashinuvi —
-  loyiha oxirida).
 - Reyting hisoblashni `LeaderboardSnapshot` jadvaliga ko'chirish (agar kerak bo'lsa).
 - Pullik o'yin darslari (uzoq muddatli, hozircha rejalashtirilmagan).
 
@@ -191,3 +208,30 @@ Bot tomoni (Telegram webhook, alohida): `/start` komandasi mini-app tugmasini oc
 - Dars/review tugatish bonus ball miqdorlari — aniq raqamlar kelishilmagan.
 - Haftalik faollar jadvali global (til bo'yicha emas) — taxmin sifatida qabul
   qilindi.
+
+## 13. Infratuzilma — amalga oshirilgan holat (2026-08-30)
+
+Quyidagilar allaqachon jonli (kod yo'q, faqat skeleton + login):
+
+- **Repo:** https://github.com/Darslinker-uz/GoDarslinker (public — darslinker.uz'ning
+  `Frontend` repo bilan bir xil konventsiya, serverdan token'siz `git pull` uchun).
+  Lokal nusxa: `go-darslinker.uz/` (darslinker.uz'ning yonida, alohida papka).
+- **Stack:** Next.js 16.2.3 + Prisma 6.19.3 (`@prisma/adapter-pg`, generatsiya
+  `src/generated/prisma`ga — darslinker.uz bilan bir xil pattern), Tailwind 4.
+- **DNS:** Cloudflare, `go` → `46.101.220.20`, DNS-only (proxysiz).
+- **Server (bitta droplet, ikkinchi mustaqil loyiha sifatida):**
+  - Nginx: `/etc/nginx/sites-available/go-darslinker`, port **3001**ga proksi
+    (darslinker.uz'ning 3000-portidan mustaqil).
+  - SSL: Let's Encrypt, `go.darslinker.uz` uchun alohida sertifikat.
+  - Postgres: `go_darslinker_db` bazasi, `go_darslinker` useri — `darslinker_db`dan
+    to'liq izolyatsiya qilingan (faqat shadow-db uchun CREATEDB huquqi berilgan).
+  - PM2: `go-darslinker` nomli mustaqil process (`~/GoDarslinker`, serverda).
+- **Qurilgan endpoint'lar:** `POST /api/auth/telegram` (Telegram initData HMAC
+  tekshiruvi + `User` upsert + JWT sessiya), `GET /api/me`, `GET /api/health`.
+- **Hali qilinmagan:** `TELEGRAM_BOT_TOKEN` bo'sh — foydalanuvchi BotFather orqali
+  `@godarslinkerbot`ni yaratib, tokenni bergandan keyin to'ldiriladi. Shundan keyingina
+  `/api/auth/telegram` haqiqiy Telegram Mini App bilan sinaladi. Kanalga obuna gate,
+  ball/reyting endpoint'lari va bot webhook handler'i — hali yozilmagan (2-D bosqichdan
+  keyingi navbat).
+- **UI:** `src/app/page.tsx`da faqat vaqtinchalik placeholder bor ("Backend tayyor,
+  dizayn hali qurilmoqda") — Codex bu papkani to'liq real dizaynga almashtiradi.
