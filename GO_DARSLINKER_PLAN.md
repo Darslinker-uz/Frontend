@@ -72,7 +72,7 @@ kirishi, so'ng kanalga obuna bo'lishi majburiy.
 Language        { id, code, name, flagEmoji, isActive, order }
 Level           { id, languageId, name, order }              // MVP: faqat "Boshlang'ich"
 Module          { id, levelId, title, icon, order }
-Lesson          { id, moduleId, title, type: standard|review, order }
+Lesson          { id, moduleId, title, type: vocabulary|quiz|sentence_practice, order }
 Question        { id, lessonId, type, prompt, payload(json), order }
 
 User            { id, telegramId, username, firstName, photoUrl,
@@ -90,22 +90,53 @@ hisoblangan/keshlangan qiymat. Sabab: faqat bitta sonni to'g'ridan-to'g'ri o'zga
 qo'ymaslik — kelajakda "nega ball shuncha" deb tekshirish, xato tuzatish yoki
 statistikalarni (kunlik/haftalik/tilga bo'lingan) chiqarish uchun jurnal kerak bo'ladi.
 
-## 5. Til → Daraja → Modul → Dars → Savol ierarxiyasi
+## 5. Til → Daraja → Mavzu → 3 ta o'rganish yo'nalishi (2026-08-31 yangilandi)
 
-- **Modul darajasida** ketma-ket ochilish bor: Modul N to'liq tugamaguncha Modul N+1
-  qulflangan.
-- **Modul ichidagi darslar** — barchasi bir vaqtning o'zida ochiq. Foydalanuvchi
-  xohlagan tartibda o'rganaveradi, lekin kirish darajasi autentifikatsiyaga bog'liq:
-  modulning birinchi darsi anonim demo sifatida ochiq; ikkinchi va keyingi darslar
-  Telegram autentifikatsiyasi hamda kanal obunasidan keyin ochiladi. Tugatilgan
-  darslar belgi (check/badge) bilan ko'rsatiladi.
-- Har bir modulda oddiy darslardan tashqari bitta **"review" turidagi yakuniy dars**
-  bor — bu modulning barcha darslaridan aralashtirilgan savollarni o'z ichiga oladi.
-  Review darsi, modulning barcha oddiy darslari tugatilmaguncha qulflangan.
-- **Modul "to'liq tugadi"** hisoblanishi = barcha oddiy darslar + review darsi
-  tugatilgani. Shundan keyin keyingi modul ochiladi.
+Avvalgi "standard/review dars" farqi bekor qilindi — endi har bir mavzu doim quyidagi
+**3 ta qat'iy yo'nalishdan** iborat (bu `Lesson.type` qiymatlari):
+
+1. **So'zlar** (`vocabulary`) — so'z ro'yxati: so'z + tarjima + audio talaffuz (brauzer
+   TTS — 6-bo'limga qarang). Test emas, sof reference/flashcard ko'rinishida.
+   "Ko'rib chiqdim" belgisi bilan yakunlanadi, savol-javob ball tizimi qo'llanmaydi
+   (faqat kichik flat bonus, aniq miqdori keyinroq).
+2. **Mavzu testi** (`quiz`) — o'sha mavzudagi barcha so'zlarni qamrab oluvchi test
+   (6-bo'limdagi mashq turlari: 4-variantli, moslashtirish va h.k.). Har to'g'ri
+   javob uchun +10 ball (7-bo'limga qarang).
+3. **Gap ichida qo'llanilishi** (`sentence_practice`) — so'zlar jumla ichida qanday
+   ishlatilishini ko'rsatuvchi va mashq qildiruvchi bo'lim (jumla tuzish turidagi
+   mashqlar). Har to'g'ri javob uchun +10 ball.
+
+- **Mavzu ichida** uchala yo'nalish bir vaqtning o'zida ochiq — foydalanuvchi
+  xohlagan tartibda o'tishi mumkin. Faqat birinchi mavzuning `vocabulary` yo'nalishi
+  anonim demo sifatida ochiq; qolgan hammasi (shu mavzuning quiz/sentence_practice'i
+  ham, keyingi mavzular ham) Telegram autentifikatsiyasi + kanal obunasidan keyin.
+- **Mavzu "to'liq tugadi"** = uchala yo'nalish ham tugatilgani. Shundan keyin
+  **keyingi mavzu** ochiladi (ketma-ket, mavzular darajaning o'zida tartib bilan).
+- **Daraja** — bir nechta daraja rejalashtirilgan (masalan Elementary →
+  Pre-Intermediate → ...), arxitektura buni hisobga oladi (`Level` jadvali
+  ko'p qatorli bo'lishi mumkin), lekin **kontent bosqichma-bosqich yoziladi** —
+  hozircha faqat birinchi daraja (~10 mavzu) to'ldiriladi, keyingi daraja mavzulari
+  keyinroq qo'shiladi. Daraja darajasida ham ketma-ket ochilish bor (avvalgi
+  modul-ketma-ketlik qoidasiga o'xshab).
 - Takrorlash/eslatma tizimi (spaced repetition) — **keyingi bosqichga qoldirildi**,
   MVP'da yo'q.
+
+## 5a. Daraja aniqlash testi (`/test/[til]`)
+
+- **Mustaqil bo'lim**, Kurslar (`/kurslar/[til]`) progressiga hech qanday ta'sir
+  qilmaydi — faqat ma'lumot beradi ("Sizning darajangiz: Elementary"). Test
+  natijasi Kurslar'dagi qulflarni ochmaydi (2026-08-31'da qat'iy kelishildi).
+- **URL**: `/test/ingliz-tili`, `/test/rus-tili`, `/test/arab-tili`, `/test/koreys-tili`
+  — mavjud `/kurslar/[til]` slug konventsiyasiga mos (bir xil o'zbekcha nom, SEO
+  uchun barqaror).
+- Ikki kirish nuqtasi: (1) mustaqil SEO sahifa sifatida ("darajangizni bilib oling"
+  turidagi qidiruvlar uchun), (2) `/kurslar/[til]` sahifasi ichidan ham xuddi shu
+  testga havola.
+- Savollar — turli darajalardan aralashtirilgan qisqa test (taxminan 10-15 ta),
+  natija bo'yicha daraja nomi ko'rsatiladi. Modul savollaridan mustaqil yoki
+  ulardan tanlangan namuna bo'lishi mumkin — aniq mexanizm keyingi bosqichda
+  loyihalanadi.
+- **Navbar**da "Kurslar" bilan bir qatorda alohida ko'rinadi (masalan "Testlar").
 
 ## 6. Mashq turlari (MVP)
 
@@ -116,6 +147,13 @@ boshqa shaklda bo'ladi:
 2. **So'z–tarjima moslashtirish** — juftliklarni ulash (masalan 4 juft so'z/tarjima).
 3. **Jumla tuzish** — so'z bo'laklarini to'g'ri tartibda joylashtirish.
 4. **Rasm–so'z moslashtirish** — rasm ko'rsatiladi, mos so'z variantlardan tanlanadi.
+
+**Audio talaffuz (2026-08-31 qaror):** `vocabulary` yo'nalishidagi har bir so'z uchun
+brauzerning o'zidagi **Web Speech API** (`speechSynthesis`) ishlatiladi — haqiqiy
+ovoz yozuvlari emas. Bepul, darhol ishlaydi, ovoz yozdirish/infratuzilma kerak emas.
+Til kodlari: ingliz — `en-US`, rus — `ru-RU`, arab — `ar-SA`, koreys — `ko-KR`.
+Kamchiligi: sifat inson ovozidan past va qurilma/brauzerga qarab farq qiladi —
+lekin yuzlab so'z uchun amaliy yagona tez yechim.
 
 Audio (tinglab topish) va erkin matn yozish turlari keyingi bosqichga qoldirildi —
 ular tayyor audio kontent va orfografik xato kechirish logikasini talab qiladi.
@@ -188,6 +226,8 @@ GET   /api/leaderboard/:langCode  til bo'yicha reyting (top25 + o'z o'rni)
 GET   /api/leaderboard/global     umumiy reyting
 GET   /api/leaderboard/weekly     haftalik faollar jadvali
 GET   /api/stats/me               streak/analitika ma'lumotlari (heatmap, haftalik grafik)
+GET   /api/test/:langCode         daraja aniqlash testi savollari (5a-bo'lim, auth talab qilmaydi)
+POST  /api/test/:langCode/submit  test javoblari, natija (aniqlangan daraja) qaytaradi — progress'ga yozilmaydi
 ```
 
 Bot tomoni (Telegram webhook, alohida): `/start` komandasi mini-app tugmasini ochadi;
@@ -196,8 +236,11 @@ Bot tomoni (Telegram webhook, alohida): `/start` komandasi mini-app tugmasini oc
 ## 11. MVP dan tashqarida (keyingi bosqichlar)
 
 - Referral / do'stga yuborish mexanikasi (shart yoki bonus — hali qaror qilinmagan).
-- Boshqa tillar (Rus, Arab, Koreys...) va yuqori darajalar (O'rta, Yuqori).
-- Audio asosidagi mashqlar (tinglab topish) va erkin matn yozish turi.
+- Boshqa tillar (Rus, Arab, Koreys...) va qo'shimcha darajalar kontenti (birinchi
+  daraja to'ldirilgach).
+- **Eslatma:** TTS orqali so'z talaffuzi endi MVP ichida (5/6-bo'limga qarang) — bu
+  yerda faqat "tinglab topish" (audio prompt + variant tanlash) savol turi va erkin
+  matn yozish turi hali deferred.
 - Spaced-repetition takrorlash tizimi/eslatmalari.
 - Reyting hisoblashni `LeaderboardSnapshot` jadvaliga ko'chirish (agar kerak bo'lsa).
 - Pullik o'yin darslari (uzoq muddatli, hozircha rejalashtirilmagan).
