@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Check, ArrowLeft, Send, CalendarClock, Clock, Wallet, AlertCircle } from "lucide-react";
+import { X, Check, ArrowLeft, Send, CalendarClock, Clock, AlertCircle } from "lucide-react";
 import {
   START_TIMING_OPTIONS,
   PREFERRED_TIME_OPTIONS,
-  BUDGET_OPTIONS,
   type LeadQualifyAnswers,
   type StartTiming,
   type PreferredTime,
-  type Budget,
 } from "@/lib/lead-qualify";
 
 /** Sahifa ranglariga moslash — kurs (dark), markaz (emerald), repetitor (fuchsia). */
@@ -48,7 +46,6 @@ const ACCENT: Record<Accent, {
 const STEPS = [
   { icon: CalendarClock, title: "Kursni qachon boshlamoqchisiz?", hint: null },
   { icon: Clock, title: "Sizga qaysi vaqt qulay?", hint: "Bir nechtasini tanlashingiz mumkin" },
-  { icon: Wallet, title: "Oyiga qancha ajrata olasiz?", hint: null },
 ] as const;
 
 const TOTAL = STEPS.length;
@@ -65,7 +62,9 @@ type Props = {
 };
 
 /**
- * Ism/telefon to'g'ri to'ldirilgach chiqadigan 3 bosqichli ixtiyoriy savollar.
+ * Ism/telefon to'g'ri to'ldirilgach chiqadigan 2 bosqichli ixtiyoriy savollar.
+ * (Byudjet savoli olib tashlangan — narxlar keng oralig'da bo'lgani uchun
+ * bitta umumiy chegara hech qaysi markazga foydali signal bermas edi.)
  *
  * Yopish (X / Escape / "O'tkazib yuborish") arizani BEKOR QILMAYDI — shu paytgacha
  * belgilangan javoblar bilan yuboradi. Faqat xatolik holatida yopish formaga
@@ -76,9 +75,8 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
   const [step, setStep] = useState(0);
   const [startTiming, setStartTiming] = useState<StartTiming | null>(null);
   const [preferredTimes, setPreferredTimes] = useState<PreferredTime[]>([]);
-  const [budget, setBudget] = useState<Budget | null>(null);
 
-  const submitNow = () => onSubmit({ startTiming, preferredTimes, budget });
+  const submitNow = () => onSubmit({ startTiming, preferredTimes, budget: null });
   // Xato bo'lsa yopish = formaga qaytish, aks holda = shu javoblar bilan yuborish.
   const dismiss = () => (error ? onCancel() : submitNow());
 
@@ -103,7 +101,7 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
       document.body.style.overflow = prevOverflow;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, submitting, error, startTiming, preferredTimes, budget]);
+  }, [open, submitting, error, startTiming, preferredTimes]);
 
   if (!open || !mounted) return null;
 
@@ -123,18 +121,14 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
     });
   };
 
-  const options =
-    step === 0 ? START_TIMING_OPTIONS : step === 1 ? PREFERRED_TIME_OPTIONS : BUDGET_OPTIONS;
+  const options = step === 0 ? START_TIMING_OPTIONS : PREFERRED_TIME_OPTIONS;
 
   const isSelected = (value: string) =>
-    step === 0 ? startTiming === value
-      : step === 1 ? preferredTimes.includes(value as PreferredTime)
-        : budget === value;
+    step === 0 ? startTiming === value : preferredTimes.includes(value as PreferredTime);
 
   const choose = (value: string) => {
     if (step === 0) setStartTiming(prev => (prev === value ? null : (value as StartTiming)));
-    else if (step === 1) toggleTime(value as PreferredTime);
-    else setBudget(prev => (prev === value ? null : (value as Budget)));
+    else toggleTime(value as PreferredTime);
   };
 
   // MUHIM: portal orqali to'g'ridan-to'g'ri body ga chiqariladi. Forma o'rab
