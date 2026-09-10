@@ -53,6 +53,16 @@ export default async function JoylarHududPage({ params }: Props) {
 
   const listings = allInRegion.slice(0, 12);
 
+  // Yangi qo'shilgan kurslar — asosiy ro'yxat views bo'yicha saralanadi, shuning
+  // uchun yangi qo'shilgan (hali 0 ko'rishga ega) kurslar unga kirmay qoladi.
+  // Bu alohida blok ularga views'dan qat'iy nazar ko'rinish beradi (sovuq start
+  // muammosi — yangi hamkorlar lid ololmay qolmasin).
+  const shownSlugs = new Set(listings.map((l) => l.slug));
+  const newestListings = [...allInRegion]
+    .filter((l) => !shownSlugs.has(l.slug))
+    .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
+    .slice(0, 6);
+
   // Kategoriya bo'yicha hisob
   const categoryCounts = allInRegion.reduce<Record<string, number>>((acc, c) => {
     acc[c.categorySlug] = (acc[c.categorySlug] ?? 0) + 1;
@@ -274,6 +284,56 @@ export default async function JoylarHududPage({ params }: Props) {
                     )}
                   </Link>
                 ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* YANGI QO'SHILGAN KURSLAR — white section */}
+        {newestListings.length > 0 && (
+          <section className="bg-white border-y border-[#e4e7ea]">
+            <div className="max-w-[1280px] mx-auto px-5 md:px-6 py-10">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h2 className="text-[22px] md:text-[28px] font-bold text-[#16181a]">
+                    Yangi qo&apos;shilgan kurslar
+                  </h2>
+                  <p className="text-[14px] text-[#7c8490] mt-1">{region.name}da yaqinda qo&apos;shilgan takliflar</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {newestListings.map((l) => {
+                  const formatBadge = l.format === "Online" ? "Onlayn" : l.format === "Offline" ? "Oflayn" : l.format;
+                  const formatColor = l.format === "Online" ? "bg-green-100 text-green-800" : l.format === "Offline" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800";
+                  return (
+                    <Link
+                      key={l.slug}
+                      href={`/kurslar/${l.categorySlug}/${l.slug}`}
+                      className="group block bg-[#f8f9fa] rounded-[16px] hover:shadow-lg transition-all p-5 border border-[#e4e7ea]"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 ${formatColor}`}>
+                          {formatBadge}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 bg-amber-100 text-amber-800">
+                          Yangi
+                        </span>
+                      </div>
+                      <h3 className="text-[17px] font-semibold text-[#16181a] leading-snug mb-1 line-clamp-2 min-h-[44px]">
+                        {l.title}
+                      </h3>
+                      <p className="text-[12px] text-[#7c8490] mb-3 line-clamp-1">{l.provider}</p>
+                      <div className="flex items-center justify-between pt-3 border-t border-[#e4e7ea]">
+                        <span className="text-[13px] text-[#7c8490]">
+                          {l.district ?? l.region ?? region.name}
+                        </span>
+                        <span className="text-[14px] font-bold text-[#16181a]">
+                          {l.priceFree ? "Bepul" : `${l.price} so'm`}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </section>

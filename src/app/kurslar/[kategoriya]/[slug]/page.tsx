@@ -209,9 +209,11 @@ export default async function KursDetailPage({ params }: Props) {
     "inLanguage": inLanguageValue,
   } : null;
 
-  // S1 — LocalBusiness — har bir filial uchun alohida entry (faqat offline kurslar)
-  const isOffline = course.format === "Offline";
-  const localBusinessLds = (isOffline && addresses.length > 0)
+  // S1 — LocalBusiness — har bir filial uchun alohida entry.
+  // Offline VA hybrid (Gibrid) — ikkalasida ham real filial/manzil bor, faqat
+  // sof "Online"/"Video" kurslarda joy signali berish noto'g'ri bo'lardi.
+  const hasPhysicalLocation = course.format === "Offline" || course.format === "Gibrid";
+  const localBusinessLds = (hasPhysicalLocation && addresses.length > 0)
     ? addresses.map((a) => ({
         "@context": "https://schema.org",
         "@type": "EducationalOrganization",

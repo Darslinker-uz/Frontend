@@ -58,6 +58,7 @@ export interface Course {
   ratingAvg?: number;
   ratingCount?: number;
   views?: number;
+  createdAt?: Date;
 }
 
 // Reyting kamida shu sondan boshlab umumiy ko'rinadi.
