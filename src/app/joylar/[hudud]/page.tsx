@@ -63,6 +63,15 @@ export default async function JoylarHududPage({ params }: Props) {
     .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
     .slice(0, 6);
 
+  // Xuddi yuqoridagi kabi — "MARKAZLAR" bloki ham .slice(0, 6) bilan cheklangan
+  // va saralash yo'q, shuning uchun yangi markazlar (hali kam listingga ega)
+  // ko'rinmay qolishi mumkin. Alohida "Yangi qo'shilgan markazlar" bloki beradi.
+  const shownCenterSlugs = new Set(centersInRegion.slice(0, 6).map((c) => c.slug));
+  const newestCenters = [...centersInRegion]
+    .filter((c) => !shownCenterSlugs.has(c.slug))
+    .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
+    .slice(0, 6);
+
   // Kategoriya bo'yicha hisob
   const categoryCounts = allInRegion.reduce<Record<string, number>>((acc, c) => {
     acc[c.categorySlug] = (acc[c.categorySlug] ?? 0) + 1;
@@ -226,6 +235,53 @@ export default async function JoylarHududPage({ params }: Props) {
                         <h3 className="text-[16px] font-semibold text-[#16181a] group-hover:text-white leading-snug line-clamp-2">
                           {c.provider}
                         </h3>
+                        <p className="text-[12px] text-[#7c8490] group-hover:text-white/70 mt-1">{c.courseCount} ta kurs</p>
+                      </div>
+                    </div>
+                    {c.categories.length > 0 && (
+                      <p className="text-[12px] text-[#7c8490] group-hover:text-white/60 line-clamp-1">
+                        {c.categories.slice(0, 3).join(" · ")}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* YANGI QO'SHILGAN MARKAZLAR — gray section */}
+        {newestCenters.length > 0 && (
+          <section className="bg-[#f0f2f3]">
+            <div className="max-w-[1280px] mx-auto px-5 md:px-6 py-10">
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h2 className="text-[22px] md:text-[28px] font-bold text-[#16181a]">
+                    Yangi qo&apos;shilgan markazlar
+                  </h2>
+                  <p className="text-[14px] text-[#7c8490] mt-1">{region.name}da yaqinda qo&apos;shilgan o&apos;quv markazlari</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {newestCenters.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/oquv-markazlar/${c.slug}`}
+                    className="group block bg-white rounded-[16px] p-5 border border-[#e4e7ea] hover:bg-[#16181a] hover:text-white transition-all"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-[12px] flex items-center justify-center text-white text-[18px] font-bold shrink-0" style={{ background: c.gradient }}>
+                        {c.provider.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-[16px] font-semibold text-[#16181a] group-hover:text-white leading-snug line-clamp-2">
+                            {c.provider}
+                          </h3>
+                          <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-amber-100 text-amber-800 shrink-0">
+                            Yangi
+                          </span>
+                        </div>
                         <p className="text-[12px] text-[#7c8490] group-hover:text-white/70 mt-1">{c.courseCount} ta kurs</p>
                       </div>
                     </div>

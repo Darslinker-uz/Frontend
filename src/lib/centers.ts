@@ -43,6 +43,7 @@ export type CenterListItem = {
   certificate: boolean;
   firstSlug: string;
   firstCategorySlug: string;
+  createdAt?: Date;
 };
 
 // Markaz detail sahifasi uchun to'liq ma'lumot
@@ -147,6 +148,7 @@ function userToCenterListItem(u: UserWithListings): CenterListItem {
     certificate: hasCertificate,
     firstSlug,
     firstCategorySlug,
+    createdAt: u.createdAt,
   };
 }
 
