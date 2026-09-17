@@ -211,6 +211,7 @@ async function main() {
           certificate: course.certificate,
           demoLesson: false,
           discount: PRICE_WARNING,
+          duration: course.duration,
           lessons: course.lessons,
           imageUrl: course.imageUrl,
           paymentType: "Oylik",
