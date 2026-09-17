@@ -11,11 +11,13 @@ export type StaticBlogPost = {
   title: string;
   excerpt: string;
   category: string;
+  coverImage?: string;
 };
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
     slug: "ingliz-tilini-noldan-organish-qancha-vaqt-oladi",
+    coverImage: "/images/blog-covers/ingliz-tilini-noldan-organish-1600x900.png",
     date: "2026-09-17",
     title: "Ingliz tilini 0 dan o‘rganish qancha vaqt oladi?",
     excerpt: "A1–B2 uchun taxminiy soatlar, haftalik jadval hisobi va 2026-yilda AI bilan suhbat mashqlari nimani o‘zgartirgani — manbalar bilan.",

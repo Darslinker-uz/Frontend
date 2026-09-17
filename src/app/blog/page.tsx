@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Clock, ArrowRight, Calendar } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { estimateReadTime } from "@/lib/markdown";
@@ -37,6 +38,7 @@ type BlogCard = {
   excerpt: string;
   category: string;
   readTime?: string;
+  coverImage?: string | null;
 };
 
 export default async function BlogPage() {
@@ -69,6 +71,7 @@ export default async function BlogPage() {
       date: (a.publishedAt ?? a.createdAt).toISOString().slice(0, 10),
       title: a.title,
       excerpt: a.excerpt ?? "",
+      coverImage: a.coverImage,
       category: a.category?.name ?? a.group?.name ?? "Maqola",
       readTime: a.readTime ?? estimateReadTime(a.content),
     })),
@@ -137,7 +140,20 @@ export default async function BlogPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {posts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
-              <article className="rounded-[20px] border-2 border-[#e4e7ea] p-6 hover:border-[#16181a] transition-all duration-300 h-full flex flex-col bg-white">
+              <article className="overflow-hidden rounded-[20px] border-2 border-[#e4e7ea] hover:border-[#16181a] transition-all duration-300 h-full flex flex-col bg-white">
+                {post.coverImage && (
+                  <div className="relative aspect-video w-full overflow-hidden border-b border-[#e4e7ea] bg-white">
+                    <Image
+                      src={post.coverImage}
+                      alt=""
+                      fill
+                      sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1600px) calc((100vw - 184px) / 2), 708px"
+                      unoptimized={!post.coverImage.startsWith("/")}
+                      className="object-contain"
+                    />
+                  </div>
+                )}
+                <div className="flex flex-1 flex-col p-5 md:p-6">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#7c8490]">{post.category}</span>
                 <h2 className="text-[19px] font-bold text-[#16181a] leading-tight mt-3">{post.title}</h2>
                 {post.excerpt && (
@@ -157,6 +173,7 @@ export default async function BlogPage() {
                   <div className="w-8 h-8 rounded-full border border-[#e4e7ea] group-hover:border-[#16181a] flex items-center justify-center transition-all">
                     <ArrowRight className="w-4 h-4 text-[#7c8490] group-hover:text-[#16181a] transition-colors" />
                   </div>
+                </div>
                 </div>
               </article>
             </Link>
