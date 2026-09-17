@@ -92,7 +92,7 @@ const jsonLd = {
 };
 
 const compareRows = [
-  { markaz: "ABCO Akademiya", qamrov: "Milliy sertifikat → ACCA F1-F9 (to'liq yo'l)", narx: "So'rov asosida", davomiylik: "2 oydan 4 yilgacha", format: "Offline + onlayn" },
+  { markaz: "ABCO Akademiya", qamrov: "Milliy sertifikat → ACCA F1-F9 (to'liq yo'l)", narx: "5,5 – 20 mln so'm (yo'nalishga qarab)", davomiylik: "2 oydan 4 yilgacha", format: "Offline + onlayn" },
   { markaz: "Buxgalterlar Akademiyasi", qamrov: "Milliy asos, MSFO, ACCA DipIFR", narx: "4,5 – 10 mln so'm", davomiylik: "1 – 2,5 oy (bosqich)", format: "Offline + onlayn" },
   { markaz: "Zamon", qamrov: "Amaliy 1C va soliq (faqat milliy)", narx: "4 – 4,5 mln so'm", davomiylik: "3 oy", format: "Offline (Toshkent) + onlayn" },
 ];
@@ -185,7 +185,7 @@ export default function Page() {
                 </tbody>
               </table>
             </div>
-            <p className="text-[12.5px] text-[#7c8490] mt-2">Narxlar markazlarning rasmiy saytlaridagi 2026-yil sentabr holatiga ko&apos;ra, bosqich/kurs turiga qarab farqlanadi.</p>
+            <p className="text-[12.5px] text-[#7c8490] mt-2">Narxlar 2026-yil sentabr holatiga ko&apos;ra, bosqich/kurs turiga qarab farqlanadi. Buxgalterlar Akademiyasi va Zamon narxlari ularning rasmiy saytida ochiq ko&apos;rsatilgan; ABCO Akademiya narxi saytida yo&apos;q, markaz bilan bevosita bog&apos;lanib aniqlashtirildi.</p>
           </section>
 
           {/* 1. ABCO */}
