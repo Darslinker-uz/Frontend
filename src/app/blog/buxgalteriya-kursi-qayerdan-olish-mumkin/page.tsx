@@ -6,12 +6,12 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/buxgalteriya-kursi-qayerdan-olish-mumkin`;
 
 export const metadata: Metadata = {
-  title: "O'zbekistonda buxgalteriya kursi: 3 ta variant (2026) | Darslinker",
+  title: "Toshkentda buxgalteriya kursi: 3 ta variant (2026) | Darslinker",
   description:
     "ABCO Akademiya, Buxgalterlar Akademiyasi va Zamon kurslari — narx, davomiylik va yo'nalish qamrovi bo'yicha halol taqqoslash. Milliy sertifikatdanmi, ACCA'danmi boshlash kerak?",
   keywords: [
     "buxgalteriya kursi Toshkent",
-    "buxgalteriya kursi O'zbekiston",
+    "Toshkentda buxgalteriya o'rganish",
     "ACCA kursi Toshkent",
     "1C buxgalteriya kursi",
     "MSFO kursi",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 const faqs = [
   {
-    q: "O'zbekistonda buxgalteriya kursini qayerdan olish mumkin?",
+    q: "Toshkentda buxgalteriya kursini qayerdan olish mumkin?",
     a: "Toshkentda buxgalteriya yo'nalishida bir nechta ixtisoslashgan markaz bor — masalan ABCO Akademiya (milliy standartdan ACCA xalqaro darajasigacha to'liq yo'l), Buxgalterlar Akademiyasi (2007 yildan ACCA Registered Learning Partner) va Zamon kabi amaliy 1C kurslari. Tanlash kursning qamrovi (faqat 1C amaliyotimi yoki xalqaro sertifikatgacha) va narxga bog'liq.",
   },
   {
@@ -49,7 +49,7 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Article",
-      headline: "O'zbekistonda buxgalteriya kursi: 3 ta ishonchli variant (2026)",
+      headline: "Toshkentda buxgalteriya kursi: 3 ta ishonchli variant (2026)",
       description:
         "ABCO Akademiya, Buxgalterlar Akademiyasi va Zamon kurslarini narx, davomiylik va yo'nalish qamrovi bo'yicha taqqoslaymiz.",
       datePublished: "2026-09-17",
@@ -65,7 +65,7 @@ const jsonLd = {
     },
     {
       "@type": "ItemList",
-      name: "O'zbekistonda buxgalteriya kursi beruvchi markazlar",
+      name: "Toshkentda buxgalteriya kursi beruvchi markazlar",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "ABCO Akademiya", url: "https://www.abco-akademiya.uz/uz" },
         { "@type": "ListItem", position: 2, name: "Buxgalterlar Akademiyasi", url: "https://accountants.uz/uz/" },
@@ -116,7 +116,7 @@ export default function Page() {
               Nashr etilgan: <time dateTime="2026-09-17">17-sentabr, 2026</time> · Yangilangan: 2026-09 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
-              O&apos;zbekistonda buxgalteriya kursi: 3 ta ishonchli variant (2026)
+              Toshkentda buxgalteriya kursi: 3 ta ishonchli variant (2026)
             </h1>
           </header>
 

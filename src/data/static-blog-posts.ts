@@ -17,7 +17,7 @@ export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
     slug: "buxgalteriya-kursi-qayerdan-olish-mumkin",
     date: "2026-09-17",
-    title: "O'zbekistonda buxgalteriya kursi: 3 ta ishonchli variant (2026)",
+    title: "Toshkentda buxgalteriya kursi: 3 ta ishonchli variant (2026)",
     excerpt:
       "ABCO Akademiya, Buxgalterlar Akademiyasi va Zamon kurslarini narx, davomiylik va yo'nalish qamrovi bo'yicha halol taqqoslaymiz — milliy sertifikatdanmi, ACCA'danmi boshlash kerak?",
     category: "O'quvchilar uchun",
