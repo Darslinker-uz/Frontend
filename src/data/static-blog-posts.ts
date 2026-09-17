@@ -15,6 +15,13 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "ingliz-tilini-noldan-organish-qancha-vaqt-oladi",
+    date: "2026-09-17",
+    title: "Ingliz tilini 0 dan o‘rganish qancha vaqt oladi?",
+    excerpt: "A1–B2 uchun taxminiy soatlar, haftalik jadval hisobi va 2026-yilda AI bilan suhbat mashqlari nimani o‘zgartirgani — manbalar bilan.",
+    category: "O'quvchilar uchun",
+  },
+  {
     slug: "buxgalteriya-kursi-qayerdan-olish-mumkin",
     date: "2026-09-17",
     title: "Toshkentda buxgalteriya kursi: 3 ta ishonchli variant (2026)",

@@ -4,6 +4,20 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+# Darslinker visual design workflow
+
+Darslinker uchun post, blog muqovasi, illustratsiya yoki "dizayn qil" so‘rovida
+avval `docs/darslinker-design-workflow.md` ni o‘qing. Unda foydalanuvchining
+referenslari, yoqtirgan/yoqtirmagan uslublari va generatsiya tartibi saqlangan.
+Mavzuni foydalanuvchi beradi; standart format 1:1. Bu qoida ijtimoiy tarmoq va
+blog grafikalariga tegishli, sayt UI dizayniga avtomatik qo‘llanmaydi.
+
+# Darslinker blog workflow
+
+Blog yozish, blog mavzusini tavsiya qilish yoki kontent reja tuzishdan oldin
+`docs/darslinker-blog-workflow.md` ni o‘qing. Undagi search intent, tabiiy uslub,
+SEO/AEO/GEO va mavjud maqolalar bilan dublikat tekshiruvi majburiy.
+
 # Cross-file impact awareness
 
 Loyiha real production'da ishlayapti. Bir qismni o'zgartirish boshqa qismlarni
