@@ -67,7 +67,7 @@ export default function Page() {
           <Image src={cover} alt="Ingliz harflari tushirilgan ko‘k o‘lchov lentasi savol belgisi shaklida" width={1600} height={900} sizes="(max-width: 960px) 100vw, 896px" loading="eager" fetchPriority="high" className="h-auto w-full rounded-2xl" />
         </figure>
         <div className="mx-auto max-w-[760px] space-y-10 text-[17px] leading-[1.85] [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-snug [&_p+p]:mt-4 [&_a]:text-[#426a9e] [&_a]:underline [&_a]:underline-offset-4 [&_li]:mb-2">
-          <section aria-labelledby="short-answer" className="rounded-xl border-l-4 border-[#7ea2d4] bg-[#e8f0f9]/60 p-5 md:p-6">
+          <section aria-labelledby="short-answer" className="rounded-xl bg-[#e8f0f9]/60 p-5 md:p-6">
             <h2 id="short-answer">Qisqa javob</h2>
             <p>Noldan ingliz tili o‘rganishning hammaga bir xil muddati yo‘q. Cambridge yo‘riqnomasida A1 uchun taxminan <strong>90–100 soat</strong>, B1 uchun <strong>350–400 soat</strong>, B2 uchun <strong>500–600 soat</strong> yo‘naltirilgan ta’lim ko‘rsatilgan. Bular boshlang‘ich nuqtadan jami soatlar, kafolatlangan muddat emas. Haftasiga 10 soat shu turdagi ta’lim olinsa, B1 hisobi 35–40 hafta chiqadi. <a href={cambridge}>Manba: Cambridge English.</a></p>
           </section>

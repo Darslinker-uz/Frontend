@@ -61,6 +61,10 @@ Matnni mahalliy muharrir yozgandek tabiiy, ravon va aniq tahrir qiling.
 
 ## SEO / AEO / GEO tuzilmasi
 
+- Vizual qoida (foydalanuvchi talabi): “Qisqa javob” blokida alohida chap
+  ko‘k border/chiziq bo‘lmasin. Yumshoq fon va yumaloq burchaklar yetarli.
+  Keyingi bloglarda ham `border-l-*` aksentini bu blokka qo‘shmang.
+
 - Sarlavha va boshlang‘ich qisqa javob asosiy intentga bevosita javob bersin.
 - Zarur joylarda aniq ta’rif, mazmunli H2/H3, taqqoslash jadvali, amaliy qadamlar
   va haqiqiy qo‘shimcha savollarga qisqa javoblar bering. Har maqolaga majburan
