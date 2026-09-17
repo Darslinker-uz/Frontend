@@ -92,9 +92,9 @@ const jsonLd = {
 };
 
 const compareRows = [
-  { markaz: "ABCO Akademiya", qamrov: "Milliy sertifikat → ACCA F1-F9 (to'liq yo'l)", narx: "5,5 – 20 mln so'm (yo'nalishga qarab)", davomiylik: "2 oydan 4 yilgacha", format: "Offline + onlayn" },
-  { markaz: "Buxgalterlar Akademiyasi", qamrov: "Milliy asos, MSFO, ACCA DipIFR", narx: "4,5 – 10 mln so'm", davomiylik: "1 – 2,5 oy (bosqich)", format: "Offline + onlayn" },
-  { markaz: "Zamon", qamrov: "Amaliy 1C va soliq (faqat milliy)", narx: "4 – 4,5 mln so'm", davomiylik: "3 oy", format: "Offline (Toshkent) + onlayn" },
+  { markaz: "ABCO Akademiya", qamrov: "Milliy sertifikat → ACCA F1-F9 (to'liq yo'l)", narx: "2 – 6,3 mln so'm/oy", davomiylik: "2 oydan 4 yilgacha", format: "Offline + onlayn" },
+  { markaz: "Buxgalterlar Akademiyasi", qamrov: "Milliy asos, MSFO, ACCA DipIFR", narx: "2,5 – 4,5 mln so'm/oy", davomiylik: "1 – 2,5 oy (bosqich)", format: "Offline + onlayn" },
+  { markaz: "Zamon", qamrov: "Amaliy 1C va soliq (faqat milliy)", narx: "1,5 mln so'm/oy", davomiylik: "3 oy", format: "Offline (Toshkent) + onlayn" },
 ];
 
 export default function Page() {
@@ -167,7 +167,7 @@ export default function Page() {
                   <tr className="bg-[#f8f9fa] text-left">
                     <th className="px-4 py-3 font-semibold text-[#16181a]">Markaz</th>
                     <th className="px-4 py-3 font-semibold text-[#16181a]">Qamrov</th>
-                    <th className="px-4 py-3 font-semibold text-[#16181a]">Narx (namuna)</th>
+                    <th className="px-4 py-3 font-semibold text-[#16181a]">Narx (oyiga, taxminiy)</th>
                     <th className="px-4 py-3 font-semibold text-[#16181a]">Davomiylik</th>
                     <th className="px-4 py-3 font-semibold text-[#16181a]">Format</th>
                   </tr>
@@ -185,7 +185,7 @@ export default function Page() {
                 </tbody>
               </table>
             </div>
-            <p className="text-[12.5px] text-[#7c8490] mt-2">Narxlar 2026-yil sentabr holatiga ko&apos;ra, bosqich/kurs turiga qarab farqlanadi. Buxgalterlar Akademiyasi va Zamon narxlari ularning rasmiy saytida ochiq ko&apos;rsatilgan; ABCO Akademiya narxi saytida yo&apos;q, markaz bilan bevosita bog&apos;lanib aniqlashtirildi.</p>
+            <p className="text-[12.5px] text-[#7c8490] mt-2">Narxlar oylik to&apos;lov sifatida solishtirish uchun jami narx ÷ davomiylik shaklida hisoblangan (2026-yil sentabr holatiga ko&apos;ra). Buxgalterlar Akademiyasi va Zamon jami narxlari ularning rasmiy saytida ochiq ko&apos;rsatilgan; ABCO Akademiya narxi saytida yo&apos;q, markaz bilan bevosita bog&apos;lanib aniqlashtirildi.</p>
           </section>
 
           {/* 1. ABCO */}
