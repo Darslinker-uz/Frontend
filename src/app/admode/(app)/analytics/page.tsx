@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   TrendingDown, Users, FileText, CreditCard, Zap, Eye, MessageSquare,
   ArrowUpRight, ArrowDownRight, Building2, Crown, Award, Calendar,
-  ChevronDown, Check, BarChart3, Tags, Filter, Activity, Target, Rocket, Globe,
+  ChevronDown, Check, BarChart3, Tags, Filter, Activity, Target, Rocket, Globe, Share2,
 } from "lucide-react";
 import { useAdminTheme } from "@/context/admin-theme-context";
 import { ListingsTab } from "./_tabs/listings";
@@ -15,8 +15,9 @@ import { FunnelTab } from "./_tabs/funnel";
 import { LeadsTab } from "./_tabs/leads";
 import { BoostTab } from "./_tabs/boost";
 import { TrafficTab } from "./_tabs/traffic";
+import { CtaTab } from "./_tabs/cta";
 
-type TabId = "umumiy" | "listings" | "centers" | "categories" | "funnel" | "leads" | "boost" | "trafik";
+type TabId = "umumiy" | "listings" | "centers" | "categories" | "funnel" | "leads" | "boost" | "trafik" | "cta";
 
 const TABS: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
   { id: "umumiy", label: "Umumiy", icon: BarChart3 },
@@ -27,6 +28,7 @@ const TABS: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
   { id: "funnel", label: "Konversiya", icon: Filter },
   { id: "leads", label: "Lead sifati", icon: Target },
   { id: "boost", label: "Boost ROI", icon: Rocket },
+  { id: "cta", label: "CTA", icon: Share2 },
 ];
 
 type PeriodId = "1d" | "7d" | "30d" | "90d" | "apr" | "mar" | "feb" | "yan" | "dek" | "noy";
@@ -374,6 +376,7 @@ function AdminAnalyticsPageInner() {
         {tab === "funnel" && <FunnelTab period={period} />}
         {tab === "leads" && <LeadsTab period={period} />}
         {tab === "boost" && <BoostTab period={period} />}
+        {tab === "cta" && <CtaTab period={period} />}
       </div>
     </div>
   );

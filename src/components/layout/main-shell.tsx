@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Navbar } from "./navbar";
 import { PageTransition } from "@/components/page-transition";
+import { SocialCtaModal } from "@/components/social-cta/social-cta-modal";
 
 export function MainShell({
   children,
@@ -69,6 +70,7 @@ export function MainShell({
       <Navbar />
       <main className="flex-1"><PageTransition>{children}</PageTransition></main>
       {footer}
+      <SocialCtaModal />
     </>
   );
 }

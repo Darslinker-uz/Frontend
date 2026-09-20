@@ -538,6 +538,28 @@ model ViewEvent {
   @@map("view_events")
 }
 
+// Ijtimoiy tarmoq CTA modalining voronkasi: ko'rsatildi -> yopdi / instagram / telegram.
+// Bitta ko'rsatuv = bitta impressionId; har event turi shu ko'rsatuv uchun 1 martadan yoziladi.
+// IP va User-Agent saqlanmaydi — visitorId brauzerda yaratilgan anonim tasodifiy ID.
+model CtaEvent {
+  id           Int      @id @default(autoincrement())
+  impressionId String   @map("impression_id")
+  visitorId    String   @map("visitor_id")
+  // "shown" | "closed" | "click_instagram" | "click_telegram" (kodda cheklanadi)
+  eventType    String   @map("event_type")
+  // faqat "shown" uchun: "time" (2-sahifa + 20s) | "scroll" (yarmigacha) | "exit" (chiqmoqchi)
+  trigger      String?
+  path         String?
+  // "mobile" | "desktop"
+  device       String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([impressionId, eventType])
+  @@index([createdAt])
+  @@index([eventType, createdAt])
+  @@map("cta_events")
+}
+
 // Sayt bo'yicha barcha sahifa tashriflari — User-Agent bilan,
 // AI bot va search engine'larni alohida ajratish uchun.
 // Middleware'da har request uchun bittadan yoziladi (publik sahifalar).
