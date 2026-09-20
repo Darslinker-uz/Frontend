@@ -64,7 +64,7 @@ const jsonLd = {
       "name": "Darslinker",
       "url": SITE_URL,
       "logo": `${SITE_URL}/icon-512.png`,
-      "foundingDate": "2024",
+      "foundingDate": "2025-09",
       "description":
         "O'zbekistondagi kurslar va o'quv markazlarini bir joyda topish va qiyoslash uchun ta'lim platformasi.",
       "areaServed": { "@type": "Country", "name": "O'zbekiston" },
@@ -156,34 +156,37 @@ export default function HaqimizdaPage() {
                 <tbody className="divide-y divide-[#e4e7ea]">
                   <tr>
                     <td className="py-3 pr-4 font-semibold text-[#16181a] whitespace-nowrap align-top">
-                      2024
+                      19-sentyabr, 2025
                     </td>
                     <td className="py-3 text-[#16181a]/75">
-                      Custdev — bozor va ehtiyojlarni o&apos;rganish
+                      darslinker.uz domeni olindi; shu davrda loyiha ustida ish boshlandi
                     </td>
                   </tr>
                   <tr>
                     <td className="py-3 pr-4 font-semibold text-[#16181a] whitespace-nowrap align-top">
-                      2025
+                      Mart, 2026
                     </td>
                     <td className="py-3 text-[#16181a]/75">
-                      Mahsulotni qurish va dastlabki sinovlar
+                      Darslinker platformasi ishga tushdi
                     </td>
                   </tr>
                   <tr>
                     <td className="py-3 pr-4 font-semibold text-[#16181a] whitespace-nowrap align-top">
-                      2026 boshi
+                      19-sentyabr, 2026
                     </td>
                     <td className="py-3 text-[#16181a]/75">
-                      Ommaviy launch — platforma keng auditoriyaga taqdim qilindi
+                      Ilk qadamga bir yil: olti oyda 30 dan ortiq o‘quv markazi va 3 000 ga yaqin o‘quvchi hamda ota-ona
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <p className="text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed">
-              Har bosqichda real foydalanuvchilar va o&apos;quv markazlari bilan ishladik —
-              taxminlar bilan emas, ehtiyojlar bilan qurdik.
+              Loyihaning boshlanishi, jamoamiz va dastlabki natijalar haqida{" "}
+              <Link href="/blog/darslinker-qachon-tashkil-topgan" className="text-[#426a9e] underline underline-offset-4 hover:text-[#16181a]">
+                Darslinker tarixi: birinchi qadamdan ilk natijalargacha
+              </Link>{" "}
+              maqolasida batafsil yozdik.
             </p>
           </section>
 

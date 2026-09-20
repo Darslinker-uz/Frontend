@@ -16,6 +16,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "darslinker-qachon-tashkil-topgan",
+    date: "2026-09-19",
+    title: "Darslinker qachon tashkil topgan? Birinchi qadamdan ilk natijalargacha",
+    excerpt: "2025-yil sentyabrdagi ilk qadamdan 2026-yil martdagi ishga tushishgacha: Darslinker tarixi, jamoasi va dastlabki olti oylik natijalar.",
+    category: "Darslinker haqida",
+    coverImage: "/images/blog-covers/darslinker-tarixi-1600x900.jpg",
+  },
+  {
     slug: "ingliz-tilini-noldan-organish-qancha-vaqt-oladi",
     coverImage: "/images/blog-covers/ingliz-tilini-noldan-organish-1600x900.png",
     date: "2026-09-17",
