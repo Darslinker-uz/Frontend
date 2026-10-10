@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
-import { Menu, X, BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight } from "lucide-react";
+import { BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { scrollToTop } from "@/components/smooth-scroll";
 
@@ -200,11 +200,13 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-[60] h-[62px] pointer-events-none [--nav-d:360ms] md:[--nav-d:600ms] [--nav-r:150ms] md:[--nav-r:240ms] [--nav-p:210ms] md:[--nav-p:340ms] [--nav-b:120ms] motion-reduce:[--nav-d:0ms]! motion-reduce:[--nav-r:0ms]! motion-reduce:[--nav-p:0ms]! motion-reduce:[--nav-b:0ms]!">
-      {/* Mobil menyu — sahifa xiralashadi, ustida shisha kartalar */}
+      {/* Mobil menyu — sahifa xiralashadi, ustida shisha kartalar. Fon ekrandan
+          160px tashqariga chiqadi: mobil brauzerlarda manzil/asboblar paneli
+          yig'ilganda `inset-0` pastki bo'lakni yopmay qoladi. */}
       <div
         aria-hidden
         onClick={() => setOpen(false)}
-        className={`md:hidden fixed inset-0 bg-[#16181a]/40 backdrop-blur-xl transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`md:hidden fixed inset-x-0 -inset-y-40 bg-[#16181a]/40 backdrop-blur-xl transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
       />
       <div
         aria-hidden={!open}
@@ -358,12 +360,23 @@ export function Navbar() {
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-label={open ? "Menyuni yopish" : "Menyuni ochish"}
-            className="md:hidden p-2"
+            className="md:hidden flex h-10 w-10 items-center justify-center"
           >
-            <div className={`relative w-6 h-6 ${ink}`} style={inkStyle}>
-              <Menu className={`h-6 w-6 absolute inset-0 transition-all duration-300 ${open ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`} />
-              <X className={`h-6 w-6 absolute inset-0 transition-all duration-300 ${open ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`} />
-            </div>
+            {/* To'rtta nuqta markazga cho'zilib X ning to'rt qanotiga aylanadi */}
+            <span className={`relative block h-6 w-6 ${ink}`} style={inkStyle}>
+              {[45, 135, 225, 315].map((deg, i) => (
+                <span
+                  key={deg}
+                  className="absolute left-1/2 top-1/2 rounded-full bg-current motion-reduce:transition-none!"
+                  style={{
+                    width: open ? 9 : 5,
+                    height: open ? 2.5 : 5,
+                    transform: `translate(-50%, -50%) rotate(${deg}deg) translateX(${open ? 5.5 : 7}px)`,
+                    transition: `all 420ms ${SPRING} ${i * 30}ms`,
+                  }}
+                />
+              ))}
+            </span>
           </button>
         </div>
 
