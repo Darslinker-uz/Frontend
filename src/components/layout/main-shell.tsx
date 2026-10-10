@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { Navbar } from "./navbar";
 import { PageTransition } from "@/components/page-transition";
 import { SocialCtaModal } from "@/components/social-cta/social-cta-modal";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
 export function MainShell({
   children,
@@ -67,6 +68,7 @@ export function MainShell({
 
   return (
     <>
+      <SmoothScroll />
       <Navbar />
       <main className="flex-1"><PageTransition>{children}</PageTransition></main>
       {footer}
