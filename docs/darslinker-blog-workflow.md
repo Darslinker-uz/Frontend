@@ -64,6 +64,10 @@ Matnni mahalliy muharrir yozgandek tabiiy, ravon va aniq tahrir qiling.
 - Vizual qoida (foydalanuvchi talabi): “Qisqa javob” blokida alohida chap
   ko‘k border/chiziq bo‘lmasin. Yumshoq fon va yumaloq burchaklar yetarli.
   Keyingi bloglarda ham `border-l-*` aksentini bu blokka qo‘shmang.
+- Blog indeksidagi kartada muqova 16:9 ramkani to‘liq to‘ldiradi (`object-cover`,
+  foydalanuvchi talabi 2026-10-10): yon yoki ust-pastda bo‘sh joy qolmasin.
+  16:9 bo‘lmagan muqova chetidan kesiladi, shuning uchun muqovani 16:9 da
+  tayyorlang yoki matn va logoni chetdan kamida 10% ichkarida joylang.
 
 - Sarlavha va boshlang‘ich qisqa javob asosiy intentga bevosita javob bersin.
 - Zarur joylarda aniq ta’rif, mazmunli H2/H3, taqqoslash jadvali, amaliy qadamlar

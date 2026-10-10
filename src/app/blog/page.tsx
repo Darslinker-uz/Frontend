@@ -149,7 +149,7 @@ export default async function BlogPage() {
                       fill
                       sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1600px) calc((100vw - 184px) / 2), 708px"
                       unoptimized={!post.coverImage.startsWith("/")}
-                      className="object-contain"
+                      className="object-cover"
                     />
                   </div>
                 )}
