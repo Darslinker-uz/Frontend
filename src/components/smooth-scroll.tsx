@@ -4,6 +4,17 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 
+const isLocked = () => document.body.style.overflow === "hidden";
+
+// Joriy Lenis nusxasi — Lenis yo'q sahifalarda (admin, landing) null.
+let instance: Lenis | null = null;
+
+// Sahifa tepasiga silliq qaytish: Lenis bo'lsa u orqali, bo'lmasa brauzerning o'zi.
+export function scrollToTop() {
+  if (instance) instance.scrollTo(0);
+  else window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 // Inertsiyali (yumshoq) g'ildirak scroll'i — faqat ochiq sahifalarda (MainShell).
 // Sensorli ekranda brauzerning o'z scroll'i qoladi; `prefers-reduced-motion`
 // yoqilgan bo'lsa Lenis o'zi o'chadi.
@@ -16,21 +27,26 @@ export function SmoothScroll() {
       allowNestedScroll: true,
       // Ichki havola bosilganda inertsiya to'xtaydi — yangi sahifa tepadan ochiladi.
       stopInertiaOnNavigate: true,
+      // Modal va mobil menyu sahifani `body.style.overflow = "hidden"` bilan
+      // qotiradi — shu paytda g'ildirak hodisalarini Lenis'ga o'tkazmaymiz.
+      // `lenis.stop()` ISHLATILMAYDI: u <html> ga `overflow: clip` qo'yadi, natijada
+      // body scroll konteynerga aylanib, sticky navbar sahifa tepasiga "qochadi".
+      virtualScroll: () => !isLocked(),
     });
 
-    // Modal va mobil menyu sahifani `body.style.overflow = "hidden"` bilan
-    // qotiradi — shu paytda Lenis ham to'xtashi kerak, aks holda orqa sahifa siljiydi.
+    instance = lenis;
+
+    // Qotirilgan zahoti davom etayotgan inertsiyani ham to'xtatamiz.
     const sync = () => {
-      if (document.body.style.overflow === "hidden") lenis.stop();
-      else lenis.start();
+      if (isLocked()) lenis.scrollTo(window.scrollY, { immediate: true });
     };
-    sync();
     const observer = new MutationObserver(sync);
     observer.observe(document.body, { attributes: true, attributeFilter: ["style"] });
 
     return () => {
       observer.disconnect();
       lenis.destroy();
+      if (instance === lenis) instance = null;
     };
   }, []);
 

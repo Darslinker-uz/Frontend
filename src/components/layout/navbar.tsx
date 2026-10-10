@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Menu, X, BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
+import { scrollToTop } from "@/components/smooth-scroll";
 
 const SUPPORT_URL = "https://t.me/Darslinker_Support";
 
@@ -39,16 +40,17 @@ type ApiRegion = {
 
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 const SPRING = "cubic-bezier(0.34, 1.4, 0.64, 1)";
-// Scroll'dagi qora shisha kapsula. Tepada fon shaffof, lekin backdrop-filter
-// doim yoqiq — shunda o'tish paytida blur "sakrab" paydo bo'lmaydi.
+// Scroll'dagi qora shisha kapsula — ostidagi kontent matnni o'qishga xalaqit
+// bermasligi uchun deyarli to'q. Tepada sahifa foni rangidagi och shisha:
+// tepada ko'rinmaydi, lekin shakl o'zgarayotganda ostidan kontent ko'rinib qolmaydi.
 const NIGHT_GLASS: CSSProperties = {
-  background: "rgba(22, 24, 26, 0.78)",
+  background: "rgba(22, 24, 26, 0.92)",
   boxShadow: "0 14px 44px -14px rgba(22, 24, 26, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
   backdropFilter: "saturate(180%) blur(24px)",
   WebkitBackdropFilter: "saturate(180%) blur(24px)",
 };
-const CLEAR_GLASS: CSSProperties = {
-  background: "rgba(22, 24, 26, 0)",
+const LIGHT_GLASS: CSSProperties = {
+  background: "rgba(240, 242, 243, 0.82)",
   boxShadow: "0 0 0 0 rgba(22, 24, 26, 0), inset 0 0 0 rgba(255, 255, 255, 0)",
   backdropFilter: "saturate(180%) blur(24px)",
   WebkitBackdropFilter: "saturate(180%) blur(24px)",
@@ -160,6 +162,16 @@ export function Navbar() {
   const night = scrolled || open;
   const tab = open ? 0 : -1;
 
+  // Bosh sahifada turib logotip bosilsa URL o'zgarmaydi, shuning uchun Next
+  // scroll qilmaydi — o'zimiz tepaga (hero'ga) qaytaramiz.
+  const onLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (pathname !== "/" || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    setOpen(false);
+    setMegaOpen(false);
+    scrollToTop();
+  };
+
   const onLinkEnter = (e: MouseEvent<HTMLElement>) => {
     setHoverBox({ left: e.currentTarget.offsetLeft, width: e.currentTarget.offsetWidth });
     setHovering(true);
@@ -167,12 +179,12 @@ export function Navbar() {
   // Rang <nav> dan meros olinadi (kechiktirilgan o'tish uchun) — hover faqat opacity.
   const desktopLink = "relative inline-flex items-center gap-1 h-9 px-3.5 rounded-full text-[14px] font-semibold text-inherit opacity-70 hover:opacity-100 transition-opacity duration-300";
 
-  // Ketma-ketlik: pastga — avval shakl (torayish + radius), keyin fon qorayadi;
-  // tepaga — avval fon ochiladi, keyin shakl yoyiladi. --nav-d: shakl, --nav-b: rang.
+  // Pastga — fon burchaklar yumaloqlanishi bilan bir vaqtda, bir xil tezlikda
+  // qorayadi (torayish davom etaveradi); tepaga — avval fon ochiladi, keyin shakl yoyiladi.
+  // --nav-d: torayish, --nav-r: radius, --nav-p: rang kirishi, --nav-b: rang chiqishi.
   const shapeDelay = night ? "0ms" : "var(--nav-b)";
-  const paintDelay = night ? "var(--nav-d)" : "0ms";
   const shape = (prop: string) => `${prop} var(--nav-d) ${EASE} ${shapeDelay}`;
-  const paint = (prop: string) => `${prop} var(--nav-b) linear ${paintDelay}`;
+  const paint = (prop: string) => (night ? `${prop} var(--nav-p) ${EASE}` : `${prop} var(--nav-b) linear`);
   const inkStyle: CSSProperties = { transition: paint("color") };
   const ink = night ? "text-white" : "text-[#16181a]";
 
@@ -187,7 +199,7 @@ export function Navbar() {
   const cardGlass = "rounded-[22px] border border-white/10 bg-[#16181a]/80 text-white";
 
   return (
-    <header className="sticky top-0 z-[60] h-[62px] pointer-events-none [--nav-d:360ms] md:[--nav-d:600ms] [--nav-b:240ms] motion-reduce:[--nav-d:0ms]! motion-reduce:[--nav-b:0ms]!">
+    <header className="sticky top-0 z-[60] h-[62px] pointer-events-none [--nav-d:360ms] md:[--nav-d:600ms] [--nav-r:150ms] md:[--nav-r:240ms] [--nav-p:210ms] md:[--nav-p:340ms] [--nav-b:120ms] motion-reduce:[--nav-d:0ms]! motion-reduce:[--nav-r:0ms]! motion-reduce:[--nav-p:0ms]! motion-reduce:[--nav-b:0ms]!">
       {/* Mobil menyu — sahifa xiralashadi, ustida shisha kartalar */}
       <div
         aria-hidden
@@ -287,13 +299,13 @@ export function Navbar() {
             night ? "h-[54px] pl-5 pr-3 md:pl-6 md:pr-2.5" : "h-[62px] px-4 md:px-20"
           }`}
           style={{
-            borderRadius: night ? 999 : 0,
-            ...(night ? NIGHT_GLASS : CLEAR_GLASS),
-            transition: [shape("height"), shape("padding"), shape("border-radius"), paint("background-color"), paint("box-shadow")].join(", "),
+            borderRadius: night ? 31 : 0,
+            ...(night ? NIGHT_GLASS : LIGHT_GLASS),
+            transition: [shape("height"), shape("padding"), `border-radius var(--nav-r) ${EASE} ${shapeDelay}`, paint("background-color"), paint("box-shadow")].join(", "),
           }}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Link href="/" onClick={onLogoClick} className="flex items-center gap-2 shrink-0">
             <DarslinkerLogo size={28} />
             <span className={`text-[20px] font-[family-name:var(--font-plus-jakarta)] font-extrabold tracking-tight ${ink}`} style={inkStyle}>
               Dars<span className="text-[#7ea2d4]">Linker</span>
