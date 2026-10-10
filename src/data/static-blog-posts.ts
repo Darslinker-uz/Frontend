@@ -16,6 +16,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "frilanser-sifatida-qonuniy-ishlash",
+    date: "2026-10-10",
+    title: "Frilanser sifatida qonuniy ishlash: 2026-yilda o‘zini o‘zi band qilish tartibi",
+    excerpt: "SMM, dizayn va dasturlash 72 talik ro‘yxatda qoldi, kopirayting chiqdi. 1% soliq, “Soliq” ilovasida ro‘yxatdan o‘tish va ijtimoiy soliq — manbalar bilan.",
+    category: "O'quvchilar uchun",
+    coverImage: "/images/blog-covers/frilanser-qonuniy-ishlash-1536x1024.jpg",
+  },
+  {
     slug: "darslinker-qachon-tashkil-topgan",
     date: "2026-09-19",
     title: "Darslinker qachon tashkil topgan? Birinchi qadamdan ilk natijalargacha",
