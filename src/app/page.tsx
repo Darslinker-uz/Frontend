@@ -15,6 +15,17 @@ export const revalidate = 0;
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
+const CATEGORY_BACKGROUNDS: Record<string, string> = {
+  it: "/images/category-cards/it-transparent-v2.webp",
+  tillar: "/images/category-cards/tillar-transparent-v2.webp",
+  biznes: "/images/category-cards/marketing-transparent-v1.webp",
+  dizayn: "/images/category-cards/dizayn-transparent-v1.webp",
+  akademik: "/images/category-cards/akademik-transparent-v1.webp",
+  kasbiy: "/images/category-cards/kasbiy-transparent-v1.webp",
+  "suniy-intellekt": "/images/category-cards/ai-transparent-v1.webp",
+  "biznes-va-sotuv": "/images/category-cards/biznes-transparent-v1.webp",
+};
+
 export default async function HomePage() {
   const [groups, courses, featuredCourses, dbFaqs] = await Promise.all([
     // Bosh sahifa grid'i — admin'da `showOnHomepage` flag bilan boshqariladi
@@ -129,18 +140,39 @@ export default async function HomePage() {
         <div className="space-y-10 md:space-y-14 py-10 md:py-14">
           <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Qidirish emas,<br className="md:hidden" /> tanlash vaqti keldi!</p>
 
-          <div className="bg-[#e8eaed] rounded-[20px] p-5 md:p-8">
-            <h2 className="text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">Yo&apos;nalishlar</h2>
-            <p className="text-[16px] md:text-[22px] text-[#7c8490] mt-2 font-light">O&apos;zingizga qiziq bo&apos;lgan yo&apos;nalishni tanlang</p>
+          <div className="bg-[#e8eaed] rounded-[20px] p-3 md:p-8">
+            <h2 className="px-2 pt-2 md:p-0 text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">Yo&apos;nalishlar</h2>
+            <p className="px-2 md:px-0 text-[16px] md:text-[22px] text-[#7c8490] mt-2 font-light">O&apos;zingizga qiziq bo&apos;lgan yo&apos;nalishni tanlang</p>
             <div className="mt-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {groups.map((g) => (
-                  <Link key={g.slug} href={`/kurslar/g/${g.slug}`} className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] lg:rounded-[20px] md:p-5 lg:p-6 xl:p-7 md:h-[150px] lg:h-[180px] xl:h-[200px] hover:bg-[#26282c] transition-all block">
+                  <Link
+                    key={g.slug}
+                    href={`/kurslar/g/${g.slug}`}
+                    className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] lg:rounded-[20px] md:p-5 lg:p-6 xl:p-7 md:h-[150px] lg:h-[180px] xl:h-[200px] hover:bg-[#26282c] transition-all block"
+                  >
+                    {CATEGORY_BACKGROUNDS[g.slug] && (
+                      <span
+                        aria-hidden="true"
+                        className="hidden md:block pointer-events-none absolute inset-0 -translate-x-8 lg:-translate-x-12 origin-right scale-[0.7] bg-cover bg-right bg-no-repeat opacity-75"
+                        style={{
+                          backgroundImage: `url("${CATEGORY_BACKGROUNDS[g.slug]}")`,
+                        }}
+                      />
+                    )}
                     <span className="hidden md:block absolute top-5 left-5 lg:top-6 lg:left-6 xl:top-7 xl:left-7 text-[20px] lg:text-[24px] xl:text-[26px] font-bold text-white leading-tight max-w-[55%]">{g.name}</span>
                     <span className="hidden md:block absolute bottom-5 left-5 lg:bottom-6 lg:left-6 xl:bottom-7 xl:left-7 text-[12px] lg:text-[13px] xl:text-[14px] text-white/80 line-clamp-1 max-w-[55%]">{g.desc}</span>
                     <span className="hidden md:block absolute right-4 lg:right-6 xl:right-7 top-1/2 -translate-y-1/2 text-[38px] lg:text-[48px] xl:text-[52px] font-bold text-white/15 leading-none">{g.listingsCount}</span>
                     <div className="relative md:hidden px-4 py-4 h-[85px] flex flex-col justify-between items-start text-left">
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[44px] font-bold text-white/15 leading-none">{g.listingsCount}</span>
+                      {CATEGORY_BACKGROUNDS[g.slug] && (
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-y-2 right-1.5 w-[100px] bg-[length:auto_100%] bg-right bg-no-repeat opacity-15"
+                          style={{
+                            backgroundImage: `url("${CATEGORY_BACKGROUNDS[g.slug]}")`,
+                          }}
+                        />
+                      )}
                       <span className="relative text-[21px] font-bold text-white leading-tight">{g.name}</span>
                       <span className="relative text-[11px] text-white/80">{g.desc}</span>
                     </div>
