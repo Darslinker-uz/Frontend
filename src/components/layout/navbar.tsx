@@ -158,8 +158,9 @@ export function Navbar() {
     .filter((r) => r.listingCount > 0)
     .slice(0, 6);
 
-  // Mobil menyu ochiq bo'lsa ham kapsula holatida turadi (oq matn, qora shisha).
-  const night = scrolled || open;
+  // Kapsula faqat scroll'da. Tepada (hero'da) mobil menyu ochilganda navbar
+  // joyidan ham, ko'rinishidan ham o'zgarmaydi — sakrab tushmasin.
+  const night = scrolled;
   const tab = open ? 0 : -1;
 
   // Bosh sahifada turib logotip bosilsa URL o'zgarmaydi, shuning uchun Next
