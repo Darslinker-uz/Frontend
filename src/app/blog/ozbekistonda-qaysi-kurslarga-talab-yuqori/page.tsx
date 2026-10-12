@@ -35,20 +35,21 @@ export const metadata: Metadata = {
 
 // Manba: Darslinker.uz production bazasi, 2026-07-11 — 2026-10-11.
 // Ko'rishlar: view_events (2 385 ta), arizalar: leads (220 ta). Ulushlar shu jamiga nisbatan.
+// Ingliz tili qatori uchta kategoriyani birlashtiradi: Ingliz tili (11,1% / 8,6%), IELTS (5,1% / 5,5%), CEFR (0,2% / 0%).
 const yonalishlar = [
   ["1", "Rus tili", "19,7%", "25,9%"],
-  ["2", "Matematika", "12,5%", "9,1%"],
-  ["3", "Ingliz tili", "11,1%", "8,6%"],
+  ["2", "Ingliz tili (IELTS va CEFR bilan)", "16,4%", "14,1%"],
+  ["3", "Matematika", "12,5%", "9,1%"],
   ["4", "Nemis tili", "9,5%", "5,5%"],
   ["5", "Kimyo", "5,9%", "7,7%"],
   ["6", "Koreys tili", "5,4%", "6,8%"],
-  ["7", "IELTS", "5,1%", "5,5%"],
-  ["8", "Arab tili", "4,9%", "5,9%"],
-  ["9", "Biologiya", "4,7%", "3,6%"],
-  ["10", "Ona tili", "4,2%", "4,1%"],
-  ["11", "Kompyuter savodxonligi", "3,1%", "3,6%"],
-  ["12", "Robototexnika", "2,0%", "1,4%"],
-  ["—", "Qolgan 13 yo‘nalish", "12,0%", "12,3%"],
+  ["7", "Arab tili", "4,9%", "5,9%"],
+  ["8", "Biologiya", "4,7%", "3,6%"],
+  ["9", "Ona tili", "4,2%", "4,1%"],
+  ["10", "Kompyuter savodxonligi", "3,1%", "3,6%"],
+  ["11", "Robototexnika", "2,0%", "1,4%"],
+  ["12", "Tarix", "1,7%", "2,7%"],
+  ["—", "Qolgan 11 yo‘nalish", "10,2%", "9,5%"],
 ];
 
 const guruhlar = [
@@ -65,22 +66,22 @@ const konversiya = [
   ["Kimyo", "12,1"],
   ["Koreys tili", "11,6"],
   ["Arab tili", "11,1"],
-  ["Ingliz tili", "7,2"],
+  ["Ingliz tili (IELTS va CEFR bilan)", "7,9"],
   ["Matematika", "6,7"],
   ["Nemis tili", "5,3"],
 ];
 
 const topilmalar = [
   "Rus tili ikkala o‘lchovda ham birinchi: e’lon ko‘rishlarining 19,7 foizi va arizalarning 25,9 foizi.",
-  "Ingliz tili alohida olganda uchinchi (11,1%), IELTS va CEFR bilan birga esa ikkinchi (16,4%).",
+  "Ingliz tili ikkinchi: umumiy ingliz tili, IELTS va CEFR kurslari birga 16,4 foiz ko‘rish va 14,1 foiz ariza oldi.",
   "Har o‘nta ko‘rishdan oltitasi til kurslariga to‘g‘ri keladi: tillar guruhi — 61,6 foiz.",
-  "Akademik fanlar ikkinchi yirik guruh (27,3%); ichida matematika yetakchi.",
+  "Akademik fanlar ikkinchi yirik guruh (27,3%); ichida matematika yetakchi va umumiy ro‘yxatda uchinchi (12,5%).",
   "IT va dasturlash guruhi 8,3 foiz oldi, eng ko‘p ko‘rilgani — kompyuter savodxonligi.",
 ];
 
 const faqs = [
-  { q: "O‘zbekistonda eng ko‘p qaysi kurs izlanadi?", a: "Darslinker.uz platformasining 2026-yil 11-iyuldan 11-oktabrgacha bo‘lgan ma’lumotiga ko‘ra, birinchi o‘rinda rus tili: e’lon ko‘rishlarining 19,7 foizi va kursga qoldirilgan arizalarning 25,9 foizi shu yo‘nalishga to‘g‘ri keldi. Keyingi o‘rinlarda matematika (12,5%) va ingliz tili (11,1%). Mamlakat bo‘yicha kurs yo‘nalishlari reytingini rasmiy idoralar e’lon qilmaydi." },
-  { q: "Ingliz tili nega birinchi o‘rinda emas?", a: "Ingliz tili e’lonlari ko‘rishlarning 11,1 foizini oldi. IELTS (5,1%) va CEFR (0,2%) tayyorlov kurslari qo‘shib hisoblansa, ingliz tili bilan bog‘liq yo‘nalishlar 16,4 foizga yetadi va rus tilidan keyin ikkinchi o‘ringa chiqadi. Platformada ingliz tili bo‘yicha faol e’lonlar rus tilidagidan ko‘p (9 ta va 4 ta), lekin rus tili e’lonlari 1,8 barobar ko‘p ko‘rilgan." },
+  { q: "O‘zbekistonda eng ko‘p qaysi kurs izlanadi?", a: "Darslinker.uz platformasining 2026-yil 11-iyuldan 11-oktabrgacha bo‘lgan ma’lumotiga ko‘ra, birinchi o‘rinda rus tili: e’lon ko‘rishlarining 19,7 foizi va kursga qoldirilgan arizalarning 25,9 foizi shu yo‘nalishga to‘g‘ri keldi. Ikkinchi o‘rinda ingliz tili — IELTS va CEFR tayyorlov kurslari bilan birga 16,4%, uchinchi o‘rinda matematika (12,5%). Mamlakat bo‘yicha kurs yo‘nalishlari reytingini rasmiy idoralar e’lon qilmaydi." },
+  { q: "Ingliz tili nechanchi o‘rinda?", a: "Ikkinchi o‘rinda. Platformada ingliz tili uch yo‘nalishga bo‘lingan: umumiy ingliz tili (ko‘rishlarning 11,1 foizi), IELTS tayyorlov (5,1%) va CEFR (0,2%). Uchalasi bitta til bo‘lgani uchun birga hisoblangan: 16,4 foiz ko‘rish va 14,1 foiz ariza. Rus tili 19,7 foiz ko‘rish va 25,9 foiz ariza bilan oldinda, garchi platformada ingliz tili bo‘yicha faol e’lonlar ko‘proq bo‘lsa ham (16 ta va 4 ta)." },
   { q: "IT kurslariga talab qanchalik?", a: "IT va dasturlash guruhi Darslinker’dagi ko‘rishlarning 8,3 foizini va arizalarning 7,3 foizini oldi. Guruh ichida eng ko‘p ko‘rilgani kompyuter savodxonligi (3,1%) va robototexnika (2,0%); backend, frontend va Data Science yo‘nalishlarining har biri 1,5 foizdan kam." },
   { q: "Akademik fanlarga talab qanday?", a: "Darslinker’da matematika, kimyo va biologiya birgalikda ko‘rishlarning 23,1 foizini oldi. Mamlakat miqyosida ham hajm katta: Bilim va malakalarni baholash agentligi ma’lumotiga ko‘ra, 2025-yil sentabr–dekabrda milliy sertifikat imtihonlarida 255 217 kishi qatnashgan, 2026-yilning shu davriga esa 496 303 ta o‘rin ajratilgan." },
   { q: "Bu raqamlar butun O‘zbekistonga tegishlimi?", a: "Foizlar faqat Darslinker.uz’ga kirgan foydalanuvchilarga tegishli: 3 oyda 2 385 ta e’lon ko‘rilishi va 220 ta ariza. Mamlakat miqyosidagi raqamlar maqolada alohida jadvalda, rasmiy manbalar bilan berilgan. Hududlar bo‘yicha taqsimot hisoblanmagan, shuning uchun viloyatingizdagi manzara boshqacha bo‘lishi mumkin." },
@@ -137,7 +138,7 @@ export default function Page() {
         <div className="mx-auto max-w-[760px] space-y-10 text-[17px] leading-[1.85] [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-snug [&_p+p]:mt-4 [&_a]:text-[#426a9e] [&_a]:underline [&_a]:underline-offset-4 [&_li]:mb-2">
           <section aria-labelledby="short-answer" className="rounded-xl bg-[#e8f0f9]/60 p-5 md:p-6">
             <h2 id="short-answer">Qisqa javob</h2>
-            <p>Darslinker.uz’da 2026-yil 11-iyuldan 11-oktabrgacha eng ko‘p talab <strong>rus tili</strong> kurslariga bo‘ldi: e’lon ko‘rishlarining <strong>19,7 foizi</strong> va arizalarning <strong>25,9 foizi</strong>. Ikkinchi o‘rinda matematika (12,5%), uchinchi o‘rinda ingliz tili (11,1%); IELTS bilan birga hisoblansa, ingliz tili 16,4 foiz bilan ikkinchi o‘ringa chiqadi. Tillar jami ko‘rishlarning 61,6 foizini, akademik fanlar 27,3 foizini, IT va dasturlash 8,3 foizini oldi. Tahlil 2 385 ta ko‘rish va 220 ta arizaga asoslangan.</p>
+            <p>Darslinker.uz’da 2026-yil 11-iyuldan 11-oktabrgacha eng ko‘p talab <strong>rus tili</strong> kurslariga bo‘ldi: e’lon ko‘rishlarining <strong>19,7 foizi</strong> va arizalarning <strong>25,9 foizi</strong>. Ikkinchi o‘rinda <strong>ingliz tili</strong> — IELTS va CEFR tayyorlov kurslari bilan birga 16,4 foiz ko‘rish va 14,1 foiz ariza. Uchinchi o‘rinda matematika (12,5%). Tillar jami ko‘rishlarning 61,6 foizini, akademik fanlar 27,3 foizini, IT va dasturlash 8,3 foizini oldi. Tahlil 2 385 ta ko‘rish va 220 ta arizaga asoslangan.</p>
           </section>
 
           <section>
@@ -149,7 +150,7 @@ export default function Page() {
 
           <section>
             <h2>Qaysi yo‘nalishlar eng ko‘p ko‘rilgan va so‘ralgan?</h2>
-            <p>Uch oyda platformadagi 25 yo‘nalish bo‘yicha e’lonlar ko‘rilgan. Jadvalda ikki ko‘rsatkich yonma-yon turadi: foydalanuvchilar qaysi yo‘nalishdagi e’lonlarni ochgani va qaysi biriga ariza qoldirgani.</p>
+            <p>Uch oyda platformadagi 25 yo‘nalish bo‘yicha e’lonlar ko‘rilgan. Ingliz tili, IELTS va CEFR bitta til bo‘lgani uchun jadvalda bitta qatorga birlashtirilgan. Ikki ko‘rsatkich yonma-yon turadi: foydalanuvchilar qaysi yo‘nalishdagi e’lonlarni ochgani va qaysi biriga ariza qoldirgani.</p>
             <div className="overflow-x-auto rounded-xl border border-[#e5e8eb]">
               <table className="w-full min-w-[520px] text-left text-sm leading-relaxed">
                 <caption className="p-3 text-left text-[#59616c]">Darslinker.uz’da kurs yo‘nalishlariga talab, 2026-yil 11-iyul — 11-oktabr</caption>
@@ -158,9 +159,9 @@ export default function Page() {
               </table>
             </div>
             <p className="!mt-3 text-sm text-[#59616c]">Manba: Darslinker.uz ichki ma’lumoti. Ko‘rishlar jami 2 385 ta, arizalar jami 220 ta; ulushlar shu jamiga nisbatan.</p>
-            <p>Rus tili ikkala ko‘rsatkichda ham birinchi, va arizalardagi ulushi ko‘rishlardagidan yuqori: har to‘rtinchi ariza <Link href="/kurslar/rus-tili">rus tili kurslariga</Link> qoldirilgan. Birinchi o‘n ikkitalikdan yettitasi til yo‘nalishi.</p>
-            <p>Ingliz tili alohida olganda uchinchi o‘rinda. Lekin platformada u uch yo‘nalishga bo‘lingan: umumiy <Link href="/kurslar/ingliz-tili">ingliz tili</Link> (11,1%), <Link href="/kurslar/ielts">IELTS tayyorlov</Link> (5,1%) va CEFR (0,2%). Uchalasi birga 16,4 foiz ko‘rish va 14,1 foiz ariza beradi, ya’ni rus tilidan keyingi ikkinchi natija.</p>
-            <p><Link href="/kurslar/matematika">Matematika</Link>, kimyo va biologiya birgalikda ko‘rishlarning 23,1 foizini oldi. Davr iyul–oktabrga to‘g‘ri keladi, ya’ni o‘quv yili boshlanishi shu oyna ichida; boshqa mavsumda fanlar ulushi boshqacha chiqishi mumkin.</p>
+            <p>Rus tili ikkala ko‘rsatkichda ham birinchi, va arizalardagi ulushi ko‘rishlardagidan yuqori: har to‘rtinchi ariza <Link href="/kurslar/rus-tili">rus tili kurslariga</Link> qoldirilgan. Birinchi o‘n ikkitalikdan oltitasi til yo‘nalishi.</p>
+            <p>Ingliz tili ikkinchi o‘rinda. Platformada u uch yo‘nalishga bo‘lingan: umumiy <Link href="/kurslar/ingliz-tili">ingliz tili</Link> (11,1% ko‘rish, 8,6% ariza), <Link href="/kurslar/ielts">IELTS tayyorlov</Link> (5,1% va 5,5%) hamda CEFR (0,2%). Uchalasi birga 16,4 foiz ko‘rish va 14,1 foiz ariza beradi.</p>
+            <p><Link href="/kurslar/matematika">Matematika</Link> uchinchi o‘rinda (12,5%). Kimyo va biologiya bilan birgalikda u ko‘rishlarning 23,1 foizini oldi. Davr iyul–oktabrga to‘g‘ri keladi, ya’ni o‘quv yili boshlanishi shu oyna ichida; boshqa mavsumda fanlar ulushi boshqacha chiqishi mumkin.</p>
           </section>
 
           <section>
@@ -212,7 +213,7 @@ export default function Page() {
               </table>
             </div>
             <p>Rus tili, kimyo, <Link href="/kurslar/koreys-tili">koreys tili</Link> va <Link href="/kurslar/arab-tili">arab tili</Link> e’lonlarini ochganlar o‘rtachadan ko‘proq ariza qoldirgan. <Link href="/kurslar/nemis-tili">Nemis tili</Link> esa teskari holat: ko‘rishlar bo‘yicha to‘rtinchi o‘rinda (9,5%), lekin 100 ta ko‘rishga 5,3 ta ariza — jadvaldagi eng past natija.</p>
-            <p>Taklif bilan solishtirish ham shuni ko‘rsatadi. 11-oktabr holatiga platformada ingliz tili bo‘yicha 9 ta, rus tili bo‘yicha 4 ta faol e’lon bor edi. Shunga qaramay rus tili e’lonlari uch oyda 1,8 barobar ko‘p ko‘rilgan.</p>
+            <p>Taklif bilan solishtirish ham shuni ko‘rsatadi. 11-oktabr holatiga platformada ingliz tili bo‘yicha (IELTS va CEFR bilan) 16 ta, rus tili bo‘yicha 4 ta faol e’lon bor edi. Shunga qaramay rus tili e’lonlari uch oyda 1,2 barobar ko‘p ko‘rilgan.</p>
           </section>
 
           <section>
