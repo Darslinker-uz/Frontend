@@ -16,6 +16,14 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "ozbekistonda-qaysi-kurslarga-talab-yuqori",
+    date: "2026-10-12",
+    title: "O‘zbekistonda qaysi kurslarga talab yuqori? Darslinker tahlili (2026)",
+    excerpt: "Rus tili birinchi o‘rinda: Darslinker’da har to‘rtinchi ariza shu yo‘nalishga tushgan. 25 yo‘nalish bo‘yicha jadval va mamlakat miqyosidagi rasmiy raqamlar.",
+    category: "O'quvchilar uchun",
+    coverImage: "/images/blog-covers/qaysi-kurslarga-talab-yuqori-1536x1024.jpg",
+  },
+  {
     slug: "frilanser-sifatida-qonuniy-ishlash",
     date: "2026-10-10",
     title: "Frilanser sifatida qonuniy ishlash: 2026-yilda o‘zini o‘zi band qilish tartibi",
