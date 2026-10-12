@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 // Manba: Darslinker.uz production bazasi, 2026-07-11 — 2026-10-11.
-// Ko'rishlar: view_events (2 385 ta), arizalar: leads (220 ta). Ulushlar shu jamiga nisbatan.
+// Ko'rishlar: view_events, arizalar: leads. Ulushlar shu davrdagi jamiga nisbatan; mutlaq sonlar ochiqlanmaydi.
 // Ingliz tili qatori uchta kategoriyani birlashtiradi: Ingliz tili (11,1% / 8,6%), IELTS (5,1% / 5,5%), CEFR (0,2% / 0%).
 const yonalishlar = [
   ["1", "Rus tili", "19,7%", "25,9%"],
@@ -84,7 +84,7 @@ const faqs = [
   { q: "Ingliz tili nechanchi o‘rinda?", a: "Ikkinchi o‘rinda. Platformada ingliz tili uch yo‘nalishga bo‘lingan: umumiy ingliz tili (ko‘rishlarning 11,1 foizi), IELTS tayyorlov (5,1%) va CEFR (0,2%). Uchalasi bitta til bo‘lgani uchun birga hisoblangan: 16,4 foiz ko‘rish va 14,1 foiz ariza. Rus tili 19,7 foiz ko‘rish va 25,9 foiz ariza bilan oldinda, garchi platformada ingliz tili bo‘yicha faol e’lonlar ko‘proq bo‘lsa ham (16 ta va 4 ta)." },
   { q: "IT kurslariga talab qanchalik?", a: "IT va dasturlash guruhi Darslinker’dagi ko‘rishlarning 8,3 foizini va arizalarning 7,3 foizini oldi. Guruh ichida eng ko‘p ko‘rilgani kompyuter savodxonligi (3,1%) va robototexnika (2,0%); backend, frontend va Data Science yo‘nalishlarining har biri 1,5 foizdan kam." },
   { q: "Akademik fanlarga talab qanday?", a: "Darslinker’da matematika, kimyo va biologiya birgalikda ko‘rishlarning 23,1 foizini oldi. Mamlakat miqyosida ham hajm katta: Bilim va malakalarni baholash agentligi ma’lumotiga ko‘ra, 2025-yil sentabr–dekabrda milliy sertifikat imtihonlarida 255 217 kishi qatnashgan, 2026-yilning shu davriga esa 496 303 ta o‘rin ajratilgan." },
-  { q: "Bu raqamlar butun O‘zbekistonga tegishlimi?", a: "Foizlar faqat Darslinker.uz’ga kirgan foydalanuvchilarga tegishli: 3 oyda 2 385 ta e’lon ko‘rilishi va 220 ta ariza. Mamlakat miqyosidagi raqamlar maqolada alohida jadvalda, rasmiy manbalar bilan berilgan. Hududlar bo‘yicha taqsimot hisoblanmagan, shuning uchun viloyatingizdagi manzara boshqacha bo‘lishi mumkin." },
+  { q: "Bu raqamlar butun O‘zbekistonga tegishlimi?", a: "Foizlar faqat Darslinker.uz’ga kirgan foydalanuvchilarga tegishli va 3 oylik e’lon ko‘rilishlari hamda arizalar asosida hisoblangan. Mamlakat miqyosidagi raqamlar maqolada alohida jadvalda, rasmiy manbalar bilan berilgan. Hududlar bo‘yicha taqsimot hisoblanmagan, shuning uchun viloyatingizdagi manzara boshqacha bo‘lishi mumkin." },
   { q: "Ko‘rish va ariza o‘rtasida qanday farq bor?", a: "Ko‘rish — foydalanuvchi kurs e’loni sahifasini ochgani; bir sessiyada bir e’lon bir marta sanaladi. Ariza — foydalanuvchi shu kursga ismi va telefon raqamini qoldirgani. Ko‘rish qiziqishni, ariza esa o‘qishga tayyorlikni ko‘rsatadi, shu sabab ikkala ko‘rsatkich jadvalda yonma-yon berilgan." },
   { q: "Bu ma’lumotdan o‘z maqolamda foydalansam bo‘ladimi?", a: "Ha. Raqamlarni manbani ko‘rsatgan holda keltirish mumkin: “Darslinker.uz tahlili, 2026-yil 11-iyul — 11-oktabr” va shu sahifaga havola. Ulushlar platforma ichidagi ko‘rishlar va arizalarga nisbatan hisoblangani ham qayd etilsa, o‘quvchi raqamni to‘g‘ri tushunadi." },
 ];
@@ -138,7 +138,7 @@ export default function Page() {
         <div className="mx-auto max-w-[760px] space-y-10 text-[17px] leading-[1.85] [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-snug [&_p+p]:mt-4 [&_a]:text-[#426a9e] [&_a]:underline [&_a]:underline-offset-4 [&_li]:mb-2">
           <section aria-labelledby="short-answer" className="rounded-xl bg-[#e8f0f9]/60 p-5 md:p-6">
             <h2 id="short-answer">Qisqa javob</h2>
-            <p>Darslinker.uz’da 2026-yil 11-iyuldan 11-oktabrgacha eng ko‘p talab <strong>rus tili</strong> kurslariga bo‘ldi: e’lon ko‘rishlarining <strong>19,7 foizi</strong> va arizalarning <strong>25,9 foizi</strong>. Ikkinchi o‘rinda <strong>ingliz tili</strong> — IELTS va CEFR tayyorlov kurslari bilan birga 16,4 foiz ko‘rish va 14,1 foiz ariza. Uchinchi o‘rinda matematika (12,5%). Tillar jami ko‘rishlarning 61,6 foizini, akademik fanlar 27,3 foizini, IT va dasturlash 8,3 foizini oldi. Tahlil 2 385 ta ko‘rish va 220 ta arizaga asoslangan.</p>
+            <p>Darslinker.uz’da 2026-yil 11-iyuldan 11-oktabrgacha eng ko‘p talab <strong>rus tili</strong> kurslariga bo‘ldi: e’lon ko‘rishlarining <strong>19,7 foizi</strong> va arizalarning <strong>25,9 foizi</strong>. Ikkinchi o‘rinda <strong>ingliz tili</strong> — IELTS va CEFR tayyorlov kurslari bilan birga 16,4 foiz ko‘rish va 14,1 foiz ariza. Uchinchi o‘rinda matematika (12,5%). Tillar jami ko‘rishlarning 61,6 foizini, akademik fanlar 27,3 foizini, IT va dasturlash 8,3 foizini oldi.</p>
           </section>
 
           <section>
@@ -158,7 +158,7 @@ export default function Page() {
                 <tbody>{yonalishlar.map(row => <tr key={row[1]} className="border-t border-[#e5e8eb]"><td className="p-3 text-[#7c8490]">{row[0]}</td><th scope="row" className="p-3">{row[1]}</th><td className="p-3">{row[2]}</td><td className="p-3">{row[3]}</td></tr>)}</tbody>
               </table>
             </div>
-            <p className="!mt-3 text-sm text-[#59616c]">Manba: Darslinker.uz ichki ma’lumoti. Ko‘rishlar jami 2 385 ta, arizalar jami 220 ta; ulushlar shu jamiga nisbatan.</p>
+            <p className="!mt-3 text-sm text-[#59616c]">Manba: Darslinker.uz ichki ma’lumoti. Ulushlar shu davrdagi barcha ko‘rishlar va barcha arizalarga nisbatan hisoblangan.</p>
             <p>Rus tili ikkala ko‘rsatkichda ham birinchi, va arizalardagi ulushi ko‘rishlardagidan yuqori: har to‘rtinchi ariza <Link href="/kurslar/rus-tili">rus tili kurslariga</Link> qoldirilgan. Birinchi o‘n ikkitalikdan oltitasi til yo‘nalishi.</p>
             <p>Ingliz tili ikkinchi o‘rinda. Platformada u uch yo‘nalishga bo‘lingan: umumiy <Link href="/kurslar/ingliz-tili">ingliz tili</Link> (11,1% ko‘rish, 8,6% ariza), <Link href="/kurslar/ielts">IELTS tayyorlov</Link> (5,1% va 5,5%) hamda CEFR (0,2%). Uchalasi birga 16,4 foiz ko‘rish va 14,1 foiz ariza beradi.</p>
             <p><Link href="/kurslar/matematika">Matematika</Link> uchinchi o‘rinda (12,5%). Kimyo va biologiya bilan birgalikda u ko‘rishlarning 23,1 foizini oldi. Davr iyul–oktabrga to‘g‘ri keladi, ya’ni o‘quv yili boshlanishi shu oyna ichida; boshqa mavsumda fanlar ulushi boshqacha chiqishi mumkin.</p>
@@ -220,15 +220,15 @@ export default function Page() {
             <h2>Tahlil qanday o‘tkazildi va qanday cheklovlari bor?</h2>
             <p>Platforma qismi Darslinker.uz bazasidagi ikki turdagi yozuvga asoslangan, davr — 2026-yil 11-iyuldan 11-oktabrgacha. Mamlakat qismi rasmiy e’lonlar va ochiq manbalardan olingan.</p>
             <ul className="list-disc pl-5">
-              <li><strong>Ko‘rish</strong> — kurs e’loni sahifasi brauzerda ochilgani. Bir sessiyada bir e’lon bir marta sanaladi. Jami 2 385 ta.</li>
-              <li><strong>Ariza</strong> — foydalanuvchi kursga ismi va telefon raqamini qoldirgani. Bir telefon raqamidan bir e’longa bitta ariza sanaladi. Jami 220 ta.</li>
+              <li><strong>Ko‘rish</strong> — kurs e’loni sahifasi brauzerda ochilgani. Bir sessiyada bir e’lon bir marta sanaladi.</li>
+              <li><strong>Ariza</strong> — foydalanuvchi kursga ismi va telefon raqamini qoldirgani. Bir telefon raqamidan bir e’longa bitta ariza sanaladi.</li>
               <li><strong>Ulush</strong> — yo‘nalishdagi ko‘rishlar yoki arizalar sonining jami songa nisbati. Guruhlar platformadagi kategoriya guruhlari bo‘yicha jamlangan.</li>
             </ul>
             <p>Raqamlarni o‘qishda to‘rt narsani hisobga olish kerak:</p>
             <ol className="list-decimal pl-5">
               <li>Foizlar Darslinker’ga kirgan odamlarga tegishli. Kursni faqat Telegram yoki tanishlar orqali topadigan auditoriya hisobda yo‘q.</li>
               <li>Ko‘rishlar taklifga bog‘liq. E’lon bo‘lmagan yo‘nalishni ko‘rib ham, unga ariza qoldirib ham bo‘lmaydi.</li>
-              <li>Tanlanma kichik. 220 ta arizada bir yo‘nalishga tushgan 2–3 ta ariza ulushni 1 foiz punktga o‘zgartiradi. Ro‘yxatning quyi qismidagi o‘rinlarni qat’iy reyting deb olmang.</li>
+              <li>Tanlanma cheklangan: bitta platformaning uch oylik ma’lumoti. Ulushi 2 foizdan past yo‘nalishlarda bir nechta ariza tartibni o‘zgartirib yuboradi, shuning uchun ro‘yxatning quyi qismidagi o‘rinlarni qat’iy reyting deb olmang.</li>
               <li>Hududlar bo‘yicha kesim hisoblanmagan. Shahar va viloyatlarda yo‘nalishlar tartibi boshqacha bo‘lishi mumkin.</li>
             </ol>
           </section>
