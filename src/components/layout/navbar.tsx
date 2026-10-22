@@ -3,11 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
-import { BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight } from "lucide-react";
+import { BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight, LayoutGrid, Wallet, Rocket, CircleHelp } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
-import { scrollToTop } from "@/components/smooth-scroll";
+import { scrollToSection, scrollToTop } from "@/components/smooth-scroll";
+import { CrmApplyButton } from "@/components/crm/crm-apply";
+import { CRM_HOME, isCrmPage } from "@/lib/crm-pages";
 
 const SUPPORT_URL = "https://t.me/Darslinker_Support";
+
+// Navbar CTA qoidasi: CRM/LMS sahifalarida — "Ariza qoldirish" (ariza modali),
+// katalog sahifalarida (kurslar, markazlar, repetitorlar, joylar, blog…) — "Yordam".
+// CRM sahifalari ro'yxati — src/lib/crm-pages.ts. Ko'rinish ham ikkiga bo'lingan: CRM sahifasida
+// yangi (shaffof tepa, ko'kish shisha kapsula, katta logo), katalogda — asl (qora kapsula).
 
 // "Asosiy" ataylab yo'q: logotipning o'zi `/` ga link, takroriy ichki link
 // bosh sahifaga hech narsa qo'shmaydi — slot Blog'ga berildi.
@@ -16,6 +23,14 @@ const mobileLinks = [
   { href: "/oquv-markazlar", label: "Markazlar", desc: "O'quv markazlari", icon: Building2, primary: true },
   { href: "/joylar", label: "Joylar", desc: "Hudud bo'yicha", icon: MapPin, primary: false },
   { href: "/blog", label: "Blog", desc: "Maqolalar", icon: Newspaper, primary: false },
+];
+
+// CRM/LMS sahifalaridagi havolalar — CRM bosh sahifasi bo'limlariga.
+const crmLinks = [
+  { href: `${CRM_HOME}#imkoniyatlar`, label: "Imkoniyatlar", desc: "Darslinker nima qiladi", icon: LayoutGrid },
+  { href: `${CRM_HOME}#narxlar`, label: "Tariflar", desc: "Narx va chegirmalar", icon: Wallet },
+  { href: `${CRM_HOME}#boshlash`, label: "Qanday boshlanadi", desc: "4 qadam", icon: Rocket },
+  { href: `${CRM_HOME}#savollar`, label: "Savollar", desc: "Ko'p so'raladigan", icon: CircleHelp },
 ];
 
 type ApiCategory = {
@@ -40,9 +55,30 @@ type ApiRegion = {
 
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 const SPRING = "cubic-bezier(0.34, 1.4, 0.64, 1)";
-// Scroll'dagi qora shisha kapsula — ostidagi kontent matnni o'qishga xalaqit
-// bermasligi uchun deyarli to'q. Tepada sahifa foni rangidagi och shisha:
-// tepada ko'rinmaydi, lekin shakl o'zgarayotganda ostidan kontent ko'rinib qolmaydi.
+// Scroll'dagi kapsula — ko'kish muz shisha, chegarasiz. Fon shaffofroq va blur kuchli:
+// ostidagi kontent xira ko'rinadi, lekin matn o'qilishiga xalaqit bermaydi.
+const CAPSULE_WIDTH = 1200;
+const CAPSULE_HEIGHT = 60;
+const TOP_HEIGHT = 78;
+// Zichroq va kam to'yingan: ostidagi rangli kartalar (oltin, ultramarin...) kapsulani bo'yab yubormasin.
+const ICE_GLASS: CSSProperties = {
+  background: "rgba(238, 243, 249, 0.9)",
+  boxShadow: "0 12px 36px -16px rgba(45, 90, 138, 0.35), 0 0 0 1px rgba(22, 24, 26, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.7)",
+  backdropFilter: "saturate(120%) blur(24px)",
+  WebkitBackdropFilter: "saturate(120%) blur(24px)",
+};
+
+// CRM: tepada (hero holatida) navbar to'liq shaffof — hero foni (Aurora) ortidan ko'rinsin.
+// Scroll'da ICE_GLASS kapsulasiga o'tadi.
+const CLEAR_TOP: CSSProperties = {
+  background: "rgba(240, 242, 243, 0)",
+  boxShadow: "0 0 0 0 rgba(22, 24, 26, 0), inset 0 0 0 rgba(255, 255, 255, 0)",
+  backdropFilter: "none",
+  WebkitBackdropFilter: "none",
+};
+
+// Katalog (asl ko'rinish): scroll'da qora shisha kapsula — ostidagi kontent matnni o'qishga xalaqit
+// bermasligi uchun deyarli to'q. Tepada sahifa foni rangidagi och shisha.
 const NIGHT_GLASS: CSSProperties = {
   background: "rgba(22, 24, 26, 0.92)",
   boxShadow: "0 14px 44px -14px rgba(22, 24, 26, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
@@ -161,16 +197,35 @@ export function Navbar() {
   // Kapsula faqat scroll'da. Tepada (hero'da) mobil menyu ochilganda navbar
   // joyidan ham, ko'rinishidan ham o'zgarmaydi — sakrab tushmasin.
   const night = scrolled;
+  const crm = isCrmPage(pathname);
+  // Kapsula o'lchamlari: CRM — yangi, katalog — asl.
+  const capsuleW = crm ? CAPSULE_WIDTH : 1000;
+  const capsuleH = crm ? CAPSULE_HEIGHT : 54;
+  const topH = crm ? TOP_HEIGHT : 62;
   const tab = open ? 0 : -1;
 
   // Bosh sahifada turib logotip bosilsa URL o'zgarmaydi, shuning uchun Next
   // scroll qilmaydi — o'zimiz tepaga (hero'ga) qaytaramiz.
+  const logoHref = crm ? CRM_HOME : "/";
   const onLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (pathname !== "/" || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    if (pathname !== logoHref || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
     setOpen(false);
     setMegaOpen(false);
     scrollToTop();
+  };
+
+  // CRM havolasi bosh sahifada bosilsa — sahifa qayta yuklanmaydi, bo'limga silliq scroll.
+  // Mobil menyu avval yopiladi (body qotirig'i olinsin), keyin scroll boshlanadi.
+  const onSectionClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (pathname !== CRM_HOME || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    const id = href.split("#")[1];
+    const wasOpen = open;
+    setOpen(false);
+    window.history.replaceState(null, "", `#${id}`);
+    if (wasOpen) window.setTimeout(() => scrollToSection(id), 60);
+    else scrollToSection(id);
   };
 
   const onLinkEnter = (e: MouseEvent<HTMLElement>) => {
@@ -178,7 +233,7 @@ export function Navbar() {
     setHovering(true);
   };
   // Rang <nav> dan meros olinadi (kechiktirilgan o'tish uchun) — hover faqat opacity.
-  const desktopLink = "relative inline-flex items-center gap-1 h-9 px-3.5 rounded-full text-[14px] font-semibold text-inherit opacity-70 hover:opacity-100 transition-opacity duration-300";
+  const desktopLink = "relative inline-flex items-center gap-1 h-9 px-3.5 rounded-full whitespace-nowrap text-[14px] font-semibold text-inherit opacity-70 hover:opacity-100 transition-opacity duration-300";
 
   // Pastga — fon burchaklar yumaloqlanishi bilan bir vaqtda, bir xil tezlikda
   // qorayadi (torayish davom etaveradi); tepaga — avval fon ochiladi, keyin shakl yoyiladi.
@@ -187,7 +242,8 @@ export function Navbar() {
   const shape = (prop: string) => `${prop} var(--nav-d) ${EASE} ${shapeDelay}`;
   const paint = (prop: string) => (night ? `${prop} var(--nav-p) ${EASE}` : `${prop} var(--nav-b) linear`);
   const inkStyle: CSSProperties = { transition: paint("color") };
-  const ink = night ? "text-white" : "text-[#16181a]";
+  // Katalogda qora kapsulada matn oq; CRM'da doim to'q.
+  const ink = night && !crm ? "text-white" : "text-[#16181a]";
 
   // Mobil kartalar navbat bilan "qo'nadi"; yopilganda hammasi birdan ketadi.
   const cardClass = `transition-[opacity,transform] duration-500 motion-reduce:transition-none ${
@@ -211,10 +267,27 @@ export function Navbar() {
       />
       <div
         aria-hidden={!open}
-        className={`md:hidden fixed inset-x-3 top-[76px] max-h-[calc(100dvh-100px)] overflow-y-auto ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`md:hidden fixed inset-x-3 ${crm ? "top-[88px] max-h-[calc(100dvh-112px)]" : "top-[76px] max-h-[calc(100dvh-100px)]"} overflow-y-auto ${open ? "pointer-events-auto" : "pointer-events-none"}`}
       >
         <div className="grid grid-cols-2 gap-2">
-          {mobileLinks.filter((l) => l.primary).map((l, i) => (
+          {crm && crmLinks.map((l, i) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={(e) => onSectionClick(e, l.href)}
+              tabIndex={tab}
+              className={`${cardGlass} ${cardClass} flex aspect-[1.4] flex-col justify-between p-4`}
+              style={cardStyle(i)}
+            >
+              <l.icon className="h-6 w-6 text-[#7ea2d4]" />
+              <span>
+                <span className="block text-[16px] font-bold leading-tight">{l.label}</span>
+                <span className="mt-1 block text-[12px] text-white/50">{l.desc}</span>
+              </span>
+            </Link>
+          ))}
+
+          {!crm && mobileLinks.filter((l) => l.primary).map((l, i) => (
             <Link
               key={l.href}
               href={l.href}
@@ -232,7 +305,7 @@ export function Navbar() {
           ))}
 
           {/* Kurslar — barcha kurslar + yo'nalish guruhlari */}
-          <div className={`${cardGlass} ${cardClass} col-span-2 p-4`} style={cardStyle(2)}>
+          {!crm && <div className={`${cardGlass} ${cardClass} col-span-2 p-4`} style={cardStyle(2)}>
             <Link href="/kurslar" onClick={() => setOpen(false)} tabIndex={tab} className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-[17px] font-bold">
                 <BookOpen className="h-5 w-5 text-[#7ea2d4]" />
@@ -257,9 +330,9 @@ export function Navbar() {
                 ))}
               </div>
             )}
-          </div>
+          </div>}
 
-          {mobileLinks.filter((l) => !l.primary).map((l, i) => (
+          {!crm && mobileLinks.filter((l) => !l.primary).map((l, i) => (
             <Link
               key={l.href}
               href={l.href}
@@ -273,43 +346,68 @@ export function Navbar() {
             </Link>
           ))}
 
-          <a
-            href={SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            tabIndex={tab}
-            className={`${cardClass} col-span-2 flex h-14 items-center justify-center gap-2 rounded-[22px] bg-[#7ea2d4] text-[15px] font-semibold text-white`}
-            style={cardStyle(5)}
-          >
-            <MessageCircle className="h-4 w-4" />
-            Yordam
-          </a>
+          {crm ? (
+            // Modal ochilishidan oldin menyu yopiladi — CrmApplyButton onClick qabul qilmaydi, shuning uchun o'ram.
+            <div inert={!open} onClickCapture={() => setOpen(false)} className={`${cardClass} col-span-2`} style={cardStyle(5)}>
+              <CrmApplyButton
+                refSource="navbar-mobile"
+                className="relative flex h-14 w-full items-center justify-center rounded-[22px] bg-[#2d5a8a] text-[15px] font-semibold text-white"
+              >
+                Ariza qoldirish
+                <span className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#2d5a8a]">
+                  <ArrowUpRight className="h-5 w-5" />
+                </span>
+              </CrmApplyButton>
+            </div>
+          ) : (
+            <a
+              href={SUPPORT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              tabIndex={tab}
+              className={`${cardClass} col-span-2 flex h-14 items-center justify-center gap-2 rounded-[22px] bg-[#7ea2d4] text-[15px] font-semibold text-white`}
+              style={cardStyle(5)}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Yordam
+            </a>
+          )}
         </div>
       </div>
 
-      {/* Kenglik padding orqali qisqaradi: 100vw → 1000px (mobilda chetdan 12px). */}
+      {/* Kenglik padding orqali qisqaradi: 100vw → kapsula kengligi (mobilda chetdan 12px). */}
       <div
         className="absolute inset-x-0 top-0"
         style={{
-          paddingInline: night ? "max(12px, calc((100vw - 1000px) / 2))" : "0px",
+          paddingInline: night ? `max(12px, calc((100vw - ${capsuleW}px) / 2))` : "0px",
           transform: night ? "translateY(10px)" : "translateY(0px)",
           transition: [shape("padding"), shape("transform")].join(", "),
         }}
       >
         <div
           className={`relative pointer-events-auto flex items-center justify-between ${
-            night ? "h-[54px] pl-5 pr-3 md:pl-6 md:pr-2.5" : "h-[62px] px-4 md:px-20"
+            night ? `pl-5 pr-3 md:pl-6 ${crm ? "md:pr-3" : "md:pr-2.5"}` : "px-4 md:px-20"
           }`}
           style={{
-            borderRadius: night ? 31 : 0,
-            ...(night ? NIGHT_GLASS : LIGHT_GLASS),
+            // CRM'da tepada 78px: 1.5x brend atrofida havo bo'lsin. Header 62px qoladi — ortiqcha 16px
+            // sahifa foni rangida hero ustiga tushadi va ko'rinmaydi.
+            height: night ? capsuleH : topH,
+            borderRadius: night ? capsuleH / 2 : 0,
+            ...(crm ? (night ? ICE_GLASS : CLEAR_TOP) : night ? NIGHT_GLASS : LIGHT_GLASS),
             transition: [shape("height"), shape("padding"), `border-radius var(--nav-r) ${EASE} ${shapeDelay}`, paint("background-color"), paint("box-shadow")].join(", "),
           }}
         >
           {/* Logo */}
-          <Link href="/" onClick={onLogoClick} className="flex items-center gap-2 shrink-0">
-            <DarslinkerLogo size={28} />
+          {/* CRM: tepada brend kattaroq, scroll'da kapsula bilan birga asl o'lchamga kichrayadi
+              (md–xl oralig'ida 1.3x — markazdagi havolalar bilan to'qnashmasin). Katalogda — asl o'lcham. */}
+          <Link
+            href={logoHref}
+            onClick={onLogoClick}
+            className="flex items-center gap-2 shrink-0 origin-left [--logo-s:1.1] md:[--logo-s:1.3] xl:[--logo-s:1.5]"
+            style={{ transform: crm && !night ? "scale(var(--logo-s))" : "scale(1)", transition: shape("transform") }}
+          >
+            <DarslinkerLogo size={28} animated={!crm} />
             <span className={`text-[20px] font-[family-name:var(--font-plus-jakarta)] font-extrabold tracking-tight ${ink}`} style={inkStyle}>
               Dars<span className="text-[#7ea2d4]">Linker</span>
             </span>
@@ -325,10 +423,18 @@ export function Navbar() {
                   left: hoverBox.left,
                   width: hoverBox.width,
                   opacity: hovering ? 1 : 0,
-                  background: night ? "rgba(255, 255, 255, 0.13)" : "rgba(22, 24, 26, 0.07)",
+                  background: night && !crm ? "rgba(255, 255, 255, 0.13)" : "rgba(22, 24, 26, 0.07)",
                   transitionTimingFunction: EASE,
                 }}
               />
+              {crm ? (
+                <>
+                  {crmLinks.map((l) => (
+                    <Link key={l.href} href={l.href} onClick={(e) => onSectionClick(e, l.href)} className={desktopLink} onMouseEnter={onLinkEnter}>{l.label}</Link>
+                  ))}
+                </>
+              ) : (
+              <>
               {/* Joylar — hudud bo'yicha lokal SEO sahifa */}
               <Link href="/joylar" className={desktopLink} onMouseEnter={onLinkEnter}>Joylar</Link>
               <Link href="/repetitorlar" className={desktopLink} onMouseEnter={onLinkEnter}>Repetitorlar</Link>
@@ -341,19 +447,36 @@ export function Navbar() {
               </div>
               {/* Blog — tahliliy maqolalar, topical authority */}
               <Link href="/blog" className={desktopLink} onMouseEnter={onLinkEnter}>Blog</Link>
+              </>
+              )}
             </nav>
           </div>
 
-          {/* Desktop Yordam button — o'ng burchakda */}
-          <a
-            href={SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:inline-flex items-center gap-2 h-9 px-4 rounded-full bg-[#7ea2d4] text-white text-[14px] font-medium hover:bg-[#5b87c0] transition-colors shrink-0"
-          >
-            <MessageCircle className="w-4 h-4" />
-            Yordam
-          </a>
+          {/* Desktop CTA — o'ng burchakda: CRM sahifada ariza, katalogda Yordam */}
+          {crm ? (
+            <CrmApplyButton
+              refSource="navbar"
+              className="group hidden md:inline-flex items-center gap-2.5 h-9 pl-4 pr-1 rounded-full bg-[#2d5a8a] text-white text-[14px] font-semibold hover:bg-[#244c76] transition-colors shrink-0"
+            >
+              Ariza qoldirish
+              {/* Hero CTA'dagi kabi: oq doirada diagonal strelka, hover'da buriladi */}
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#2d5a8a] transition-transform group-hover:rotate-45">
+                <ArrowUpRight className="h-4 w-4" />
+              </span>
+            </CrmApplyButton>
+          ) : (
+            <a
+              href={SUPPORT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`hidden md:inline-flex items-center gap-2 h-9 px-4 rounded-full text-[14px] font-medium transition-colors shrink-0 ${
+                night ? "bg-[#5b87c0] text-white hover:bg-[#4f79b0]" : "bg-[#7ea2d4] text-white hover:bg-[#5b87c0]"
+              }`}
+            >
+              <MessageCircle className="w-4 h-4" />
+              Yordam
+            </a>
+          )}
 
           {/* Mobile Menu Trigger */}
           <button

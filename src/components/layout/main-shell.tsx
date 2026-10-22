@@ -4,15 +4,19 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Navbar } from "./navbar";
 import { PageTransition } from "@/components/page-transition";
-import { SocialCtaModal } from "@/components/social-cta/social-cta-modal";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { CrmApplyProvider } from "@/components/crm/crm-apply";
+import { SocialCtaModal } from "@/components/social-cta/social-cta-modal";
+import { isCrmPage } from "@/lib/crm-pages";
 
 export function MainShell({
   children,
   footer,
+  crmFooter,
 }: {
   children: React.ReactNode;
   footer: React.ReactNode;
+  crmFooter: React.ReactNode;
 }) {
   const pathname = usePathname();
   const isChromelessPage =
@@ -26,8 +30,7 @@ export function MainShell({
   // Yopiq demo / pitch sahifalari — o'z layout'ida ishlaydi, navbar/footer kerakmas.
   const isLanding =
     pathname.startsWith("/hamkorlik/demo") ||
-    pathname.startsWith("/hamkorlik/seo") ||
-    pathname === "/testplay";
+    pathname.startsWith("/hamkorlik/seo");
   const hideChrome = isDashboard || isAdmin || isAuth || isLanding || isChromelessPage;
 
   // Dashboard da body qora bo'lishi kerak. Admin'da AdminThemeProvider o'zi body'ni
@@ -66,13 +69,15 @@ export function MainShell({
     return <>{children}</>;
   }
 
+  // CrmApplyProvider shu yerda: navbar va sahifa ichidagi ariza tugmalari bitta modalni ochadi.
   return (
-    <>
+    <CrmApplyProvider>
       <SmoothScroll />
       <Navbar />
       <main className="flex-1"><PageTransition>{children}</PageTransition></main>
-      {footer}
-      <SocialCtaModal />
-    </>
+      {isCrmPage(pathname) ? crmFooter : footer}
+      {/* Ijtimoiy tarmoq modali — faqat katalog sahifalarida, CRM sahifasida emas */}
+      {!isCrmPage(pathname) && <SocialCtaModal />}
+    </CrmApplyProvider>
   );
 }

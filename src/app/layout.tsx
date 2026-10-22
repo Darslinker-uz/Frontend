@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { MainShell } from "@/components/layout/main-shell";
 import { Footer } from "@/components/layout/footer";
+import { CrmFooter } from "@/components/crm/crm-footer";
 import { Providers } from "@/components/providers";
 
 const outfit = Outfit({
@@ -99,7 +100,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-outfit)]">
         <Providers>
-          <MainShell footer={<Footer />}>{children}</MainShell>
+          <MainShell footer={<Footer />} crmFooter={<CrmFooter />}>{children}</MainShell>
         </Providers>
         {process.env.NODE_ENV === "production" && (
           <Script id="microsoft-clarity" strategy="afterInteractive">

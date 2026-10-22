@@ -1,10 +1,10 @@
-export function DarslinkerLogo({ size = 32 }: { size?: number }) {
+export function DarslinkerLogo({ size = 32, animated = true }: { size?: number; animated?: boolean }) {
   const layerSize = size * 0.7;
   const radius = size * 0.15;
   const offset = size * 0.15;
 
   return (
-    <div className="dl-logo dl-anim" style={{ width: size, height: size, position: "relative" }}>
+    <div className={animated ? "dl-logo dl-anim" : "dl-logo"} style={{ width: size, height: size, position: "relative" }}>
       <div
         className="dl-layer dl-back"
         style={{

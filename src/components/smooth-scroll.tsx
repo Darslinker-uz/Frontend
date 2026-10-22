@@ -15,6 +15,35 @@ export function scrollToTop() {
   else window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// Sahifadagi bo'limga silliq o'tish (navbar havolalari). Bo'lim `scroll-margin-top` (scroll-mt-*)
+// qadar navbar ostida to'xtaydi. Harakatni kamaytirish yoqilgan bo'lsa — darhol.
+export function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const offset = -(parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (instance && !reduced) {
+    instance.scrollTo(el, { offset, duration: 1.2, easing: (t) => 1 - Math.pow(1 - t, 4) });
+  } else {
+    el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+  }
+}
+
+// Elementni ekranning qoq o'rtasiga silliq olib kelish. Element ekrandan baland bo'lsa —
+// tepasi navbar (88px) ostiga keladi.
+export function scrollToCenter(el: HTMLElement) {
+  const rect = el.getBoundingClientRect();
+  const NAV = 88;
+  const free = window.innerHeight - NAV;
+  const offset = rect.height < free ? -(NAV + (free - rect.height) / 2) : -NAV;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (instance && !reduced) {
+    instance.scrollTo(el, { offset, duration: 1, easing: (t) => 1 - Math.pow(1 - t, 3) });
+  } else {
+    window.scrollTo({ top: window.scrollY + rect.top + offset, behavior: reduced ? "auto" : "smooth" });
+  }
+}
+
 // Inertsiyali (yumshoq) g'ildirak scroll'i — faqat ochiq sahifalarda (MainShell).
 // Sensorli ekranda brauzerning o'z scroll'i qoladi; `prefers-reduced-motion`
 // yoqilgan bo'lsa Lenis o'zi o'chadi.
