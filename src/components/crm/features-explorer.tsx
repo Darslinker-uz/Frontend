@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { scrollToCenter } from "@/components/smooth-scroll";
+import { centerAfterLayout } from "@/components/smooth-scroll";
 import { Users, CalendarDays, ClipboardCheck, Wallet, KanbanSquare, LayoutDashboard, FileSpreadsheet, ShieldCheck, Trophy, Check, AlertTriangle, ChevronDown, type LucideIcon } from "lucide-react";
 
 // "Darslinker imkoniyatlari" — 9 ta asosiy CRM/LMS imkoniyati (MVP), sticky scroll ko'rinishida:
@@ -243,20 +243,19 @@ function MobileFolder() {
   const [open, setOpen] = useState(-1); // boshida hammasi yopiq
   const cards = useRef<(HTMLElement | null)[]>([]);
 
-  // Ochilgan varaq ochilish animatsiyasi (500ms) tugagach ekranning qoq o'rtasiga silliq keladi —
-  // shu paytda yuqoridagi yopilgan varaq ham joyini bo'shatib bo'lgan bo'ladi.
+  // Qotmaslik uchun balandlik ANIMATSIYASIZ o'zgaradi (sahifa bir marta qayta hisoblanadi, har kadrda emas);
+  // ichki kontent faqat opacity/transform bilan (GPU) paydo bo'ladi. Scroll keyingi kadrda, haqiqiy
+  // o'lchamlar bo'yicha boshlanadi — yuqorida yopilgan varaq ham hisobga olingan bo'ladi.
   const toggle = (i: number) => {
     const next = open === i ? -1 : i;
     setOpen(next);
-    if (next === -1) return;
-    window.setTimeout(() => {
-      const el = cards.current[next];
-      if (el) scrollToCenter(el);
-    }, 520);
+    const el = cards.current[i];
+    if (next !== -1 && el) centerAfterLayout(el);
   };
 
   return (
     <div className="mt-8 lg:hidden">
+      <style>{"@keyframes fold-in { from { opacity: 0; transform: translateY(-8px) } to { opacity: 1; transform: none } }"}</style>
       {FEATURES.map((f, i) => {
         const on = i === open;
         const dark = i >= FOLDER_DARK_FROM;
@@ -273,7 +272,7 @@ function MobileFolder() {
                 aria-expanded={on}
                 aria-controls={`feature-folder-${f.id}`}
                 onClick={() => toggle(i)}
-                className={`flex w-full items-center gap-3 px-5 pt-5 text-left transition-[padding] duration-500 ${on ? "pb-4" : "pb-8"} ${dark ? "text-white" : "text-[#16181a]"}`}
+                className={`flex w-full items-center gap-3 px-5 pt-5 text-left ${on ? "pb-4" : "pb-8"} ${dark ? "text-white" : "text-[#16181a]"}`}
               >
                 <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] ${dark ? "bg-white/15" : "bg-white/70"}`}>
                   <f.Icon aria-hidden="true" className="h-[18px] w-[18px]" />
@@ -283,8 +282,8 @@ function MobileFolder() {
                 <ChevronDown aria-hidden="true" className={`h-5 w-5 shrink-0 transition-transform duration-300 ${on ? "rotate-180" : ""}`} />
               </button>
             </h3>
-            <div id={`feature-folder-${f.id}`} className={`grid transition-[grid-template-rows] duration-500 ease-out ${on ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-              <div className="overflow-hidden">
+            <div id={`feature-folder-${f.id}`} hidden={!on}>
+              <div className={on ? "motion-safe:animate-[fold-in_.32s_cubic-bezier(0.22,1,0.36,1)_both]" : ""}>
                 <div className="px-5 pb-9">
                   <ul className="space-y-2">
                     {f.points.map((p) => (

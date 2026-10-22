@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { CrmApplyButton, type CrmPlan } from "@/components/crm/crm-apply";
-import { scrollToCenter } from "@/components/smooth-scroll";
+import { centerAfterLayout } from "@/components/smooth-scroll";
 
 // Tariflar bo'limi. Ma'lumot — docs PRODUCT.md, 7-bo'lim. Kartalarda faqat asosiy narx;
 // qo'shimcha o'quvchi to'lovi faqat FAQ'da (SPEC 2-bo'lim). Chegirmalar: 6 oyga −10%, 12 oyga −20%.
@@ -16,7 +16,6 @@ export type PlanInfo = {
   name: string;
   price: string;
   unit: string;
-  students: string;
   audience: string; // kimlar uchun — mobil kartada nom va narx ostida
   features: string[];
   featured?: boolean;
@@ -175,19 +174,39 @@ export function PricingSection({ plans }: { plans: PlanInfo[] }) {
 function MobilePlans({ plans, period, t }: { plans: PlanInfo[]; period: number; t: Theme }) {
   // Bir vaqtda bitta tarif ochiq: boshqasi ochilsa, oldingisi yopiladi.
   const [openId, setOpenId] = useState<string | null>(null);
+  const cards = useRef<Record<string, HTMLElement | null>>({});
+
+  // Qotmaslik uchun balandlik ANIMATSIYASIZ o'zgaradi; ichki kontent faqat opacity/transform bilan paydo
+  // bo'ladi. Scroll keyingi kadrda haqiqiy o'lchamlar bo'yicha — yuqorida yopilgan karta ham hisobga olinadi.
+  const open = (id: string) => {
+    setOpenId(id);
+    const el = cards.current[id];
+    if (el) centerAfterLayout(el);
+  };
+
   return (
+    <>
+    <style>{"@keyframes fold-in { from { opacity: 0; transform: translateY(-8px) } to { opacity: 1; transform: none } }"}</style>
     <ol className="mt-6 space-y-5 lg:hidden">
       {plans.map((p) => (
         <li key={p.id}>
-          <MobilePlan p={p} period={period} t={t} open={openId === p.id} onOpen={() => setOpenId(p.id)} onClose={() => setOpenId(null)} />
+          <MobilePlan
+            p={p}
+            period={period}
+            t={t}
+            open={openId === p.id}
+            onOpen={() => open(p.id)}
+            onClose={() => setOpenId(null)}
+            cardRef={(el) => { cards.current[p.id] = el; }}
+          />
         </li>
       ))}
     </ol>
+    </>
   );
 }
 
-function MobilePlan({ p, period, t, open, onOpen, onClose }: { p: PlanInfo; period: number; t: Theme; open: boolean; onOpen: () => void; onClose: () => void }) {
-  const cardRef = useRef<HTMLElement>(null);
+function MobilePlan({ p, period, t, open, onOpen, onClose, cardRef }: { p: PlanInfo; period: number; t: Theme; open: boolean; onOpen: () => void; onClose: () => void; cardRef: (el: HTMLElement | null) => void }) {
   const { months, discount } = PERIODS[period];
   const monthly = toNumber(p.price) * (1 - discount);
   const f = p.featured;
@@ -195,16 +214,14 @@ function MobilePlan({ p, period, t, open, onOpen, onClose }: { p: PlanInfo; peri
   const panelId = `plan-m-${p.id}`;
 
   // Yopiq kartaning istalgan joyiga bosish — ochadi; ochiq kartaga qayta bosish hech narsa qilmaydi.
-  // Yopish faqat "Yopish" tugmasi orqali yoki boshqa karta ochilganda. Ochilish animatsiyasi (500ms)
-  // tugagach karta ekranning qoq o'rtasiga silliq keladi (imkoniyatlar papkasidagidek).
+  // Yopish faqat "Yopish" tugmasi orqali yoki boshqa karta ochilganda.
   const openCard = () => {
     if (open) return;
     onOpen();
-    window.setTimeout(() => cardRef.current && scrollToCenter(cardRef.current), 520);
   };
 
   return (
-    <article ref={cardRef} onClick={openCard} className={`relative rounded-[22px] transition-colors duration-500 ${open ? "" : "cursor-pointer"} ${f ? t.feat : t.card}`}>
+    <article ref={cardRef} onClick={openCard} className={`relative rounded-[22px] transition-colors duration-300 ${open ? "" : "cursor-pointer"} ${f ? t.feat : t.card}`}>
       <div className="px-5 pt-5">
         <div className="flex items-start justify-between gap-3">
           <h3 className="pt-0.5 text-[22px] font-bold leading-none">{p.name}</h3>
@@ -217,8 +234,8 @@ function MobilePlan({ p, period, t, open, onOpen, onClose }: { p: PlanInfo; peri
         <p className={`mt-3 text-[14px] leading-relaxed ${muted}`}>{p.audience}</p>
       </div>
 
-      <div id={panelId} className={`grid transition-[grid-template-rows] duration-500 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-        <div className="overflow-hidden">
+      <div id={panelId} hidden={!open}>
+        <div className={open ? "motion-safe:animate-[fold-in_.32s_cubic-bezier(0.22,1,0.36,1)_both]" : ""}>
           <div className="px-5 pt-4">
             {months > 1 && <p className={`text-[12px] ${muted}`}>{months} oyga jami: {formatSum(monthly * months)} so&apos;m</p>}
             <ul className={`mt-3 space-y-2.5 border-t pt-4 ${f ? t.featLine : t.line}`}>

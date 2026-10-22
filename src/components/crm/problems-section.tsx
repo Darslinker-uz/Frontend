@@ -84,6 +84,10 @@ export function ProblemsSection() {
               </article>
             </li>
           ))}
+          {/* Bo'sh "yo'lak": oxirgi karta ham taxlangach, dasta shu masofa davomida joyida turadi —
+              keyingi matn (sarlavha) shu vaqt ekrandan pastda qoladi va faqat dasta yig'ilib bo'lgach,
+              u bilan birga yuqoriga chiqa boshlaydi. */}
+          <li aria-hidden="true" className="h-[27.5svh]" />
         </ol>
         <div className="hidden lg:block">
         <TiltOnScroll

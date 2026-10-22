@@ -44,6 +44,12 @@ export function scrollToCenter(el: HTMLElement) {
   }
 }
 
+// Karta ochilgandan (React yangilagan, brauzer joylashuvni hisoblagan) keyin uni ekran o'rtasiga olib kelish.
+// Ikki kadr kutiladi: birinchisida DOM yangilanadi, ikkinchisida o'lchamlar aniq.
+export function centerAfterLayout(el: HTMLElement) {
+  requestAnimationFrame(() => requestAnimationFrame(() => scrollToCenter(el)));
+}
+
 // Inertsiyali (yumshoq) g'ildirak scroll'i — faqat ochiq sahifalarda (MainShell).
 // Sensorli ekranda brauzerning o'z scroll'i qoladi; `prefers-reduced-motion`
 // yoqilgan bo'lsa Lenis o'zi o'chadi.

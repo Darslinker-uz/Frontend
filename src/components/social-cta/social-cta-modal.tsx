@@ -208,14 +208,19 @@ export function SocialCtaModal() {
     };
   }, [pathname, status, isStaff, modal]);
 
-  // Modal ochilganda: fon aylanmasin, fokus dialogga (animatsiyani CSS bajaradi).
+  // Modal ochilganda: fon aylanmasin (scrollbar yo'qolganda sahifa siljimasligi uchun kengligi to'ldiriladi), fokus dialogga.
   useEffect(() => {
     if (!modal) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const body = document.body;
+    const prevOverflow = body.style.overflow;
+    const prevPadding = body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) body.style.paddingRight = `${scrollbarWidth}px`;
     dialogRef.current?.focus({ preventScroll: true });
     return () => {
-      document.body.style.overflow = prevOverflow;
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPadding;
     };
   }, [modal]);
 
@@ -272,7 +277,7 @@ export function SocialCtaModal() {
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="dlcta-card relative max-h-[calc(100dvh-2rem)] w-full max-w-[420px] overflow-y-auto overscroll-contain rounded-[28px] bg-white shadow-[0_30px_80px_-20px_rgba(11,13,16,0.55)] outline-none"
+        className="dlcta-card relative w-full max-w-[420px] overflow-hidden rounded-[28px] bg-white shadow-[0_30px_80px_-20px_rgba(11,13,16,0.55)] outline-none"
       >
         {/* Yumshoq fon nuri: chapda Instagram, o'ngda Telegram ranglari */}
         <span
@@ -295,7 +300,7 @@ export function SocialCtaModal() {
           <X className="h-[18px] w-[18px]" />
         </button>
 
-        <div className="relative px-5 pb-6 pt-12 sm:px-8">
+        <div className="relative px-5 pb-6 pt-12 sm:px-8 [@media(max-height:480px)]:pb-4 [@media(max-height:480px)]:pt-9">
           <div className="dlcta-rise flex justify-center" style={delay(0.15)}>
             <span className="inline-flex items-center rounded-full bg-[#eef3fa] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#16181a]">
               Rasmiy sahifalarimiz
@@ -304,14 +309,14 @@ export function SocialCtaModal() {
 
           <h2
             id={titleId}
-            className="dlcta-rise mt-4 text-center text-[21px] font-bold leading-snug tracking-[-0.01em] text-[#16181a] min-[360px]:text-[24px] sm:text-[27px]"
+            className="dlcta-rise mt-4 text-center text-[21px] font-bold leading-snug tracking-[-0.01em] text-[#16181a] min-[360px]:text-[24px] sm:text-[27px] [@media(max-height:480px)]:mt-2.5 [@media(max-height:480px)]:text-[20px]"
             style={delay(0.22)}
           >
             <span className="block">{"Darslinker'ni ijtimoiy"}</span>
             <span className="block">{"tarmoqlarda kuzating"}</span>
           </h2>
 
-          <div className="mt-7 space-y-3">
+          <div className="mt-7 space-y-3 [@media(max-height:480px)]:mt-4 [@media(max-height:480px)]:space-y-2">
             <SocialButton
               href={INSTAGRAM_URL}
               label="Instagramga o'tish"
@@ -360,7 +365,7 @@ function SocialButton({
       target="_blank"
       rel="noopener noreferrer"
       onClick={onClick}
-      className="dlcta-rise group relative flex h-[62px] w-full items-center gap-3 overflow-hidden rounded-[18px] px-3 text-white shadow-[0_10px_22px_-10px_rgba(22,24,26,0.5)] transition-[translate,box-shadow,scale] duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_30px_-12px_rgba(22,24,26,0.55)] active:translate-y-0 active:scale-[0.985]"
+      className="dlcta-rise group relative flex h-[62px] [@media(max-height:480px)]:h-[52px] w-full items-center gap-3 overflow-hidden rounded-[18px] px-3 text-white shadow-[0_10px_22px_-10px_rgba(22,24,26,0.5)] transition-[translate,box-shadow,scale] duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_30px_-12px_rgba(22,24,26,0.55)] active:translate-y-0 active:scale-[0.985]"
       style={{ ...style, background: gradient }}
     >
       <span className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/30 opacity-0 transition-all duration-700 ease-out group-hover:left-[120%] group-hover:opacity-100" />

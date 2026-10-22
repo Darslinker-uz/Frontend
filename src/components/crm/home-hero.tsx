@@ -55,7 +55,10 @@ export function HomeHero() {
     // Fon — "Aurora": sekin suzuvchi yumshoq ko'k/binafsha nurlar.
     // Qatlam navbar ortiga ham (-62px) chiqadi: tepada navbar shaffof, chok ko'rinmasin.
     // overflow-x-clip — nurlar gorizontal scroll yaratmasin, lekin yuqoriga chiqishi kesilmasin.
-    <div className="relative isolate flex min-h-[calc(100dvh-62px)] flex-col justify-start overflow-x-clip pt-[10dvh] pb-[96px] lg:justify-center lg:pt-12 lg:pb-[64px]">
+    // Mobil/planshetda viewport birliklari (vh/svh/dvh) YO'Q: manzil paneli yashirinib-chiqqanda ekran
+    // balandligi o'zgaradi va hero cho'zilib "sakraydi". Balandlik faqat kontent + qat'iy padding'dan.
+    // lg+: brauzer paneli harakatlanmaydi — markazlash uchun ekran balandligi qoladi.
+    <div className="relative isolate flex flex-col justify-start overflow-x-clip pt-6 pb-[136px] sm:pt-14 lg:min-h-[calc(100dvh-62px)] lg:justify-center lg:pt-12 lg:pb-[64px]">
       <style>{`
         @keyframes hb-float-a { 0%,100% { transform: translate(0,0) scale(1) } 50% { transform: translate(-40px,30px) scale(1.08) } }
         @keyframes hb-float-b { 0%,100% { transform: translate(0,0) scale(1) } 50% { transform: translate(50px,-30px) scale(0.94) } }
@@ -71,7 +74,7 @@ export function HomeHero() {
         {/* Pastki qism sahifa rangiga so'nadi — keyingi bo'lim bilan chok ko'rinmasin */}
         <span className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[#f0f2f3]" />
       </div>
-      <section className="w-full max-w-[1600px] mx-auto px-5 md:px-20 py-6 md:py-8 lg:-translate-y-[6%]">
+      <section className="w-full max-w-[1600px] mx-auto px-5 md:px-20 py-6 md:py-8 lg:-translate-y-[16%]">
         <div className="grid lg:grid-cols-[1fr_1fr] lg:grid-rows-[auto_auto] lg:gap-x-10">
           <div className="mx-auto hidden w-full max-w-[540px] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:block lg:self-center">
             <HeroPicture
