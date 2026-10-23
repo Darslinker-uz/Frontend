@@ -9,10 +9,10 @@ import { TiltOnScroll } from "@/components/crm/tilt-on-scroll";
 // scroll'da pastga tushganda ochiladi.
 
 const CARDS = [
-  { Icon: Wallet, context: "To‘lov kechikishi", label: "Qarzdorlik", title: "Qarzdorlik vaqtida bilinmaydi", text: "To‘lovlar turli joyda qayd etilsa, kim qancha to‘lagani va kimga eslatish kerakligini aniqlash qiyinlashadi.", note: "To‘lovlar va qarzlar bir joyda ko‘rinadi.", tilt: "-6deg" },
-  { Icon: CalendarDays, context: "Jadval chalkashligi", label: "Guruhlar", title: "Guruh vaqtlari chalkashadi", text: "Jadval o‘zgarsa, bo‘sh joy yoki to‘lib qolgan guruhni aniqlash qiyinlashadi. O‘quvchi uchun mos vaqt topish ham cho‘ziladi.", note: "Guruhlar va dars vaqtlari tartibda bo‘ladi.", tilt: "4deg" },
-  { Icon: Users, context: "O‘quvchi passivligi", label: "Davomat", title: "O‘quvchi qatnovi kamayadi", text: "O‘quvchi darslarni tez-tez qoldira boshlaydi, lekin bu o‘zgarish vaqtida sezilmaydi. Holbuki, erta gaplashib sababini bilish mumkin.", note: "Davomatdan qatnovdagi o‘zgarish seziladi.", tilt: "-4deg" },
-  { Icon: TrendingDown, context: "Kursni tark etish", label: "Davomiylik", title: "O‘quvchi erta tark etadi", text: "O‘quvchi ketgach sababini so‘rash ko‘pincha kech bo‘ladi. Ketishidan oldingi belgilarni kuzatish esa qiyin.", note: "O‘quvchi holatini kuzatib, vaqtida bog‘laning.", tilt: "6deg" },
+  { Icon: Wallet, context: "To'lov kechikishi", label: "Qarzdorlik", title: "Qarzdorlik vaqtida bilinmaydi", text: "To'lovlar turli joyda qayd etilsa, kim qancha to'lagani va kimga eslatish kerakligini aniqlash qiyinlashadi.", note: "To'lovlar va qarzlar bir joyda ko'rinadi.", tilt: "-6deg" },
+  { Icon: CalendarDays, context: "Jadval chalkashligi", label: "Guruhlar", title: "Guruh vaqtlari chalkashadi", text: "Jadval o'zgarsa, bo'sh joy yoki to'lib qolgan guruhni aniqlash qiyinlashadi. O'quvchi uchun mos vaqt topish ham cho'ziladi.", note: "Guruhlar va dars vaqtlari tartibda bo'ladi.", tilt: "4deg" },
+  { Icon: Users, context: "O'quvchi passivligi", label: "Davomat", title: "O'quvchi qatnovi kamayadi", text: "O'quvchi darslarni tez-tez qoldira boshlaydi, lekin bu o'zgarish vaqtida sezilmaydi. Holbuki, erta gaplashib sababini bilish mumkin.", note: "Davomatdan qatnovdagi o'zgarish seziladi.", tilt: "-4deg" },
+  { Icon: TrendingDown, context: "Kursni tark etish", label: "Davomiylik", title: "O'quvchi erta tark etadi", text: "O'quvchi ketgach sababini so'rash ko'pincha kech bo'ladi. Ketishidan oldingi belgilarni kuzatish esa qiyin.", note: "O'quvchi holatini kuzatib, vaqtida bog'laning.", tilt: "6deg" },
 ];
 
 type Four = [string, string, string, string];
@@ -100,7 +100,8 @@ export function ProblemsSection() {
               </div>
               <div className={`mt-9 flex min-h-[124px] flex-col rounded-[16px] border p-4 ${t.panels[i]}`}>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-80">{label}</p>
-                <h3 className="mt-3 text-[24px] leading-[1.15] font-semibold tracking-[-0.025em]">{title}</h3>
+                {/* Mobil "Dasta"da haqiqiy <h3> bor; bu yerda role="heading" — HTML'da sarlavhalar takrorlanmasin. */}
+                <div role="heading" aria-level={3} className="mt-3 text-[24px] leading-[1.15] font-semibold tracking-[-0.025em]">{title}</div>
               </div>
               <p className={`mt-5 flex-1 text-[16px] leading-[1.65] ${t.body[i]}`}>{text}</p>
             </article>
@@ -108,11 +109,11 @@ export function ProblemsSection() {
         </TiltOnScroll>
         </div>
         {/* Sarlavha mobilda ikki qator: "Boshqaruvni" ostidagi qator eniga cho'ziladi
-            (w-0 + min-w-full konteynerni kengaytirmaydi, textLength yoyadi). */}
+            (w-0 + min-w-full konteynerni kengaytirmaydi, textLength yoyadi).
+            Cho'zilgan SVG so'z <h2> dan tashqarida — sarlavha matni "Boshqaruvni boshqaruvni…" bo'lib qolmasin. */}
         <div className="mx-auto mt-6 max-w-[680px] text-center md:mt-8 md:px-5">
           <p className="hidden text-[34px] font-semibold tracking-[-0.02em] leading-[48px] text-[#4b525c] xl:hidden">Sizda ham shu muammolar bormi?</p>
-          <h2 id="problems-title" className="mt-3 inline-flex flex-col items-stretch whitespace-nowrap text-[length:min(40px,calc((100vw_-_40px)/13))] leading-tight font-semibold tracking-[-0.035em] text-[#16181a] md:block md:text-[40px]">
-            <span className="sr-only md:not-sr-only">Boshqaruvni </span>
+          <div className="mt-3 inline-flex flex-col items-stretch md:block">
             <span aria-hidden="true" className="mb-1 block w-0 min-w-full md:hidden">
               <svg viewBox="0 0 560 100" className="block h-auto w-full overflow-visible">
                 <text x="0" y="76" textLength="560" lengthAdjust="spacingAndGlyphs" fill="#16181a" fontSize="100" fontWeight="600">
@@ -120,8 +121,11 @@ export function ProblemsSection() {
                 </text>
               </svg>
             </span>
-            <span>Dars<span className="text-[#2d5a8a]">Linker</span>ga topshiring!</span>
-          </h2>
+            <h2 id="problems-title" className="whitespace-nowrap text-[length:min(40px,calc((100vw_-_40px)/13))] leading-tight font-semibold tracking-[-0.035em] text-[#16181a] md:text-[40px]">
+              <span className="sr-only md:not-sr-only">Boshqaruvni </span>
+              <span>Dars<span className="text-[#2d5a8a]">Linker</span>ga topshiring!</span>
+            </h2>
+          </div>
         </div>
       </div>
 

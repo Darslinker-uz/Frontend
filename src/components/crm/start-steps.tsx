@@ -52,7 +52,7 @@ function Heading({ center = false, light = false }: { center?: boolean; light?: 
     <div className={`max-w-[680px] ${center ? "mx-auto text-center" : ""}`}>
       <p className={`text-[13px] font-semibold uppercase tracking-[0.08em] ${light ? "text-[#9fbce3]" : "text-[#5b87c0]"}`}>Qanday boshlanadi</p>
       <h2 id="steps-title" className={`mt-3 text-[32px] font-bold leading-[1.05] tracking-[-0.035em] md:whitespace-nowrap md:text-[48px] ${light ? "text-white" : "text-[#16181a]"}`}>
-        Darslinker&apos;ga to‘rt qadamda o‘ting.
+        Darslinker&apos;ga to&apos;rt qadamda o&apos;ting.
       </h2>
       <p className={`mt-4 text-[16px] font-light leading-relaxed md:text-[19px] ${light ? "text-white/60" : "text-[#5d6672]"}`}>
         Ariza qoldiring, markazingiz uchun tizim ochamiz,<br className="hidden md:block" /> ma&apos;lumotlarni ko&apos;chiring va 14 kun sinab ko&apos;ring.

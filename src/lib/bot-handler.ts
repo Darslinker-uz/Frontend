@@ -771,6 +771,34 @@ export async function notifyPartnerApplication(params: {
   await notifySuperAdmin(lines.join("\n"));
 }
 
+// CRM/LMS "Ariza qoldirish" formasi (bosh sahifa). Ariza bazaga yozilmaydi — Telegram yagona
+// manzil, shuning uchun yetkazilmasa xato tashlanadi (forma foydalanuvchiga xatoni ko'rsatadi).
+export async function notifyCrmApplication(params: {
+  name: string;
+  phone: string;
+  centerName: string;
+  students: string;
+  plan: string;
+  ref: string;
+}) {
+  const chatId = process.env.TELEGRAM_SUPER_ADMIN_CHAT_ID;
+  if (!chatId) throw new Error("TELEGRAM_SUPER_ADMIN_CHAT_ID yo'q");
+  const lines = [
+    "🚀 <b>Yangi CRM/LMS arizasi</b>",
+    "",
+    `🏫 <b>Markaz:</b> ${escHtml(params.centerName)}`,
+    `👥 <b>O'quvchilar:</b> ${escHtml(params.students || "—")}`,
+    `💳 <b>Tarif:</b> ${escHtml(params.plan)}`,
+    "",
+    `👤 <b>Ism:</b> ${escHtml(params.name)}`,
+    `📞 <b>Telefon:</b> ${escHtml(params.phone)}`,
+    `🕐 <b>Vaqt:</b> ${escHtml(formatTashkent(new Date()))}`,
+    `🔗 <b>Manba:</b> ${escHtml(params.ref)}`,
+  ];
+  const sent = await sendMessage(chatId, lines.join("\n"), { parse_mode: "HTML", disable_web_page_preview: true });
+  if (!sent) throw new Error("Telegram'ga yuborilmadi");
+}
+
 // Teacher's listing approved by admin
 export async function notifyListingApproved(params: {
   teacherChatId: string;

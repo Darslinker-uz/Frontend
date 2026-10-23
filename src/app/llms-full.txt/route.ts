@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { CRM_DESCRIPTION, CRM_FEATURES, FAQS, PLANS, TAGLINE } from "@/lib/crm-content";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
@@ -115,16 +116,53 @@ export async function GET() {
   const lines: string[] = [];
 
   // Header
-  lines.push("# Darslinker.uz — Full Site Content");
+  lines.push("# Darslinker — Full Site Content");
   lines.push("");
-  lines.push("> O'zbekistondagi online va offline o'quv kurslarini bir joydan topish, solishtirish va to'g'ri tanlash uchun yagona aggregator platformasi. Quyida saytning to'liq mazmuni AI agentlar uchun strukturalashtirilgan markdown formatda.");
+  lines.push(`> ${TAGLINE}`);
+  lines.push("");
+  lines.push(CRM_DESCRIPTION);
   lines.push("");
   lines.push(`**Sayt URL:** ${SITE_URL}`);
   lines.push(`**Til:** O'zbek (uz_UZ)`);
-  lines.push(`**Geografiya:** O'zbekiston, 14 viloyat`);
+  lines.push(`**Geografiya:** O'zbekiston`);
   lines.push(`**Yangilangan:** ${new Date().toISOString().split("T")[0]}`);
   lines.push("");
   lines.push("---");
+  lines.push("");
+
+  // CRM/LMS — asosiy mahsulot (ma'lumot: src/lib/crm-content.ts)
+  lines.push("## Darslinker CRM va LMS");
+  lines.push("");
+  lines.push(`**URL:** ${SITE_URL}/`);
+  lines.push("");
+  lines.push("Kimlar uchun: xususiy o'quv markazlari (til, IT, abituriyentlarga tayyorlov va boshqa yo'nalishlar) va repetitorlar.");
+  lines.push("");
+  lines.push("### Imkoniyatlar (har bir tarifda bor)");
+  lines.push("");
+  for (const f of CRM_FEATURES) lines.push(`- ${f}`);
+  lines.push("");
+  lines.push("### Tariflar");
+  lines.push("");
+  lines.push("| Tarif | Narx (so'm/oy) | Hajm | Kimlar uchun |");
+  lines.push("| --- | --- | --- | --- |");
+  for (const p of PLANS) lines.push(`| ${p.name} | ${p.price} | ${p.features.slice(0, 2).join(", ")} | ${p.audience} |`);
+  lines.push("| Individual | Kelishuv | 1 500 dan ortiq o'quvchi yoki ko'p filialli tarmoq | Katta tarmoqlar uchun |");
+  lines.push("");
+  lines.push("Chegirma: 6 oyga to'lovda 10%, 12 oyga to'lovda 20%. 14 kun bepul sinov, karta talab qilinmaydi.");
+  lines.push("");
+  lines.push("### Ko'p so'raladigan savollar");
+  lines.push("");
+  for (const f of FAQS) {
+    lines.push(`**${f.q}**`);
+    lines.push("");
+    lines.push(f.a);
+    lines.push("");
+  }
+  lines.push("---");
+  lines.push("");
+  lines.push("# Kurslar marketplace'i (katalog)");
+  lines.push("");
+  lines.push(`O'quvchilar uchun kurslar, o'quv markazlari va repetitorlar katalogi: ${SITE_URL}/marketplace`);
   lines.push("");
 
   // Groups

@@ -1,51 +1,45 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FaqList } from "@/components/faq-item";
+import { CRM_FEATURES, PLANS, TAGLINE } from "@/lib/crm-content";
+import { SHARE_OG, SHARE_TWITTER } from "@/lib/share-meta";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
+// Kompaniya sahifasi. 2026-10-23 dan Darslinker'ning asosiy mahsuloti — o'quv markazlari uchun
+// CRM va LMS; kurslar katalogi /marketplace da davom etadi. Faktlar — src/lib/crm-content.ts va
+// egasining ma'lumotlari (tarix jadvali). Tasdiqlanmagan raqam yoki va'da qo'shilmaydi.
+
+const TITLE = "Darslinker haqida — o'quv markazlari uchun CRM va LMS platformasi";
+const DESCRIPTION =
+  "Darslinker — O'zbekistondagi o'quv markazlari uchun interaktiv CRM va LMS platformasi: davomat, to'lov va qarzdorlik, jonli quiz va ota-onaga Telegram xabarlari bitta tizimda.";
+
 export const metadata: Metadata = {
-  title: "Darslinker haqida — O'zbekistonning kurslar platformasi",
-  description:
-    "Darslinker — O'zbekistonda kurslar va o'quv markazlarini bir joyda topish, qiyoslash va tanlash uchun ta'lim platformasi. Toshkent va barcha viloyatlar.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: `${SITE_URL}/haqimizda` },
-  openGraph: {
-    type: "website",
-    locale: "uz_UZ",
-    url: `${SITE_URL}/haqimizda`,
-    siteName: "Darslinker.uz",
-    title: "Darslinker haqida — O'zbekistonning kurslar platformasi",
-    description:
-      "Darslinker — O'zbekistonda kurslar va o'quv markazlarini bir joyda topish, qiyoslash va tanlash uchun ta'lim platformasi.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Darslinker haqida — O'zbekistonning kurslar platformasi",
-    description:
-      "Darslinker — O'zbekistonda kurslar va o'quv markazlarini bir joyda topish va qiyoslash uchun ta'lim platformasi.",
-  },
+  openGraph: { ...SHARE_OG, url: `${SITE_URL}/haqimizda`, title: TITLE, description: DESCRIPTION },
+  twitter: { ...SHARE_TWITTER, title: TITLE, description: DESCRIPTION },
 };
+
+const minPrice = PLANS[0].price;
 
 const faqs = [
   {
     q: "Darslinker nima?",
-    a: "Darslinker — O'zbekistondagi kurslar va o'quv markazlarini bir joyda topish va qiyoslash uchun ta'lim platformasi.",
+    a: "Darslinker — O'zbekistondagi o'quv markazlari uchun interaktiv CRM va LMS platformasi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi, jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
   },
   {
-    q: "Darslinker bepulmi?",
-    a: "O'quvchilar uchun katalog va qidiruv to'liq bepul. O'quv markazlari uchun esa obuna asosida ishlaydi.",
+    q: "Darslinker kimlar uchun?",
+    a: "Xususiy o'quv markazlari (til, IT, abituriyentlarga tayyorlov va boshqa yo'nalishlar) va repetitorlar uchun. Ayniqsa hali daftar yoki Excel'da ishlayotgan markazlar uchun.",
   },
   {
-    q: "Qaysi shaharlarda ishlaydi?",
-    a: "Darslinker Toshkent shahri va O'zbekistonning barcha viloyatlari bo'yicha ishlaydi.",
+    q: "Darslinker qancha turadi?",
+    a: `Tariflar oyiga ${minPrice} so'mdan boshlanadi. Barcha imkoniyatlar har bir tarifda bor, tariflar faqat o'quvchilar, filiallar va xodimlar soni bilan farq qiladi. Istalgan tarifni 14 kun bepul sinab ko'rish mumkin.`,
   },
   {
-    q: "Qanday turdagi kurslar bor?",
-    a: "Tillar, IT, akademik tayyorlov, kasbiy va boshqa yo'nalishlar — onlayn va offline formatlarda.",
-  },
-  {
-    q: "O'quv markazi sifatida qanday qo'shilish mumkin?",
-    a: "Hamkorlik sahifasi orqali ariza qoldirib, o'z markazingiz va kurslaringizni Darslinker'ga joylashtirishingiz mumkin.",
+    q: "Darslinker kurslar katalogi ishlashda davom etadimi?",
+    a: "Ha. O'quv markazlar, repetitorlar va kurslar katalogi darslinker.uz/marketplace sahifasida avvalgidek ishlaydi.",
   },
 ];
 
@@ -57,6 +51,8 @@ const jsonLd = {
       "name": "Darslinker haqida",
       "url": `${SITE_URL}/haqimizda`,
       "inLanguage": "uz",
+      "about": { "@id": `${SITE_URL}/#organization` },
+      "mainEntity": { "@id": `${SITE_URL}/#organization` },
     },
     {
       "@type": "Organization",
@@ -65,12 +61,11 @@ const jsonLd = {
       "url": SITE_URL,
       "logo": `${SITE_URL}/icon-512.png`,
       "foundingDate": "2025-09",
-      "description":
-        "O'zbekistondagi kurslar va o'quv markazlarini bir joyda topish va qiyoslash uchun ta'lim platformasi.",
+      "description": TAGLINE,
       "areaServed": { "@type": "Country", "name": "O'zbekiston" },
       "sameAs": [
         "https://t.me/darslinker",
-        "https://instagram.com/darslinker",
+        "https://www.instagram.com/darslinker",
       ],
     },
     {
@@ -83,6 +78,10 @@ const jsonLd = {
     },
   ],
 };
+
+const P = "text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed";
+const H2 = "text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4";
+const LINK = "text-[#426a9e] underline underline-offset-4 hover:text-[#16181a]";
 
 export default function HaqimizdaPage() {
   return (
@@ -98,59 +97,58 @@ export default function HaqimizdaPage() {
               Darslinker haqida
             </h1>
             <p className="mt-5 text-[16px] md:text-[18px] text-[#16181a]/75 leading-relaxed">
-              Darslinker — O&apos;zbekistondagi kurslar va o&apos;quv markazlarini bir joyda
-              topishni soddalashtiradigan ta&apos;lim platformasi. Toshkent shahri va
-              barcha viloyatlardagi sifatli kurslarni bir joyda qidiring, qiyoslang va
-              tanlang.
+              Darslinker — O&apos;zbekistondagi o&apos;quv markazlari uchun interaktiv CRM va LMS
+              platformasi. O&apos;quvchilar, guruhlar, davomat, to&apos;lov va qarzdorlik bitta
+              tizimda yuritiladi, jonli quiz va ota-onaga Telegram xabarlari esa o&apos;quvchini
+              markazda ushlab qolishga yordam beradi.
             </p>
           </header>
 
           <section className="mb-10">
-            <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">
-              Nima uchun Darslinker?
-            </h2>
-            <p className="text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed mb-4">
-              O&apos;zbekistonda ta&apos;lim talabi yildan-yilga o&apos;sib bormoqda, ammo
-              o&apos;quvchilar oldida bitta katta savol turadi: qayerdan kurs topish kerak?
+            <h2 className={H2}>Qaysi muammoni yechamiz?</h2>
+            <p className={`${P} mb-4`}>
+              Ko&apos;p o&apos;quv markazlari hali ham daftar, Excel va Telegram chatlarida ishlaydi.
+              Natijada:
             </p>
-            <ul className="space-y-2.5 text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed mb-4 pl-5 list-disc">
-              <li>
-                O&apos;quv markazlar internetda ko&apos;rinmaydi — ko&apos;pchilik
-                web-saytsiz yoki SEO ustida ishlamagan.
-              </li>
-              <li>
-                O&apos;quvchilar tarqoq ma&apos;lumotlar (Telegram kanallar, Instagram,
-                og&apos;zaki tavsiyalar) orasidan tanlashga majbur.
-              </li>
-              <li>
-                Narx, format, joylashuv va metodika bo&apos;yicha bir joyda qiyoslash
-                imkoniyati yo&apos;q edi.
-              </li>
+            <ul className={`space-y-2.5 ${P} mb-4 pl-5 list-disc`}>
+              <li>qarzdorlik vaqtida bilinmaydi — to&apos;lovlar turli joyda qayd etiladi;</li>
+              <li>guruh va dars vaqtlari chalkashadi, bo&apos;sh joyni topish qiyinlashadi;</li>
+              <li>o&apos;quvchi darslarni qoldira boshlaganini kech sezasiz;</li>
+              <li>ota-onaga xabar berish uchun pullik SMS yoki qo&apos;lda qo&apos;ng&apos;iroq kerak.</li>
             </ul>
-            <p className="text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed">
-              Darslinker shu farqni yopadi — bir joyda, filtrli va shaffof katalog.
+            <p className={P}>
+              Darslinker shu ishlarni bitta tizimga yig&apos;adi va o&apos;quvchini ushlab qolishga
+              alohida e&apos;tibor beradi.
             </p>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">
-              Bizning missiyamiz qanday?
-            </h2>
-            <p className="text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed">
+            <h2 className={H2}>Darslinker nimalar qila oladi?</h2>
+            <ul className={`space-y-2.5 ${P} pl-5 list-disc`}>
+              {CRM_FEATURES.map((f) => <li key={f}>{f}</li>)}
+            </ul>
+            <p className={`${P} mt-4`}>
+              Barcha imkoniyatlar har bir tarifda bor. Tariflar oyiga {minPrice} so&apos;mdan
+              boshlanadi va faqat o&apos;quvchilar, filiallar va xodimlar soni bilan farq qiladi —{" "}
+              <Link href="/#narxlar" className={LINK}>tariflar va narxlar</Link>.
+            </p>
+          </section>
+
+          <section className="mb-10">
+            <h2 className={H2}>Bizning missiyamiz qanday?</h2>
+            <p className={P}>
               Darslinker missiyasi —{" "}
               <strong className="text-[#16181a]">
-                o&apos;quv markazlari va o&apos;quvchilarni bir-biriga yaqinlashtirish va
-                O&apos;zbekistonda sifatli ta&apos;limni rivojlantirish
+                O&apos;zbekistondagi o&apos;quv markazlariga boshqaruvni soddalashtirish va
+                o&apos;quvchini markazda ushlab qolishga yordam berish
               </strong>
-              . Biz har ikki tarafga foyda olib keladigan ekotizim quramiz: o&apos;quvchilar
-              o&apos;ziga mos kursni topadi, markazlar haqiqiy auditoriyaga yetib boradi.
+              . Rahbar hisob-kitobga emas, ta&apos;lim sifatiga ko&apos;proq vaqt ajratsin,
+              o&apos;quvchi esa darsga qiziqib qatnasin.
             </p>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">
-              Qanday yo&apos;l bosib o&apos;tdik?
-            </h2>
+            <h2 className={H2}>Qanday yo&apos;l bosib o&apos;tdik?</h2>
             <div className="overflow-x-auto -mx-5 md:mx-0 px-5 md:px-0">
               <table className="w-full text-[15px] md:text-[16px] mb-4">
                 <tbody className="divide-y divide-[#e4e7ea]">
@@ -175,15 +173,23 @@ export default function HaqimizdaPage() {
                       19-sentyabr, 2026
                     </td>
                     <td className="py-3 text-[#16181a]/75">
-                      Ilk qadamga bir yil: olti oyda 30 dan ortiq o‘quv markazi va 3 000 ga yaqin o‘quvchi hamda ota-ona
+                      Ilk qadamga bir yil: olti oyda 30 dan ortiq o&apos;quv markazi va 3 000 ga yaqin o&apos;quvchi hamda ota-ona
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 pr-4 font-semibold text-[#16181a] whitespace-nowrap align-top">
+                      Oktyabr, 2026
+                    </td>
+                    <td className="py-3 text-[#16181a]/75">
+                      Darslinker o&apos;quv markazlari uchun CRM va LMS platformasiga aylandi; kurslar katalogi marketplace sifatida davom etadi
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <p className="text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed">
+            <p className={P}>
               Loyihaning boshlanishi, jamoamiz va dastlabki natijalar haqida{" "}
-              <Link href="/blog/darslinker-qachon-tashkil-topgan" className="text-[#426a9e] underline underline-offset-4 hover:text-[#16181a]">
+              <Link href="/blog/darslinker-qachon-tashkil-topgan" className={LINK}>
                 Darslinker tarixi: birinchi qadamdan ilk natijalargacha
               </Link>{" "}
               maqolasida batafsil yozdik.
@@ -191,71 +197,37 @@ export default function HaqimizdaPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">
-              Hozir nima taklif qilamiz?
-            </h2>
-            <ul className="space-y-3 text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed">
-              <li>
-                <strong className="text-[#16181a]">Geografik qamrov</strong> — Toshkent
-                shahri va O&apos;zbekistonning barcha viloyatlari bo&apos;yicha o&apos;quv
-                markazlari.
-              </li>
-              <li>
-                <strong className="text-[#16181a]">Turli yo&apos;nalishlar</strong> —{" "}
-                <Link
-                  href="/kurslar/g/tillar"
-                  className="text-[#7ea2d4] hover:text-[#5b87c0] underline-offset-2 hover:underline"
-                >
-                  tillar
-                </Link>
-                , IT, akademik, kasbiy va boshqa sohalar bo&apos;yicha kurslar.
-              </li>
-              <li>
-                <strong className="text-[#16181a]">Bir joyda qiyoslash</strong> — narx,
-                format (onlayn/offline), joylashuv, metodika — bir nechta kursni yonma-yon
-                ko&apos;rish.
-              </li>
-              <li>
-                <strong className="text-[#16181a]">O&apos;quvchilar uchun bepul</strong> —
-                katalog va qidiruv hech qanday to&apos;lovsiz.
-              </li>
-              <li>
-                <strong className="text-[#16181a]">O&apos;quv markazlar uchun obuna</strong>
-                {" "}— markazlar obuna asosida o&apos;z kurslarini joylashtirib, real
-                auditoriyaga yetib boradi.
-              </li>
-            </ul>
-          </section>
-
-          <section className="mb-12">
-            <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">
-              Kelajak rejalar
-            </h2>
-            <p className="text-[15.5px] md:text-[16px] text-[#16181a]/75 leading-relaxed">
-              Yaqin oylarda 500+ kursga, kelgusi yillarda 5000+ kursga yetish —
-              Darslinker&apos;ni O&apos;zbekistondagi eng to&apos;liq ta&apos;lim
-              katalogiga aylantirish maqsadimiz.
+            <h2 className={H2}>Kurslar marketplace&apos;i</h2>
+            <p className={P}>
+              O&apos;quvchilar uchun kurslar, o&apos;quv markazlari va repetitorlar katalogi
+              avvalgidek ishlaydi: Toshkent shahri va viloyatlardagi kurslarni yo&apos;nalish,
+              narx va joylashuv bo&apos;yicha solishtirish mumkin —{" "}
+              <Link href="/marketplace" className={LINK}>Darslinker marketplace</Link>.
             </p>
           </section>
 
           <section className="mb-12">
-            <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">
-              Tez-tez beriladigan savollar
-            </h2>
+            <h2 className={H2}>Tez-tez beriladigan savollar</h2>
             <FaqList items={faqs} />
           </section>
 
           <section className="border-t border-[#e4e7ea] pt-10">
-            <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">
-              Boshlang
-            </h2>
-            <Link
-              href="/kurslar"
-              className="inline-flex items-center gap-2 bg-[#16181a] hover:bg-[#16181a]/90 text-white rounded-[12px] px-6 py-3.5 text-[15px] font-semibold transition-colors"
-            >
-              Toshkent va viloyatlar bo&apos;yicha kurslarni ko&apos;rish
-              <span aria-hidden>→</span>
-            </Link>
+            <h2 className={H2}>Boshlang</h2>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 bg-[#16181a] hover:bg-[#16181a]/90 text-white rounded-[12px] px-6 py-3.5 text-[15px] font-semibold transition-colors"
+              >
+                CRM va LMS bilan tanishish
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                href="/marketplace"
+                className="inline-flex items-center gap-2 bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[#16181a] rounded-[12px] px-6 py-3.5 text-[15px] font-semibold transition-colors"
+              >
+                Kurslarni ko&apos;rish
+              </Link>
+            </div>
           </section>
         </article>
       </main>

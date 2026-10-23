@@ -12,6 +12,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1.0 },
+    { url: `${SITE_URL}/marketplace`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/kurslar`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/repetitorlar`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/oquv-markazlar`, changeFrequency: "daily", priority: 0.9 },
@@ -21,7 +22,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/hamkorlik`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/haqimizda`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${SITE_URL}/check`, changeFrequency: "monthly", priority: 0.3 },
     // Kod ichida yozilgan blog postlari — ro'yxat `src/data/static-blog-posts.ts` da,
     // shuning uchun yangi post qo'shilganda sitemap avtomatik yangilanadi.
     ...STATIC_BLOG_POSTS.map((p) => ({

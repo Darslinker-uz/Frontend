@@ -232,7 +232,8 @@ export function FeaturesExplorer() {
                   </span>
                   <span className="text-[13px] font-semibold tabular-nums text-[var(--a)]">{String(i + 1).padStart(2, "0")}</span>
                 </div>
-                <h3 data-fade className="mt-4 text-[26px] font-bold tracking-[-0.03em] text-[#16181a] md:text-[32px]">{f.title}</h3>
+                {/* Mobil papkada haqiqiy <h3> bor; bu yerda role="heading" — HTML'da sarlavhalar takrorlanmasin. */}
+                <div role="heading" aria-level={3} data-fade className="mt-4 text-[26px] font-bold tracking-[-0.03em] text-[#16181a] md:text-[32px]">{f.title}</div>
                 <ul className="mt-4 space-y-2.5">
                   {f.points.map((p) => (
                     <li key={p} data-fade className="flex gap-3 text-[15px] leading-relaxed text-[#3d444d] md:text-[16px]">
@@ -319,7 +320,8 @@ function MobileFolder() {
                 <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] ${dark ? "bg-white/15" : "bg-white/70"}`}>
                   <f.Icon aria-hidden="true" className="h-[18px] w-[18px]" />
                 </span>
-                <span className={`text-[12px] font-semibold tabular-nums ${dark ? "text-white/60" : "text-[#16181a]/45"}`}>{String(i + 1).padStart(2, "0")}</span>
+                {/* Tartib raqami CSS content orqali — sarlavha matni "01O'quvchilar" bo'lib qolmasin. */}
+                <span aria-hidden="true" data-n={String(i + 1).padStart(2, "0")} className={`text-[12px] font-semibold tabular-nums before:content-[attr(data-n)] ${dark ? "text-white/60" : "text-[#16181a]/45"}`} />
                 <span className="flex-1 text-[18px] font-semibold tracking-[-0.02em]">{f.title}</span>
                 <ChevronDown aria-hidden="true" className={`h-5 w-5 shrink-0 transition-transform duration-300 ${on ? "rotate-180" : ""}`} />
               </button>

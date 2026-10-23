@@ -5,22 +5,22 @@ import Image from "next/image";
 const FEATURES = [
   {
     title: "Qulay boshqaruv",
-    text: "O‘quvchi, guruh, davomat, to‘lov va lidlar — bitta tizimda. Har xodim faqat o‘z bo‘limini ko‘radi, telefondan ham ishlaydi.",
+    text: "O'quvchi, guruh, davomat, to'lov va lidlar — bitta tizimda. Har xodim faqat o'z bo'limini ko'radi, telefondan ham ishlaydi.",
     image: "/images/features/why-management-3d-v1.png",
   },
   {
     title: "Gamifikatsiya",
-    text: "Jonli quiz va reyting darsni o‘yinga aylantiradi — o‘quvchi zerikmaydi.",
+    text: "Jonli quiz va reyting darsni o'yinga aylantiradi — o'quvchi zerikmaydi.",
     image: "/images/features/why-gamification-3d-v1.png",
   },
   {
     title: "Ota-onaga xabar",
-    text: "Kelmadi, qarzdorlik, to‘lov tasdig‘i — Telegram orqali avtomatik. Pullik SMS kerak emas.",
+    text: "Kelmadi, qarzdorlik, to'lov tasdig'i — Telegram orqali avtomatik. Pullik SMS kerak emas.",
     image: "/images/features/why-messages-3d-v1.png",
   },
   {
-    title: "Do‘stona support",
-    text: "Markazingizga kerakli imkoniyat yo‘qmi? Ayting — muammongizni o‘rganib, tizimga yangi imkoniyat qo‘shishga tayyormiz.",
+    title: "Do'stona support",
+    text: "Markazingizga kerakli imkoniyat yo'qmi? Ayting — muammongizni o'rganib, tizimga yangi imkoniyat qo'shishga tayyormiz.",
     image: "/images/features/why-support-3d-v1.png",
   },
 ];

@@ -23,10 +23,14 @@ type Payload = {
   ref: string;
 };
 
-// TODO(owner): arizalar qayerga tushishi hali hal qilinmagan (DB / Telegram / darslinker.app).
-// Hal qilinguncha bu sahifa production'ga chiqarilmaydi — aks holda arizalar yo'qoladi.
+// Ariza Telegram'ga boradi (/api/crm-applications). Yetkazilmasa xato — forma "qayta urining" deydi.
 async function submitCrmApplication(payload: Payload): Promise<void> {
-  console.info("[crm-application]", payload);
+  const res = await fetch("/api/crm-applications", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, phone: `+998 ${payload.phone}` }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
 
 type Ctx = { open: (plan: CrmPlan, ref: string) => void };
@@ -138,14 +142,14 @@ function ApplyForm({ plan: initialPlan, refSource, onClose }: { plan: CrmPlan; r
           </div>
           <p className="mt-6 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#9fbce3]">Darslinker bilan</p>
           <p className="mt-3 max-w-[320px] text-[26px] font-bold leading-[1.08] tracking-[-0.035em] sm:text-[28px]">Markaz boshqaruvi bir joyda.</p>
-          <p className="mt-4 max-w-[320px] text-[14px] leading-relaxed text-white/65">Arizangiz qabul qilindi. Tez orada markazingiz uchun tizimni ishga tushirish bo‘yicha bog‘lanamiz.</p>
+          <p className="mt-4 max-w-[320px] text-[14px] leading-relaxed text-white/65">Arizangiz qabul qilindi. Tez orada markazingiz uchun tizimni ishga tushirish bo&apos;yicha bog&apos;lanamiz.</p>
         </aside>
         <div className="relative flex flex-col items-center justify-center bg-white px-5 pb-6 pt-8 sm:rounded-r-[26px] sm:px-8 sm:py-10">
           <span className="absolute right-4 top-4 hidden sm:inline-flex"><ModalClose /></span>
           <div className="py-5 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#7ea2d4]/20"><Check className="h-6 w-6 text-[#2d5a8a]" /></div>
             <DialogTitle className="text-[20px] font-bold text-[#16181a]">Ariza qabul qilindi</DialogTitle>
-            <DialogDescription className="mt-2 text-[14px] text-[#6a7585]">Ma’lumotlaringizni oldik.</DialogDescription>
+            <DialogDescription className="mt-2 text-[14px] text-[#6a7585]">Ma&apos;lumotlaringizni oldik.</DialogDescription>
           </div>
           <div className="mt-2 w-full max-w-[220px]">
             <div className="h-1 overflow-hidden rounded-full bg-[#eef1f4]">
@@ -172,11 +176,11 @@ function ApplyForm({ plan: initialPlan, refSource, onClose }: { plan: CrmPlan; r
         <DialogDescription className="relative mt-2 block max-w-[320px] text-[13px] leading-relaxed text-white/65 sm:mt-4 sm:text-[14px]">Ariza qoldiring. Markazingizga mos tizimni birga ishga tushiramiz.</DialogDescription>
       </aside>
       <div className="bg-white px-5 py-5 sm:px-8 sm:py-9">
-        <div className="mb-4 flex items-center justify-between sm:mb-6"><div><p className="text-[11px] font-semibold text-[#5b87c0] sm:text-[12px]">Boshlash uchun</p><h3 className="mt-1 text-[18px] font-bold text-[#16181a] sm:text-[20px]">Ma’lumotlaringiz</h3></div><span className="hidden sm:inline-flex"><ModalClose /></span></div>
+        <div className="mb-4 flex items-center justify-between sm:mb-6"><div><p className="text-[11px] font-semibold text-[#5b87c0] sm:text-[12px]">Boshlash uchun</p><h3 className="mt-1 text-[18px] font-bold text-[#16181a] sm:text-[20px]">Ma&apos;lumotlaringiz</h3></div><span className="hidden sm:inline-flex"><ModalClose /></span></div>
         <form className="space-y-2.5 sm:space-y-3" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Ismingiz" autoComplete="name" className={`${input} h-[46px] sm:h-[50px]`} disabled={busy} />
           <PhoneInput value={phone} onChange={(e) => setPhone(e.target.value)} className={`${input} h-[46px] sm:h-[50px]`} disabled={busy} />
-          <input required value={centerName} onChange={(e) => setCenterName(e.target.value)} placeholder="O‘quv markaz nomi" autoComplete="organization" className={`${input} h-[46px] sm:h-[50px]`} disabled={busy} />
+          <input required value={centerName} onChange={(e) => setCenterName(e.target.value)} placeholder="O'quv markaz nomi" autoComplete="organization" className={`${input} h-[46px] sm:h-[50px]`} disabled={busy} />
           <StudentsSelect value={students} onChange={setStudents} disabled={busy} className={`${input} h-[46px] sm:h-[50px]`} />
           {error && <p className="text-center text-[13px] text-red-600">{error}</p>}
           <button type="submit" disabled={busy || !canSubmit} className="flex h-[52px] w-full items-center justify-center gap-2 rounded-[12px] bg-[#2d5a8a] text-[15px] font-semibold text-white transition-colors hover:bg-[#244c76] disabled:cursor-not-allowed disabled:opacity-40">
@@ -202,11 +206,11 @@ function StudentsSelect({ value, onChange, disabled, className }: { value: strin
         disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label="O‘quvchilar soni"
+        aria-label="O'quvchilar soni"
         onClick={() => setOpen(true)}
         className={cn(className, "flex cursor-pointer items-center justify-between text-left", !value && "text-[#8792a0]", open && "border-[#7ea2d4] ring-2 ring-[#7ea2d4]/20")}
       >
-        <span>{value ? `${value} o‘quvchi` : "O‘quvchilar soni"}</span>
+        <span>{value ? `${value} o'quvchi` : "O'quvchilar soni"}</span>
         <ChevronDown aria-hidden="true" className="h-[18px] w-[18px] shrink-0 text-[#7c8490]" />
       </button>
       <DialogContent
@@ -218,13 +222,13 @@ function StudentsSelect({ value, onChange, disabled, className }: { value: strin
         <div className="rounded-t-[24px] bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-20px_60px_-20px_rgba(9,25,43,.4)] sm:rounded-[22px] sm:p-5">
           <div aria-hidden="true" className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#dfe3e8] sm:hidden" />
           <div className="flex items-center justify-between px-1">
-            <DialogTitle className="text-[17px] font-bold text-[#16181a]">O‘quvchilar soni</DialogTitle>
+            <DialogTitle className="text-[17px] font-bold text-[#16181a]">O&apos;quvchilar soni</DialogTitle>
             <DialogClose render={<button type="button" aria-label="Yopish" className="grid h-9 w-9 place-items-center rounded-full text-[#7c8490] transition hover:bg-[#f0f2f3] hover:text-[#16181a]" />}>
               <X className="h-4 w-4" />
             </DialogClose>
           </div>
-          <DialogDescription className="px-1 text-[13px] text-[#7c8490]">Markazingizda taxminan nechta o‘quvchi bor?</DialogDescription>
-          <ul role="listbox" aria-label="O‘quvchilar soni" className="mt-3 space-y-1.5">
+          <DialogDescription className="px-1 text-[13px] text-[#7c8490]">Markazingizda taxminan nechta o&apos;quvchi bor?</DialogDescription>
+          <ul role="listbox" aria-label="O'quvchilar soni" className="mt-3 space-y-1.5">
             {STUDENT_RANGES.map((r) => {
               const selected = value === r;
               return (
@@ -239,7 +243,7 @@ function StudentsSelect({ value, onChange, disabled, className }: { value: strin
                       selected ? "bg-[#eef3fa] font-semibold text-[#2d5a8a] ring-1 ring-[#7ea2d4]/50" : "bg-[#f7f8fa] text-[#16181a] hover:bg-[#eef1f4]",
                     )}
                   >
-                    {r} o‘quvchi
+                    {r} o&apos;quvchi
                     {selected && <Check aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.5} />}
                   </button>
                 </li>

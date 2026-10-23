@@ -1,0 +1,226 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { SHARE_OG, SHARE_TWITTER } from "@/lib/share-meta";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, GraduationCap, Building2, BookOpen } from "lucide-react";
+import { FeaturedSlider } from "@/components/featured-slider";
+import { courseToSlide } from "@/lib/featured-slide";
+import { CoursesSlider } from "@/components/courses-slider";
+import { HeroSearch } from "@/components/hero-search";
+import { HelpForm } from "@/components/help-form";
+import { FaqList } from "@/components/faq-item";
+import { getActiveCategoryGroups, getFeaturedListings, getPopularListings } from "@/lib/listings";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+// Kurslar katalogining bosh sahifasi (2026-10-23 gacha "/" edi; "/" endi CRM/LMS sahifasi).
+// WebSite va Organization schema'si "/" da — bu yerda faqat katalog FAQ'i.
+const TITLE = "Kurslarni toping va solishtiring";
+const DESCRIPTION = "O'zbekistondagi eng yaxshi online va offline kurslarni toping, solishtiring va to'g'ri tanlov qiling.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/marketplace" },
+  openGraph: { ...SHARE_OG, title: `${TITLE} | Darslinker.uz`, description: DESCRIPTION, url: "/marketplace" },
+  twitter: { ...SHARE_TWITTER, title: `${TITLE} | Darslinker.uz`, description: DESCRIPTION },
+};
+
+const CATEGORY_BACKGROUNDS: Record<string, string> = {
+  it: "/images/category-cards/it-transparent-v2.webp",
+  tillar: "/images/category-cards/tillar-transparent-v2.webp",
+  biznes: "/images/category-cards/marketing-transparent-v1.webp",
+  dizayn: "/images/category-cards/dizayn-transparent-v1.webp",
+  akademik: "/images/category-cards/akademik-transparent-v1.webp",
+  kasbiy: "/images/category-cards/kasbiy-transparent-v1.webp",
+  "suniy-intellekt": "/images/category-cards/ai-transparent-v1.webp",
+  "biznes-va-sotuv": "/images/category-cards/biznes-transparent-v1.webp",
+};
+
+export default async function MarketplacePage() {
+  const [groups, courses, featuredCourses, dbFaqs] = await Promise.all([
+    // Bosh sahifa grid'i — admin'da `showOnHomepage` flag bilan boshqariladi
+    getActiveCategoryGroups({ homepageOnly: true }),
+    // CoursesSlider — paid B-class avval, qolgani views DESC bo'yicha (max 12)
+    getPopularListings(),
+    // FeaturedSlider — A-class boost'lar + random non-paid (max 10)
+    // Server'da olamiz va prop sifatida o'tkazamiz — slider darhol ko'rinadi (SSR)
+    getFeaturedListings(),
+    prisma.faq.findMany({
+      where: { active: true, page: "home" },
+      orderBy: [{ order: "asc" }, { id: "asc" }],
+      select: { id: true, question: true, answer: true },
+    }),
+  ]);
+  const featuredSlides = featuredCourses.map(courseToSlide);
+
+  // FAQ admin tomonidan boshqariladi (/admode/faq).
+  // Bo'sh bo'lsa, sektion ko'rinmaydi.
+  const faqs = dbFaqs.map((f) => ({ q: f.question, a: f.answer }));
+
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((f) => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+    })),
+    // H — Speakable: ovozli assistantlar uchun (Google Assistant, voice search)
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": ["h1", "h2", "h3", "summary"],
+    },
+  };
+
+  return (
+    <div className="bg-[#f0f2f3] min-h-screen">
+      {faqs.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      )}
+      {/* HERO + SLIDER — konteyner ichida */}
+      <div className="max-w-[1600px] mx-auto px-5 md:px-20">
+        <div className="flex flex-col gap-5 pt-6 md:pt-8 pb-6">
+          {/* HEADING + SEARCH */}
+          <HeroSearch />
+
+          {/* FEATURED SLIDER */}
+          <FeaturedSlider initialSlides={featuredSlides} />
+
+          {/* TEZKOR YO'NALTIRISH — Repetitorlar / Markazlar / Kurslar */}
+          <nav aria-label="Asosiy bo'limlar" className="grid grid-cols-3 gap-2.5 md:gap-4">
+            {[
+              { href: "/repetitorlar", label: "Repetitorlar", desc: "Shaxsiy ustozlar", Icon: GraduationCap },
+              { href: "/oquv-markazlar", label: "Markazlar", desc: "O'quv markazlari", Icon: Building2 },
+              { href: "/kurslar", label: "Kurslar", desc: "Barcha yo'nalishlar", Icon: BookOpen },
+            ].map((c) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className="group flex flex-col gap-2 md:gap-3 rounded-[16px] md:rounded-[20px] bg-gradient-to-br from-[#7ea2d4] to-[#5b87c0] p-4 md:p-6 shadow-lg shadow-[#7ea2d4]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+              >
+                <c.Icon className="h-7 w-7 md:h-9 md:w-9 text-white" strokeWidth={2} />
+                <span className="flex items-center justify-between gap-1">
+                  <span className="text-[14px] md:text-[18px] font-bold text-white leading-tight">{c.label}</span>
+                  <ArrowRight className="hidden md:block w-4 h-4 text-white/70 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                </span>
+                <span className="text-[11px] md:text-[13px] text-white/80 leading-tight">{c.desc}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        {/* KATEGORIYALAR */}
+        <div className="space-y-10 md:space-y-14 py-10 md:py-14">
+          <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Qidirish emas,<br className="md:hidden" /> tanlash vaqti keldi!</p>
+
+          <div className="bg-[#e8eaed] rounded-[20px] p-3 md:p-8">
+            <h2 className="px-2 pt-2 md:p-0 text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">Yo&apos;nalishlar</h2>
+            <p className="px-2 md:px-0 text-[16px] md:text-[22px] text-[#7c8490] mt-2 font-light">O&apos;zingizga qiziq bo&apos;lgan yo&apos;nalishni tanlang</p>
+            <div className="mt-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {groups.map((g) => (
+                  <Link
+                    key={g.slug}
+                    href={`/kurslar/g/${g.slug}`}
+                    className="relative overflow-hidden bg-[#1e2024] rounded-[16px] md:rounded-[18px] lg:rounded-[20px] md:p-5 lg:p-6 xl:p-7 md:h-[150px] lg:h-[180px] xl:h-[200px] hover:bg-[#26282c] transition-all block"
+                  >
+                    {CATEGORY_BACKGROUNDS[g.slug] && (
+                      <span
+                        aria-hidden="true"
+                        className="hidden md:block pointer-events-none absolute inset-0 -translate-x-8 lg:-translate-x-12 origin-right scale-[0.7] bg-cover bg-right bg-no-repeat opacity-75"
+                        style={{
+                          backgroundImage: `url("${CATEGORY_BACKGROUNDS[g.slug]}")`,
+                        }}
+                      />
+                    )}
+                    <span className="hidden md:block absolute top-5 left-5 lg:top-6 lg:left-6 xl:top-7 xl:left-7 text-[20px] lg:text-[24px] xl:text-[26px] font-bold text-white leading-tight max-w-[55%]">{g.name}</span>
+                    <span className="hidden md:block absolute bottom-5 left-5 lg:bottom-6 lg:left-6 xl:bottom-7 xl:left-7 text-[12px] lg:text-[13px] xl:text-[14px] text-white/80 line-clamp-1 max-w-[55%]">{g.desc}</span>
+                    <span className="hidden md:block absolute right-4 lg:right-6 xl:right-7 top-1/2 -translate-y-1/2 text-[38px] lg:text-[48px] xl:text-[52px] font-bold text-white/15 leading-none">{g.listingsCount}</span>
+                    <div className="relative md:hidden px-4 py-4 h-[85px] flex flex-col justify-between items-start text-left">
+                      {CATEGORY_BACKGROUNDS[g.slug] && (
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-y-2 right-1.5 w-[100px] bg-[length:auto_100%] bg-right bg-no-repeat opacity-15"
+                          style={{
+                            backgroundImage: `url("${CATEGORY_BACKGROUNDS[g.slug]}")`,
+                          }}
+                        />
+                      )}
+                      <span className="relative text-[21px] font-bold text-white leading-tight">{g.name}</span>
+                      <span className="relative text-[11px] text-white/80">{g.desc}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Har bir kurs yangi imkoniyat</p>
+        </div>
+      </div>
+
+      {/* MASHHUR KURSLAR — background bilan */}
+      <div className="bg-[#e8eaed] py-8 md:py-12">
+        <div className="max-w-[1600px] mx-auto px-5 md:px-20 mb-6">
+          <h2 className="text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">Mashhur kurslar</h2>
+          <p className="text-[16px] md:text-[22px] text-[#7c8490] mt-2 font-light">Eng ko&apos;p qidirilgan va yuqori baholangan kurslar</p>
+        </div>
+        <CoursesSlider courses={courses} />
+      </div>
+
+      {/* QOLGAN SECTIONLAR — konteyner ichida */}
+      <div className="max-w-[1600px] mx-auto px-5 md:px-20">
+        <div className="space-y-10 md:space-y-14 py-10 md:py-14">
+          <p className="text-center text-[28px] md:text-[42px] font-normal font-[family-name:var(--font-kalam)] text-[#16181a] py-4 md:py-8">Kerakli kursni topa olmadingizmi?</p>
+
+          <section id="ariza" className="bg-gradient-to-br from-[#eaecf0] via-[#e0e5ec] to-[#d8dfe8] rounded-[20px] p-8 md:p-12">
+            <div className="text-center mb-10">
+              <h2 className="text-[30px] md:text-[44px] font-bold text-[#16181a] tracking-[-0.03em]">Yordam beramiz</h2>
+              <p className="text-[15px] text-[#6a7585] mt-3 max-w-[400px] mx-auto">Ma&apos;lumotlaringizni qoldiring — biz sizga eng mos kursni topib beramiz</p>
+            </div>
+            <HelpForm />
+            <div className="hidden md:flex justify-center gap-6 mt-10">
+              {["Sizga mos kurslarni tanlab beramiz", "Narx va sifatni solishtiramiz", "24 soat ichida javob beramiz", "Xizmat bepul"].map((t) => (
+                <span key={t} className="text-[12px] text-[#6a7585]/50 flex items-center gap-1.5">
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                  {t}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          {faqs.length > 0 && (
+            <section aria-label="Ko'p so'raladigan savollar" className="bg-white rounded-[20px] p-6 md:p-10 border border-[#e4e7ea]">
+              <h2 className="text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.03em]">
+                Ko&apos;p so&apos;raladigan savollar
+              </h2>
+              <p className="text-[15px] md:text-[17px] text-[#7c8490] mt-2 font-light">
+                Darslinker.uz haqida eng ko&apos;p so&apos;raladigan savollar va javoblari
+              </p>
+              <div className="mt-6">
+                <FaqList items={faqs} />
+              </div>
+            </section>
+          )}
+
+          <section className="bg-[#e8eaed] rounded-[20px] p-8 md:p-10">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="font-[family-name:var(--font-outfit)] text-[18px] md:text-[26px] font-bold text-[#16181a] leading-tight">
+                Kurs egasimisiz?
+              </h2>
+              <Link href="/hamkorlik">
+                <Button className="h-[40px] md:h-[44px] px-5 md:px-6 rounded-[12px] bg-white text-[#16181a] text-[13px] md:text-[14px] font-medium hover:bg-white/80 transition-colors shrink-0 flex items-center gap-2 border-0">
+                  Hamkorlik
+                  <ArrowRight className="w-[16px] h-[16px]" />
+                </Button>
+              </Link>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -7,7 +7,7 @@ import { BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2,
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { scrollToTop } from "@/components/smooth-scroll";
 import { CrmApplyButton } from "@/components/crm/crm-apply";
-import { CRM_HOME, isCrmPage } from "@/lib/crm-pages";
+import { CRM_HOME, MARKETPLACE_HOME, isCatalogPage, isCrmPage } from "@/lib/crm-pages";
 
 const SUPPORT_URL = "https://t.me/Darslinker_Support";
 
@@ -206,7 +206,8 @@ export function Navbar() {
 
   // Bosh sahifada turib logotip bosilsa URL o'zgarmaydi, shuning uchun Next
   // scroll qilmaydi — o'zimiz tepaga (hero'ga) qaytaramiz.
-  const logoHref = crm ? CRM_HOME : "/";
+  // Katalog sahifalarida (marketplace, kurslar, markazlar…) logotip katalog bosh sahifasiga olib boradi.
+  const logoHref = isCatalogPage(pathname) ? MARKETPLACE_HOME : CRM_HOME;
   const onLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (pathname !== logoHref || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
@@ -351,6 +352,20 @@ export function Navbar() {
             </Link>
           ))}
 
+          {/* Katalogdan CRM'ga o'tish (CRM sahifasida yagona CTA — ariza, shuning uchun u yerda yo'q) */}
+          {!crm && (
+            <Link
+              href={CRM_HOME}
+              onClick={() => setOpen(false)}
+              tabIndex={tab}
+              className={`${cardGlass} ${cardClass} col-span-2 flex h-14 items-center justify-center gap-2 text-[15px] font-semibold`}
+              style={cardStyle(5)}
+            >
+              <LayoutGrid className={`h-4 w-4 ${cardIcon}`} />
+              CRM va LMS
+            </Link>
+          )}
+
           {crm ? (
             // Modal ochilishidan oldin menyu yopiladi — CrmApplyButton onClick qabul qilmaydi, shuning uchun o'ram.
             <div inert={!open} onClickCapture={() => setOpen(false)} className="col-span-2">
@@ -372,7 +387,7 @@ export function Navbar() {
               onClick={() => setOpen(false)}
               tabIndex={tab}
               className={`${cardClass} col-span-2 flex h-14 items-center justify-center gap-2 rounded-[22px] bg-[#7ea2d4] text-[15px] font-semibold text-white`}
-              style={cardStyle(5)}
+              style={cardStyle(6)}
             >
               <MessageCircle className="h-4 w-4" />
               Yordam
@@ -457,7 +472,20 @@ export function Navbar() {
             </nav>
           </div>
 
-          {/* Desktop CTA — o'ng burchakda: CRM sahifada ariza, katalogda Yordam */}
+          {/* Desktop CTA — o'ng burchakda: CRM sahifada ariza (yagona tugma), katalogda Yordam.
+              Katalogda chapida "CRM va LMS" (/) — faqat xl'dan: torroqda markazdagi havolalar bilan
+              to'qnashadi (mobil menyuda bor). */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
+          {!crm && (
+            <Link
+              href={CRM_HOME}
+              className={`hidden xl:inline-flex items-center h-9 px-4 rounded-full text-[14px] font-semibold transition-colors ${
+                night ? "bg-white/10 text-white hover:bg-white/20" : "bg-[#16181a]/[0.06] text-[#16181a] hover:bg-[#16181a]/10"
+              }`}
+            >
+              CRM va LMS
+            </Link>
+          )}
           {crm ? (
             <CrmApplyButton
               refSource="navbar"
@@ -482,6 +510,7 @@ export function Navbar() {
               Yordam
             </a>
           )}
+          </div>
 
           {/* Mobile Menu Trigger */}
           <button

@@ -2,7 +2,8 @@
 
 import { useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
-import { CrmApplyButton, type CrmPlan } from "@/components/crm/crm-apply";
+import { CrmApplyButton } from "@/components/crm/crm-apply";
+import type { PlanInfo } from "@/lib/crm-content";
 import { panelGrowth, scrollToFutureCenter } from "@/components/smooth-scroll";
 
 // Tariflar bo'limi. Ma'lumot — docs PRODUCT.md, 7-bo'lim. Kartalarda faqat asosiy narx;
@@ -11,15 +12,6 @@ import { panelGrowth, scrollToFutureCenter } from "@/components/smooth-scroll";
 // lg+: 4 ta to'liq karta qatorda. Mobil/planshet: 4 ta ixcham karta ketma-ket (nom, narx, kimlar uchun);
 // karta bosilganda to'liq ochiladi va ekran o'rtasiga keladi, bir vaqtda bittasi ochiq (MobilePlans).
 
-export type PlanInfo = {
-  id: CrmPlan;
-  name: string;
-  price: string;
-  unit: string;
-  audience: string; // kimlar uchun — mobil kartada nom va narx ostida
-  features: string[];
-  featured?: boolean;
-};
 
 const PERIODS = [
   { months: 1, label: "Oylik", discount: 0 },
@@ -81,7 +73,7 @@ export function PricingSection({ plans }: { plans: PlanInfo[] }) {
             Tariflar va narxlar
           </h2>
           <p className="mt-4 text-[16px] font-light leading-relaxed text-[#5d6672] md:text-[19px]">
-            Istalgan tarifni 14 kun bepul sinab ko&apos;ring
+            Barcha imkoniyatlar har bir tarifda. Farq faqat hajmda.
           </p>
         </div>
 
@@ -120,7 +112,8 @@ export function PricingSection({ plans }: { plans: PlanInfo[] }) {
               return (
                 <div key={p.id} className={`relative flex flex-col rounded-[28px] p-7 ${f ? t.feat : t.card}`}>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-[20px] font-bold">{p.name}</h3>
+                    {/* Mobil nusxada haqiqiy <h3> bor; bu yerda role="heading" — HTML'da sarlavhalar takrorlanmasin. */}
+                    <div role="heading" aria-level={3} className="text-[20px] font-bold">{p.name}</div>
                   </div>
                   {/* Kimlar uchun — o'quvchilar soni ham shu jumlada; 2 qatorga joy, kartalar bir tekis tursin */}
                   <p className={`mt-2 min-h-[42px] text-[14px] leading-[1.5] ${muted}`}>{p.audience}</p>
@@ -296,7 +289,8 @@ function Odometer({ value, className }: { value: string; className?: string }) {
               className="absolute inset-x-0 top-0 flex flex-col transition-transform duration-700 ease-[cubic-bezier(.2,.9,.25,1.15)] motion-reduce:transition-none"
               style={{ transform: `translateY(-${d * 10}%)`, transitionDelay: `${(fromRight - 1) * 45}ms` }}
             >
-              {DIGITS.map((n) => <span key={n} className="block h-[1em] leading-[1em]">{n}</span>)}
+              {/* Raqam CSS content orqali — HTML matnida "0 1 2 … 9" ustunlari bo'lmasin (qidiruv/AI uchun shovqin). */}
+              {DIGITS.map((n) => <span key={n} data-d={n} className="block h-[1em] leading-[1em] before:content-[attr(data-d)]" />)}
             </span>
           </span>
         );

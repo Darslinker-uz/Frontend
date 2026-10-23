@@ -18,6 +18,7 @@ function HeroPicture({
   height,
   sizes,
   hideMedia,
+  alt,
   className,
 }: {
   src: string;
@@ -25,13 +26,14 @@ function HeroPicture({
   height: number;
   sizes: string;
   hideMedia: string;
+  alt: string;
   className: string;
 }) {
-  const { props } = getImageProps({ src, alt: "", width, height, sizes, loading: "eager", fetchPriority: "high" });
+  const { props } = getImageProps({ src, alt, width, height, sizes, loading: "eager", fetchPriority: "high" });
   return (
     <picture>
       <source media={hideMedia} srcSet={BLANK} />
-      <img {...props} alt="" aria-hidden="true" className={`block h-auto object-contain ${className}`} />
+      <img {...props} alt={alt} className={`block h-auto object-contain ${className}`} />
     </picture>
   );
 }
@@ -83,6 +85,7 @@ export function HomeHero() {
               height={1254}
               sizes="540px"
               hideMedia={MOBILE_MEDIA}
+              alt="Darslinker CRM bo'limlari: o'quvchilar, lidlar, guruhlar, to'lovlar, davomat, dashboard va Excel import"
               className="w-full"
             />
           </div>
@@ -95,10 +98,10 @@ export function HomeHero() {
               <h1 className="text-center tracking-[-0.035em] lg:text-left">
                 <span className="block whitespace-nowrap text-[clamp(20px,5.4vw,26px)] font-semibold leading-tight tracking-[-0.015em] text-[#5b87c0] md:text-[30px] lg:text-[28px] xl:text-[34px] 2xl:text-[38px]">
                   O&apos;quv markazlari uchun
-                </span>
+                </span>{" "}
                 <span className="mt-2 block whitespace-nowrap text-[clamp(46px,14vw,72px)] font-bold leading-[0.98] md:text-[84px] lg:text-[72px] xl:text-[88px] 2xl:text-[100px]">
                   CRM va LMS
-                </span>
+                </span>{" "}
                 <span className="block whitespace-nowrap text-[clamp(46px,14vw,72px)] font-bold leading-[0.98] md:text-[84px] lg:text-[72px] xl:text-[88px] 2xl:text-[100px]">
                   platformasi
                 </span>

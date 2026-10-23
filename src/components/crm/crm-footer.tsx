@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
-import { CRM_HOME } from "@/lib/crm-pages";
+import { CRM_HOME, MARKETPLACE_HOME } from "@/lib/crm-pages";
 
 const links = [
   { href: `${CRM_HOME}#imkoniyatlar`, label: "Imkoniyatlar" },
   { href: `${CRM_HOME}#narxlar`, label: "Tariflar" },
   { href: `${CRM_HOME}#boshlash`, label: "Qanday boshlanadi" },
   { href: `${CRM_HOME}#savollar`, label: "Savollar" },
+  { href: MARKETPLACE_HOME, label: "Marketplace" },
+  { href: "/haqimizda", label: "Haqimizda" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export function CrmFooter() {

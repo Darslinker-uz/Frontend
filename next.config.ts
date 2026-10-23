@@ -9,7 +9,11 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     // Brauzerlar odatda /favicon.ico so‘raydi; metadata faqat svg/png yo‘llarini ko‘rsatadi.
-    return [{ source: "/favicon.ico", destination: "/icon.svg", permanent: false }];
+    return [
+      { source: "/favicon.ico", destination: "/icon.svg", permanent: false },
+      // CRM/LMS sahifasining yopiq demo manzili — sahifa bosh sahifaga ko'chdi (2026-10-23).
+      { source: "/democrm", destination: "/", permanent: true },
+    ];
   },
   async headers() {
     return [
