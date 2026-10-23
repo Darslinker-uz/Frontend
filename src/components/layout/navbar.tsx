@@ -245,15 +245,25 @@ export function Navbar() {
   // Katalogda qora kapsulada matn oq; CRM'da doim to'q.
   const ink = night && !crm ? "text-white" : "text-[#16181a]";
 
-  // Mobil kartalar navbat bilan "qo'nadi"; yopilganda hammasi birdan ketadi.
-  const cardClass = `transition-[opacity,transform] duration-500 motion-reduce:transition-none ${
-    open ? "scale-100 opacity-100 translate-y-0" : "scale-90 opacity-0 translate-y-4"
-  }`;
-  const cardStyle = (i: number): CSSProperties => ({
-    transitionDelay: open ? `${60 + i * 60}ms` : "0ms",
-    transitionTimingFunction: SPRING,
-  });
-  const cardGlass = "rounded-[22px] border border-white/10 bg-[#16181a]/80 text-white";
+  // Mobil menyu ikki xil: CRM sahifasida — och kartalar, bitta blok bo'lib birdan ochiladi;
+  // katalogda (asl) — qora shisha kartalar navbat bilan "qo'nadi", yopilganda hammasi birdan ketadi.
+  const panelClass = crm
+    ? `origin-top transition-[opacity,transform] motion-reduce:transition-none ${
+        open ? "opacity-100 translate-y-0 scale-100 duration-[420ms]" : "opacity-0 -translate-y-2 scale-[0.97] duration-200"
+      }`
+    : "";
+  const cardClass = crm
+    ? ""
+    : `transition-[opacity,transform] duration-500 motion-reduce:transition-none ${
+        open ? "scale-100 opacity-100 translate-y-0" : "scale-90 opacity-0 translate-y-4"
+      }`;
+  const cardStyle = (i: number): CSSProperties | undefined =>
+    crm ? undefined : { transitionDelay: open ? `${60 + i * 60}ms` : "0ms", transitionTimingFunction: SPRING };
+  const cardGlass = crm
+    ? "rounded-[22px] border border-[#2d5a8a]/10 bg-white/85 text-[#16181a] shadow-[0_10px_30px_-18px_rgba(45,90,138,0.45)]"
+    : "rounded-[22px] border border-white/10 bg-[#16181a]/80 text-white";
+  const cardIcon = crm ? "text-[#2d5a8a]" : "text-[#7ea2d4]";
+  const cardMuted = crm ? "text-[#16181a]/55" : "text-white/50";
 
   return (
     <header className="sticky top-0 z-[60] h-[62px] pointer-events-none [--nav-d:360ms] md:[--nav-d:600ms] [--nav-r:150ms] md:[--nav-r:240ms] [--nav-p:210ms] md:[--nav-p:340ms] [--nav-b:120ms] motion-reduce:[--nav-d:0ms]! motion-reduce:[--nav-r:0ms]! motion-reduce:[--nav-p:0ms]! motion-reduce:[--nav-b:0ms]!">
@@ -263,26 +273,26 @@ export function Navbar() {
       <div
         aria-hidden
         onClick={() => setOpen(false)}
-        className={`md:hidden fixed inset-x-0 -inset-y-40 bg-[#16181a]/40 backdrop-blur-xl transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`md:hidden fixed inset-x-0 -inset-y-40 ${crm ? "bg-[#eef3f9]/70" : "bg-[#16181a]/40"} backdrop-blur-xl transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
       />
       <div
         aria-hidden={!open}
-        className={`md:hidden fixed inset-x-3 ${crm ? "top-[88px] max-h-[calc(100dvh-112px)]" : "top-[76px] max-h-[calc(100dvh-100px)]"} overflow-y-auto ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`md:hidden fixed inset-x-3 ${crm ? "top-[88px] max-h-[calc(100dvh-112px)]" : "top-[76px] max-h-[calc(100dvh-100px)]"} overflow-y-auto ${panelClass} ${open ? "pointer-events-auto" : "pointer-events-none"}`}
+        style={crm ? { transitionTimingFunction: EASE } : undefined}
       >
         <div className="grid grid-cols-2 gap-2">
-          {crm && crmLinks.map((l, i) => (
+          {crm && crmLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={(e) => onSectionClick(e, l.href)}
               tabIndex={tab}
-              className={`${cardGlass} ${cardClass} flex aspect-[1.4] flex-col justify-between p-4`}
-              style={cardStyle(i)}
+              className={`${cardGlass} flex aspect-[1.4] flex-col justify-between p-4`}
             >
-              <l.icon className="h-6 w-6 text-[#7ea2d4]" />
+              <l.icon className="h-6 w-6 text-[#2d5a8a]" />
               <span>
                 <span className="block text-[16px] font-bold leading-tight">{l.label}</span>
-                <span className="mt-1 block text-[12px] text-white/50">{l.desc}</span>
+                <span className="mt-1 block text-[12px] text-[#16181a]/55">{l.desc}</span>
               </span>
             </Link>
           ))}
@@ -296,10 +306,10 @@ export function Navbar() {
               className={`${cardGlass} ${cardClass} flex aspect-[1.15] flex-col justify-between p-4`}
               style={cardStyle(i)}
             >
-              <l.icon className="h-7 w-7 text-[#7ea2d4]" />
+              <l.icon className={`h-7 w-7 ${cardIcon}`} />
               <span>
                 <span className="block text-[17px] font-bold leading-tight">{l.label}</span>
-                <span className="mt-1 block text-[12px] text-white/50">{l.desc}</span>
+                <span className={`mt-1 block text-[12px] ${cardMuted}`}>{l.desc}</span>
               </span>
             </Link>
           ))}
@@ -308,10 +318,10 @@ export function Navbar() {
           {!crm && <div className={`${cardGlass} ${cardClass} col-span-2 p-4`} style={cardStyle(2)}>
             <Link href="/kurslar" onClick={() => setOpen(false)} tabIndex={tab} className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-[17px] font-bold">
-                <BookOpen className="h-5 w-5 text-[#7ea2d4]" />
+                <BookOpen className={`h-5 w-5 ${cardIcon}`} />
                 Kurslar
               </span>
-              <span className="flex items-center gap-1 text-[12.5px] font-semibold text-[#7ea2d4]">
+              <span className={`flex items-center gap-1 text-[12.5px] font-semibold ${cardIcon}`}>
                 Barchasi <ArrowUpRight className="h-4 w-4" />
               </span>
             </Link>
@@ -341,14 +351,14 @@ export function Navbar() {
               className={`${cardGlass} ${cardClass} flex h-14 items-center justify-center gap-2 text-[15px] font-semibold`}
               style={cardStyle(3 + i)}
             >
-              <l.icon className="h-4 w-4 text-[#7ea2d4]" />
+              <l.icon className={`h-4 w-4 ${cardIcon}`} />
               {l.label}
             </Link>
           ))}
 
           {crm ? (
             // Modal ochilishidan oldin menyu yopiladi — CrmApplyButton onClick qabul qilmaydi, shuning uchun o'ram.
-            <div inert={!open} onClickCapture={() => setOpen(false)} className={`${cardClass} col-span-2`} style={cardStyle(5)}>
+            <div inert={!open} onClickCapture={() => setOpen(false)} className="col-span-2">
               <CrmApplyButton
                 refSource="navbar-mobile"
                 className="relative flex h-14 w-full items-center justify-center rounded-[22px] bg-[#2d5a8a] text-[15px] font-semibold text-white"

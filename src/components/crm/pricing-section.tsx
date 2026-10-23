@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { CrmApplyButton, type CrmPlan } from "@/components/crm/crm-apply";
-import { centerAfterLayout } from "@/components/smooth-scroll";
+import { panelGrowth, scrollToFutureCenter } from "@/components/smooth-scroll";
 
 // Tariflar bo'limi. Ma'lumot — docs PRODUCT.md, 7-bo'lim. Kartalarda faqat asosiy narx;
 // qo'shimcha o'quvchi to'lovi faqat FAQ'da (SPEC 2-bo'lim). Chegirmalar: 6 oyga −10%, 12 oyga −20%.
@@ -175,18 +175,21 @@ function MobilePlans({ plans, period, t }: { plans: PlanInfo[]; period: number; 
   // Bir vaqtda bitta tarif ochiq: boshqasi ochilsa, oldingisi yopiladi.
   const [openId, setOpenId] = useState<string | null>(null);
   const cards = useRef<Record<string, HTMLElement | null>>({});
+  const panels = useRef<Record<string, HTMLElement | null>>({});
 
-  // Qotmaslik uchun balandlik ANIMATSIYASIZ o'zgaradi; ichki kontent faqat opacity/transform bilan paydo
-  // bo'ladi. Scroll keyingi kadrda haqiqiy o'lchamlar bo'yicha — yuqorida yopilgan karta ham hisobga olinadi.
+  // Tez va silliq: panel 220ms da ochiladi, shu zahoti karta 0.4s da ekran o'rtasiga yo'l oladi —
+  // yakuniy balandlik oldindan hisoblanadi, yuqorida yopilayotgan karta bo'shatadigan joy ham hisobga olinadi.
   const open = (id: string) => {
-    setOpenId(id);
     const el = cards.current[id];
-    if (el) centerAfterLayout(el);
+    if (el) {
+      const order: string[] = plans.map((p) => p.id);
+      const prev = openId && order.indexOf(openId) < order.indexOf(id) ? panels.current[openId] : null;
+      scrollToFutureCenter(el, el.offsetHeight + panelGrowth(panels.current[id]), prev ? prev.offsetHeight : 0);
+    }
+    setOpenId(id);
   };
 
   return (
-    <>
-    <style>{"@keyframes fold-in { from { opacity: 0; transform: translateY(-8px) } to { opacity: 1; transform: none } }"}</style>
     <ol className="mt-6 space-y-5 lg:hidden">
       {plans.map((p) => (
         <li key={p.id}>
@@ -198,15 +201,15 @@ function MobilePlans({ plans, period, t }: { plans: PlanInfo[]; period: number; 
             onOpen={() => open(p.id)}
             onClose={() => setOpenId(null)}
             cardRef={(el) => { cards.current[p.id] = el; }}
+            panelRef={(el) => { panels.current[p.id] = el; }}
           />
         </li>
       ))}
     </ol>
-    </>
   );
 }
 
-function MobilePlan({ p, period, t, open, onOpen, onClose, cardRef }: { p: PlanInfo; period: number; t: Theme; open: boolean; onOpen: () => void; onClose: () => void; cardRef: (el: HTMLElement | null) => void }) {
+function MobilePlan({ p, period, t, open, onOpen, onClose, cardRef, panelRef }: { p: PlanInfo; period: number; t: Theme; open: boolean; onOpen: () => void; onClose: () => void; cardRef: (el: HTMLElement | null) => void; panelRef: (el: HTMLDivElement | null) => void }) {
   const { months, discount } = PERIODS[period];
   const monthly = toNumber(p.price) * (1 - discount);
   const f = p.featured;
@@ -234,8 +237,8 @@ function MobilePlan({ p, period, t, open, onOpen, onClose, cardRef }: { p: PlanI
         <p className={`mt-3 text-[14px] leading-relaxed ${muted}`}>{p.audience}</p>
       </div>
 
-      <div id={panelId} hidden={!open}>
-        <div className={open ? "motion-safe:animate-[fold-in_.32s_cubic-bezier(0.22,1,0.36,1)_both]" : ""}>
+      <div id={panelId} ref={panelRef} className={`grid transition-[grid-template-rows] duration-[220ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div className={`overflow-hidden transition-opacity duration-[220ms] ${open ? "opacity-100" : "opacity-0"}`}>
           <div className="px-5 pt-4">
             {months > 1 && <p className={`text-[12px] ${muted}`}>{months} oyga jami: {formatSum(monthly * months)} so&apos;m</p>}
             <ul className={`mt-3 space-y-2.5 border-t pt-4 ${f ? t.featLine : t.line}`}>

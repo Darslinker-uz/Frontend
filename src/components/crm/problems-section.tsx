@@ -4,11 +4,11 @@ import type { CSSProperties } from "react";
 import { Wallet, CalendarDays, Users, TrendingDown } from "lucide-react";
 import { TiltOnScroll } from "@/components/crm/tilt-on-scroll";
 
-// "Markazning to'rt asosiy muammosi" bo'limi. Kartalar: oltin, ultramarin, binafsha, bordo ("Mat" uslubi).
+// "Markazning to'rt asosiy muammosi" bo'limi. Kartalar rangi — "Yumshoq" (pastdagi `t`).
 // Fon — chegarali nuqtali karta. "Tanish muammolarmi?" xl'da kartalar ortida turadi va kartalar
 // scroll'da pastga tushganda ochiladi.
 
-export const CARDS = [
+const CARDS = [
   { Icon: Wallet, context: "To‘lov kechikishi", label: "Qarzdorlik", title: "Qarzdorlik vaqtida bilinmaydi", text: "To‘lovlar turli joyda qayd etilsa, kim qancha to‘lagani va kimga eslatish kerakligini aniqlash qiyinlashadi.", note: "To‘lovlar va qarzlar bir joyda ko‘rinadi.", tilt: "-6deg" },
   { Icon: CalendarDays, context: "Jadval chalkashligi", label: "Guruhlar", title: "Guruh vaqtlari chalkashadi", text: "Jadval o‘zgarsa, bo‘sh joy yoki to‘lib qolgan guruhni aniqlash qiyinlashadi. O‘quvchi uchun mos vaqt topish ham cho‘ziladi.", note: "Guruhlar va dars vaqtlari tartibda bo‘ladi.", tilt: "4deg" },
   { Icon: Users, context: "O‘quvchi passivligi", label: "Davomat", title: "O‘quvchi qatnovi kamayadi", text: "O‘quvchi darslarni tez-tez qoldira boshlaydi, lekin bu o‘zgarish vaqtida sezilmaydi. Holbuki, erta gaplashib sababini bilish mumkin.", note: "Davomatdan qatnovdagi o‘zgarish seziladi.", tilt: "-4deg" },
@@ -26,28 +26,17 @@ type Theme = {
   note: Four;
 };
 
-// Ranglar (karta tartibida): oltin — to'lovlar, ultramarin — davomat, binafsha — lidlar, bordo — o'quvchilar.
-//            asosiy    och       to'q
-// Oltin      #d4a537   #f3e2ae   #9c7417
-// Ultramarin #3346d9   #cdd3f8   #1f2c9e
-// Binafsha   #7b3fc4   #dfcff5   #552a8c
-// Bordo      #962a55   #f0cddb   #651a39
-// Kartada oltinning to'q varianti (#96700f) ishlatiladi — hamma kartada matn oq.
-// Kartalar uslubi: "Mat" — to'liq rangli, tekis kartalar.
-export const t: Theme = {
-  card: "shadow-[0_18px_40px_-18px_rgba(0,0,0,0.6)]",
-  // Oltin to'qlashtirilgan (#96700f) — oq matn bilan kontrast ~4.5:1, shuning uchun hamma kartada matn oq.
-  tones: ["bg-[#96700f]", "bg-[#2938bb]", "bg-[#7b3fc4]", "bg-[#962a55]"],
-  meta: ["text-white", "text-white", "text-white", "text-white"],
-  // Ichki panel karta rangining to'qroq tusi (qora qatlam) — oqarmaydi, chuqurlashadi.
-  panels: [
-    "bg-black/25 border-transparent text-white",
-    "bg-black/25 border-transparent text-white",
-    "bg-black/25 border-transparent text-white",
-    "bg-black/25 border-transparent text-white",
-  ],
-  body: ["text-white/70", "text-white/70", "text-white/70", "text-white/70"],
-  note: ["border-white/30 text-white/85", "border-white/30 text-white/85", "border-white/30 text-white/85", "border-white/30 text-white/85"],
+const four = (v: string): Four => [v, v, v, v];
+
+// Kartalar rangi — "Yumshoq": oltin, ultramarin, binafsha, bordoning sokinroq, kamroq to'yingan
+// tuslari (karta tartibida); hamma kartada oq matn.
+const t: Theme = {
+  card: "shadow-[0_18px_40px_-22px_rgba(22,24,26,0.45)]",
+  tones: ["bg-[#b8933f]", "bg-[#5d6bc8]", "bg-[#8f6cc0]", "bg-[#a85d7b]"],
+  meta: four("text-white"),
+  panels: four("bg-white/15 border-transparent text-white"),
+  body: four("text-white/80"),
+  note: four("border-white/25 text-white/85"),
 };
 
 // Bo'lim foni: katta yumaloq karta — ichi to'ldirilmagan, 8px kulrang chegara va ichida

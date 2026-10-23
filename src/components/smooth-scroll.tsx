@@ -44,10 +44,28 @@ export function scrollToCenter(el: HTMLElement) {
   }
 }
 
-// Karta ochilgandan (React yangilagan, brauzer joylashuvni hisoblagan) keyin uni ekran o'rtasiga olib kelish.
-// Ikki kadr kutiladi: birinchisida DOM yangilanadi, ikkinchisida o'lchamlar aniq.
-export function centerAfterLayout(el: HTMLElement) {
-  requestAnimationFrame(() => requestAnimationFrame(() => scrollToCenter(el)));
+// Ochilayotgan kartani ochilish animatsiyasi bilan BIR VAQTDA, tez (0.4s) ekran o'rtasiga olib kelish.
+// Yakuniy holat oldindan hisoblanadi: finalHeight — karta ochilgandagi balandligi, shiftAbove —
+// yuqorida yopilayotgan karta bo'shatadigan joy (karta shuncha yuqoriga suriladi).
+export function scrollToFutureCenter(el: HTMLElement, finalHeight: number, shiftAbove = 0) {
+  const NAV = 88;
+  const free = window.innerHeight - NAV;
+  const top = window.scrollY + el.getBoundingClientRect().top - shiftAbove;
+  const target = Math.max(0, finalHeight < free ? top - NAV - (free - finalHeight) / 2 : top - NAV);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (instance && !reduced) {
+    instance.scrollTo(target, { duration: 0.4, easing: (t) => 1 - Math.pow(1 - t, 3) });
+  } else {
+    window.scrollTo({ top: target, behavior: reduced ? "auto" : "smooth" });
+  }
+}
+
+// Yig'iluvchi panelning (grid 0fr → 1fr) ochilganda qo'shiladigan balandligi.
+// Panel ichidagi birinchi bola overflow-hidden — uning scrollHeight'i to'liq kontent balandligi.
+export function panelGrowth(panel: HTMLElement | null) {
+  const inner = panel?.firstElementChild as HTMLElement | null;
+  if (!panel || !inner) return 0;
+  return inner.scrollHeight - panel.offsetHeight;
 }
 
 // Inertsiyali (yumshoq) g'ildirak scroll'i — faqat ochiq sahifalarda (MainShell).
