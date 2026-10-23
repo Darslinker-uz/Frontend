@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight, LayoutGrid, Wallet, Rocket, CircleHelp } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
-import { scrollToSection, scrollToTop } from "@/components/smooth-scroll";
+import { scrollToTop } from "@/components/smooth-scroll";
 import { CrmApplyButton } from "@/components/crm/crm-apply";
 import { CRM_HOME, isCrmPage } from "@/lib/crm-pages";
 
@@ -217,15 +217,10 @@ export function Navbar() {
 
   // CRM havolasi bosh sahifada bosilsa — sahifa qayta yuklanmaydi, bo'limga silliq scroll.
   // Mobil menyu avval yopiladi (body qotirig'i olinsin), keyin scroll boshlanadi.
-  const onSectionClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+  const onSectionClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    // Scroll'ning o'zi SmoothScroll'dagi umumiy ishlovchida (capture) — bu yerda faqat mobil menyu yopiladi.
     if (pathname !== CRM_HOME || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
-    const id = href.split("#")[1];
-    const wasOpen = open;
     setOpen(false);
-    window.history.replaceState(null, "", `#${id}`);
-    if (wasOpen) window.setTimeout(() => scrollToSection(id), 60);
-    else scrollToSection(id);
   };
 
   const onLinkEnter = (e: MouseEvent<HTMLElement>) => {
@@ -285,7 +280,7 @@ export function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              onClick={(e) => onSectionClick(e, l.href)}
+              onClick={(e) => onSectionClick(e)}
               tabIndex={tab}
               className={`${cardGlass} flex aspect-[1.4] flex-col justify-between p-4`}
             >
@@ -440,7 +435,7 @@ export function Navbar() {
               {crm ? (
                 <>
                   {crmLinks.map((l) => (
-                    <Link key={l.href} href={l.href} onClick={(e) => onSectionClick(e, l.href)} className={desktopLink} onMouseEnter={onLinkEnter}>{l.label}</Link>
+                    <Link key={l.href} href={l.href} onClick={(e) => onSectionClick(e)} className={desktopLink} onMouseEnter={onLinkEnter}>{l.label}</Link>
                   ))}
                 </>
               ) : (

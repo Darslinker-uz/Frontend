@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronDown, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { PhoneInput } from "@/components/phone-input";
@@ -33,26 +33,39 @@ type Ctx = { open: (plan: CrmPlan, ref: string) => void };
 const CrmApplyContext = createContext<Ctx | null>(null);
 
 export function CrmApplyProvider({ children }: { children: ReactNode }) {
-  const [target, setTarget] = useState<{ plan: CrmPlan; ref: string } | null>(null);
-  const close = useCallback(() => setTarget(null), []);
+  // `open` va forma ma'lumoti alohida: yopilganda forma yopilish animatsiyasi tugaguncha ko'rinib turadi
+  // (aks holda oyna bo'sh bo'lib yopilardi). `n` — har ochilishda yangi forma (eski holat qolmasin).
+  const [open, setOpen] = useState(false);
+  const [target, setTarget] = useState<{ plan: CrmPlan; ref: string; n: number } | null>(null);
+  const close = useCallback(() => setOpen(false), []);
 
   return (
-    <CrmApplyContext.Provider value={{ open: (plan, ref) => setTarget({ plan, ref }) }}>
+    <CrmApplyContext.Provider
+      value={{
+        open: (plan, ref) => {
+          setTarget((prev) => ({ plan, ref, n: (prev?.n ?? 0) + 1 }));
+          setOpen(true);
+        },
+      }}
+    >
       {children}
       <Dialog
-        open={target !== null}
+        open={open}
         disablePointerDismissal
-        onOpenChange={(open, details) => {
-          if (!open && details.reason === "close-press") setTarget(null);
+        onOpenChange={(next, details) => {
+          if (!next && details.reason === "close-press") setOpen(false);
         }}
       >
-        {/* z-[80]: navbar (z-[60]) ustida — mobilda oynaning tepasi navbar ostida qolmasin. */}
+        {/* z-[80]: navbar (z-[60]) ustida — mobilda oynaning tepasi navbar ostida qolmasin.
+            Fon: ekrandan 160px tashqariga cho'zilgan (-inset-y-40) — Telegram va boshqa ilova brauzerlarida
+            manzil/asboblar paneli yig'ilganda ham tepa va past xiralashmay qolmasin; xiralash kuchliroq.
+            Ochilish/yopilish: fon 300ms'da so'nadi, oyna pastdan ko'tarilib kattalashadi (va teskari). */}
         <DialogContent
           showCloseButton={false}
-          overlayClassName="z-[80] bg-[#0b1520]/50"
-          className="fixed top-1/2 left-1/2 z-[80] grid max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 gap-0 overflow-y-auto rounded-[22px] border-0 p-0 shadow-[0_24px_80px_-20px_rgba(9,25,43,.45)] data-open:animate-in data-open:zoom-in-95 data-closed:animate-out data-closed:zoom-out-95 sm:max-h-[min(88vh,820px)] sm:max-w-[860px] sm:rounded-[26px]"
+          overlayClassName="z-[80] -inset-y-40 bg-[#0b1520]/55 backdrop-blur-md supports-backdrop-filter:backdrop-blur-md duration-300 ease-out"
+          className="fixed top-1/2 left-1/2 z-[80] grid max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 gap-0 overflow-y-auto rounded-[22px] border-0 p-0 shadow-[0_24px_80px_-20px_rgba(9,25,43,.45)] duration-300 ease-[cubic-bezier(.22,1,.36,1)] data-open:animate-in data-open:fade-in-0 data-open:zoom-in-[0.96] data-open:slide-in-from-bottom-6 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-[0.96] data-closed:slide-out-to-bottom-6 motion-reduce:animate-none sm:max-h-[min(88vh,820px)] sm:max-w-[860px] sm:rounded-[26px]"
         >
-          {target && <ApplyForm key={`${target.plan}-${target.ref}`} plan={target.plan} refSource={target.ref} onClose={close} />}
+          {target && <ApplyForm key={target.n} plan={target.plan} refSource={target.ref} onClose={close} />}
         </DialogContent>
       </Dialog>
     </CrmApplyContext.Provider>
@@ -176,45 +189,42 @@ function ApplyForm({ plan: initialPlan, refSource, onClose }: { plan: CrmPlan; r
   );
 }
 
-// "O'quvchilar soni": brauzerning tizim ro'yxati o'rniga forma uslubidagi ro'yxat — maydonning o'zi ostida
-// (oqimda) ochiladi, shuning uchun oyna ichida scroll bo'lsa ham kesilmaydi va mobilda joyida turadi.
+// "O'quvchilar soni": maydon bosilganda ariza oynasi ustida alohida kichik oyna ochiladi (mobilda pastdan
+// chiquvchi panel, kompyuterda markazda). Variant tanlanishi bilan oyna yopilib, qiymat maydonga tushadi.
+// Ichma-ich Dialog — fokus va "orqa fon bosilmaydi" qoidalarini base-ui o'zi to'g'ri boshqaradi.
 function StudentsSelect({ value, onChange, disabled, className }: { value: string; onChange: (v: string) => void; disabled?: boolean; className: string }) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: PointerEvent) => { if (!rootRef.current?.contains(e.target as Node)) setOpen(false); };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { e.stopPropagation(); setOpen(false); } };
-    document.addEventListener("pointerdown", onDown);
-    document.addEventListener("keydown", onKey, true);
-    // Ochilgach ro'yxat to'liq ko'rinsin (oyna ichida kerak bo'lsa ozgina scroll).
-    const id = window.setTimeout(() => listRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }), 180);
-    return () => {
-      document.removeEventListener("pointerdown", onDown);
-      document.removeEventListener("keydown", onKey, true);
-      window.clearTimeout(id);
-    };
-  }, [open]);
 
   return (
-    <div ref={rootRef}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <button
         type="button"
         disabled={disabled}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
         aria-expanded={open}
         aria-label="O‘quvchilar soni"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
         className={cn(className, "flex cursor-pointer items-center justify-between text-left", !value && "text-[#8792a0]", open && "border-[#7ea2d4] ring-2 ring-[#7ea2d4]/20")}
       >
         <span>{value ? `${value} o‘quvchi` : "O‘quvchilar soni"}</span>
-        <ChevronDown aria-hidden="true" className={cn("h-[18px] w-[18px] shrink-0 text-[#7c8490] transition-transform duration-200", open && "rotate-180")} />
+        <ChevronDown aria-hidden="true" className="h-[18px] w-[18px] shrink-0 text-[#7c8490]" />
       </button>
-      <div className={cn("grid transition-[grid-template-rows] duration-200 ease-out", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}>
-        <div className="overflow-hidden">
-          <ul ref={listRef} role="listbox" aria-label="O‘quvchilar soni" className="mt-1.5 rounded-[12px] border border-[#e3e7ec] bg-white p-1.5">
+      <DialogContent
+        showCloseButton={false}
+        forceOverlay
+        overlayClassName="z-[90] -inset-y-40 bg-[#0b1520]/35 duration-300 ease-out"
+        className="fixed z-[90] w-full max-w-none gap-0 rounded-none bg-transparent p-0 ring-0 duration-300 ease-[cubic-bezier(.22,1,.36,1)] max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:translate-x-0 max-sm:translate-y-0 data-open:animate-in data-open:fade-in-0 max-sm:data-open:slide-in-from-bottom-full sm:max-w-[400px] sm:data-open:zoom-in-[0.96] data-closed:animate-out data-closed:fade-out-0 max-sm:data-closed:slide-out-to-bottom-full sm:data-closed:zoom-out-[0.96] motion-reduce:animate-none"
+      >
+        <div className="rounded-t-[24px] bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-20px_60px_-20px_rgba(9,25,43,.4)] sm:rounded-[22px] sm:p-5">
+          <div aria-hidden="true" className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#dfe3e8] sm:hidden" />
+          <div className="flex items-center justify-between px-1">
+            <DialogTitle className="text-[17px] font-bold text-[#16181a]">O‘quvchilar soni</DialogTitle>
+            <DialogClose render={<button type="button" aria-label="Yopish" className="grid h-9 w-9 place-items-center rounded-full text-[#7c8490] transition hover:bg-[#f0f2f3] hover:text-[#16181a]" />}>
+              <X className="h-4 w-4" />
+            </DialogClose>
+          </div>
+          <DialogDescription className="px-1 text-[13px] text-[#7c8490]">Markazingizda taxminan nechta o‘quvchi bor?</DialogDescription>
+          <ul role="listbox" aria-label="O‘quvchilar soni" className="mt-3 space-y-1.5">
             {STUDENT_RANGES.map((r) => {
               const selected = value === r;
               return (
@@ -223,23 +233,22 @@ function StudentsSelect({ value, onChange, disabled, className }: { value: strin
                     type="button"
                     role="option"
                     aria-selected={selected}
-                    tabIndex={open ? 0 : -1}
                     onClick={() => { onChange(r); setOpen(false); }}
                     className={cn(
-                      "flex h-11 w-full items-center justify-between rounded-[9px] px-3 text-left text-[15px] transition-colors",
-                      selected ? "bg-[#eef3fa] font-semibold text-[#2d5a8a]" : "text-[#16181a] hover:bg-[#f4f6f8]",
+                      "flex h-[52px] w-full items-center justify-between rounded-[14px] px-4 text-left text-[16px] transition-colors",
+                      selected ? "bg-[#eef3fa] font-semibold text-[#2d5a8a] ring-1 ring-[#7ea2d4]/50" : "bg-[#f7f8fa] text-[#16181a] hover:bg-[#eef1f4]",
                     )}
                   >
                     {r} o‘quvchi
-                    {selected && <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2.5} />}
+                    {selected && <Check aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.5} />}
                   </button>
                 </li>
               );
             })}
           </ul>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

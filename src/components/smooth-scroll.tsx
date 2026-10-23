@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 
@@ -20,10 +21,12 @@ export function scrollToTop() {
 export function scrollToSection(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  const offset = -(parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
+  // Maqsad aniq son sifatida hisoblanadi: Lenis elementga scroll qilganda scroll-margin'ni o'zi ham
+  // qo'shadi — element berilsa margin ikki marta hisoblanib, bo'lim navbar'dan uzoqda to'xtardi.
+  const top = window.scrollY + el.getBoundingClientRect().top - (parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (instance && !reduced) {
-    instance.scrollTo(el, { offset, duration: 1.2, easing: (t) => 1 - Math.pow(1 - t, 4) });
+    instance.scrollTo(Math.max(0, top), { duration: 1.2, easing: (t) => 1 - Math.pow(1 - t, 4) });
   } else {
     el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
   }
@@ -38,9 +41,28 @@ export function scrollToCenter(el: HTMLElement) {
   const offset = rect.height < free ? -(NAV + (free - rect.height) / 2) : -NAV;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (instance && !reduced) {
-    instance.scrollTo(el, { offset, duration: 1, easing: (t) => 1 - Math.pow(1 - t, 3) });
+    instance.scrollTo(Math.max(0, window.scrollY + rect.top + offset), { duration: 1, easing: (t) => 1 - Math.pow(1 - t, 3) });
   } else {
     window.scrollTo({ top: window.scrollY + rect.top + offset, behavior: reduced ? "auto" : "smooth" });
+  }
+}
+
+// Element ekranning qoq o'rtasiga kelishi uchun kerakli scrollY (joriy joylashuv bo'yicha).
+// Element ekrandan baland bo'lsa — tepasi navbar (88px) ostiga keladi.
+export function centerTarget(el: HTMLElement) {
+  const rect = el.getBoundingClientRect();
+  const NAV = 88;
+  const free = window.innerHeight - NAV;
+  return Math.max(0, window.scrollY + rect.top - (rect.height < free ? NAV + (free - rect.height) / 2 : NAV));
+}
+
+// Berilgan scrollY'ga tez va silliq o'tish (Lenis bo'lsa u orqali).
+export function scrollToY(y: number, duration = 0.45) {
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (instance && !reduced) {
+    instance.scrollTo(y, { duration, easing: (t) => 1 - Math.pow(1 - t, 3) });
+  } else {
+    window.scrollTo({ top: y, behavior: reduced ? "auto" : "smooth" });
   }
 }
 
@@ -71,7 +93,69 @@ export function panelGrowth(panel: HTMLElement | null) {
 // Inertsiyali (yumshoq) g'ildirak scroll'i — faqat ochiq sahifalarda (MainShell).
 // Sensorli ekranda brauzerning o'z scroll'i qoladi; `prefers-reduced-motion`
 // yoqilgan bo'lsa Lenis o'zi o'chadi.
+// body qotirig'i (modal / mobil menyu) olinishini kutib, so'ng `fn` ni chaqiradi (eng ko'pi ~1 soniya).
+function whenUnlocked(fn: () => void) {
+  let tries = 0;
+  const tick = () => {
+    if (!isLocked() || tries++ > 60) requestAnimationFrame(fn);
+    else requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// Boshqa sahifadan "/sahifa#bo'lim" havolasi bosilganda — yangi sahifa tepadan ochilib, so'ng bo'limga
+// silliq tushish uchun maqsad shu yerda saqlanadi (Next'ning o'zi hash'ga keskin sakraydi).
+const PENDING_KEY = "dl_scroll_to";
+
 export function SmoothScroll() {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Butun sayt bo'yicha: navbar, footer, hero va boshqa joydagi "#bo'lim" havolalari doim silliq scroll.
+  // Capture bosqichida — Next <Link> o'z onClick'ida hash'ga keskin sakrashidan oldin ushlaymiz
+  // (preventDefault'dan keyin Link navigatsiya qilmaydi; navbar'ning o'z onClick'i menyuni yopishda davom etadi).
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
+      const url = new URL(a.href, window.location.href);
+      if (url.origin !== window.location.origin || !url.hash) return;
+      const id = decodeURIComponent(url.hash.slice(1));
+      if (!id) return;
+      e.preventDefault();
+      if (url.pathname === window.location.pathname) {
+        window.history.replaceState(null, "", `#${id}`);
+        // Mobil menyu ochiq bo'lsa (body qotirilgan) — qotirig'i haqiqatda olinguncha kutamiz (aks holda
+        // qotirish sinxroni scroll'ni yarim yo'lda to'xtatadi); keyin bir kadr kutib boshlaymiz.
+        whenUnlocked(() => scrollToSection(id));
+      } else {
+        try { window.sessionStorage.setItem(PENDING_KEY, id); } catch {}
+        router.push(url.pathname + url.search);
+      }
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [router]);
+
+  // Yangi sahifaga o'tilgach: saqlangan bo'lim bo'lsa — sahifa chizilib bo'lgach unga silliq tushamiz.
+  useEffect(() => {
+    let id: string | null = null;
+    try {
+      id = window.sessionStorage.getItem(PENDING_KEY);
+      window.sessionStorage.removeItem(PENDING_KEY);
+    } catch {}
+    if (!id) return;
+    const target = id;
+    // Next yangi sahifani tepaga o'tkazib, kontent joylashib bo'lgach (rasm/shriftlar) boshlaymiz —
+    // erta boshlansa Next'ning "tepaga" scroll'i animatsiyani yarim yo'lda to'xtatadi.
+    const timer = window.setTimeout(() => {
+      window.history.replaceState(null, "", `#${target}`);
+      scrollToSection(target);
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
+
   useEffect(() => {
     const lenis = new Lenis({
       autoRaf: true,

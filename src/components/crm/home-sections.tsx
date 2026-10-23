@@ -112,12 +112,11 @@ export function HomeSections() {
           </div>
         </section>
 
-        {/* YAKUNIY CTA — boshidagi daftar motivi yopiladi */}
+        {/* YAKUNIY CTA */}
         <section className="max-w-[1600px] mx-auto px-5 md:px-20 pb-16 md:pb-24">
           <div className="rounded-[24px] bg-[#1e2024] text-white p-8 md:p-14 grid md:grid-cols-[1fr_auto] gap-8 items-center overflow-hidden">
             <div>
-              <p className="font-[family-name:var(--font-kalam)] text-[26px] md:text-[34px] text-[#7ea2d4] leading-tight">Daftarni yoping.</p>
-              <h2 className="mt-2 text-[28px] md:text-[40px] font-bold tracking-[-0.03em] leading-tight">
+              <h2 className="text-[28px] md:text-[40px] font-bold tracking-[-0.03em] leading-tight">
                 Markazingizni bugun tizimga o&apos;tkazing
               </h2>
               <p className="mt-3 text-[15px] md:text-[17px] text-white/60 max-w-[520px]">

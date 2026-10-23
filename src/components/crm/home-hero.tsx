@@ -93,7 +93,7 @@ export function HomeHero() {
                 (mobilda vw bilan, lg'dan ikki ustunli joylashuvga qarab). */}
             <div className="order-1 lg:order-none">
               <h1 className="text-center tracking-[-0.035em] lg:text-left">
-                <span className="block whitespace-nowrap text-[clamp(20px,5.4vw,26px)] font-semibold leading-tight tracking-[-0.015em] text-[#5d6672] md:text-[30px] lg:text-[28px] xl:text-[34px] 2xl:text-[38px]">
+                <span className="block whitespace-nowrap text-[clamp(20px,5.4vw,26px)] font-semibold leading-tight tracking-[-0.015em] text-[#5b87c0] md:text-[30px] lg:text-[28px] xl:text-[34px] 2xl:text-[38px]">
                   O&apos;quv markazlari uchun
                 </span>
                 <span className="mt-2 block whitespace-nowrap text-[clamp(46px,14vw,72px)] font-bold leading-[0.98] md:text-[84px] lg:text-[72px] xl:text-[88px] 2xl:text-[100px]">

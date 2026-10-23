@@ -104,8 +104,11 @@ export function TiltOnScroll({ className, behind, children }: { className?: stri
       else if (!frame) frame = requestAnimationFrame(tick);
     };
 
+    let reset = false; // mobil/planshetda tozalash bir marta — har scroll'da uslub yozilmasin
     const check = () => {
       if (!xl.matches) {
+        if (reset) return;
+        reset = true;
         cancelAnimationFrame(frame);
         frame = 0;
         target = dir = 0; // xl'ga qaytilganda CSS'dagi asl holatdan qayta boshlanadi
@@ -115,6 +118,7 @@ export function TiltOnScroll({ className, behind, children }: { className?: stri
         cards.forEach((c) => { c.style.rotate = ""; c.style.transform = ""; });
         return;
       }
+      reset = false;
       const sp = scrollProgress();
       if (sp >= TRIGGER && target !== 1) go(1);
       else if (sp <= RESET && target !== 0) go(0);

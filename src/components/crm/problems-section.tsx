@@ -107,12 +107,10 @@ export function ProblemsSection() {
           ))}
         </TiltOnScroll>
         </div>
-        {/* Mobilda kichik matn bitta qatorda (shrift ekran eniga bog'langan: 100vw − section'ning 2×20px
-            chekkasi, matn uzunligiga bo'lingan). Sarlavha mobilda ikki qator: "Boshqaruvni" ostidagi
-            qator eniga cho'ziladi (w-0 + min-w-full konteynerni kengaytirmaydi, textLength yoyadi). */}
+        {/* Sarlavha mobilda ikki qator: "Boshqaruvni" ostidagi qator eniga cho'ziladi
+            (w-0 + min-w-full konteynerni kengaytirmaydi, textLength yoyadi). */}
         <div className="mx-auto mt-6 max-w-[680px] text-center md:mt-8 md:px-5">
           <p className="hidden text-[34px] font-semibold tracking-[-0.02em] leading-[48px] text-[#4b525c] xl:hidden">Sizda ham shu muammolar bormi?</p>
-          <p className="mx-auto mt-4 whitespace-nowrap text-[length:min(19.5px,calc((100vw_-_40px)/21.5))] leading-relaxed text-[#5d6672] md:max-w-[540px] md:text-[22px]">Markaz o‘sgani sari nazorat qiyinlashadi.</p>
           <h2 id="problems-title" className="mt-3 inline-flex flex-col items-stretch whitespace-nowrap text-[length:min(40px,calc((100vw_-_40px)/13))] leading-tight font-semibold tracking-[-0.035em] text-[#16181a] md:block md:text-[40px]">
             <span className="sr-only md:not-sr-only">Boshqaruvni </span>
             <span aria-hidden="true" className="mb-1 block w-0 min-w-full md:hidden">
@@ -122,7 +120,7 @@ export function ProblemsSection() {
                 </text>
               </svg>
             </span>
-            <span>Dars<span className="text-[#2d5a8a]">Linker</span>ga topshiring.</span>
+            <span>Dars<span className="text-[#2d5a8a]">Linker</span>ga topshiring!</span>
           </h2>
         </div>
       </div>

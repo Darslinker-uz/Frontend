@@ -44,14 +44,17 @@ function DialogContent({
   children,
   showCloseButton = true,
   overlayClassName,
+  forceOverlay,
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
   overlayClassName?: string
+  // Ichma-ich (nested) dialogda ham fon ko'rinsin — base-ui odatda faqat eng tashqi dialog fonini chizadi.
+  forceOverlay?: boolean
 }) {
   return (
     <DialogPortal>
-      <DialogOverlay className={overlayClassName} />
+      <DialogOverlay className={overlayClassName} forceRender={forceOverlay} />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(

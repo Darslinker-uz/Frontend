@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { panelGrowth, scrollToFutureCenter } from "@/components/smooth-scroll";
+import { flushSync } from "react-dom";
+import { centerTarget, scrollToY } from "@/components/smooth-scroll";
 import { Users, CalendarDays, ClipboardCheck, Wallet, KanbanSquare, LayoutDashboard, FileSpreadsheet, ShieldCheck, Trophy, Check, AlertTriangle, ChevronDown, type LucideIcon } from "lucide-react";
 
 // "Darslinker imkoniyatlari" — 9 ta asosiy CRM/LMS imkoniyati (MVP), sticky scroll ko'rinishida:
@@ -87,12 +88,16 @@ const FEATURES: Feature[] = [
 // Yagona rang (grafit): --a — urg'u, --s — och fon. Namunalar ham shu o'zgaruvchilardan foydalanadi.
 const COLORS = { "--a": "#3d444d", "--s": "#eceef1" } as CSSProperties;
 
+// Sarlavha ostidan necha px oraliqda qator to'liq ko'rinishdan 0% gacha so'nadi.
+const FADE_DISTANCE = 72;
+
 export function FeaturesExplorer() {
   const [active, setActive] = useState(0);
   const items = useRef<(HTMLElement | null)[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Sarlavha o'ralganda ham namuna uning ostida, ekran ichida qoladi.
   useEffect(() => {
@@ -132,6 +137,13 @@ export function FeaturesExplorer() {
         }
       });
       setActive((previous) => previous === closest ? previous : closest);
+
+      // Sarlavha foniga yaqinlashgan qatorlar silliq 0% gacha so'nadi (har qator alohida).
+      const edge = headingRef.current?.getBoundingClientRect().bottom ?? 0;
+      listRef.current?.querySelectorAll<HTMLElement>("[data-fade]").forEach((el) => {
+        const t = Math.min(Math.max((el.getBoundingClientRect().top - edge) / FADE_DISTANCE, 0), 1);
+        el.style.opacity = String(t * t * (3 - 2 * t));
+      });
     };
     const schedule = () => {
       if (!frame) frame = window.requestAnimationFrame(updateActive);
@@ -152,7 +164,11 @@ export function FeaturesExplorer() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="imkoniyatlar" aria-labelledby="features-title" style={COLORS} className="scroll-mt-24 max-w-[1600px] mx-auto bg-[var(--s)] px-5 md:px-20 py-16 md:py-24 shadow-[0_0_0_100vmax_var(--s)] [clip-path:inset(0_-100vmax)] [--preview-top:240px]">
+    <section ref={sectionRef} id="imkoniyatlar" aria-labelledby="features-title" style={COLORS} className="scroll-mt-24 max-w-[1600px] mx-auto bg-[var(--s)] px-5 md:px-20 py-16 md:py-24 min-[1600px]:shadow-[0_0_0_100vmax_var(--s)] min-[1600px]:[clip-path:inset(0_-100vmax)] [--preview-top:240px] [--preview-h:min(520px,calc(100dvh_-_var(--preview-top)_-_24px))]">
+      {/* Sarlavha shu o'ram ichida yopishadi. Desktopda o'ram namuna yopishishni tugatadigan nuqtada
+          (ro'yxat oxiri − 20px oraliq − namuna balandligi) tugaydi: sarlavha va namuna tepaga birga
+          ketadi. flow-root — manfiy margin o'ramdan tashqariga "oqib" chiqmasin. */}
+      <div className="flow-root">
       <div ref={headingRef} className="relative z-20 lg:sticky lg:top-[88px] flex flex-col gap-3 bg-[var(--s)] py-3 shadow-[0_-88px_0_var(--s)] md:flex-row md:items-end md:justify-between md:gap-6">
         {/* Pastdan yaqinlashgan kontent blur + gradient orqali sarlavha ortida yo'qoladi. */}
         <div
@@ -173,14 +189,14 @@ export function FeaturesExplorer() {
       {/* Sarlavha va imkoniyatlar bir xil, uzluksiz fonda. */}
       <MobileFolder />
 
-      <div className="mt-10 hidden py-10 md:py-14 lg:block">
+      <div className="mt-10 hidden py-10 md:py-14 lg:block lg:mb-[calc(-76px_-_var(--preview-h))]">
         <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] xl:gap-16">
           {/* Sahna: chapda yopishib turadi, imkoniyatlar orasida namuna silliq almashadi */}
           <div className="hidden lg:block">
             <div
               ref={previewRef}
               aria-hidden="true"
-              className="sticky top-[var(--preview-top)] h-[min(520px,calc(100dvh-var(--preview-top)-24px))] overflow-hidden rounded-[32px] bg-white bg-[radial-gradient(color-mix(in_srgb,var(--a)_35%,transparent)_1px,transparent_1px)] bg-[size:20px_20px] ring-1 ring-black/[0.04]"
+              className="sticky top-[var(--preview-top)] h-[var(--preview-h)] overflow-hidden rounded-[32px] bg-white bg-[radial-gradient(color-mix(in_srgb,var(--a)_35%,transparent)_1px,transparent_1px)] bg-[size:20px_20px] ring-1 ring-black/[0.04]"
             >
               {FEATURES.map((f, i) => (
                 <div
@@ -202,7 +218,7 @@ export function FeaturesExplorer() {
               Yuqori padding = namuna balandligining yarmi − maqola yarmi (150px): birinchi maqolaning
               markazi namuna markazi bilan bir chiziqda boshlanadi. Aks holda faol chiziq bo'limga
               kelganda birinchi maqolaning pastki chetida turib, u ~40px scroll'da o'tib ketardi. */}
-          <div className="lg:pt-[max(0px,calc(min(520px,100dvh_-_var(--preview-top)_-_24px)/2_-_150px))]">
+          <div ref={listRef} className="lg:pt-[max(0px,calc(var(--preview-h)/2_-_150px))]">
             {FEATURES.map((f, i) => (
               <article
                 key={f.id}
@@ -210,16 +226,16 @@ export function FeaturesExplorer() {
                 data-index={i}
                 className={`flex flex-col justify-center border-b border-[#16181a]/10 py-8 transition-opacity duration-300 last:border-b-0 lg:min-h-[300px] ${i === active ? "lg:opacity-100" : "lg:opacity-35"}`}
               >
-                <div className="flex items-center gap-3">
+                <div data-fade className="flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-white">
                     <f.Icon className="h-5 w-5 text-[var(--a)]" />
                   </span>
                   <span className="text-[13px] font-semibold tabular-nums text-[var(--a)]">{String(i + 1).padStart(2, "0")}</span>
                 </div>
-                <h3 className="mt-4 text-[26px] font-bold tracking-[-0.03em] text-[#16181a] md:text-[32px]">{f.title}</h3>
+                <h3 data-fade className="mt-4 text-[26px] font-bold tracking-[-0.03em] text-[#16181a] md:text-[32px]">{f.title}</h3>
                 <ul className="mt-4 space-y-2.5">
                   {f.points.map((p) => (
-                    <li key={p} className="flex gap-3 text-[15px] leading-relaxed text-[#3d444d] md:text-[16px]">
+                    <li key={p} data-fade className="flex gap-3 text-[15px] leading-relaxed text-[#3d444d] md:text-[16px]">
                       <Check className="mt-1 h-4 w-4 shrink-0 text-[var(--a)]" strokeWidth={3} />
                       {p}
                     </li>
@@ -230,6 +246,9 @@ export function FeaturesExplorer() {
           </div>
         </div>
       </div>
+      </div>
+      {/* O'ramning manfiy marginini qoplaydi — sahifa joylashuvi o'zgarmaydi. */}
+      <div aria-hidden="true" className="hidden h-[calc(76px_+_var(--preview-h))] lg:block" />
     </section>
   );
 }
@@ -242,23 +261,43 @@ const FOLDER_DARK_FROM = 5; // shu indeksdan boshlab matn oq
 function MobileFolder() {
   const [open, setOpen] = useState(-1); // boshida hammasi yopiq
   const cards = useRef<(HTMLElement | null)[]>([]);
-  const panels = useRef<(HTMLElement | null)[]>([]);
 
-  // Tez va silliq: panel 220ms da ochiladi, shu zahoti varaq 0.4s da ekran o'rtasiga yo'l oladi —
-  // yakuniy balandlik oldindan hisoblanadi, yuqorida yopilayotgan varaq bo'shatadigan joy ham hisobga olinadi.
+  // Qotmaslik uchun FLIP: joylashuv BIR MARTA o'zgaradi (balandlik animatsiyasi yo'q — har kadrda butun
+  // sahifa qayta hisoblanmaydi). Siljigan varaqlar eski joyidan yangisiga faqat transform bilan (GPU) o'tadi,
+  // ochilgan varaq kontenti clip-path bilan pastga qarab ochiladi. Scroll nishoni yakuniy joylashuvdan.
   const toggle = (i: number) => {
     const next = open === i ? -1 : i;
-    const el = cards.current[i];
-    if (next !== -1 && el) {
-      // Yakuniy balandlik: panel o'sishi − sarlavha pastki padding'i (pb-8 → pb-4, 16px).
-      const prev = open !== -1 && open < i ? panels.current[open] : null;
-      scrollToFutureCenter(el, el.offsetHeight + panelGrowth(panels.current[i]) - 16, prev ? prev.offsetHeight - 16 : 0);
+    const items = cards.current;
+    const before = items.map((el) => el?.getBoundingClientRect().top ?? 0);
+
+    flushSync(() => setOpen(next));
+
+    // Yakuniy joylashuvni o'lchash uchun avvalgi (tugallanmagan) siljishlar olib tashlanadi.
+    items.forEach((el) => { if (el) { el.style.transition = "none"; el.style.transform = ""; } });
+    const target = next !== -1 && items[next] ? centerTarget(items[next]!) : null;
+
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const moved: HTMLElement[] = [];
+      items.forEach((el, k) => {
+        if (!el) return;
+        const dy = before[k] - el.getBoundingClientRect().top;
+        if (Math.abs(dy) < 1) return;
+        el.style.transform = `translate3d(0, ${dy}px, 0)`;
+        moved.push(el);
+      });
+      requestAnimationFrame(() => {
+        moved.forEach((el) => {
+          el.style.transition = "transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1)";
+          el.style.transform = "";
+        });
+      });
     }
-    setOpen(next);
+    if (target !== null) scrollToY(target, 0.45);
   };
 
   return (
     <div className="mt-8 lg:hidden">
+      <style>{"@keyframes folder-reveal { from { clip-path: inset(0 0 100% 0); opacity: 0.4 } to { clip-path: inset(0 0 0 0); opacity: 1 } }"}</style>
       {FEATURES.map((f, i) => {
         const on = i === open;
         const dark = i >= FOLDER_DARK_FROM;
@@ -285,8 +324,8 @@ function MobileFolder() {
                 <ChevronDown aria-hidden="true" className={`h-5 w-5 shrink-0 transition-transform duration-300 ${on ? "rotate-180" : ""}`} />
               </button>
             </h3>
-            <div id={`feature-folder-${f.id}`} ref={(el) => { panels.current[i] = el; }} className={`grid transition-[grid-template-rows] duration-[220ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none ${on ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-              <div className={`overflow-hidden transition-opacity duration-[220ms] ${on ? "opacity-100" : "opacity-0"}`}>
+            <div id={`feature-folder-${f.id}`} hidden={!on}>
+              <div className={on ? "motion-safe:animate-[folder-reveal_280ms_cubic-bezier(0.2,0.8,0.2,1)_both]" : ""}>
                 <div className="px-5 pb-9">
                   <ul className="space-y-2">
                     {f.points.map((p) => (
