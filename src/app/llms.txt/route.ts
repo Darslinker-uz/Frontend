@@ -50,6 +50,8 @@ export async function GET() {
     "",
     "Kimlar uchun: xususiy o'quv markazlari (til, IT, abituriyentlarga tayyorlov va boshqa yo'nalishlar) va repetitorlar.",
     "",
+    `Yangi o'quvchilar: Darslinker'da CRM bilan bir qatorda kurslar marketplace'i (${SITE_URL}/marketplace) ham ishlaydi — o'quvchilar kurslarni solishtiradi va markazga to'g'ridan-to'g'ri ariza qoldiradi, ya'ni markaz mavjud o'quvchilarni boshqarish bilan birga qo'shimcha lidlar ham oladi.`,
+    "",
     "Imkoniyatlar (har bir tarifda bor):",
     ...CRM_FEATURES.map((f) => `- ${f}`),
     "",

@@ -362,7 +362,7 @@ export function Navbar() {
               style={cardStyle(5)}
             >
               <LayoutGrid className={`h-4 w-4 ${cardIcon}`} />
-              CRM va LMS
+              Darslinker CRM
             </Link>
           )}
 
@@ -473,7 +473,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop CTA — o'ng burchakda: CRM sahifada ariza (yagona tugma), katalogda Yordam.
-              Katalogda chapida "CRM va LMS" (/) — faqat xl'dan: torroqda markazdagi havolalar bilan
+              Katalogda chapida "Darslinker CRM" (/) — faqat xl'dan: torroqda markazdagi havolalar bilan
               to'qnashadi (mobil menyuda bor). */}
           <div className="hidden md:flex items-center gap-2 shrink-0">
           {!crm && (
@@ -483,7 +483,7 @@ export function Navbar() {
                 night ? "bg-white/10 text-white hover:bg-white/20" : "bg-[#16181a]/[0.06] text-[#16181a] hover:bg-[#16181a]/10"
               }`}
             >
-              CRM va LMS
+              Darslinker CRM
             </Link>
           )}
           {crm ? (
