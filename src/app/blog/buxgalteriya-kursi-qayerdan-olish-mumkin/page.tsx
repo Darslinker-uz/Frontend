@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/buxgalteriya-kursi-qayerdan-olish-mumkin`;
 
 export const metadata: Metadata = {
-  title: "Toshkentda buxgalteriya kursi: 3 ta variant (2026) | Darslinker",
+  title: { absolute: "Toshkentda buxgalteriya kursi: 3 ta variant (2026) | Darslinker" },
   description:
     "ABCO Akademiya, Buxgalterlar Akademiyasi va Zamon kurslari — narx, davomiylik va yo'nalish qamrovi bo'yicha halol taqqoslash. Milliy sertifikatdanmi, ACCA'danmi boshlash kerak?",
   keywords: [

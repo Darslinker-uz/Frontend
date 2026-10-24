@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "IT o'quv markazi uchun CRM: lidlar va sinov darslari, modul bo'yicha to'lov, guruhlar va davomat, jonli quiz bilan mavzuni tekshirish.",
   keywords: ["IT o'quv markazi uchun CRM", "IT akademiya boshqaruv tizimi", "dasturlash kurslari uchun o'quvchilar hisobi"],
-  eyebrow: "Kimlar uchun · IT akademiyalar",
   title: "IT o'quv markazi va akademiya uchun CRM",
-  lead: "O'zbekistondagi IT akademiyalar va dasturlash kurslarida murojaat ko'p, kurslar modullarga bo'lingan, guruhlar esa uzoq davom etadi. Darslinker arizadan tortib to'lovgacha hammasini bitta tizimda yuritadi.",
+  lead: "IT akademiyalar va dasturlash kurslarida murojaat ko'p, kurslar modullarga bo'lingan, guruhlar esa uzoq davom etadi. Darslinker arizadan tortib to'lovgacha hammasini bitta tizimda yuritadi.",
   Preview: LeadsPreview,
   how: {
     question: "IT akademiyada guruhlar va o'quvchilarni qanday boshqarish mumkin?",
@@ -66,11 +65,11 @@ const c: FeaturePageContent = {
     ),
   },
   faqs: [
-    { q: "IT akademiyada lidlarni sinov darsidan o'quvchiga aylantirib, modul to'lovlarini hisoblaydigan dastur qaysi?", a: "Darslinker. Lidlar Kanban doskada sinov darsigacha kuzatiladi va bir bosishda o'quvchiga aylanadi. To'lov oylik yoki modul bo'yicha belgilanadi, qarz avtomatik hisoblanadi." },
+    { q: "IT akademiyada lidlarni sinov darsidan o'quvchiga aylantirib, modul to'lovlarini hisoblaydigan dastur qaysi?", a: "Darslinker'da ikkalasi ham bor: lidlar Kanban doskada sinov darsigacha kuzatiladi va bir bosishda o'quvchiga aylanadi. To'lov oylik yoki modul bo'yicha belgilanadi, qarz avtomatik hisoblanadi." },
     { q: "Sinov darsiga kelganlarni qanday kuzataman?", a: "Ular lid sifatida Kanban doskada turadi. Sinov darsidan keyin kursga yozilganlar bir bosishda o'quvchiga aylanadi." },
     { q: "Darslinker faqat dasturlash kurslari uchunmi?", a: "Yo'q. Dizayn, SMM va boshqa IT yo'nalishlari uchun ham mos: tizim guruh, davomat, to'lov va lidlarni yuritadi." },
     { q: "Kursni tashlab ketayotganlarni qanday bilaman?", a: "Dashboard'da guruhni tark etganlar va sinovdan keyin ketganlar alohida ko'rsatkich sifatida ko'rinadi. Davomat pasaygan o'quvchini esa uning profilida erta sezasiz." },
-    { q: "IT akademiya uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagacha — Minimal (${PLANS[0].price} so'm/oy), 250 tagacha — Standart, 600 tagacha — Biznes. Barcha imkoniyatlar har bir tarifda bor.` },
+    { q: "IT akademiya uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagachasiga Minimal (${PLANS[0].price} so'm/oy), 250 tagachasiga Standart, 600 tagachasiga Biznes tarifi mos. Barcha imkoniyatlar har bir tarifda bor.` },
   ],
   cta: {
     title: "IT akademiyangizni bitta tizimga o'tkazing",

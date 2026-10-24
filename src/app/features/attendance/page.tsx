@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "O'quv markazi uchun elektron davomat jurnali: o'qituvchi davomatni telefondan belgilaydi, kelmaganlarning ota-onasiga Telegram xabar o'zi boradi.",
   keywords: ["o'quv markazi davomat tizimi", "davomat jurnali elektron", "o'quvchilar davomati dasturi", "davomatni nazorat qilish"],
-  eyebrow: "Imkoniyat · Davomat",
   title: "O'quv markazi davomat tizimi",
-  lead: "Darslinker O'zbekistondagi o'quv markazlari uchun elektron davomat jurnali. O'qituvchi davomatni darsning o'zida telefondan belgilaydi: kim kelmagani darhol ko'rinadi, ota-onasiga esa Telegram orqali xabar boradi.",
+  lead: "Darslinker o'quv markazi uchun elektron davomat jurnalini yuritadi. O'qituvchi davomatni darsning o'zida telefondan belgilaydi: kim kelmagani darhol ko'rinadi, ota-onasiga esa Telegram orqali xabar boradi.",
   Preview: AttendancePreview,
   how: {
     question: "O'quvchilar davomati qanday yuritiladi?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     "O'qituvchi davomatni dars paytida telefondan belgilaydi, ilova o'rnatish shart emas.",
     "Darsga kelmagan o'quvchining ota-onasiga Telegram xabar avtomatik boradi.",
     "Davomat har o'quvchining profilida to'lovlari bilan birga saqlanadi.",
-    "Elektron davomat jurnali barcha tariflarda bor, 14 kun bepul sinab ko'rish mumkin.",
+    "O'qituvchi almashsa ham davomat tarixi tizimda saqlanib qoladi.",
   ],
   compare: {
     question: "Qog'oz jurnaldan nimasi farq qiladi?",
@@ -58,17 +57,15 @@ const c: FeaturePageContent = {
     title: "Davomat, to'lov va quiz bitta joyda",
     text: (
       <p>
-        O&apos;quvchining davomati uning profilida{" "}
-        <Link href="/features/payments" className={TEXT_LINK}>to&apos;lovlari</Link>{" "}va{" "}
-        <Link href="/features/live-quiz" className={TEXT_LINK}>quiz natijalari</Link>{" "}bilan birga ko&apos;rinadi.
-        Ota-onaga xabarlar qanday ishlashi —{" "}
-        <Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida.
-        Davomat barcha tariflarda bor, tariflar oyiga {PLANS[0].price}{" "}so&apos;mdan boshlanadi.
+        O&apos;quvchining davomati uning profilida{" "}<Link href="/features/payments" className={TEXT_LINK}>to&apos;lovlari</Link>{" "}va{" "}
+        <Link href="/features/live-quiz" className={TEXT_LINK}>quiz natijalari</Link>{" "}bilan birga ko&apos;rinadi. Ota-onaga xabarlar qanday borishini
+        {" "}<Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida ko&apos;rasiz. Davomat barcha tariflarda bor, tariflar oyiga{" "}
+        {PLANS[0].price}{" "}so&apos;mdan boshlanadi.
       </p>
     ),
   },
   faqs: [
-    { q: "O'qituvchi telefonidan davomat belgilab, kelmagan o'quvchining ota-onasiga avtomatik xabar yuboradigan tizim qaysi?", a: "Darslinker. O'qituvchi davomatni darsda telefondan belgilaydi, ilova o'rnatish shart emas. O'quvchi kelmagan deb belgilansa, ota-onasiga Telegram orqali avtomatik xabar boradi." },
+    { q: "O'qituvchi telefonidan davomat belgilab, kelmagan o'quvchining ota-onasiga avtomatik xabar yuboradigan tizim qaysi?", a: "Darslinker'da shunday: o'qituvchi davomatni darsda telefondan belgilaydi, ilova o'rnatish shart emas. O'quvchi kelmagan deb belgilansa, ota-onasiga Telegram orqali avtomatik xabar boradi." },
     { q: "Davomatni kim belgilaydi?", a: "O'qituvchi o'z guruhlari davomatini dars paytida belgilaydi. Markaz rahbari barcha guruhlar davomatini ko'ra oladi." },
     { q: "Davomat uchun ilova o'rnatish kerakmi?", a: "Yo'q. Davomat telefon brauzerida ochiladigan tizimda belgilanadi, alohida ilova o'rnatish shart emas." },
     { q: "Ota-onaga xabar qanday boradi?", a: "O'quvchi darsga kelmagan deb belgilansa, ota-onasiga Telegram bot orqali avtomatik xabar boradi. SMS kerak emas, shuning uchun bu xabarlar uchun alohida pul to'lanmaydi." },

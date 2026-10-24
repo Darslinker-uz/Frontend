@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/ui-ux-dizayner-maoshi`;
 
 export const metadata: Metadata = {
-  title: "UI/UX dizayner maoshi O'zbekistonda (2026) | Darslinker",
+  title: { absolute: "UI/UX dizayner maoshi O'zbekistonda (2026) | Darslinker" },
   description:
     "Toshkentdagi 22 ta dizayn e'loni qo'lda tahlil qilindi: maosh atigi bittasida ochiq, talab bank va fintechdan kelyapti, \"junior\" yorlig'i yo'q. Portfolio uchun 3 oqim qoidasi.",
   keywords: [

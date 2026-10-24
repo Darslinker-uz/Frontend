@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/smm-mutaxassisi-qancha-ishlaydi`;
 
 export const metadata: Metadata = {
-  title: "O'zbekistonda SMM mutaxassisi qancha ishlaydi? (2026) | Darslinker",
+  title: { absolute: "O'zbekistonda SMM mutaxassisi qancha ishlaydi? (2026) | Darslinker" },
   description:
     "195 ta vakansiya asosida: SMM mutaxassisi 2026-da 3-18 mln so'm oladi. Boshlovchi, o'rta va senior daraja, freelance narxlari va milliy o'rtacha ish haqi bilan taqqos.",
   keywords: [

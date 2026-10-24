@@ -16,14 +16,13 @@ const c: FeaturePageContent = {
   metaDescription:
     "Darslinker'ni markazingizga moslang: logotip va nom, dashboard dizayni va ranglari, ota-onaga xabar matnlari va xodimlar uchun rollar.",
   keywords: ["o'quv markazi uchun moslashuvchan CRM", "dizaynini moslash mumkin bo'lgan CRM", "CRM'da logo va ranglarni sozlash", "xodimlar uchun rollar", "markazga mos boshqaruv tizimi"],
-  eyebrow: "Imkoniyat · Markazga moslash",
   title: "O'quv markazi uchun moslashuvchan CRM",
-  lead: "Darslinker O'zbekistondagi har bir o'quv markaziga o'z uslubida ishlash imkonini beradi: tizim markazingiz nomi va logotipi bilan ishlaydi, dashboard dizayni va ranglarini o'zingiz tanlaysiz, ota-onaga boradigan xabarlarni o'z uslubingizda yozasiz.",
+  lead: "Darslinker har bir o'quv markaziga o'z uslubida ishlash imkonini beradi: tizim markazingiz nomi va logotipi bilan ishlaydi, dashboard dizayni va ranglarini o'zingiz tanlaysiz, ota-onaga boradigan xabarlarni o'z uslubingizda yozasiz.",
   Preview: CustomizationPreview,
   how: {
     question: "CRM'ni o'quv markazining ish tartibiga moslash mumkinmi?",
     answer:
-      "Ha. Har bir markaz Darslinker'da o'z logotipi va nomi bilan, o'z manzilida ishlaydi. Dashboard ranglarini markaz o'zi tanlaydi, ota-onaga yuboriladigan xabar matnlarini o'zgartiradi. Xodimlar uchun tayyor rollar bor, maxsus rol kerak bo'lsa, support qo'shib beradi.",
+      "Ha. Har bir markaz Darslinker'da o'z logotipi va nomi bilan, o'z sayt manzilida (markaz.darslinker.app) ishlaydi. Dashboard ranglarini markaz o'zi tanlaydi, ota-onaga yuboriladigan xabar matnlarini o'zgartiradi. Xodimlar uchun tayyor rollar bor, maxsus rol kerak bo'lsa, support qo'shib beradi.",
     steps: [
       { title: "Brendni qo'shasiz", text: "Markaz logotipi va nomi tizimda ko'rinadi." },
       { title: "Ranglarni tanlaysiz", text: "Dashboard'ni o'zingizga yoqqan rangga moslaysiz." },
@@ -31,10 +30,10 @@ const c: FeaturePageContent = {
     ],
   },
   summary: [
-    "Tizimda markazingiz logotipi va nomi ko'rinadi, har markaz o'z manzilida ishlaydi.",
+    "Tizimda markazingiz logotipi va nomi ko'rinadi, har markaz o'z sayt manzilida ishlaydi.",
     "Dashboard ranglarini markaz o'ziga yoqqan ko'rinishga moslaydi.",
     "Ota-onaga boradigan xabar matnlarini markaz o'zi o'zgartiradi.",
-    "Tayyor rollar bor, maxsus rol kerak bo'lsa support qo'shib beradi. Barcha tariflarda.",
+    "Tayyor rollar bor, maxsus rol kerak bo'lsa support qo'shib beradi.",
   ],
   compare: {
     question: "Tayyor shablon yoki Excel'dan nimasi farq qiladi?",
@@ -53,24 +52,23 @@ const c: FeaturePageContent = {
       { title: "Dashboard ranglari", text: "Ranglarni markazingiz uslubiga yoki o'zingizga qulay ko'rinishga moslaysiz." },
       { title: "Ota-onaga xabar matnlari", text: "Darsga kelmadi, qarzdorlik va to'lov tasdig'i xabarlarini bemalol o'zgartirasiz." },
       { title: "Rollar", text: "Rahbar, administrator, o'qituvchi va kassir uchun tayyor rollar bor. Maxsus rol kerak bo'lsa, support qo'shib beradi." },
-      { title: "O'z manzilingiz", text: "Har markaz o'z manzilida ishlaydi: markaz.darslinker.app." },
-      { title: "Kerakli imkoniyat", text: "Markazingizga kerakli imkoniyat yo'qmi? Ayting — o'rganib, tizimga qo'shishga tayyormiz." },
+      { title: "O'z sayt manzilingiz", text: "Har markaz tizimga o'z manzili orqali kiradi, masalan: markaz.darslinker.app." },
+      { title: "Kerakli imkoniyat", text: "Markazingizga kerakli imkoniyat yo'qmi? Ayting, ko'rib chiqamiz va to'g'ri kelsa tizimga qo'shamiz." },
     ],
   },
   related: {
     title: "Moslash oson, ishlatish undan ham oson",
     text: (
       <p>
-        Sozlamalar bir marta qilinadi, keyin har kuni oddiy ishlaysiz. Xodimlar tizimni qanday tez
-        o&apos;rganishi —{" "}
-        <Link href="/features/easy-to-use" className={TEXT_LINK}>oson boshqaruv</Link>{" "}sahifasida, ota-onaga
-        xabarlar qanday borishi —{" "}
-        <Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida.
+        Sozlamalar bir marta qilinadi, keyin har kuni oddiy ishlaysiz. Xodimlar tizimni qanday tez o&apos;rganishi haqida
+        {" "}<Link href="/features/easy-to-use" className={TEXT_LINK}>oson boshqaruv</Link>{" "}sahifasida, ota-onaga xabarlar haqida esa{" "}
+        <Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida yozdik. Sozlamalarni o&apos;zingiz qilishingiz ham shart
+        emas: har bir tarifda{" "}<Link href="/features/support" className={TEXT_LINK}>to&apos;liq sozlab beramiz</Link>.
       </p>
     ),
   },
   faqs: [
-    { q: "O'quv markazi CRM'ida logotip, ranglar, ota-onaga xabar matnlari va xodimlar rollarini sozlash mumkinmi?", a: "Ha, Darslinker'da. Markaz logotipi va nomi tizimda ko'rinadi, dashboard ranglarini o'zingiz tanlaysiz, ota-onaga xabar matnlarini o'zgartirasiz. Rahbar, administrator, o'qituvchi va kassir uchun tayyor rollar bor, maxsus rolni support qo'shib beradi." },
+    { q: "O'quv markazi CRM'ida logotip, ranglar, ota-onaga xabar matnlari va xodimlar rollarini sozlash mumkinmi?", a: "Ha, Darslinker'da bularning hammasi sozlanadi: markaz logotipi va nomi tizimda ko'rinadi, dashboard ranglarini o'zingiz tanlaysiz, ota-onaga xabar matnlarini o'zgartirasiz. Rahbar, administrator, o'qituvchi va kassir uchun tayyor rollar bor, maxsus rolni support qo'shib beradi." },
     { q: "Tizimga markaz logotipini qo'ysa bo'ladimi?", a: "Ha. Markaz logotipi va nomi tizimda ko'rinadi." },
     { q: "Tizim dizaynini markazimizga moslasak bo'ladimi?", a: "Ha. Tizimda markazingiz logotipi va nomi ko'rinadi, dashboard ranglarini esa o'zingizga yoqqan ko'rinishga moslaysiz." },
     { q: "Dashboard rangini o'zgartirsa bo'ladimi?", a: "Ha. Dashboard ranglarini markaz o'ziga yoqqan rangga moslaydi." },

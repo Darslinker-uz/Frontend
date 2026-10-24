@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "Til o'quv markazi uchun CRM: daraja bo'yicha guruhlar, dars jadvali, davomat, oylik to'lov va qarzdorlik, ota-onaga Telegram xabar va darsda jonli quiz.",
   keywords: ["til markazi uchun CRM", "til o'quv markazini boshqarish dasturi", "ingliz tili markazi davomat va to'lov tizimi"],
-  eyebrow: "Kimlar uchun · Til markazlari",
   title: "Til markazi uchun CRM",
-  lead: "O'zbekistondagi til markazlarida — ingliz, rus, koreys yoki boshqa til kurslarida — guruhlar ko'p, jadval tez-tez o'zgaradi, to'lov esa har oy keladi. Darslinker shularning hammasini bitta tizimda yuritadi.",
+  lead: "Til markazlarida (ingliz, rus, koreys yoki boshqa til kurslarida) guruhlar ko'p, jadval tez-tez o'zgaradi, to'lov esa har oy keladi. Darslinker shularning hammasini bitta tizimda yuritadi.",
   Preview: SchedulePreview,
   how: {
     question: "Til markazi guruhlari va to'lovlarini qanday boshqarish mumkin?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     "Har daraja yoki kurs uchun guruh: xona, o'qituvchi va dars vaqti bir jadvalda.",
     "Davomat darsda telefondan belgilanadi, oylik to'lov va qarz o'zi hisoblanadi.",
     "So'z boyligi va grammatikani jonli quiz bilan o'yin shaklida takrorlash mumkin.",
-    "Sinov darsiga kelganlar lid sifatida kuzatiladi. Barcha imkoniyatlar har bir tarifda.",
+    "Sinov darsiga kelganlar lid sifatida kuzatiladi va bir bosishda o'quvchiga aylanadi.",
   ],
   compare: {
     question: "Til markazini Excel'da yuritishdan nimasi farq qiladi?",
@@ -68,11 +67,11 @@ const c: FeaturePageContent = {
   },
   faqs: [
     { q: "Darslinker qaysi til kurslari uchun mos?", a: "Ingliz, rus, koreys, nemis va boshqa har qanday til kurslari uchun. Tizim guruh, jadval, davomat va to'lovni yuritadi, kurs qaysi tilda ekanidan qat'i nazar." },
-    { q: "Til markazida darajalar bo'yicha guruhlar, jadval, davomat va oylik to'lovlarni qaysi dasturda yuritish mumkin?", a: "Darslinker'da. Har daraja uchun guruh ochilib, unga xona, o'qituvchi va dars vaqti biriktiriladi. Davomat telefondan belgilanadi, oylik to'lov va qarz avtomatik hisoblanadi." },
+    { q: "Til markazida darajalar bo'yicha guruhlar, jadval, davomat va oylik to'lovlarni qaysi dasturda yuritish mumkin?", a: "Buni Darslinker'da yuritish mumkin: har daraja uchun guruh ochilib, unga xona, o'qituvchi va dars vaqti biriktiriladi. Davomat telefondan belgilanadi, oylik to'lov va qarz avtomatik hisoblanadi." },
     { q: "Sinov darsiga kelganlarni qanday yuritaman?", a: "Ular lid sifatida kiritiladi va Kanban doskada kuzatiladi. Sinov darsidan keyin lid bir bosishda o'quvchiga aylanadi." },
     { q: "IELTS yoki CEFR tayyorlov kurslari uchun mosmi?", a: "Ha. Darslinker har qanday kurs uchun guruh, jadval, davomat va to'lovni yuritadi. Mavzuni takrorlash uchun darsda jonli quiz o'tkazish mumkin." },
     { q: "Bolalar guruhlari bo'lsa, ota-onalar xabar oladimi?", a: "Ha. Farzandi darsga kelmasa, qarz paydo bo'lsa yoki to'lov qabul qilinsa, ota-onaga Telegram orqali avtomatik xabar boradi." },
-    { q: "Til markazi uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagacha — Minimal (${PLANS[0].price} so'm/oy), 250 tagacha — Standart, 600 tagacha — Biznes. Barcha imkoniyatlar har bir tarifda bor.` },
+    { q: "Til markazi uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagachasiga Minimal (${PLANS[0].price} so'm/oy), 250 tagachasiga Standart, 600 tagachasiga Biznes tarifi mos. Barcha imkoniyatlar har bir tarifda bor.` },
   ],
   cta: {
     title: "Til markazingizni tartibga soling",

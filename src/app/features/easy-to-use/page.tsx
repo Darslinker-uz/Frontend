@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "Qulay interfeysli, oson boshqariladigan CRM: har xodim faqat o'z bo'limini ko'radi, telefondan ishlaydi, ro'yxat Excel'dan ko'chiriladi.",
   keywords: ["o'quv markazi uchun oson CRM", "qulay interfeysli CRM", "oson boshqariladigan CRM", "oddiy o'quv markazi boshqaruv dasturi", "Excel'dan CRM'ga o'tish", "o'quvchilar ro'yxatini Excel'dan yuklash"],
-  eyebrow: "Imkoniyat · Oson boshqaruv",
   title: "O'quv markazi uchun oson CRM",
-  lead: "Darslinker — O'zbekistondagi o'quv markazlari uchun qulay interfeysli, oson boshqariladigan CRM va LMS. Har xodim faqat o'ziga kerakli bo'limni ko'radi, tizim telefondan ham ishlaydi, o'quvchilar ro'yxati esa Excel'dan bir martada ko'chiriladi.",
+  lead: "Darslinker o'quv markazlari uchun qulay interfeysli, oson boshqariladigan CRM va LMS. Har xodim faqat o'ziga kerakli bo'limni ko'radi, tizim telefondan ham ishlaydi, o'quvchilar ro'yxati esa Excel'dan bir martada ko'chiriladi.",
   Preview: ImportPreview,
   how: {
     question: "Excel'dagi o'quvchilar bazasini CRM'ga qanday ko'chirish mumkin?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     "Har xodim faqat o'z roliga tegishli bo'limlarni ko'radi: o'qituvchi, administrator, kassir, rahbar.",
     "Tizim brauzerda ishlaydi, telefonda esa Telegram ichida mini ilova sifatida ham ochiladi.",
     "O'quvchilar ro'yxati Excel'dan ko'chiriladi, kerak bo'lsa yordam beramiz.",
-    "14 kun bepul sinov, karta talab qilinmaydi. Savollar uchun Telegram orqali support bor.",
+    "Savol tug'ilsa, support haftaning 7 kuni, 10:00–20:00 javob beradi.",
   ],
   compare: {
     question: "Daftar yoki Excel'dan o'tish qanchalik oson?",
@@ -57,20 +56,19 @@ const c: FeaturePageContent = {
     title: "Oson, lekin markazingizga mos",
     text: (
       <p>
-        Darslinker&apos;ni markazingizga moslash ham oson: logotip, dashboard ranglari va ota-onaga xabar
-        matnlari —{" "}
-        <Link href="/features/customization" className={TEXT_LINK}>markazga moslash</Link>{" "}sahifasida.
-        Rollar bo&apos;yicha kim nimani ko&apos;rishi ham shu yerda tushuntirilgan. Telefonda ishlash —{" "}
-        <Link href="/features/telegram" className={TEXT_LINK}>Telegram mini ilova</Link>{" "}sahifasida.
+        Darslinker&apos;ni markazingizga moslash ham oson: logotip, dashboard ranglari va ota-onaga xabar matnlari
+        haqida{" "}<Link href="/features/customization" className={TEXT_LINK}>markazga moslash</Link>{" "}sahifasida yozdik. Telefonda ishlash haqida{" "}
+        <Link href="/features/telegram" className={TEXT_LINK}>Telegram mini ilova</Link>{" "}sahifasida. Tizimni birgalikda o&apos;rnatib, to&apos;liq sozlab
+        ham beramiz:{" "}<Link href="/features/support" className={TEXT_LINK}>support va sozlash</Link>.
       </p>
     ),
   },
   faqs: [
-    { q: "Xodimlar CRM'ni qancha vaqtda o'rganadi?", a: "Har xodim faqat o'ziga tegishli bo'limlarni ko'radi, shuning uchun o'rganadigan narsa kam. O'qituvchi uchun asosiy ish — davomat belgilash va quiz o'tkazish." },
+    { q: "Xodimlar CRM'ni qancha vaqtda o'rganadi?", a: "Har xodim faqat o'ziga tegishli bo'limlarni ko'radi, shuning uchun o'rganadigan narsa kam. O'qituvchi uchun asosiy ish davomat belgilash va quiz o'tkazish." },
     { q: "Excel'dagi o'quvchilar ro'yxatini CRM'ga ko'chirib, xodimlarga tez o'rgatish mumkinmi?", a: "Ha. Darslinker'da ro'yxat Excel faylidan bir martada ko'chiriladi, kerak bo'lsa yordam beramiz. Xodimlar tez o'rganadi, chunki har biri faqat o'z roliga tegishli bo'limlarni ko'radi." },
     { q: "Kompyuter shartmi?", a: "Yo'q. Tizim brauzerda ishlaydi: kompyuterdan ham, telefondan ham foydalanish mumkin." },
     { q: "Telefon uchun ilova bormi?", a: "Alohida ilova yuklab olish shart emas: tizim telefon brauzerida ishlaydi va Telegram ichida mini ilova sifatida ham ochiladi." },
-    { q: "Muammo bo'lsa kimga murojaat qilaman?", a: "Telegram orqali support'ga yozasiz: @Darslinker_Support." },
+    { q: "Muammo bo'lsa kimga murojaat qilaman?", a: "Telegram orqali support'ga yozasiz: @Darslinker_Support. Support haftaning 7 kuni, 10:00 dan 20:00 gacha ishlaydi." },
     { q: "Sinab ko'rsa bo'ladimi?", a: `Ha. Istalgan tarifni 14 kun bepul sinab ko'rish mumkin, karta talab qilinmaydi. Tariflar oyiga ${PLANS[0].price} so'mdan boshlanadi.` },
   ],
   cta: {

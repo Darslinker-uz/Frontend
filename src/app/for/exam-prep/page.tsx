@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "Abituriyent tayyorlov markazi uchun CRM: davomat va ota-onaga xabar, jonli quiz bilan bilimni tekshirish, to'lov va qarzdorlik hisobi.",
   keywords: ["abituriyent tayyorlov markazi uchun CRM", "test markazi boshqaruv dasturi", "abituriyent guruhlari va davomat hisobi"],
-  eyebrow: "Kimlar uchun · Abituriyent markazlari",
   title: "Abituriyent tayyorlov markazi uchun CRM",
-  lead: "O'zbekistondagi abituriyent va test markazlarida har dars muhim: o'quvchi qoldirgan dars natijaga ta'sir qiladi, ota-ona esa farzandi qanday tayyorlanayotganini bilishni istaydi. Darslinker shuni nazorat qilishga yordam beradi.",
+  lead: "Abituriyent va test markazlarida har dars muhim: o'quvchi qoldirgan dars natijaga ta'sir qiladi, ota-ona esa farzandi qanday tayyorlanayotganini bilishni istaydi. Darslinker shuni nazorat qilishga yordam beradi.",
   Preview: QuizPreview,
   how: {
     question: "Imtihonga tayyorlov guruhlarining davomatini va natijalarini qanday kuzatish mumkin?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     "Davomat har darsda telefondan belgilanadi, kelmagan o'quvchining ota-onasiga Telegram xabar boradi.",
     "Mavzu jonli quiz bilan tekshiriladi, natijalar o'quvchi profilida saqlanadi.",
     "Ota-ona farzandining davomati va to'lovlarini o'zi kuzatib boradi.",
-    "Qabul mavsumidagi arizalar lid sifatida kuzatiladi. Barcha imkoniyatlar har bir tarifda.",
+    "Qabul mavsumidagi arizalar lid sifatida kuzatiladi, hech biri yo'qolmaydi.",
   ],
   compare: {
     question: "Jurnal va daftardan nimasi farq qiladi?",
@@ -68,10 +67,10 @@ const c: FeaturePageContent = {
   faqs: [
     { q: "Test savollarini jonli quiz orqali ishlasa bo'ladimi?", a: "Ha. O'qituvchi savollarni markaz panelida tayyorlaydi, darsda o'yinni boshlaydi, o'quvchilar telefondan PIN bilan qo'shilib javob beradi." },
     { q: "Ota-ona farzandining davomatini qanday biladi?", a: "Farzandi darsga kelmagan deb belgilansa, ota-onasiga Telegram orqali avtomatik xabar boradi." },
-    { q: "Abituriyent tayyorlov markazida davomat, test natijalari va ota-onaga xabarlarni birga kuzatadigan CRM bormi?", a: "Ha, Darslinker. Davomat har darsda belgilanadi va kelmagan o'quvchining ota-onasiga Telegram xabar boradi. Test savollarini darsda jonli quiz orqali ishlash mumkin, quiz natijalari o'quvchi profilida saqlanadi." },
+    { q: "Abituriyent tayyorlov markazida davomat, test natijalari va ota-onaga xabarlarni birga kuzatadigan CRM bormi?", a: "Ha, Darslinker'da davomat har darsda belgilanadi va kelmagan o'quvchining ota-onasiga Telegram xabar boradi. Test savollarini darsda jonli quiz orqali ishlash mumkin, quiz natijalari o'quvchi profilida saqlanadi." },
     { q: "Ota-ona farzandining tayyorgarligini kuzata oladimi?", a: "Ota-ona farzandining davomati va to'lovlarini kuzatib boradi va farzandi darsga kelmasa, darhol Telegram orqali xabar oladi." },
     { q: "Qabul mavsumida ko'p ariza keladi, ularni qanday yuritaman?", a: "Har bir ariza lid sifatida Kanban doskaga kiritiladi. Kim sinov darsiga kelgani va kim yozilgani ko'rinadi, hech bir ariza yo'qolmaydi." },
-    { q: "Abituriyent markazi uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagacha — Minimal (${PLANS[0].price} so'm/oy), 250 tagacha — Standart, 600 tagacha — Biznes. Barcha imkoniyatlar har bir tarifda bor.` },
+    { q: "Abituriyent markazi uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagachasiga Minimal (${PLANS[0].price} so'm/oy), 250 tagachasiga Standart, 600 tagachasiga Biznes tarifi mos. Barcha imkoniyatlar har bir tarifda bor.` },
   ],
   cta: {
     title: "Abituriyentlar tayyorlovini nazoratga oling",

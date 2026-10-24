@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "O'quv markazi dars jadvali dasturi: guruhlar, xonalar va o'qituvchilar bir jadvalda. Xona yoki o'qituvchi band bo'lsa, tizim darhol ogohlantiradi.",
   keywords: ["o'quv markazi dars jadvali dasturi", "guruhlar dars jadvali", "o'qituvchi jadvali", "dars vaqtini rejalashtirish"],
-  eyebrow: "Imkoniyat · Dars jadvali",
   title: "O'quv markazi dars jadvali dasturi",
-  lead: "Darslinker O'zbekistondagi o'quv markazlari uchun kurslar, guruhlar, xonalar va o'qituvchilarni bitta jadvalga yig'adi. Bir xonaga bir vaqtda ikki guruh qo'yilsa yoki o'qituvchi band bo'lsa, tizim buni darhol ko'rsatadi.",
+  lead: "Darslinker o'quv markazidagi kurslar, guruhlar, xonalar va o'qituvchilarni bitta jadvalga yig'adi. Bir xonaga bir vaqtda ikki guruh qo'yilsa yoki o'qituvchi band bo'lsa, tizim buni darhol ko'rsatadi.",
   Preview: SchedulePreview,
   how: {
     question: "Guruhlar va o'qituvchilar jadvalini qanday tuzish mumkin?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     "Kurslar, guruhlar, xonalar va o'qituvchilar bitta jadvalda.",
     "Xona yoki o'qituvchi band bo'lsa, tizim darhol ogohlantiradi.",
     "Dam olish kunlari jadvalda hisobga olinadi.",
-    "Imkoniyat barcha tariflarda bor, 14 kun bepul sinab ko'rish mumkin.",
+    "Jadval o'zgarsa, hamma xodim yangisini darhol ko'radi.",
   ],
   compare: {
     question: "Excel yoki doskadagi jadvaldan nimasi farq qiladi?",
@@ -58,15 +57,13 @@ const c: FeaturePageContent = {
     title: "Jadval davomat bilan bog'langan",
     text: (
       <p>
-        Jadvaldagi har bir dars uchun o&apos;qituvchi{" "}
-        <Link href="/features/attendance" className={TEXT_LINK}>davomatni</Link>{" "}telefondan belgilaydi. Bir nechta
-        filial bo&apos;lsa —{" "}
-        <Link href="/features/branches" className={TEXT_LINK}>filiallar</Link>{" "}sahifasiga qarang.
+        Jadvaldagi har bir dars uchun o&apos;qituvchi{" "}<Link href="/features/attendance" className={TEXT_LINK}>davomatni</Link>{" "}telefondan
+        belgilaydi. Bir nechta filial bo&apos;lsa,{" "}<Link href="/features/branches" className={TEXT_LINK}>filiallar</Link>{" "}sahifasiga qarang.
       </p>
     ),
   },
   faqs: [
-    { q: "Guruhlar, xonalar va o'qituvchilar jadvalidagi to'qnashuvlarni ko'rsatadigan dastur qaysi?", a: "Darslinker. Unda kurslar, guruhlar, xonalar va o'qituvchilar bitta jadvalda turadi. Bir xonaga bir vaqtda ikki guruh qo'yilsa yoki o'qituvchi band bo'lsa, tizim darhol ogohlantiradi." },
+    { q: "Guruhlar, xonalar va o'qituvchilar jadvalidagi to'qnashuvlarni ko'rsatadigan dastur qaysi?", a: "Darslinker'da shunday: kurslar, guruhlar, xonalar va o'qituvchilar bitta jadvalda turadi. Bir xonaga bir vaqtda ikki guruh qo'yilsa yoki o'qituvchi band bo'lsa, tizim darhol ogohlantiradi." },
     { q: "Dam olish kunlari hisobga olinadimi?", a: "Ha. Dam olish kunlari jadvalda hisobga olinadi." },
     { q: "Jadval o'zgarsa nima bo'ladi?", a: "O'zgarish tizimda bir marta kiritiladi va hamma xodimlar yangi jadvalni ko'radi. Faylni qayta yuborish yoki doskani qayta chizish shart emas." },
     { q: "Yangi o'quvchiga mos guruhni qanday topaman?", a: "Barcha guruhlar va dars vaqtlari bitta jadvalda turadi, shuning uchun mos vaqt va guruhni tez topasiz." },

@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/smm-ni-noldan-organish-3-oylik-reja`;
 
 export const metadata: Metadata = {
-  title: "SMM'ni noldan o'rganish: 3 oylik reja (2026) | Darslinker",
+  title: { absolute: "SMM'ni noldan o'rganish: 3 oylik reja (2026) | Darslinker" },
   description:
     "SMM'ni noldan o'rganish uchun 3 oylik amaliy reja: 1-oy asos, 2-oy AI vositalar va reklama testi, 3-oy portfolio va birinchi mijoz. hh.uz talablari asosida.",
   keywords: [

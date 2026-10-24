@@ -15,11 +15,10 @@ const c: FeaturePageContent = {
   crumb: "Hisobotlar",
   metaTitle: "O'quv markazi uchun hisobot va dashboard — Darslinker",
   metaDescription:
-    "O'quv markazi uchun dashboard: faol o'quvchilar, lidlar, qarzdorlar, shu oy to'laganlar va ketayotganlar — 8 ta ko'rsatkich bitta ekranda.",
+    "O'quv markazi uchun dashboard: faol o'quvchilar, lidlar, qarzdorlar, shu oy to'laganlar va ketayotganlar. 8 ta ko'rsatkich bitta ekranda.",
   keywords: ["o'quv markazi uchun hisobot", "o'quv markazi dashboard", "qarzdorlik hisoboti", "o'quv markazi analitika"],
-  eyebrow: "Imkoniyat · Hisobotlar",
   title: "O'quv markazi uchun hisobot va dashboard",
-  lead: "Darslinker O'zbekistondagi o'quv markazlari rahbarlariga markaz holatini bitta ekranda ko'rsatadi: nechta o'quvchi faol, nechta lid bor, kim qarzdor va kim ketyapti. Raqamlarni hech kim qo'lda sanamaydi.",
+  lead: "Darslinker o'quv markazi rahbariga markaz holatini bitta ekranda ko'rsatadi: nechta o'quvchi faol, nechta lid bor, kim qarzdor va kim ketyapti. Raqamlarni hech kim qo'lda sanamaydi.",
   Preview: DashboardPreview,
   how: {
     question: "Rahbar o'quv markazi natijalarini qaysi hisobotlardan ko'ra oladi?",
@@ -33,8 +32,8 @@ const c: FeaturePageContent = {
   summary: [
     "Dashboard'da 8 ta asosiy ko'rsatkich bor: faol o'quvchilardan qarzdorlargacha.",
     "Raqamlar davomat, to'lov va lidlardan avtomatik hisoblanadi.",
-    "Ketayotgan o'quvchilar — guruhni tark etganlar va sinovdan keyin ketganlar — alohida ko'rinadi.",
-    "Imkoniyat barcha tariflarda bor, 14 kun bepul sinab ko'rish mumkin.",
+    "Guruhni tark etganlar va sinovdan keyin ketganlar alohida ko'rinadi.",
+    "Dashboard'ni markaz rahbari ko'radi, boshqa xodimlar faqat o'z bo'limini.",
   ],
   compare: {
     question: "Excel'dagi hisobotdan nimasi farq qiladi?",
@@ -67,8 +66,8 @@ const c: FeaturePageContent = {
     ),
   },
   faqs: [
-    { q: "O'quvchilar, qarzdorlar va faol lidlar sonini bitta dashboard'da ko'rsatadigan tizim bormi?", a: "Ha, Darslinker. Dashboard'da 8 ta ko'rsatkich bor: faol o'quvchilar, faol lidlar, guruhlar, qarzdorlar, sinovdagilar, shu oy to'laganlar, guruhni tark etganlar va sinovdan keyin ketganlar. Raqamlar avtomatik hisoblanadi." },
-    { q: "Ko'rsatkichlar nimani bildiradi?", a: "Faol o'quvchilar — hozir o'qiyotganlar; faol lidlar — hali o'quvchiga aylanmagan murojaatlar; sinovdagilar — sinov darslarida yurganlar; qarzdorlar — to'lovi kechikkanlar; shu oy to'laganlar; guruhni tark etganlar va sinovdan keyin ketganlar — markazdan ketayotganlar." },
+    { q: "O'quvchilar, qarzdorlar va faol lidlar sonini bitta dashboard'da ko'rsatadigan tizim bormi?", a: "Ha, Darslinker dashboard'ida 8 ta ko'rsatkich bor: faol o'quvchilar, faol lidlar, guruhlar, qarzdorlar, sinovdagilar, shu oy to'laganlar, guruhni tark etganlar va sinovdan keyin ketganlar. Raqamlar avtomatik hisoblanadi." },
+    { q: "Ko'rsatkichlar nimani bildiradi?", a: "Faol o'quvchilar hozir o'qiyotganlar. Faol lidlar hali o'quvchiga aylanmagan murojaatlar. Sinovdagilar sinov darslariga qatnayotganlar. Qarzdorlar to'lovi kechikkanlar. Shu oy to'laganlar, guruhni tark etganlar va sinovdan keyin ketganlar alohida sanaladi." },
     { q: "Raqamlarni kim kiritadi?", a: "Hech kim alohida kiritmaydi. Ko'rsatkichlar davomat, to'lov va lidlar bo'yicha kundalik ishdan avtomatik hisoblanadi." },
     { q: "Dashboard'ni kim ko'radi?", a: "Markaz rahbari. Boshqa xodimlar o'z rollariga tegishli bo'limlarni ko'radi." },
     { q: "Bu imkoniyat qaysi tarifda bor?", a: `Barcha tariflarda. Tariflar oyiga ${PLANS[0].price} so'mdan boshlanadi.` },

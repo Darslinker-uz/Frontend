@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
 export const metadata: Metadata = {
-  title: "Joylar — O'zbekistondagi kurslar hududlar bo'yicha | Darslinker",
+  title: { absolute: "Joylar — O'zbekistondagi kurslar hududlar bo'yicha | Darslinker" },
   description:
     "O'zbekiston bo'yicha barcha hududlardagi o'quv markazlari va kurslar — Toshkent, Samarqand, Buxoro va boshqa shaharlar.",
   alternates: { canonical: `${SITE_URL}/joylar` },

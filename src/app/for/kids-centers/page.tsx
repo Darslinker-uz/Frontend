@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "Bolalar o'quv markazi uchun CRM: ota-ona farzandining davomati va to'lovini kuzatadi, kelmasa Telegram'da darhol xabar oladi.",
   keywords: ["bolalar o'quv markazi uchun CRM", "bolalar markazi davomat dasturi", "ota-onalarga avtomatik xabar", "bolalar kurslari o'quvchilari hisobi"],
-  eyebrow: "Kimlar uchun · Bolalar markazlari",
   title: "Bolalar o'quv markazi uchun CRM",
-  lead: "O'zbekistondagi bolalar o'quv markazlarida asosiy mijoz — ota-ona. U farzandi darsga kelganini, to'lov qabul qilinganini bilishni istaydi. Darslinker bu xabarlarni Telegram orqali o'zi yuboradi, ota-ona esa farzandining davomati va to'lovlarini kuzatib boradi.",
+  lead: "Bolalar o'quv markazlarida asosiy mijoz ota-ona. U farzandi darsga kelganini, to'lov qabul qilinganini bilishni istaydi. Darslinker bu xabarlarni Telegram orqali o'zi yuboradi, ota-ona esa farzandining davomati va to'lovlarini kuzatib boradi.",
   Preview: TelegramPreview,
   how: {
     question: "Bolalar markazida ota-onalarni davomatdan qanday xabardor qilish mumkin?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     "Farzandi darsga kelmasa, ota-onaga darhol Telegram xabar boradi.",
     "Ota-ona farzandining davomati va to'lovlarini o'zi kuzatib boradi.",
     "Bitta telefon raqamiga bir nechta farzand bog'lanadi.",
-    "Darsda jonli quiz bolalarga musobaqa kabi yoqadi. Barcha imkoniyatlar har bir tarifda.",
+    "Darsda jonli quiz bolalarga musobaqa kabi yoqadi.",
   ],
   compare: {
     question: "Telefon qo'ng'iroqlari va daftardan nimasi farq qiladi?",
@@ -67,12 +66,12 @@ const c: FeaturePageContent = {
     ),
   },
   faqs: [
-    { q: "Farzandi darsga kelmaganda yoki to'lov qilinganda ota-onaga Telegram'dan avtomatik xabar yuborish mumkinmi?", a: "Ha, Darslinker'da. Farzandi darsga kelmasa, qarzdorlik paydo bo'lsa yoki to'lov qabul qilinsa, ota-onaga Telegram orqali avtomatik xabar boradi. Xabar matnini markaz o'zi sozlaydi." },
+    { q: "Farzandi darsga kelmaganda yoki to'lov qilinganda ota-onaga Telegram'dan avtomatik xabar yuborish mumkinmi?", a: "Ha, Darslinker buni o'zi qiladi: farzandi darsga kelmasa, qarzdorlik paydo bo'lsa yoki to'lov qabul qilinsa, ota-onaga Telegram orqali avtomatik xabar boradi. Xabar matnini markaz o'zi sozlaydi." },
     { q: "Bir oiladan ikki-uch farzand o'qisa-chi?", a: "Bitta telefon raqamiga bir nechta farzand bog'lanadi. Ota-ona har bir farzandi haqidagi xabarni shu raqam orqali oladi." },
     { q: "Xabarlar uchun SMS to'lovi bormi?", a: "Yo'q. Xabarlar Telegram orqali boradi, ular uchun alohida pul to'lanmaydi." },
     { q: "Mental arifmetika yoki boshqa bolalar kurslari uchun mosmi?", a: "Ha. Darslinker har qanday bolalar kursi uchun guruh, jadval, davomat va to'lovni yuritadi, ota-onalar bilan aloqani esa avtomatlashtiradi." },
     { q: "Ota-ona farzandini qanday kuzatadi?", a: "Ota-ona farzandining davomati va to'lovlarini o'zi ko'radi, muhim holatlarda esa Telegram orqali avtomatik xabar oladi." },
-    { q: "Bolalar markazi uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagacha — Minimal (${PLANS[0].price} so'm/oy), 250 tagacha — Standart. Barcha imkoniyatlar har bir tarifda bor.` },
+    { q: "Bolalar markazi uchun qaysi tarif mos?", a: `O'quvchilar soniga qarab: 100 tagachasiga Minimal (${PLANS[0].price} so'm/oy), 250 tagachasiga Standart tarifi mos. Barcha imkoniyatlar har bir tarifda bor.` },
   ],
   cta: {
     title: "Ota-onalar bilan aloqani avtomatlashtiring",

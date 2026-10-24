@@ -39,7 +39,7 @@ export function CrmFooter() {
               O&apos;quv markazlari uchun interaktiv CRM va LMS platformasi.
             </p>
             <p className="mt-2 max-w-[360px] text-[14px] leading-relaxed text-[#7c8490]">
-              O&apos;quvchilar, guruhlar, davomat, to&apos;lov va qarzdorlik — bitta tizimda.
+              O&apos;quvchilar, guruhlar, davomat, to&apos;lov va qarzdorlik bitta tizimda.
             </p>
           </div>
           <nav aria-label="CRM va LMS havolalari">
@@ -74,6 +74,13 @@ export function CrmFooter() {
             <a href="https://t.me/Darslinker_Support" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-[14px] font-semibold text-[#5b87c0] transition-colors hover:text-[#16181a]">
               Telegram orqali bog&apos;lanish
             </a>
+            <p className="mt-3 text-[13px] text-[#7c8490]">Haftaning 7 kuni, 10:00–20:00</p>
+            <Link href="/features/support" className="mt-3 block text-[14px] text-[#5d6672] transition-colors hover:text-[#16181a]">
+              Support va sozlash
+            </Link>
+            <Link href="/features/security" className="mt-2 block text-[14px] text-[#5d6672] transition-colors hover:text-[#16181a]">
+              Ma&apos;lumotlar xavfsizligi
+            </Link>
           </div>
         </div>
         <div className="mt-10 border-t border-[#e4e7ea] pt-6">

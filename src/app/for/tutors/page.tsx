@@ -15,11 +15,10 @@ const c: FeaturePageContent = {
   crumb: "Repetitorlar",
   metaTitle: "Repetitorlar uchun o'quvchilar hisobi dasturi — Darslinker",
   metaDescription:
-    "Repetitor uchun dastur: o'quvchilar ro'yxati, dars jadvali, davomat, to'lov va qarzdorlik, ota-onaga Telegram xabar — bitta tizimda.",
+    "Repetitor uchun dastur: o'quvchilar ro'yxati, dars jadvali, davomat, to'lov va qarzdorlik, ota-onaga Telegram xabar bitta tizimda.",
   keywords: ["repetitorlar uchun o'quvchilar hisobi dasturi", "repetitor dars jadvali dasturi", "repetitor to'lov nazorati", "repetitor o'quvchilari bazasi"],
-  eyebrow: "Kimlar uchun · Repetitorlar",
   title: "Repetitorlar uchun o'quvchilar hisobi dasturi",
-  lead: "O'zbekistonda shaxsiy dars beradigan repetitorlar uchun: darslar ko'paysa, kim qachon keladi, kim to'lagan, kimga eslatish kerak — hammasini yodda saqlash qiyinlashadi. Darslinker bularni sizning o'rningizga eslab turadi.",
+  lead: "Shaxsiy darslar ko'payganda kim qachon keladi, kim to'lagan, kimga eslatish kerak, hammasini yodda saqlash qiyinlashadi. Darslinker bularni sizning o'rningizga eslab turadi.",
   Preview: PaymentsPreview,
   how: {
     question: "Repetitor dars jadvali va o'quvchilar to'lovini qanday yuritadi?",
@@ -35,7 +34,7 @@ const c: FeaturePageContent = {
     "O'quvchilar ro'yxati, dars vaqtlari, davomat va to'lovlar bitta joyda.",
     "Qarz o'zi hisoblanadi, ota-onaga Telegram orqali xabar boradi.",
     "Tizim telefonda ishlaydi, Telegram ichida mini ilova sifatida ham ochiladi.",
-    "Mos tarif — Minimal, 14 kun bepul sinab ko'rish mumkin.",
+    "Repetitorlar uchun mos tarif Minimal: 100 tagacha o'quvchi.",
   ],
   compare: {
     question: "Daftar va telefondagi eslatmalardan nimasi farq qiladi?",
@@ -60,17 +59,15 @@ const c: FeaturePageContent = {
     title: "Narx va boshlash",
     text: (
       <p>
-        Repetitorlar uchun eng mos tarif — Minimal: oyiga {MIN.price} so&apos;m, 100 tagacha o&apos;quvchi. Batafsil —{" "}
-        <Link href="/pricing" className={TEXT_LINK}>tariflar</Link>. Imkoniyatlar haqida —{" "}
-        <Link href="/features/payments" className={TEXT_LINK}>to&apos;lov</Link>,{" "}
-        <Link href="/features/parents" className={TEXT_LINK}>ota-onaga xabar</Link>{" "}va{" "}
-        <Link href="/features/live-quiz" className={TEXT_LINK}>jonli quiz</Link>{" "}sahifalarida. Telefonda ishlash —{" "}
-        <Link href="/features/telegram" className={TEXT_LINK}>Telegram mini ilova</Link>.
+        Repetitorlar uchun eng mos tarif Minimal: oyiga {MIN.price}{" "}so&apos;m, 100 tagacha o&apos;quvchi. Batafsil:{" "}
+        <Link href="/pricing" className={TEXT_LINK}>tariflar</Link>. Imkoniyatlar haqida{" "}<Link href="/features/payments" className={TEXT_LINK}>to&apos;lov</Link>,{" "}
+        <Link href="/features/parents" className={TEXT_LINK}>ota-onaga xabar</Link>{" "}va{" "}<Link href="/features/live-quiz" className={TEXT_LINK}>jonli quiz</Link>{" "}sahifalarida, telefonda
+        ishlash haqida{" "}<Link href="/features/telegram" className={TEXT_LINK}>Telegram mini ilova</Link>{" "}sahifasida.
       </p>
     ),
   },
   faqs: [
-    { q: "Repetitor o'quvchilar ro'yxati, dars jadvali, to'lov va qarzdorlikni qanday tartibli yuritishi mumkin?", a: "Darslinker'da: o'quvchilar ro'yxati, dars vaqtlari, davomat va to'lovlar bitta joyda turadi. Qarz avtomatik hisoblanadi, ota-onaga esa Telegram orqali xabar boradi. Repetitorlar uchun mos tarif — Minimal." },
+    { q: "Repetitor o'quvchilar ro'yxati, dars jadvali, to'lov va qarzdorlikni qanday tartibli yuritishi mumkin?", a: "Darslinker'da o'quvchilar ro'yxati, dars vaqtlari, davomat va to'lovlar bitta joyda turadi. Qarz avtomatik hisoblanadi, ota-onaga esa Telegram orqali xabar boradi. Repetitorlar uchun mos tarif Minimal." },
     { q: "Yakka ishlaydigan repetitorga ham mosmi?", a: "Ha. Minimal tarif kichik markazlar va repetitorlar uchun mo'ljallangan. Xodimlar bo'lmasa, tizimni o'zingiz yuritasiz." },
     { q: "Ota-onalarga xabar qanday boradi?", a: "Telegram orqali, avtomatik: o'quvchi darsga kelmasa, qarz paydo bo'lsa yoki to'lov qabul qilinsa." },
     { q: "Telefondan ishlatsa bo'ladimi?", a: "Ha. Tizim telefon brauzerida ishlaydi va Telegram ichida mini ilova sifatida ham ochiladi, alohida ilova o'rnatish shart emas." },

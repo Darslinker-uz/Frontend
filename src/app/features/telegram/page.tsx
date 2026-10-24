@@ -17,20 +17,19 @@ const c: FeaturePageContent = {
   metaDescription:
     "Darslinker'dan Telegram ichida, mobil ilova sifatida foydalaning: App Store yoki Play Market'dan hech narsa o'rnatish shart emas.",
   keywords: ["o'quv markazi uchun Telegram bot", "Telegram mini app CRM", "o'quv markazi Telegram integratsiyasi", "Telegram orqali boshqariladigan CRM"],
-  eyebrow: "Imkoniyat · Telegram",
   title: "O'quv markazi uchun Telegram bot va mini ilova",
-  lead: "Darslinker'dan Telegram ichida, mobil ilova sifatida foydalanish mumkin. O'zbekistonda Telegram deyarli hammaning telefonida bor, shuning uchun alohida ilova yuklab olish va uni o'rganish shart emas.",
+  lead: "Darslinker'dan Telegram ichida, mobil ilova sifatida foydalanish mumkin. Telegram ko'pchilikning telefonida allaqachon bor, shuning uchun alohida ilova yuklab olish va uni o'rganish shart emas.",
   Preview: MiniAppPreview,
   summary: [
     "Darslinker Telegram ichida mini ilova sifatida ochiladi, alohida ilova o'rnatish shart emas.",
     "Ota-ona Telegram orqali farzandining davomati va to'lovlarini kuzatadi va avtomatik xabarlar oladi.",
     "Kompyuterda esa tizim oddiy brauzerda ishlaydi.",
-    "Imkoniyat barcha tariflarda bor, 14 kun bepul sinab ko'rish mumkin.",
+    "Android'da ham, iPhone'da ham, Telegram bor joyda ishlaydi.",
   ],
   how: {
     question: "Telegram mini ilova nima va u qanday ishlaydi?",
     answer:
-      "Telegram mini ilova — Telegram ichida ochiladigan ilova. Foydalanuvchi markaz botini ochadi va Darslinker'dan to'g'ridan-to'g'ri Telegram'da foydalanadi: App Store yoki Play Market'dan hech narsa yuklab olish shart emas. Xabarlar ham, ilova ham bitta joyda — Telegram'da.",
+      "Telegram mini ilova Telegram'ning o'zida ochiladigan dastur. Foydalanuvchi markaz botini ochadi va Darslinker'dan to'g'ridan-to'g'ri Telegram'da foydalanadi: App Store yoki Play Market'dan hech narsa yuklab olish shart emas. Xabarlar ham, ilova ham bitta joyda, Telegram'da.",
     steps: [
       { title: "Botni ochadi", text: "Foydalanuvchi markaz botini Telegram'da ochadi." },
       { title: "Ilova Telegram ichida ochiladi", text: "Darslinker alohida o'rnatmasdan, Telegram oynasining o'zida ishlaydi." },
@@ -60,10 +59,9 @@ const c: FeaturePageContent = {
     title: "Ota-onalar uchun",
     text: (
       <p>
-        Ota-onaga avtomatik xabarlar (darsga kelmadi, qarzdorlik, to&apos;lov tasdig&apos;i) va farzandni kuzatish —{" "}
-        <Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida. Kompyuterda tizim
-        brauzerda ishlaydi —{" "}
-        <Link href="/features/easy-to-use" className={TEXT_LINK}>oson boshqaruv</Link>{" "}sahifasiga qarang.
+        Ota-onaga avtomatik xabarlar (darsga kelmadi, qarzdorlik, to&apos;lov tasdig&apos;i) va farzandni kuzatish haqida{" "}
+        <Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida yozdik. Kompyuterda tizim oddiy brauzerda ishlaydi, bu
+        haqda{" "}<Link href="/features/easy-to-use" className={TEXT_LINK}>oson boshqaruv</Link>{" "}sahifasida.
       </p>
     ),
   },

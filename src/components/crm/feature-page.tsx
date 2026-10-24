@@ -28,7 +28,6 @@ export type FeaturePageContent = {
   metaTitle: string;
   metaDescription: string;
   keywords: string[];
-  eyebrow: string;
   title: string; // H1
   lead: string;
   Preview: () => ReactNode;
@@ -99,19 +98,15 @@ export function FeaturePage({ c }: { c: FeaturePageContent }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(c)) }} />
 
       {/* HERO */}
-      <section className={`${SECTION} pt-8 pb-14 md:pt-12 md:pb-20`}>
-        <nav aria-label="Breadcrumb" className="text-[13px] text-[#7c8490]">
-          <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="hover:text-[#16181a]">Bosh sahifa</Link></li>
-            <li aria-hidden="true">/</li>
-            <li><Link href={c.parent.href} className="hover:text-[#16181a]">{c.parent.name}</Link></li>
-            <li aria-hidden="true">/</li>
-            <li className="text-[#16181a]">{c.crumb}</li>
-          </ol>
-        </nav>
-        <div className="mt-8 grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+      <section className={`${SECTION} pt-10 pb-14 md:pt-14 md:pb-20`}>
+        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
           <div>
-            <p className="text-[14px] font-semibold text-[#5b87c0] md:text-[16px]">{c.eyebrow}</p>
+            {/* Ko'k yorliq — breadcrumb ham: "Imkoniyatlar · Davomat" (ota sahifa bosiladi). Alohida qator yo'q. */}
+            <nav aria-label="Breadcrumb" className="text-[14px] font-semibold text-[#5b87c0] md:text-[16px]">
+              <Link href={c.parent.href} className="hover:underline">{c.parent.name}</Link>
+              <span aria-hidden="true"> · </span>
+              <span aria-current="page">{c.crumb}</span>
+            </nav>
             <h1 className="mt-3 text-[40px] font-bold leading-[1.02] tracking-[-0.04em] md:text-[56px] xl:text-[64px]">{c.title}</h1>
             <p className="mt-5 max-w-[600px] text-[16px] leading-relaxed text-[#4b525c] md:text-[18px]">{c.lead}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">

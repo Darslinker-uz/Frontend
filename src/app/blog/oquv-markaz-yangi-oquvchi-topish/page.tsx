@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/oquv-markaz-yangi-oquvchi-topish`;
 
 export const metadata: Metadata = {
-  title: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya | Darslinker",
+  title: { absolute: "Yangi o'quvchi topish: o'quv markaz uchun 5 strategiya | Darslinker" },
   description:
     "O'quv markaz uchun yangi o'quvchi topishning 5 ta amaliy strategiyasi 2026: SEO, marketplace, Telegram/Instagram, referrals va hamkorlik. Lid narxi va samaradorlik solishtirish.",
   alternates: { canonical: url },

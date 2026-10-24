@@ -13,6 +13,7 @@ const DISALLOW = [
   "/hamkorlik/demo",
   "/hamkorlik/demo/*",
   "/gptozi",
+  "/asadmin",
 ];
 
 // AI crawlers — platform ma'lumotlari (kurslar, markazlar) LLMlarga ham kirish
@@ -24,6 +25,8 @@ const AI_BOTS = [
   "ChatGPT-User",        // OpenAI — when user browses inside ChatGPT
   "Google-Extended",     // Google — Gemini training & AI Overviews
   "ClaudeBot",           // Anthropic — Claude search & training
+  "Claude-SearchBot",    // Anthropic — Claude search index
+  "Claude-User",         // Anthropic — when user browses inside Claude
   "anthropic-ai",        // Anthropic — legacy UA
   "PerplexityBot",       // Perplexity — search index
   "Perplexity-User",     // Perplexity — live browse

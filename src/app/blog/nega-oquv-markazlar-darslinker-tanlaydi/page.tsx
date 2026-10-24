@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/nega-oquv-markazlar-darslinker-tanlaydi`;
 
 export const metadata: Metadata = {
-  title: "Nega o'quv markazlar Darslinker'ni tanlaydi? 5 ta sabab (2026) | Darslinker",
+  title: { absolute: "Nega o'quv markazlar Darslinker'ni tanlaydi? 5 ta sabab (2026) | Darslinker" },
   description:
     "Darslinker o'quv markazlarga nima beradi? SEO, marketplace katalog, real-time Telegram lid, CRM kabinet va organik ko'rinish — bir platformada. 5 ta asosiy imkoniyat batafsil.",
   alternates: { canonical: url },

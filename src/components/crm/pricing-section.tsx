@@ -152,7 +152,7 @@ export function PricingSection({ plans, moreLink = false }: { plans: PlanInfo[];
         <div className="mt-4 flex flex-col justify-between gap-4 rounded-[24px] bg-white p-6 ring-1 ring-[#e4e7ea] md:flex-row md:items-center md:p-7">
           <div>
             <h3 className="text-[18px] font-bold text-[#16181a]">Individual</h3>
-            <p className="mt-1 text-[14px] text-[#6a7585]">1500 dan ortiq o&apos;quvchi yoki ko&apos;p filialli tarmoq — narx va shartlar kelishuv asosida.</p>
+            <p className="mt-1 text-[14px] text-[#6a7585]">1500 dan ortiq o&apos;quvchi yoki ko&apos;p filialli tarmoq uchun narx va shartlar kelishuv asosida.</p>
           </div>
           <CrmApplyButton plan="individual" refSource="pricing" className="h-[48px] shrink-0 rounded-[12px] bg-[#f0f2f3] px-6 text-[15px] font-semibold text-[#16181a] transition-colors hover:bg-[#e4e7ea]">
             Bog&apos;lanish

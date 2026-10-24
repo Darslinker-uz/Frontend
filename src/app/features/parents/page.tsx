@@ -13,19 +13,18 @@ const c: FeaturePageContent = {
   ref: "feature-parents",
   parent: FEATURES_CRUMB,
   crumb: "Ota-onalar uchun",
-  metaTitle: "Ota-onaga xabar va farzandni nazorat qilish — Darslinker",
+  metaTitle: "O'quv markazida ota-onaga xabar va farzand nazorati — Darslinker",
   metaDescription:
     "Ota-ona farzandining davomati va to'lovlarini kuzatadi, darsga kelmasa yoki qarz paydo bo'lsa Telegram orqali darhol xabar oladi. SMS kerak emas.",
   keywords: ["ota-onaga davomat xabari", "ota-ona farzandini nazorat qilish", "Telegram orqali to'lov eslatmasi", "ota-onalarga avtomatik xabar"],
-  eyebrow: "Imkoniyat · Ota-onalar uchun",
-  title: "Ota-onaga xabar va farzandni nazorat qilish",
-  lead: "Darslinker O'zbekistondagi o'quv markazlarida ota-ona bilan aloqani avtomatlashtiradi. Ota-ona farzandining davomati va to'lovlarini kuzatib boradi, darsga kelmasa yoki qarz paydo bo'lsa, buni Telegram orqali darhol biladi.",
+  title: "O'quv markazida ota-onaga xabar va farzandni kuzatish",
+  lead: "Darslinker o'quv markazi bilan ota-ona o'rtasidagi aloqani avtomatlashtiradi. Ota-ona farzandining davomati va to'lovlarini kuzatib boradi, darsga kelmasa yoki qarz paydo bo'lsa, buni Telegram orqali darhol biladi.",
   Preview: TelegramPreview,
   summary: [
     "Ota-onaga uch holatda avtomatik xabar boradi: darsga kelmadi, qarzdorlik, to'lov tasdig'i.",
     "Ota-ona farzandining davomati va to'lovlarini o'zi kuzatib boradi.",
     "Xabarlar Telegram orqali boradi, SMS uchun alohida pul to'lanmaydi. Matnni markaz o'zi o'zgartiradi.",
-    "Bitta telefon raqamiga bir nechta farzand bog'lanadi. Imkoniyat barcha tariflarda bor.",
+    "Bitta telefon raqamiga bir nechta farzand bog'lanadi.",
   ],
   how: {
     question: "Ota-ona farzandining davomatini qanday biladi?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
       "O'qituvchi darsda davomatni belgilaydi. Farzand kelmagan deb belgilansa, ota-onasiga darhol Telegram orqali xabar boradi. Qarzdorlik paydo bo'lganda va to'lov qabul qilinganda ham ota-ona avtomatik xabar oladi. Bundan tashqari ota-ona farzandining davomati va to'lovlarini o'zi kuzatib boradi.",
     steps: [
       { title: "Davomat belgilanadi", text: "O'qituvchi dars boshida kelganlarni telefondan belgilaydi." },
-      { title: "Ota-ona xabar oladi", text: "Farzand kelmasa, qarz paydo bo'lsa yoki to'lov qabul qilinsa — Telegram'da xabar." },
+      { title: "Ota-ona xabar oladi", text: "Farzand kelmasa, qarz paydo bo'lsa yoki to'lov qabul qilinsa, Telegram'ga xabar keladi." },
       { title: "Ota-ona kuzatib boradi", text: "Farzandining davomati va to'lovlarini o'zi ko'radi, markazga qo'ng'iroq qilishi shart emas." },
     ],
   },
@@ -60,18 +59,15 @@ const c: FeaturePageContent = {
     title: "Xabarlar davomat va to'lovdan keladi",
     text: (
       <p>
-        Xabarlar{" "}
-        <Link href="/features/attendance" className={TEXT_LINK}>davomat</Link>{" "}va{" "}
-        <Link href="/features/payments" className={TEXT_LINK}>to&apos;lov hisobi</Link>{" "}bilan bog&apos;langan.
-        Ota-ona Darslinker&apos;ni Telegram ichida, alohida ilova o&apos;rnatmasdan ishlatishi haqida —{" "}
-        <Link href="/features/telegram" className={TEXT_LINK}>Telegram mini ilova</Link>{" "}sahifasida. Xabar
-        matnlarini sozlash —{" "}
-        <Link href="/features/customization" className={TEXT_LINK}>markazga moslash</Link>{" "}sahifasida.
+        Xabarlar{" "}<Link href="/features/attendance" className={TEXT_LINK}>davomat</Link>{" "}va{" "}<Link href="/features/payments" className={TEXT_LINK}>to&apos;lov hisobi</Link>{" "}bilan
+        bog&apos;langan. Ota-ona Darslinker&apos;ni Telegram ichida, alohida ilova o&apos;rnatmasdan ishlatishi haqida{" "}
+        <Link href="/features/telegram" className={TEXT_LINK}>Telegram mini ilova</Link>{" "}sahifasida, xabar matnlarini sozlash haqida esa{" "}
+        <Link href="/features/customization" className={TEXT_LINK}>markazga moslash</Link>{" "}sahifasida yozdik.
       </p>
     ),
   },
   faqs: [
-    { q: "O'zbekistonda ota-onalarga Telegram orqali davomat va to'lov haqida xabar yuboradigan CRM bormi?", a: "Ha, Darslinker. Farzandi darsga kelmasa, qarzdorlik paydo bo'lsa yoki to'lov qabul qilinsa, ota-onaga Telegram orqali avtomatik xabar boradi. SMS kerak emas, xabar matnini markaz o'zi o'zgartiradi." },
+    { q: "O'zbekistonda ota-onalarga Telegram orqali davomat va to'lov haqida xabar yuboradigan CRM bormi?", a: "Ha, Darslinker'da farzandi darsga kelmasa, qarzdorlik paydo bo'lsa yoki to'lov qabul qilinsa, ota-onaga Telegram orqali avtomatik xabar boradi. SMS kerak emas, xabar matnini markaz o'zi o'zgartiradi." },
     { q: "Ota-ona farzandini qanday nazorat qiladi?", a: "Ota-ona farzandining davomati va to'lovlarini o'zi kuzatib boradi, muhim holatlar haqida esa Telegram orqali avtomatik xabar oladi." },
     { q: "SMS'dan nimasi yaxshi?", a: "Telegram xabarlari uchun alohida pul to'lanmaydi. SMS'da esa har xabar uchun to'lov bor." },
     { q: "Xabar matnini o'zgartirsa bo'ladimi?", a: "Ha. Har bir xabar matnini markaz o'zi, o'z uslubiga moslab o'zgartira oladi." },

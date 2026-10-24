@@ -1,6 +1,6 @@
 # CRM/LMS sahifalari — kalit so'zlar rejasi
 
-Sana: 2026-10-23 · Manba: egasi GPT bilan topgan ro'yxat + tuzatishlar · Jami: 21 sahifa
+Sana: 2026-10-23 · Manba: egasi GPT bilan topgan ro'yxat + tuzatishlar · Jami: 24 sahifa
 
 ## Ishlatish qoidalari
 
@@ -19,11 +19,14 @@ Sana: 2026-10-23 · Manba: egasi GPT bilan topgan ro'yxat + tuzatishlar · Jami:
 | /features | o'quv markazi boshqaruv tizimi imkoniyatlari | o'quv markazini boshqarish dasturi; o'quv markazi boshqaruv tizimi; o'quv markazi uchun dastur | O'quv markazini boshqarish uchun qanday dastur kerak? |
 | /features/attendance | o'quv markazi davomat tizimi | davomat jurnali elektron; o'quvchilar davomati dasturi; davomatni nazorat qilish | O'quvchilar davomati qanday yuritiladi? |
 | /features/payments | o'quv markazida to'lov va qarzdorlik hisobi | o'quvchilar to'lovi nazorati; kurs to'lovlarini hisoblash; o'quv markazi qarzdorlar ro'yxati | O'quv markazidagi qarzdorlikni qanday nazorat qilish mumkin? |
+| /features/lms | o'quv markazi uchun LMS | LMS tizimi; o'quv jarayonini boshqarish tizimi; CRM va LMS farqi; o'quvchilar natijalarini kuzatish | LMS nima va o'quv markaziga nima uchun kerak? |
 | /features/live-quiz | o'quv markazi uchun jonli quiz | dars uchun online quiz; o'quvchilar bilimini tekshirish testi; darsda viktorina o'tkazish; gamifikatsiya ta'limda | Jonli quiz o'quvchilar faolligiga qanday yordam beradi? |
 | /features/telegram | o'quv markazi uchun Telegram bot | Telegram mini app CRM; o'quv markazi Telegram integratsiyasi; Telegram orqali boshqariladigan CRM | Telegram mini ilova nima va u qanday ishlaydi? |
 | /features/parents | ota-onaga davomat xabari | ota-ona farzandini nazorat qilish; Telegram orqali to'lov eslatmasi; ota-onalarga avtomatik xabar | Ota-ona farzandining davomatini qanday biladi? |
 | /features/easy-to-use | o'quv markazi uchun oson CRM | oddiy o'quv markazi boshqaruv dasturi; Excel'dan CRM'ga o'tish; o'quvchilar ro'yxatini Excel'dan yuklash | Excel'dagi o'quvchilar bazasini CRM'ga qanday ko'chirish mumkin? |
 | /features/customization | o'quv markazi uchun moslashuvchan CRM | CRM'da logo va ranglarni sozlash; xodimlar uchun rollar; markazga mos boshqaruv tizimi | CRM'ni o'quv markazining ish tartibiga moslash mumkinmi? |
+| /features/security | CRM ma'lumotlar xavfsizligi | xavfsiz CRM; o'quv markazi ma'lumotlarini himoya qilish; CRM zaxira nusxa; ma'lumotlarni eksport qilish | O'quv markazi CRM'ida ma'lumotlar xavfsizmi? |
+| /features/support | o'quv markazi CRM o'rnatish va sozlash | CRM'ni sozlab berish; supporti yaxshi CRM; kerakli funksiyani qo'shib beradigan CRM; do'stona support | O'quv markazi CRM'ini o'rnatib va sozlab beradigan kompaniya bormi? |
 | /features/branches | o'quv markazining filiallarini boshqarish | bir nechta filial hisobi; filiallar bo'yicha davomat va to'lov; ko'p filialli markaz CRM'i; o'quv markazlari tarmog'i uchun CRM; filiallar bo'yicha umumiy hisobot; tarmoq markazlari boshqaruvi | Bir nechta o'quv markazini bitta tizimda boshqarish mumkinmi? |
 | /features/students | o'quvchilar bazasini yuritish dasturi | o'quvchilar hisobi; o'quvchilar ro'yxati dasturi; o'quvchi tarixi va to'lovlari | O'quvchilar bazasida qanday ma'lumotlar yuritiladi? |
 | /features/leads | o'quv markazi uchun lidlar va arizalar hisobi | kursga kelgan arizalarni boshqarish; yangi o'quvchilarni jalb qilish; kursga yozilish arizalari | Kursga kelgan arizalarni yo'qotmasdan qanday kuzatish mumkin? |

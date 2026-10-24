@@ -117,7 +117,7 @@ export async function GET() {
   const lines: string[] = [];
 
   // Header
-  lines.push("# Darslinker — Full Site Content");
+  lines.push("# Darslinker: to'liq sayt mazmuni");
   lines.push("");
   lines.push(`> ${TAGLINE}`);
   lines.push("");
@@ -136,7 +136,7 @@ export async function GET() {
   lines.push("");
   lines.push(`**URL:** ${SITE_URL}/`);
   lines.push("");
-  lines.push("Kimlar uchun: xususiy o'quv markazlari (til, IT, abituriyentlarga tayyorlov va boshqa yo'nalishlar) va repetitorlar.");
+  lines.push("Kimlar uchun: xususiy o'quv markazlari (til, IT, abituriyentlarga tayyorlov, bolalar markazlari va boshqa yo'nalishlar) va repetitorlar.");
   lines.push("");
   lines.push("### Imkoniyatlar (har bir tarifda bor)");
   lines.push("");
@@ -153,7 +153,7 @@ export async function GET() {
   lines.push("");
   lines.push("### Sahifalar");
   lines.push("");
-  for (const p of CRM_SITE_PAGES) lines.push(`- [${p.title}](${SITE_URL}${p.path}) — ${p.about}`);
+  for (const p of CRM_SITE_PAGES) lines.push(`- [${p.title}](${SITE_URL}${p.path}): ${p.about}`);
   lines.push("");
   lines.push("### Ko'p so'raladigan savollar");
   lines.push("");
@@ -238,7 +238,7 @@ export async function GET() {
   if (centers.length > 0) {
     lines.push("## O'quv markazlar (tekshirilgan, aktiv)");
     lines.push("");
-    lines.push(`Darslinker katalogida ${centers.length} ta tekshirilgan o'quv markaz aktiv. Har biri admin tomonidan verify qilingan.`);
+    lines.push(`Darslinker katalogida ${centers.length} ta tekshirilgan o'quv markaz aktiv. Har birini Darslinker admini tekshirgan.`);
     lines.push("");
     for (const c of centers) {
       const provider = c.centerName?.trim() || c.name;
@@ -274,7 +274,7 @@ export async function GET() {
   if (tutors.length > 0) {
     lines.push("## Repetitorlar (shaxsiy o'qituvchilar, tekshirilgan)");
     lines.push("");
-    lines.push(`Darslinker katalogida ${tutors.length} ta tekshirilgan shaxsiy repetitor aktiv. Har biri admin tomonidan verify qilingan.`);
+    lines.push(`Darslinker katalogida ${tutors.length} ta tekshirilgan shaxsiy repetitor aktiv. Har birini Darslinker admini tekshirgan.`);
     lines.push("");
     for (const t of tutors) {
       const subjects = Array.from(new Set(t.listings.map(l => l.category?.name).filter(Boolean)));

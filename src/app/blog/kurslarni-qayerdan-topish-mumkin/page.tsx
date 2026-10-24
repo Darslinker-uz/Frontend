@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/kurslarni-qayerdan-topish-mumkin`;
 
 export const metadata: Metadata = {
-  title: "Kurslarni qayerdan topish mumkin? (2026) | Darslinker",
+  title: { absolute: "Kurslarni qayerdan topish mumkin? (2026) | Darslinker" },
   description:
     "O'zbekistonda kurslarni qayerdan topish mumkin — ijtimoiy tarmoq, tavsiya yoki katalogdan. Yo'nalish, shahar va narx bo'yicha qidirish uchun qo'llanma.",
   alternates: { canonical: url },

@@ -16,13 +16,12 @@ const c: FeaturePageContent = {
   metaTitle: "Kichik o'quv markazi uchun CRM — Darslinker",
   metaDescription: `Kichik o'quv markazi uchun CRM: oyiga ${MIN.price} so'm, 100 tagacha o'quvchi, barcha imkoniyatlar bilan. Excel'dan bir kunda o'tiladi.`,
   keywords: ["kichik o'quv markazi uchun CRM", "yangi o'quv markazi boshqaruv dasturi", "kichik markaz uchun arzon CRM", "sodda CRM o'quv markazi"],
-  eyebrow: "Kimlar uchun · Kichik markazlar",
   title: "Kichik o'quv markazi uchun CRM",
-  lead: `O'zbekistondagi kichik va yangi ochilgan o'quv markazlarida ham davomat, to'lov va qarzdorlik tartibli bo'lishi kerak. Darslinker'ning Minimal tarifi oyiga ${MIN.price} so'm va unda barcha imkoniyatlar bor.`,
+  lead: `Kichik va yangi ochilgan o'quv markazlarida ham davomat, to'lov va qarzdorlik tartibli bo'lishi kerak. Darslinker'ning Minimal tarifi oyiga ${MIN.price} so'm va unda barcha imkoniyatlar bor.`,
   Preview: ImportPreview,
   how: {
     question: "Kichik o'quv markaziga qaysi boshqaruv tizimi mos?",
-    answer: `Kichik markazga sodda, tez o'rganiladigan va narxi o'quvchilar soniga mos tizim kerak. Darslinker'ning Minimal tarifi ${MIN.features[0]} va ${MIN.features[1]} uchun oyiga ${MIN.price} so'm. Imkoniyatlar katta tariflardagi bilan bir xil: davomat, to'lov, ota-onaga Telegram xabar, jonli quiz, lidlar.`,
+    answer: `Kichik markazga sodda, tez o'rganiladigan va narxi o'quvchilar soniga mos tizim kerak. Darslinker'ning Minimal tarifi oyiga ${MIN.price} so'm: 100 tagacha o'quvchi, 1 filial va 3 xodim. Imkoniyatlar katta tariflardagi bilan bir xil: davomat, to'lov, ota-onaga Telegram xabar, jonli quiz, lidlar.`,
     steps: [
       { title: "Ro'yxatni ko'chirasiz", text: "Daftar yoki Excel'dagi o'quvchilar ro'yxati tizimga yuklanadi." },
       { title: "Bir kunda ishlaysiz", text: "Davomat va to'lovlarni o'sha kundan tizimda yuritasiz." },
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     `Minimal tarif: oyiga ${MIN.price} so'm, 100 tagacha o'quvchi, 1 filial, 3 xodim.`,
     "Kichik tarifda ham barcha imkoniyatlar bor: davomat, to'lov, ota-onaga xabar, jonli quiz, lidlar.",
     "O'quvchilar ro'yxati daftar yoki Excel'dan bir kunda ko'chiriladi.",
-    "100 tadan oshsa, har 10 o'quvchiga oyiga +20 000 so'm. 14 kun bepul sinov.",
+    "100 tadan oshsa, har 10 o'quvchiga oyiga +20 000 so'm qo'shiladi.",
   ],
   compare: {
     question: "Daftar yoki Excel bilan davom etishdan nimasi farq qiladi?",
@@ -47,7 +46,7 @@ const c: FeaturePageContent = {
   benefits: {
     question: "Kichik markaz uchun Darslinker nima beradi?",
     items: [
-      { title: "Narx hajmga mos", text: `Minimal tarif — oyiga ${MIN.price} so'm, 100 tagacha o'quvchi. Kerakmas hajm uchun to'lamaysiz.` },
+      { title: "Narx hajmga mos", text: `Minimal tarif oyiga ${MIN.price} so'm, 100 tagacha o'quvchi uchun. Keraksiz hajm uchun to'lamaysiz.` },
       { title: "Imkoniyatlar cheklanmaydi", text: "Kichik tarifda ham barcha imkoniyatlar bor, hech biri yopiq emas." },
       { title: "O'rganish oson", text: "Har xodim faqat o'z bo'limini ko'radi, tizim telefondan ham ishlaydi." },
       { title: "Sinab ko'rib tanlaysiz", text: "14 kun bepul sinov, karta talab qilinmaydi." },
@@ -58,9 +57,8 @@ const c: FeaturePageContent = {
     text: (
       <p>
         O&apos;quvchilar 100 tadan oshsa, tarifni darhol almashtirish shart emas: har 10 ta ortiqcha o&apos;quvchi
-        uchun oyiga 20 000 so&apos;m qo&apos;shiladi. Batafsil —{" "}
-        <Link href="/pricing" className={TEXT_LINK}>tariflar va narxlar</Link>. Tizimga qanday tez o&apos;tilishi —{" "}
-        <Link href="/features/easy-to-use" className={TEXT_LINK}>oson boshqaruv</Link>{" "}sahifasida.
+        uchun oyiga 20 000 so&apos;m qo&apos;shiladi. Batafsil:{" "}<Link href="/pricing" className={TEXT_LINK}>tariflar va narxlar</Link>. Tizimga qanday tez
+        o&apos;tilishi haqida{" "}<Link href="/features/easy-to-use" className={TEXT_LINK}>oson boshqaruv</Link>{" "}sahifasida.
       </p>
     ),
   },

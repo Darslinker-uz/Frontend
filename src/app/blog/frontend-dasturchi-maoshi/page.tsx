@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/frontend-dasturchi-maoshi`;
 
 export const metadata: Metadata = {
-  title: "Frontend dasturchi maoshi O'zbekistonda (2026) | Darslinker",
+  title: { absolute: "Frontend dasturchi maoshi O'zbekistonda (2026) | Darslinker" },
   description:
     "82 ta ochiq e'lon tahlili: Toshkentda frontend dasturchi 5–20 mln so'm oladi. Junior eshigi qanchalik ochiq, dollar va so'm takliflari farqi — 2026 raqamlari.",
   keywords: [

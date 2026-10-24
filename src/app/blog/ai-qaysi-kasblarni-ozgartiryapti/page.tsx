@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/ai-qaysi-kasblarni-ozgartiryapti`;
 
 export const metadata: Metadata = {
-  title: "AI O'zbekistonda qaysi kasblarni o'zgartiryapti? (2026) | Darslinker",
+  title: { absolute: "AI O'zbekistonda qaysi kasblarni o'zgartiryapti? (2026) | Darslinker" },
   description:
     "Banklar ovozli AI sinamoqda, Soliq qo'mitasi AI Soliq portalini ishga tushirdi. hh.uz va davlat dasturlari asosida AI qaysi kasblarni o'zgartirayotgani (2026).",
   keywords: [

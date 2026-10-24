@@ -36,6 +36,7 @@ export const CRM_FEATURES = [
   "Dashboard: 8 ta asosiy ko'rsatkich",
   "Excel import",
   "Rollar: rahbar, administrator, o'qituvchi, kassir",
+  "Do'stona support: birgalikda o'rnatish, to'liq sozlash va o'rgatish; haftaning 7 kuni 10:00–20:00",
 ];
 
 export type PlanInfo = {
@@ -90,7 +91,7 @@ export const PLANS: PlanInfo[] = [
 export const FAQS = [
   {
     q: "Darslinker nima?",
-    a: "Darslinker — O'zbekistondagi o'quv markazlari uchun interaktiv CRM va LMS platformasi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi. Jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
+    a: "Darslinker O'zbekistondagi o'quv markazlari uchun yaratilgan interaktiv CRM va LMS platformasi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi. Jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
   },
   {
     q: "O'quv markaz uchun CRM nima beradi?",
@@ -102,7 +103,7 @@ export const FAQS = [
   },
   {
     q: "Darslinker'ni sinab ko'rsa bo'ladimi?",
-    a: "Ha. Istalgan tarifni 14 kun bepul sinab ko'rasiz, karta talab qilinmaydi. Eng kichik tarif — Minimal: oyiga 190 000 so'm, 100 tagacha o'quvchi.",
+    a: "Ha. Istalgan tarifni 14 kun bepul sinab ko'rasiz, karta talab qilinmaydi. Eng kichik tarif Minimal: oyiga 190 000 so'm, 100 tagacha o'quvchi.",
   },
   {
     q: "Tariflar bir-biridan nimasi bilan farq qiladi?",

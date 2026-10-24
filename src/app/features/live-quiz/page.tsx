@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "O'quv markazi uchun jonli quiz: o'quvchilar PIN bilan telefondan qo'shiladi, vaqt ichida javob beradi, reyting jonli yangilanadi. Natijalar saqlanadi.",
   keywords: ["o'quv markazi uchun jonli quiz", "dars uchun online quiz", "darsda viktorina o'tkazish", "gamifikatsiya ta'limda", "o'quvchilar bilimini tekshirish testi"],
-  eyebrow: "Imkoniyat · Gamifikatsiya",
   title: "O'quv markazi uchun jonli quiz",
-  lead: "Darslinker O'zbekistondagi o'quv markazlariga darsni o'yinga aylantirish imkonini beradi. O'qituvchi quizni boshlaydi, o'quvchilar telefondan qo'shilib, savollarga vaqt ichida javob beradi, reyting esa jonli yangilanadi.",
+  lead: "Darslinker'da darsni o'yinga aylantirish oson: o'qituvchi quizni boshlaydi, o'quvchilar telefondan qo'shilib, savollarga vaqt ichida javob beradi, reyting esa jonli yangilanadi.",
   Preview: QuizPreview,
   how: {
     question: "Jonli quiz qanday ishlaydi?",
@@ -32,8 +31,8 @@ const c: FeaturePageContent = {
   summary: [
     "O'qituvchi quizni markaz panelida tuzadi va darsda ishga tushiradi.",
     "O'quvchilar PIN kod bilan telefondan qo'shiladi, ilova o'rnatish shart emas.",
-    "Taymer va ballar serverda hisoblanadi, reyting jonli yangilanadi.",
-    "Natijalar o'quvchi profilida saqlanadi. Jonli quiz barcha tariflarda bor.",
+    "Vaqt va ballar avtomatik hisoblanadi, reyting jonli yangilanadi.",
+    "Natijalar o'quvchi profilida davomat va to'lovlar bilan birga saqlanadi.",
   ],
   compare: {
     question: "Og'zaki so'rov yoki qog'oz testdan nimasi farq qiladi?",
@@ -61,7 +60,8 @@ const c: FeaturePageContent = {
         Qiziqarli dars o&apos;quvchini markazda ushlab qolishga yordam beradi.{" "}
         <Link href="/features/attendance" className={TEXT_LINK}>Davomat</Link>{" "}esa kim dars qoldira
         boshlaganini erta ko&apos;rsatadi. Ikkalasi birga ishlaydi: o&apos;quvchi qiziqib qatnaydi, siz esa
-        uning holatini vaqtida bilasiz.
+        uning holatini vaqtida bilasiz. Quiz Darslinker&apos;ning{" "}
+        <Link href="/features/lms" className={TEXT_LINK}>LMS qismi</Link>{" "}hisoblanadi.
       </p>
     ),
   },
@@ -70,6 +70,7 @@ const c: FeaturePageContent = {
     { q: "O'quvchilarga ilova o'rnatish kerakmi?", a: "Yo'q. O'quvchilar telefon brauzerida PIN kodni kiritib o'yinga qo'shiladi." },
     { q: "Quizni kim tuzadi?", a: "O'qituvchi o'zi, markaz panelida. Savollarni darsga moslab tayyorlaydi." },
     { q: "Kahoot kabi alohida xizmatdan nimasi farq qiladi?", a: "Darslinker'da jonli quiz markaz tizimining o'zida ishlaydi: alohida xizmatda hisob ochish shart emas, natijalar esa o'quvchi profilida davomat va to'lovlar bilan birga saqlanadi." },
+    { q: "Ta'limda gamifikatsiya nima?", a: "Bu o'qishga o'yin elementlarini qo'shish: ball, reyting va musobaqa. Darslinker'da gamifikatsiya jonli quiz orqali ishlaydi: o'quvchilar ball to'playdi va reytingda o'z o'rnini ko'radi." },
     { q: "Natijalar qayerda saqlanadi?", a: "Har o'quvchining quiz natijalari uning profilida saqlanadi va o'qituvchi hamda rahbar ko'ra oladi." },
     { q: "Ballar qanday hisoblanadi?", a: "Taymer va ballar serverda hisoblanadi: javob vaqt ichida va to'g'ri berilsa ball qo'shiladi, reyting jonli yangilanadi." },
     { q: "Jonli quiz qaysi tarifda bor?", a: `Barcha tariflarda. Tariflar oyiga ${PLANS[0].price} so'mdan boshlanadi, 14 kun bepul sinab ko'rish mumkin.` },

@@ -12,7 +12,7 @@ import { SHARE_OG, SHARE_TWITTER } from "@/lib/share-meta";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const PATH = "/crm-comparison";
-const TITLE = "O'zbekistonda o'quv markazi uchun CRM tanlash — Darslinker";
+const TITLE = "O'quv markazi uchun eng yaxshi CRM qaysi? Tanlash qo'llanmasi — Darslinker";
 const DESCRIPTION =
   "O'zbekistondagi o'quv markazlari CRM tizimlarini qanday solishtirish kerak: narx, imkoniyatlar, ota-onaga xabar, sinov muddati va yordam.";
 
@@ -32,12 +32,14 @@ const CRITERIA: { name: string; why: string; darslinker: string; href?: string }
   { name: "Davomat qanday belgilanadi", why: "O'qituvchi davomatni darsda tez belgilay olmasa, u keyinga qoladi va unutiladi.", darslinker: "O'qituvchi darsda telefondan belgilaydi, ilova o'rnatish shart emas.", href: "/features/attendance" },
   { name: "Qarzdorlik avtomatik hisoblanadimi", why: "Qarzni qo'lda sanash vaqt oladi va xatoga olib keladi.", darslinker: "Ha. Qarz to'lov rejasi asosida o'zi hisoblanadi, qarzdorlar ro'yxati doim tayyor.", href: "/features/payments" },
   { name: "O'quvchini ushlab qolishga yordam beradimi", why: "Hisob yuritish yetarli emas: o'quvchi qiziqib qatnashi uchun dars ham qiziqarli bo'lishi kerak.", darslinker: "Darsda jonli quiz va reyting, kelmagan o'quvchi haqida ota-onaga xabar.", href: "/features/live-quiz" },
+  { name: "O'quv jarayoni (LMS) bormi", why: "Faqat hisob yuritadigan tizimda o'quvchi qanday o'qiyotgani ko'rinmaydi, darslar uchun alohida dastur kerak bo'ladi.", darslinker: "Ha: jonli quiz va natijalar o'quvchi profilida, CRM bilan bitta tizimda.", href: "/features/lms" },
   { name: "Yangi o'quvchi topishga yordam", why: "CRM odatda mavjud o'quvchilarni boshqaradi, yangi o'quvchi oqimi alohida masala.", darslinker: "Lidlar Kanban doskada. Bundan tashqari Darslinker marketplace orqali o'quvchilardan ariza keladi.", href: "/features/leads" },
   { name: "Mavjud ma'lumotni ko'chirish", why: "Ro'yxatni qaytadan qo'lda kiritish bir necha kun oladi.", darslinker: "O'quvchilar ro'yxati Excel'dan ko'chiriladi, kerak bo'lsa yordam beramiz.", href: "/features/easy-to-use" },
   { name: "Markazga moslash", why: "Tizim markazning nomi, uslubi va ish tartibiga mos bo'lsa, xodimlar va ota-onalar unga tezroq ko'nikadi.", darslinker: "Logotip va nom, dashboard ranglari, xabar matnlari, rollar.", href: "/features/customization" },
-  { name: "Filiallar", why: "Markaz kengaysa, filiallarni alohida tizimlarda yuritish noqulay.", darslinker: "Biznes tarifida 3 ta, Korporativ tarifida 6 ta filial. Undan ko'p — Individual.", href: "/features/branches" },
+  { name: "Filiallar", why: "Markaz kengaysa, filiallarni alohida tizimlarda yuritish noqulay.", darslinker: "Biznes tarifida 3 ta, Korporativ tarifida 6 ta filial. Undan ko'pi uchun Individual tarif.", href: "/features/branches" },
+  { name: "Ma'lumotlar xavfsizligi", why: "O'quvchilar va to'lovlar ma'lumoti yo'qolsa yoki begona qo'lga tushsa, markazga katta zarar.", darslinker: "Har kuni zaxira nusxa, shifrlangan ulanish, har markaz ma'lumoti alohida. Ma'lumotni istalgan payt yuklab olasiz.", href: "/features/security" },
   { name: "Sinov va boshlash", why: "Tizimni o'z ma'lumotlaringiz bilan sinab ko'rmasdan tanlash xavfli.", darslinker: "14 kun bepul sinov, karta talab qilinmaydi." },
-  { name: "Yordam", why: "Savol tug'ilganda tez javob olish ishni to'xtatmaslik uchun muhim.", darslinker: "Telegram orqali support: @Darslinker_Support." },
+  { name: "O'rnatish va yordam", why: "Tizimni o'zingiz sozlash va xodimlarni o'rgatish ko'p vaqt oladi. Savol tug'ilganda tez javob olish ham muhim.", darslinker: "Birgalikda o'rnatamiz va har bir tarifda to'liq sozlab beramiz, xodimlarni o'rgatamiz. Support haftaning 7 kuni, 10:00–20:00.", href: "/features/support" },
 ];
 
 const FAQS = [
@@ -84,14 +86,7 @@ export default function CrmComparisonPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section className={`${SECTION} pt-8 pb-12 md:pt-12 md:pb-16`}>
-        <nav aria-label="Breadcrumb" className="text-[13px] text-[#7c8490]">
-          <ol className="flex items-center gap-1.5">
-            <li><Link href="/" className="hover:text-[#16181a]">Bosh sahifa</Link></li>
-            <li aria-hidden="true">/</li>
-            <li className="text-[#16181a]">CRM tanlash</li>
-          </ol>
-        </nav>
-        <h1 className="mt-8 max-w-[960px] text-[36px] font-bold leading-[1.05] tracking-[-0.04em] md:text-[52px] xl:text-[60px]">
+        <h1 className="mt-2 max-w-[960px] text-[36px] font-bold leading-[1.05] tracking-[-0.04em] md:text-[52px] xl:text-[60px]">
           O&apos;zbekistonda o&apos;quv markazi uchun CRM&apos;ni qanday tanlash kerak
         </h1>
         <p className="mt-5 max-w-[760px] text-[16px] leading-relaxed text-[#4b525c] md:text-[18px]">
@@ -105,7 +100,7 @@ export default function CrmComparisonPage() {
             {[
               "Hamma markaz uchun bitta eng yaxshi CRM yo'q: tizim markazingiz hajmi va ehtiyojiga mos bo'lishi kerak.",
               "Narx qanday hisoblanishiga va markaz o'sganda qancha bo'lishiga qarang.",
-              "Imkoniyatlar arzon tarifda ham ochiqmi, ota-onaga xabar pullik SMS'dami — shuni tekshiring.",
+              "Imkoniyatlar arzon tarifda ham ochiqmi, ota-onaga xabar pullik SMS orqalimi, shuni tekshiring.",
               "Tanlashdan oldin tizimni o'z ma'lumotlaringiz bilan sinov muddatida ishlatib ko'ring.",
             ].map((t) => (
               <li key={t} className="flex gap-3 text-[15px] leading-relaxed md:text-[16px]">
@@ -154,7 +149,7 @@ export default function CrmComparisonPage() {
           <h2 className={H2}>Tanlashdan oldin nima qilish kerak?</h2>
           <ol className="mt-8 grid gap-4 md:grid-cols-3">
             {[
-              { t: "Ehtiyojni yozib chiqing", d: "Markazingizda nechta o'quvchi, filial va xodim bor, eng ko'p vaqt qayerga ketyapti — davomat, to'lovmi yoki ota-ona bilan aloqami." },
+              { t: "Ehtiyojni yozib chiqing", d: "Markazingizda nechta o'quvchi, filial va xodim bor, eng ko'p vaqt qayerga ketyapti: davomatgami, to'lovgami yoki ota-ona bilan aloqagami." },
               { t: "Narxni o'sish bilan hisoblang", d: "Bugungi narxga emas, o'quvchilar soni oshganda qancha to'lashingizga qarang." },
               { t: "O'z ma'lumotingiz bilan sinang", d: "Sinov muddatida haqiqiy ro'yxatingizni yuklab, xodimlaringiz bilan bir-ikki hafta ishlab ko'ring." },
             ].map((s, i) => (

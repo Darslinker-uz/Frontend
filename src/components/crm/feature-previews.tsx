@@ -1,4 +1,4 @@
-import { Building2, Check, Send } from "lucide-react";
+import { Building2, Check, Send, ShieldCheck } from "lucide-react";
 
 // Imkoniyat sahifalari uchun qo'shimcha interfeys namunalari (features-explorer'dagilar bilan bir uslubda,
 // --a / --s ranglari ota elementdan). Ism va raqamlar — namuna, statistika emas.
@@ -56,6 +56,91 @@ export function MiniAppPreview() {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Support: markaz bilan Telegram yozishmasi (namuna, real suhbat emas).
+export function SupportPreview() {
+  const msgs: [boolean, string][] = [
+    [false, "Assalomu alaykum! O'quvchilar ro'yxatini Excel'da yubordik."],
+    [true, "Rahmat! Ro'yxatni ko'chirdik, guruhlar va jadvalni ham sozladik ✅"],
+    [true, "Ertaga 11:00 da xodimlar uchun onlayn o'rgatish bo'ladi."],
+  ];
+  return (
+    <div className="w-full max-w-[300px] rounded-[30px] bg-[#16181a] p-2 shadow-[0_24px_50px_-24px_rgba(22,24,26,0.6)]">
+      <div className="rounded-[24px] bg-[#dfe7ef] p-3">
+        <div className="flex items-center gap-2 rounded-[14px] bg-white px-3 py-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--a)]">
+            <Send className="h-3.5 w-3.5 text-white" />
+          </span>
+          <span className="text-[12px] font-semibold text-[#16181a]">Darslinker Support</span>
+          <span className="ml-auto text-[10px] text-[#7c8490]">10:00–20:00</span>
+        </div>
+        <div className="mt-3 space-y-2">
+          {msgs.map(([ours, m]) => (
+            <p
+              key={m}
+              className={`max-w-[88%] rounded-[14px] px-3 py-2 text-[12px] leading-snug ${ours ? "rounded-tl-[4px] bg-white text-[#16181a]" : "ml-auto rounded-tr-[4px] bg-[var(--a)] text-white"}`}
+            >
+              {m}
+            </p>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// LMS: o'quvchi profilidagi o'quv natijalari (namuna).
+export function LmsPreview() {
+  const quizzes: [string, number][] = [["Present Simple", 940], ["Vocabulary 3", 870], ["Listening 2", 910]];
+  return (
+    <div className={card}>
+      <div className="flex items-center gap-3">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--s)] text-[13px] font-bold text-[var(--a)]">A</span>
+        <div>
+          <p className="text-[14px] font-bold text-[#16181a]">Aziz Rahimov</p>
+          <p className="text-[11px] text-[#7c8490]">IELTS 7.0 · Davomat 12/12</p>
+        </div>
+      </div>
+      <p className="mt-4 text-[12px] font-semibold text-[#7c8490]">Quiz natijalari</p>
+      <div className="mt-2 space-y-1.5">
+        {quizzes.map(([t, s]) => (
+          <div key={t} className="flex items-center justify-between rounded-[12px] bg-[#f6f7f8] px-3 py-2 text-[12px]">
+            <span className="font-medium text-[#16181a]">{t}</span>
+            <span className="font-semibold tabular-nums text-[var(--a)]">{s}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Xavfsizlik: himoya holati paneli (namuna; faqat tasdiqlangan himoyalar).
+export function SecurityPreview() {
+  const rows = ["Kunlik zaxira nusxa", "Shifrlangan ulanish (HTTPS)", "Telefon raqami va parol bilan kirish", "Ma'lumotni yuklab olish"];
+  return (
+    <div className={card}>
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[var(--a)]">
+          <ShieldCheck className="h-5 w-5 text-white" />
+        </span>
+        <div>
+          <p className="text-[14px] font-bold text-[#16181a]">Ma&apos;lumotlar himoyasi</p>
+          <p className="text-[11px] text-[#7c8490]">Oxirgi zaxira nusxa: bugun</p>
+        </div>
+      </div>
+      <div className="mt-3 space-y-1.5">
+        {rows.map((r) => (
+          <div key={r} className="flex items-center justify-between rounded-[12px] bg-[#f6f7f8] px-3 py-2 text-[12px]">
+            <span className="font-medium text-[#16181a]">{r}</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#e3f4ec]">
+              <Check className="h-3 w-3 text-[#1d6b4a]" strokeWidth={3} />
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/suniy-intellekt-strategiyasi-2030-yangi-imkoniyatlar`;
 
 export const metadata: Metadata = {
-  title: "Sun'iy intellekt strategiyasi 2030: kimlar uchun imkoniyat? | Darslinker",
+  title: { absolute: "Sun'iy intellekt strategiyasi 2030: kimlar uchun imkoniyat? | Darslinker" },
   description:
     "$6 mlrd investitsiya, 800 MVt infratuzilma, 200+ loyiha 7 sohada — O'zbekiston AI strategiyasi 2030 kimlar uchun imkoniyat ochayotgani.",
   keywords: [

@@ -13,7 +13,7 @@ const SUPPORT_URL = "https://t.me/Darslinker_Support";
 
 const TITLE = "Darslinker haqida — o'quv markazlari uchun CRM va LMS";
 const DESCRIPTION =
-  "Darslinker — O'zbekistondagi o'quv markazlari uchun CRM va LMS: davomat, to'lov va qarzdorlik, jonli quiz va ota-onaga Telegram xabar bitta tizimda.";
+  "Darslinker O'zbekistondagi o'quv markazlari uchun CRM va LMS: davomat, to'lov va qarzdorlik, jonli quiz va ota-onaga Telegram xabar bitta tizimda.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -29,7 +29,7 @@ const minPrice = PLANS[0].price;
 const faqs = [
   {
     q: "Darslinker nima va o'quv markazini boshqarishda qanday yordam beradi?",
-    a: "Darslinker — O'zbekistondagi o'quv markazlari uchun interaktiv CRM va LMS platformasi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi, jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
+    a: "Darslinker O'zbekistondagi o'quv markazlari uchun yaratilgan interaktiv CRM va LMS platformasi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi, jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
   },
   {
     q: "Darslinker kimlar uchun?",
@@ -107,7 +107,7 @@ export default function HaqimizdaPage() {
               Darslinker haqida
             </h1>
             <p className="mt-5 text-[16px] md:text-[18px] text-[#16181a]/75 leading-relaxed">
-              Darslinker — O&apos;zbekistondagi o&apos;quv markazlari uchun interaktiv CRM va LMS
+              Darslinker O&apos;zbekistondagi o&apos;quv markazlari uchun yaratilgan interaktiv CRM va LMS
               platformasi. O&apos;quvchilar, guruhlar, davomat, to&apos;lov va qarzdorlik bitta
               tizimda yuritiladi, jonli quiz va ota-onaga Telegram xabarlari esa o&apos;quvchini
               markazda ushlab qolishga yordam beradi.
@@ -121,7 +121,7 @@ export default function HaqimizdaPage() {
               Natijada:
             </p>
             <ul className={`space-y-2.5 ${P} mb-4 pl-5 list-disc`}>
-              <li>qarzdorlik vaqtida bilinmaydi — to&apos;lovlar turli joyda qayd etiladi;</li>
+              <li>to&apos;lovlar turli joyda qayd etilgani uchun qarzdorlik vaqtida bilinmaydi;</li>
               <li>guruh va dars vaqtlari chalkashadi, bo&apos;sh joyni topish qiyinlashadi;</li>
               <li>o&apos;quvchi darslarni qoldira boshlaganini kech sezasiz;</li>
               <li>ota-onaga xabar berish uchun pullik SMS yoki qo&apos;lda qo&apos;ng&apos;iroq kerak.</li>
@@ -139,15 +139,15 @@ export default function HaqimizdaPage() {
             </ul>
             <p className={`${P} mt-4`}>
               Barcha imkoniyatlar har bir tarifda bor. Tariflar oyiga {minPrice}{" "}so&apos;mdan
-              boshlanadi va faqat o&apos;quvchilar, filiallar va xodimlar soni bilan farq qiladi —{" "}
-              <Link href="/#narxlar" className={LINK}>tariflar va narxlar</Link>.
+              boshlanadi va faqat o&apos;quvchilar, filiallar va xodimlar soni bilan farq qiladi. Batafsil:{" "}
+              <Link href="/pricing" className={LINK}>tariflar va narxlar</Link>.
             </p>
           </section>
 
           <section className="mb-10">
             <h2 className={H2}>Bizning missiyamiz qanday?</h2>
             <p className={P}>
-              Darslinker missiyasi —{" "}
+              Darslinker missiyasi:{" "}
               <strong className="text-[#16181a]">
                 O&apos;zbekistondagi o&apos;quv markazlariga boshqaruvni soddalashtirish va
                 o&apos;quvchini markazda ushlab qolishga yordam berish
@@ -166,8 +166,8 @@ export default function HaqimizdaPage() {
             </p>
             <p className={`${P} mb-4`}>
               <Link href="/marketplace" className={LINK}>Darslinker marketplace</Link>{" "}
-              — o&apos;quvchilar Toshkent shahri va viloyatlardagi kurslarni yo&apos;nalish, narx
-              va joylashuv bo&apos;yicha solishtiradigan katalog. Markazingiz va kurslaringiz
+              katalogida o&apos;quvchilar Toshkent shahri va viloyatlardagi kurslarni yo&apos;nalish, narx
+              va joylashuv bo&apos;yicha solishtiradi. Markazingiz va kurslaringiz
               shu yerda ko&apos;rinsa, kurs qidirayotgan o&apos;quvchilar sizga to&apos;g&apos;ridan-to&apos;g&apos;ri
               ariza qoldiradi.
             </p>
@@ -239,7 +239,9 @@ export default function HaqimizdaPage() {
               <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className={LINK}>
                 @Darslinker_Support
               </a>
-              .
+              . Support haftaning 7 kuni, 10:00 dan 20:00 gacha ishlaydi. Tizimni birgalikda o&apos;rnatamiz va to&apos;liq
+              sozlab beramiz, batafsil:{" "}
+              <Link href="/features/support" className={LINK}>support va sozlash</Link>.
             </p>
           </section>
 

@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/ishonchli-oquv-markazni-qanday-tekshirish`;
 
 export const metadata: Metadata = {
-  title: "Ishonchli o'quv markazni qanday tekshirish kerak? 5 mezon | Darslinker",
+  title: { absolute: "Ishonchli o'quv markazni qanday tekshirish kerak? 5 mezon | Darslinker" },
   description:
     "O'quv markazga pul to'lashdan oldin 5 narsani tekshiring: ro'yxatdan o'tish, ruxsat hujjati, shartnoma, o'qituvchi darajasi va manzil. 2026 qo'llanma.",
   keywords: [

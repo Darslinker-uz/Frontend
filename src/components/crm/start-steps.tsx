@@ -9,7 +9,7 @@ import { CrmApplyButton } from "@/components/crm/crm-apply";
 // Matnda faqat tasdiqlangan narsalar: ariza, markaz tizimi, Excel import, 14 kun sinov.
 
 const STEPS = [
-  { title: "Ariza qoldirasiz", text: "Ism, telefon va markaz nomi — bir daqiqa ham olmaydi.", image: "/images/steps/apply-paper-v1.png" },
+  { title: "Ariza qoldirasiz", text: "Ism, telefon va markaz nomi. Bir daqiqa ham olmaydi.", image: "/images/steps/apply-paper-v1.png" },
   { title: "Markazingiz tizimi ochiladi", text: "Siz bilan bog'lanamiz va markazingiz uchun alohida manzil ochamiz.", image: "/images/steps/workspace-paper-v1.png" },
   { title: "Ma'lumotlarni ko'chirasiz", text: "O'quvchilar ro'yxatini Excel'dan import qilasiz, xodimlarga rollar berasiz.", image: "/images/steps/import-paper-v1.png" },
   { title: "14 kun bepul ishlaysiz", text: "Barcha imkoniyatlarni real ishda sinaysiz. Karta kerak emas.", image: "/images/steps/trial-paper-v1.png" },

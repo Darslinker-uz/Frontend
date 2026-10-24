@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/kursni-qanday-tanlash-7-mezon`;
 
 export const metadata: Metadata = {
-  title: "Kursni qanday to'g'ri tanlash kerak: 7 mezon 2026 | Darslinker",
+  title: { absolute: "Kursni qanday to'g'ri tanlash kerak: 7 mezon 2026 | Darslinker" },
   description:
     "Kurs tanlashda yo'l qo'yiladigan 7 ta asosiy mezon: format, narx, o'qituvchi, sertifikat, joylashuv, sharhlar, demo. O'zbekiston bozori uchun amaliy maslahatlar.",
   alternates: { canonical: url },

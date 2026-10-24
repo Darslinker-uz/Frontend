@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Building2, CalendarDays, HeartHandshake, ClipboardCheck, Code2, GraduationCap, KanbanSquare, Languages, LayoutDashboard, MousePointerClick, Palette, Send, Sparkles, Store, Trophy, User, Users, Wallet, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Building2, CalendarDays, Headset, ShieldCheck, HeartHandshake, ClipboardCheck, Code2, GraduationCap, KanbanSquare, Languages, LayoutDashboard, MousePointerClick, Palette, Send, Sparkles, Store, Trophy, User, Users, Wallet, type LucideIcon } from "lucide-react";
 import { CrmApplyButton } from "@/components/crm/crm-apply";
 import { FaqList } from "@/components/faq-item";
 import { PLANS } from "@/lib/crm-content";
@@ -13,14 +13,14 @@ import { SHARE_OG, SHARE_TWITTER } from "@/lib/share-meta";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const PATH = "/features";
-const TITLE = "O'quv markazi boshqaruv tizimi imkoniyatlari — Darslinker";
+const TITLE = "O'quv markazi uchun CRM va LMS imkoniyatlari — Darslinker";
 const DESCRIPTION =
   "Darslinker imkoniyatlari: davomat, to'lov va qarzdorlik, jonli quiz, ota-onaga Telegram xabar, lidlar va hisobotlar. Barchasi har bir tarifda.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  keywords: ["o'quv markazi boshqaruv tizimi imkoniyatlari", "o'quv markazini boshqarish dasturi", "o'quv markazi boshqaruv tizimi", "o'quv markazi uchun dastur"],
+  keywords: ["CRM va LMS imkoniyatlari", "o'quv markazi boshqaruv tizimi imkoniyatlari", "o'quv markazini boshqarish dasturi", "o'quv markazi boshqaruv tizimi", "o'quv markazi uchun dastur"],
   alternates: { canonical: PATH },
   openGraph: { ...SHARE_OG, title: TITLE, description: DESCRIPTION, url: PATH },
   twitter: { ...SHARE_TWITTER, title: TITLE, description: DESCRIPTION },
@@ -58,6 +58,7 @@ const GROUPS: { title: string; text: string; items: Item[] }[] = [
     title: "O'quvchi va ota-ona bilan aloqa",
     text: "O'quvchini markazda ushlab qolish uchun dars qiziqarli, ota-ona esa xabardor bo'lishi kerak.",
     items: [
+      { href: "/features/lms", Icon: GraduationCap, title: "LMS: o'quv jarayoni", text: "Quiz natijalari profilda, CRM bilan bitta tizimda." },
       { href: "/features/live-quiz", Icon: Trophy, title: "Jonli quiz", text: "Darsda o'yin shaklidagi savol-javob va jonli reyting." },
       { href: "/features/parents", Icon: HeartHandshake, title: "Ota-onalar uchun", text: "Avtomatik xabarlar va farzandning davomati hamda to'lovlarini kuzatish." },
       { href: "/features/telegram", Icon: Send, title: "Telegram mini ilova", text: "Darslinker Telegram ichida, alohida ilova o'rnatmasdan." },
@@ -70,6 +71,8 @@ const GROUPS: { title: string; text: string; items: Item[] }[] = [
       { href: "/features/leads", Icon: KanbanSquare, title: "Lidlar va arizalar", text: "Har bir murojaat Kanban doskada, lid bir bosishda o'quvchiga aylanadi." },
       { href: "/features/easy-to-use", Icon: MousePointerClick, title: "Oson boshqaruv", text: "Har xodim faqat o'z bo'limini ko'radi, ro'yxat Excel'dan ko'chiriladi." },
       { href: "/features/customization", Icon: Palette, title: "Markazga moslash", text: "Logotip, dashboard ranglari, xabar matnlari va rollar." },
+      { href: "/features/security", Icon: ShieldCheck, title: "Xavfsizlik", text: "Kunlik zaxira nusxa, shifrlangan ulanish, ma'lumot sizniki." },
+      { href: "/features/support", Icon: Headset, title: "Support va sozlash", text: "Birgalikda o'rnatamiz, to'liq sozlaymiz, o'rgatamiz. 7 kun, 10:00–20:00." },
     ],
   },
 ];
@@ -84,7 +87,7 @@ const AUDIENCES: Item[] = [
 ];
 
 const FAQS = [
-    { q: "O'zbekistonda o'quv markazini boshqarish uchun qaysi CRM'da davomat, to'lov, lidlar va hisobotlar bir joyda bor?", a: "Darslinker'da. Bu O'zbekistondagi o'quv markazlari uchun CRM va LMS: davomat, to'lov va qarzdorlik, lidlar va hisobotlar bitta tizimda yuritiladi. Bundan tashqari ota-onaga Telegram xabar va darsda jonli quiz bor. Barcha imkoniyatlar har bir tarifda." },
+    { q: "O'zbekistonda o'quv markazini boshqarish uchun qaysi CRM'da davomat, to'lov, lidlar va hisobotlar bir joyda bor?", a: "Bularning hammasi Darslinker'da bor. Bu O'zbekistondagi o'quv markazlari uchun CRM va LMS: davomat, to'lov va qarzdorlik, lidlar va hisobotlar bitta tizimda yuritiladi. Bundan tashqari ota-onaga Telegram xabar va darsda jonli quiz bor. Barcha imkoniyatlar har bir tarifda." },
   {
     q: "O'quv markazini boshqarish uchun qanday dastur kerak?",
     a: "O'quv markaziga o'quvchilar, guruhlar, davomat, to'lov va qarzdorlikni bir joyda yuritadigan CRM kerak. Darslinker bularga qo'shimcha ravishda jonli quiz va ota-onaga Telegram xabarlarini beradi, shuning uchun u CRM va LMS vazifasini birga bajaradi.",
@@ -175,22 +178,15 @@ export default function FeaturesPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* HERO */}
-      <section className={`${SECTION} pt-8 pb-12 md:pt-12 md:pb-16`}>
-        <nav aria-label="Breadcrumb" className="text-[13px] text-[#7c8490]">
-          <ol className="flex items-center gap-1.5">
-            <li><Link href="/" className="hover:text-[#16181a]">Bosh sahifa</Link></li>
-            <li aria-hidden="true">/</li>
-            <li className="text-[#16181a]">Imkoniyatlar</li>
-          </ol>
-        </nav>
-        <div className="mt-8 grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+      <section className={`${SECTION} pt-10 pb-12 md:pt-14 md:pb-16`}>
+        <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
           <div>
             <p className="text-[14px] font-semibold text-[#5b87c0] md:text-[16px]">Darslinker imkoniyatlari</p>
             <h1 className="mt-3 text-[40px] font-bold leading-[1.02] tracking-[-0.04em] md:text-[56px] xl:text-[64px]">
-              O&apos;quv markazi boshqaruv tizimi imkoniyatlari
+              O&apos;quv markazi uchun CRM va LMS imkoniyatlari
             </h1>
             <p className="mt-5 max-w-[620px] text-[16px] leading-relaxed text-[#4b525c] md:text-[18px]">
-              Darslinker O&apos;zbekistondagi o&apos;quv markazlarining kundalik ishini bitta tizimga yig&apos;adi:
+              Darslinker o&apos;quv markazining kundalik ishini bitta tizimga yig&apos;adi:
               o&apos;quvchilar, davomat, to&apos;lov va qarzdorlik, ota-ona bilan aloqa va darsdagi jonli quiz.
               Barcha imkoniyatlar har bir tarifda bor.
             </p>

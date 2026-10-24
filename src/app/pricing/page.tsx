@@ -46,7 +46,7 @@ const EX_EXTRA = EX_TENS * 20000;
 
 const FAQS = [
   { q: "O'quv markazi CRM'i oyiga qancha turadi va tariflar nimaga qarab farq qiladi?", a: `Darslinker tariflari oyiga ${PLANS[0].price} so'mdan ${PLANS[PLANS.length - 1].price} so'mgacha. Har bir tarifga barcha imkoniyatlar kiradi: davomat, to'lov va qarzdorlik, ota-onaga Telegram xabar, jonli quiz, lidlar, dars jadvali, hisobotlar. Tariflar faqat o'quvchilar, filiallar va xodimlar soni bilan farq qiladi.` },
-  { q: "Qaysi tarifni tanlash kerak?", a: "O'quvchilar soniga qarab: 100 tagacha — Minimal, 250 tagacha — Standart, 600 tagacha — Biznes, 1 500 tagacha — Korporativ. Undan ko'p bo'lsa yoki filiallar ko'p bo'lsa, Individual tarif kelishuv asosida." },
+  { q: "Qaysi tarifni tanlash kerak?", a: "O'quvchilar soniga qarab: 100 tagachasiga Minimal, 250 tagachasiga Standart, 600 tagachasiga Biznes, 1 500 tagachasiga Korporativ. Undan ko'p bo'lsa yoki filiallar ko'p bo'lsa, Individual tarif kelishuv asosida." },
   { q: "Tarifdagi o'quvchilar sonidan oshib ketsa nima bo'ladi?", a: "Tarif chegarasidan oshgan har 10 ta o'quvchi uchun oyiga 20 000 so'm qo'shiladi. Boshlangan har 10 talik to'liq sanaladi." },
   { q: "Uzoq muddatga to'lasam chegirma bormi?", a: "Ha: 6 oyga to'lovda 10%, 12 oyga to'lovda 20% chegirma." },
   { q: "Bepul sinab ko'rsa bo'ladimi?", a: "Ha. Istalgan tarifni 14 kun bepul sinab ko'rasiz, karta talab qilinmaydi." },
@@ -104,18 +104,11 @@ export default function PricingPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section className={`${SECTION} pt-8 md:pt-12`}>
-        <nav aria-label="Breadcrumb" className="text-[13px] text-[#7c8490]">
-          <ol className="flex items-center gap-1.5">
-            <li><Link href="/" className="hover:text-[#16181a]">Bosh sahifa</Link></li>
-            <li aria-hidden="true">/</li>
-            <li className="text-[#16181a]">Tariflar</li>
-          </ol>
-        </nav>
-        <h1 className="mt-8 max-w-[900px] text-[40px] font-bold leading-[1.02] tracking-[-0.04em] md:text-[56px] xl:text-[64px]">
+        <h1 className="mt-2 max-w-[900px] text-[40px] font-bold leading-[1.02] tracking-[-0.04em] md:text-[56px] xl:text-[64px]">
           O&apos;quv markazi CRM narxi va tariflari
         </h1>
         <p className="mt-5 max-w-[720px] text-[16px] leading-relaxed text-[#4b525c] md:text-[18px]">
-          O&apos;zbekistondagi o&apos;quv markazlari uchun Darslinker tariflari oyiga {PLANS[0].price}{" "}so&apos;mdan
+          Darslinker CRM va LMS tariflari oyiga {PLANS[0].price}{" "}so&apos;mdan
           boshlanadi. Barcha imkoniyatlar har bir tarifda bor, tariflar faqat o&apos;quvchilar, filiallar va xodimlar
           soni bilan farq qiladi. Istalgan tarifni 14 kun bepul sinab ko&apos;rasiz.
         </p>
@@ -240,7 +233,7 @@ export default function PricingPage() {
           </p>
           <p className="mt-4 max-w-[760px] rounded-[14px] bg-[#f0f2f3] px-5 py-4 text-[15px] leading-relaxed md:text-[16px]">
             <span className="font-semibold">Misol:</span> {EX_PLAN.name}{" "}tarifida {EX_LIMIT}{" "}tagacha o&apos;quvchi.
-            Markazda {EX_STUDENTS}{" "}ta o&apos;quvchi bo&apos;lsa, {EX_STUDENTS - EX_LIMIT}{" "}tasi ortiqcha — bu {EX_TENS}{" "}ta
+            Markazda {EX_STUDENTS}{" "}ta o&apos;quvchi bo&apos;lsa, {EX_STUDENTS - EX_LIMIT}{" "}tasi ortiqcha, bu {EX_TENS}{" "}ta
             o&apos;nlik, ya&apos;ni +{sum(EX_EXTRA)}{" "}so&apos;m. Oylik to&apos;lov: {sum(num(EX_PLAN.price) + EX_EXTRA)}{" "}so&apos;m.
           </p>
         </div>

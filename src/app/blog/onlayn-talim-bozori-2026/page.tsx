@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/onlayn-talim-bozori-2026`;
 
 export const metadata: Metadata = {
-  title: "O'zbekistonda onlayn ta'lim bozori: 2026 statistika | Darslinker",
+  title: { absolute: "O'zbekistonda onlayn ta'lim bozori: 2026 statistika | Darslinker" },
   description:
     "Internet qamrovi 94,2%, uzbekcoders.uz'da 1,4 mln foydalanuvchi, global bozor $389 mlrd. IT Park, davlat dasturlari va raqamli ko'nikmalar statistikasi — 2026.",
   keywords: [

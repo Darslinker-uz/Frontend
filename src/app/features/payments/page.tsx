@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "O'quv markazida to'lov va qarzdorlik hisobi: to'lov chek bilan qayd etiladi, qarz o'zi hisoblanadi, qarzdorlar ro'yxati doim tayyor.",
   keywords: ["o'quv markazida to'lov hisobi", "qarzdorlik nazorati", "o'quvchilar to'lovi nazorati", "o'quv markazi qarzdorlar ro'yxati", "kurs to'lovlarini hisoblash"],
-  eyebrow: "Imkoniyat · To'lov va qarzdorlik",
   title: "O'quv markazida to'lov va qarzdorlik hisobi",
-  lead: "Darslinker O'zbekistondagi o'quv markazlari uchun to'lov hisobini soddalashtiradi: kim qancha to'lagani, kimning qarzi borligi va kimga eslatish kerakligi bir joyda ko'rinadi. To'lov chek bilan qayd etiladi, qarz esa o'zi hisoblanadi.",
+  lead: "Darslinker o'quv markazida to'lov hisobini soddalashtiradi: kim qancha to'lagani, kimning qarzi borligi va kimga eslatish kerakligi bir joyda ko'rinadi. To'lov chek bilan qayd etiladi, qarz esa o'zi hisoblanadi.",
   Preview: PaymentsPreview,
   how: {
     question: "O'quv markazidagi qarzdorlikni qanday nazorat qilish mumkin?",
@@ -33,7 +32,7 @@ const c: FeaturePageContent = {
     "To'lov naqd, karta yoki o'tkazma orqali qabul qilinadi va chek bilan qayd etiladi.",
     "To'lov rejasi oylik yoki modul bo'yicha belgilanadi, qarz avtomatik hisoblanadi.",
     "Qarzdorlar ro'yxati doim tayyor, ota-onaga qarzdorlik va to'lov haqida Telegram xabar boradi.",
-    "Imkoniyat barcha tariflarda bor, 14 kun bepul sinab ko'rish mumkin.",
+    "Dashboard'da qarzdorlar soni va shu oy to'laganlar alohida ko'rinadi.",
   ],
   compare: {
     question: "Daftar yoki Excel'dan nimasi farq qiladi?",
@@ -57,18 +56,16 @@ const c: FeaturePageContent = {
     title: "To'lov o'quvchi tarixi bilan birga",
     text: (
       <p>
-        Har o&apos;quvchining to&apos;lovlari uning profilida{" "}
-        <Link href="/features/attendance" className={TEXT_LINK}>davomati</Link>{" "}bilan birga turadi.
-        Ota-onaga to&apos;lov va qarzdorlik xabarlari qanday borishi —{" "}
-        <Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida.
-        Umumiy moliyaviy holat{" "}
-        <Link href="/features/reports" className={TEXT_LINK}>hisobotlarda</Link>{" "}ko&apos;rinadi.
+        Har o&apos;quvchining to&apos;lovlari uning profilida{" "}<Link href="/features/attendance" className={TEXT_LINK}>davomati</Link>{" "}bilan birga
+        turadi. Ota-onaga to&apos;lov va qarzdorlik xabarlari qanday borishini{" "}
+        <Link href="/features/parents" className={TEXT_LINK}>ota-onalar uchun</Link>{" "}sahifasida, umumiy moliyaviy holatni esa{" "}
+        <Link href="/features/reports" className={TEXT_LINK}>hisobotlarda</Link>{" "}ko&apos;rasiz.
       </p>
     ),
   },
   faqs: [
     { q: "Qanday to'lov usullari qayd etiladi?", a: "Naqd pul, karta va bank o'tkazmasi. To'lovni administrator qabul qilib, tizimga chek bilan kiritadi." },
-    { q: "O'quv markazida to'lov va qarzdorlikni avtomatik hisoblaydigan dastur bormi?", a: "Ha, Darslinker. To'lov rejasi oylik yoki modul bo'yicha belgilanadi va qarz avtomatik hisoblanadi. To'lov chek bilan qayd etiladi, qarzdorlar ro'yxati esa doim tayyor turadi." },
+    { q: "O'quv markazida to'lov va qarzdorlikni avtomatik hisoblaydigan dastur bormi?", a: "Ha, Darslinker'da to'lov rejasi oylik yoki modul bo'yicha belgilanadi va qarz avtomatik hisoblanadi. To'lov chek bilan qayd etiladi, qarzdorlar ro'yxati esa doim tayyor turadi." },
     { q: "Ota-ona to'lov haqida xabar oladimi?", a: "Ha. To'lov qabul qilinganda tasdiq, qarzdorlik paydo bo'lganda eslatma Telegram orqali boradi. Xabar matnini markaz o'zi o'zgartira oladi." },
     { q: "Qarzdorlar ro'yxatini qanday ko'raman?", a: "Qarzdorlar ro'yxati tizimda doim tayyor turadi, uni qo'lda tuzish shart emas. Dashboard'da esa qarzdorlar soni alohida ko'rsatkich sifatida ko'rinadi." },
     { q: "To'lovlarni kim kiritadi?", a: "Odatda administrator yoki kassir. Har xodim faqat o'z roliga tegishli bo'limlarni ko'radi." },

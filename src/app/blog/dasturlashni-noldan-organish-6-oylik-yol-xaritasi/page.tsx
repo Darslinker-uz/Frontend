@@ -6,7 +6,7 @@ const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 const url = `${SITE_URL}/blog/dasturlashni-noldan-organish-6-oylik-yol-xaritasi`;
 
 export const metadata: Metadata = {
-  title: "Dasturlashni noldan: 6 oylik reja (2026) | Darslinker",
+  title: { absolute: "Dasturlashni noldan: 6 oylik reja (2026) | Darslinker" },
   description:
     "Dasturlashni noldan o'rganish uchun 6 oylik reja: asos, frontend yoki backend, portfolio va ish qidiruv. hh.uz, Najot Ta'lim va School 21 asosida.",
   keywords: [

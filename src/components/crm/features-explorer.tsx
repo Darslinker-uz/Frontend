@@ -51,7 +51,7 @@ const FEATURES: Feature[] = [
     href: "/features/live-quiz",
     Icon: Trophy,
     title: "Gamifikatsiya",
-    points: ["Jonli quiz: o'quvchilar PIN bilan telefondan qo'shiladi", "Taymer va ballar — reyting jonli yangilanadi", "Dars o'yinga aylanadi, o'quvchi zerikmaydi"],
+    points: ["Jonli quiz: o'quvchilar PIN bilan telefondan qo'shiladi", "Vaqt va ballar avtomatik, reyting jonli yangilanadi", "Dars o'yinga aylanadi, o'quvchi zerikmaydi"],
     Preview: QuizPreview,
   },
   {
@@ -59,7 +59,7 @@ const FEATURES: Feature[] = [
     href: "/features/payments",
     Icon: Wallet,
     title: "To'lov va qarzdorlik",
-    points: ["Naqd, karta yoki o'tkazma — chek bilan", "Kalendar yoki modul bo'yicha avtomatik qarz", "Qarzdorlar ro'yxati doim tayyor"],
+    points: ["Naqd, karta yoki o'tkazma, chek bilan", "Kalendar yoki modul bo'yicha avtomatik qarz", "Qarzdorlar ro'yxati doim tayyor"],
     Preview: PaymentsPreview,
   },
   {
@@ -91,7 +91,7 @@ const FEATURES: Feature[] = [
     href: "/features/customization",
     Icon: ShieldCheck,
     title: "Rollar va huquqlar",
-    points: ["Rahbar, administrator, o'qituvchi, kassir", "Har rolga faqat kerakli bo'limlar", "Ota-onalar — Telegram orqali"],
+    points: ["Rahbar, administrator, o'qituvchi, kassir", "Har rolga faqat kerakli bo'limlar", "Ota-onalar Telegram orqali xabar oladi"],
     Preview: RolesPreview,
   },
 ];
@@ -193,7 +193,7 @@ export function FeaturesExplorer() {
           </h2>
         </div>
         <p className="max-w-[420px] text-[14px] md:text-[16px] text-[#5d6672] font-light leading-relaxed md:text-right">
-          Qabulxonadan kassagacha — markazning har kungi ishi bitta tizimda.
+          Qabulxonadan kassagacha, markazning har kungi ishi bitta tizimda.
         </p>
       </div>
 
@@ -442,7 +442,7 @@ export function AttendancePreview() {
             </div>
           ))}
         </div>
-        <p className="mt-2 rounded-[10px] bg-[var(--s)] px-2 py-1.5 text-center text-[10px] font-medium text-[var(--a)]">Madina — ota-onasiga xabar ketdi</p>
+        <p className="mt-2 rounded-[10px] bg-[var(--s)] px-2 py-1.5 text-center text-[10px] font-medium text-[var(--a)]">Madina: ota-onasiga xabar ketdi</p>
       </div>
     </div>
   );

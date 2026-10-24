@@ -11,27 +11,26 @@ const c: FeaturePageContent = {
   ref: "feature-branches",
   parent: FEATURES_CRUMB,
   crumb: "Filiallar",
-  metaTitle: "O'quv markazining filiallarini boshqarish — Darslinker",
+  metaTitle: "Ko'p filialli o'quv markazi uchun CRM — Darslinker",
   metaDescription:
-    "O'quv markazlari tarmog'i uchun CRM: barcha filiallar bitta tizimda. Biznes tarifida 3 ta, Korporativ tarifida 6 ta filial, undan ko'pi — Individual.",
+    "O'quv markazlari tarmog'i uchun CRM: barcha filiallar bitta tizimda. Biznes tarifida 3 ta, Korporativ tarifida 6 ta filial, undan ko'pi uchun Individual tarif.",
   keywords: ["o'quv markazining filiallarini boshqarish", "bir nechta filial hisobi", "ko'p filialli markaz CRM'i", "o'quv markazlari tarmog'i uchun CRM"],
-  eyebrow: "Imkoniyat · Filiallar",
-  title: "O'quv markazining filiallarini boshqarish",
-  lead: "O'zbekistondagi ko'p filialli o'quv markazlari uchun Darslinker barcha filiallarni bitta tizimga yig'adi. Yangi filial ochilsa, alohida dastur yoki yangi Excel varag'i kerak emas.",
+  title: "Filiallari bor o'quv markazi uchun CRM",
+  lead: "Ko'p filialli o'quv markazlari uchun Darslinker barcha filiallarni bitta CRM tizimiga yig'adi. Yangi filial ochilsa, alohida dastur yoki yangi Excel varag'i kerak emas.",
   Preview: BranchesPreview,
   how: {
     question: "Bir nechta o'quv markazini bitta tizimda boshqarish mumkinmi?",
     answer:
       "Ha. Darslinker'da markazning barcha filiallari bitta tizimda turadi: o'quvchilar, guruhlar, davomat va to'lovlar har filial uchun alohida jadval yoki dasturda tarqalib ketmaydi. Filiallar soni tarifga bog'liq: Biznes tarifida 3 ta, Korporativ tarifida 6 ta.",
     steps: [
-      { title: "Tarifni tanlaysiz", text: "Filiallar soniga qarab: 1 ta, 3 ta yoki 6 ta. Undan ko'p bo'lsa — Individual tarif." },
+      { title: "Tarifni tanlaysiz", text: "Filiallar soniga qarab: 1 ta, 3 ta yoki 6 ta. Undan ko'p bo'lsa, Individual tarif." },
       { title: "Filiallarni qo'shasiz", text: "Har bir filial tizimga qo'shiladi va o'z o'quvchilari bilan yuritiladi." },
       { title: "Bitta joydan boshqarasiz", text: "Rahbar barcha filiallarni alohida dasturlarsiz, bitta tizimdan kuzatadi." },
     ],
   },
   summary: [
     "Markazning barcha filiallari bitta tizimda yuritiladi.",
-    "Filiallar soni tarifga kiradi: Minimal va Standart — 1 ta, Biznes — 3 ta, Korporativ — 6 ta.",
+    "Filiallar soni tarifga kiradi: Minimal va Standart tarifida 1 ta, Biznes tarifida 3 ta, Korporativ tarifida 6 ta.",
     "6 tadan ko'p filial uchun Individual tarif kelishuv asosida.",
     "Davomat, to'lov va ota-onaga xabarlar barcha filiallarda bir xil ishlaydi.",
   ],
@@ -58,18 +57,17 @@ const c: FeaturePageContent = {
     title: "Filiallar va tarif",
     text: (
       <p>
-        Biznes tarifi — 600 tagacha o&apos;quvchi va 3 ta filial, Korporativ — 1 500 tagacha o&apos;quvchi va 6 ta
-        filial. Batafsil —{" "}
-        <Link href="/pricing" className={TEXT_LINK}>tariflar va narxlar</Link>. Rahbar uchun umumiy ko&apos;rsatkichlar —{" "}
+        Biznes tarifida 600 tagacha o&apos;quvchi va 3 ta filial, Korporativ tarifida 1 500 tagacha o&apos;quvchi va 6 ta
+        filial bor. Batafsil:{" "}<Link href="/pricing" className={TEXT_LINK}>tariflar va narxlar</Link>. Rahbar uchun umumiy ko&apos;rsatkichlar{" "}
         <Link href="/features/reports" className={TEXT_LINK}>hisobotlar</Link>{" "}sahifasida.
       </p>
     ),
   },
   faqs: [
-    { q: "Bir nechta filialning o'quvchilari, davomati va to'lovlarini bitta tizimda boshqarish mumkinmi?", a: "Ha. Darslinker'da markazning barcha filiallari bitta tizimda yuritiladi: alohida dastur yoki Excel kerak emas. Davomat, to'lov va ota-onaga xabarlar hamma filialda bir xil ishlaydi. Biznes tarifida 3 ta, Korporativ tarifida 6 ta filial, undan ko'pi — Individual." },
+    { q: "Bir nechta filialning o'quvchilari, davomati va to'lovlarini bitta tizimda boshqarish mumkinmi?", a: "Ha. Darslinker'da markazning barcha filiallari bitta tizimda yuritiladi: alohida dastur yoki Excel kerak emas. Davomat, to'lov va ota-onaga xabarlar hamma filialda bir xil ishlaydi. Biznes tarifida 3 ta, Korporativ tarifida 6 ta filial, undan ko'pi uchun Individual tarif." },
     { q: "Nechta filial qo'shsa bo'ladi?", a: "Minimal va Standart tariflarida 1 ta, Biznes tarifida 3 ta, Korporativ tarifida 6 ta filial. Undan ko'p filial uchun Individual tarif kelishuv asosida." },
     { q: "Har filial uchun alohida to'lash kerakmi?", a: "Yo'q. Filiallar soni tarifga kiradi, alohida obuna kerak emas." },
-    { q: "Ko'p filialli tarmoq uchun qaysi tarif mos?", a: "3 tagacha filial va 600 tagacha o'quvchi bo'lsa — Biznes, 6 tagacha filial va 1 500 tagacha o'quvchi bo'lsa — Korporativ tarif. Undan katta tarmoqlar uchun Individual tarif kelishuv asosida." },
+    { q: "Ko'p filialli tarmoq uchun qaysi tarif mos?", a: "3 tagacha filial va 600 tagacha o'quvchi bo'lsa, Biznes tarifi mos. 6 tagacha filial va 1 500 tagacha o'quvchi bo'lsa, Korporativ tarif. Undan katta tarmoqlar uchun Individual tarif kelishuv asosida." },
     { q: "Filiallarda imkoniyatlar bir xilmi?", a: "Ha. Davomat, to'lov, ota-onaga xabar, jonli quiz va boshqa imkoniyatlar barcha filiallarda bir xil ishlaydi." },
     { q: "Filiallar ko'payganda tarifni almashtirsa bo'ladimi?", a: "Ha. Markaz o'sishi bilan kattaroq tarifga o'tish mumkin." },
   ],

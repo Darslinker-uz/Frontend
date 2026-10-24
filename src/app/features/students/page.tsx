@@ -15,9 +15,8 @@ const c: FeaturePageContent = {
   metaDescription:
     "O'quv markazi uchun o'quvchilar bazasi: har o'quvchining holati, davomati, to'lovlari va quiz natijalari bitta profilda. Ro'yxat Excel'dan ko'chiriladi.",
   keywords: ["o'quvchilar bazasini yuritish dasturi", "o'quvchilar hisobi", "o'quvchilar ro'yxati dasturi", "o'quvchi tarixi va to'lovlari"],
-  eyebrow: "Imkoniyat · O'quvchilar",
   title: "O'quvchilar bazasini yuritish dasturi",
-  lead: "Darslinker O'zbekistondagi o'quv markazlari uchun o'quvchilar hisobini bitta joyga yig'adi: har o'quvchining holati, guruhi, davomati, to'lovlari va quiz natijalari bitta profilda. Kim sinovda, kim faol o'qiyapti, kim ketgani doim ko'rinib turadi.",
+  lead: "Darslinker o'quv markazidagi o'quvchilar hisobini bitta joyga yig'adi: har o'quvchining holati, guruhi, davomati, to'lovlari va quiz natijalari bitta profilda. Kim sinovda, kim faol o'qiyapti, kim ketgani doim ko'rinib turadi.",
   Preview: StudentsPreview,
   how: {
     question: "O'quvchilar bazasida qanday ma'lumotlar yuritiladi?",
@@ -33,12 +32,12 @@ const c: FeaturePageContent = {
     "Har o'quvchining guruhi, davomati, to'lovlari, qarzi va quiz natijalari bitta profilda.",
     "O'quvchi holati uch xil: sinov, faol va ketgan.",
     "Bitta telefon raqamiga bir nechta farzand bog'lanadi.",
-    "Mavjud ro'yxat Excel'dan ko'chiriladi. Imkoniyat barcha tariflarda bor.",
+    "Mavjud ro'yxat Excel'dan ko'chiriladi, ketgan o'quvchining tarixi ham saqlanib qoladi.",
   ],
   compare: {
     question: "Daftar yoki Excel'dan nimasi farq qiladi?",
     rows: [
-      ["O'quvchi haqida ma'lumot", "Ism daftarda, to'lov Excel'da, davomat jurnalda — har biri alohida joyda", "Hammasi bitta profilda, bir bosishda ko'rinadi"],
+      ["O'quvchi haqida ma'lumot", "Ism daftarda, to'lov Excel'da, davomat jurnalda: har biri alohida joyda", "Hammasi bitta profilda, bir bosishda ko'rinadi"],
       ["Kim ketganini bilish", "Odatda o'quvchi kelmay qo'ygach, kech bilinadi", "Holat \"ketgan\" deb belgilanadi, ketganlar ro'yxati alohida"],
       ["Bir oiladan bir nechta farzand", "Har farzand alohida yoziladi, ota-ona raqami takrorlanadi", "Bitta raqamga bir nechta farzand bog'lanadi"],
       ["Xodim almashganda", "Daftar yoki fayl bilan birga ma'lumot ham yo'qolishi mumkin", "Tarix tizimda qoladi, yangi xodim davom ettiradi"],
@@ -57,12 +56,10 @@ const c: FeaturePageContent = {
     title: "Profil boshqa imkoniyatlar bilan bog'langan",
     text: (
       <p>
-        Profilga{" "}
-        <Link href="/features/attendance" className={TEXT_LINK}>davomat</Link>,{" "}
-        <Link href="/features/payments" className={TEXT_LINK}>to&apos;lovlar</Link>{" "}va{" "}
-        <Link href="/features/live-quiz" className={TEXT_LINK}>quiz natijalari</Link>{" "}o&apos;zi tushadi.
-        Yangi o&apos;quvchi qanday paydo bo&apos;lishi —{" "}
-        <Link href="/features/leads" className={TEXT_LINK}>lidlar</Link>{" "}sahifasida.
+        Profilga{" "}<Link href="/features/attendance" className={TEXT_LINK}>davomat</Link>,{" "}
+        <Link href="/features/payments" className={TEXT_LINK}>to&apos;lovlar</Link>{" "}va{" "}<Link href="/features/live-quiz" className={TEXT_LINK}>quiz natijalari</Link>{" "}o&apos;zi tushadi.
+        Yangi o&apos;quvchi qanday paydo bo&apos;lishini{" "}<Link href="/features/leads" className={TEXT_LINK}>lidlar</Link>{" "}sahifasida ko&apos;rasiz.
+        Ma&apos;lumotlar har kuni zaxiralanadi, bu haqda{" "}<Link href="/features/security" className={TEXT_LINK}>xavfsizlik</Link>{" "}sahifasida.
       </p>
     ),
   },
@@ -70,7 +67,7 @@ const c: FeaturePageContent = {
     { q: "O'quvchining qanday holatlari bor?", a: "Uchta: sinov (sinov darslarida), faol (o'qiyapti) va ketgan. Holatlar bo'yicha o'quvchilarni alohida ko'rish mumkin." },
     { q: "Bir oiladan bir nechta farzand o'qisa-chi?", a: "Bitta telefon raqamiga bir nechta farzand bog'lanadi. Ota-ona har bir farzandi haqidagi xabarlarni shu raqam orqali oladi." },
     { q: "Mavjud ro'yxatni qanday ko'chiraman?", a: "Excel faylidan yuklaysiz. Kerak bo'lsa, ko'chirishda yordam beramiz." },
-    { q: "O'quvchilar, guruhlar, davomat va to'lovlarni bitta profilda yuritadigan dastur bormi?", a: "Ha, Darslinker. Har o'quvchining profilida uning guruhi, davomati, to'lovlari, qarzi va quiz natijalari birga turadi. Mavjud ro'yxatni Excel'dan ko'chirish mumkin." },
+    { q: "O'quvchilar, guruhlar, davomat va to'lovlarni bitta profilda yuritadigan dastur bormi?", a: "Ha, Darslinker'da har o'quvchining profilida uning guruhi, davomati, to'lovlari, qarzi va quiz natijalari birga turadi. Mavjud ro'yxatni Excel'dan ko'chirish mumkin." },
     { q: "O'quvchilar ma'lumotini kim ko'radi?", a: "Har xodim o'z roliga tegishli qismni ko'radi: masalan, o'qituvchi o'z guruhlarini, kassir to'lovlarni. Rahbar hammasini ko'radi." },
     { q: "Ketgan o'quvchining ma'lumoti o'chib ketadimi?", a: "Yo'q. Ketgan o'quvchi \"ketgan\" holatida qoladi va uning tarixi tizimda saqlanadi." },
     { q: "Bu imkoniyat qaysi tarifda bor?", a: `Barcha tariflarda. Tariflar o'quvchilar soniga qarab tanlanadi va oyiga ${PLANS[0].price} so'mdan boshlanadi.` },
