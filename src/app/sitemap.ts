@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { STATIC_BLOG_POSTS } from "@/data/static-blog-posts";
+import { CRM_SITE_PAGES } from "@/lib/crm-pages";
 
 // Sitemap'ni har soatda qayta generatsiya qilamiz — yangi markaz/repetitor/e'lon
 // (va churned/slug o'zgarishlari) build'siz ham sitemap'ga tushadi (SEO uchun muhim).
@@ -22,6 +23,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/hamkorlik`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/haqimizda`, changeFrequency: "monthly", priority: 0.6 },
+    // CRM/LMS sahifalari (ro'yxat — src/lib/crm-pages.ts)
+    ...CRM_SITE_PAGES.map((p) => ({
+      url: `${SITE_URL}${p.path}`,
+      changeFrequency: "monthly" as const,
+      priority: p.path === "/features" || p.path === "/pricing" ? 0.9 : 0.8,
+    })),
     // Kod ichida yozilgan blog postlari — ro'yxat `src/data/static-blog-posts.ts` da,
     // shuning uchun yangi post qo'shilganda sitemap avtomatik yangilanadi.
     ...STATIC_BLOG_POSTS.map((p) => ({

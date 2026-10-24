@@ -6,7 +6,7 @@ import { CrmApplyButton } from "@/components/crm/crm-apply";
 // lg+: chap ustunda sarlavha + tugmalar, ostida ro'yxat; o'ngda 3D rasm (ikki qatorni egallaydi).
 // Mobil/planshet: rasm yo'q — markazdagi sarlavha → ro'yxat → tugmalar (grid tartibi bilan, DOM bitta).
 
-const HERO_IMAGE = "/images/hero/crm-hero-transparent-v1.png";
+const HERO_IMAGE = "/images/hero/crm-hero-transparent-v2.png";
 const MOBILE_MEDIA = "(max-width: 1023.98px)";
 // 1x1 shaffof GIF: <picture> shu media'da uni tanlaydi, asl rasm umuman yuklanmaydi.
 // `hidden` yetarli emas — brauzer display:none'dagi eager rasmni ham yuklab oladi.
@@ -85,7 +85,7 @@ export function HomeHero() {
               height={1254}
               sizes="540px"
               hideMedia={MOBILE_MEDIA}
-              alt="Darslinker CRM bo'limlari: o'quvchilar, lidlar, guruhlar, to'lovlar, davomat, dashboard va Excel import"
+              alt="Darslinker CRM bo'limlari: o'quvchilar, lidlar, guruhlar, to'lovlar, gamifikatsiya, davomat va dashboard"
               className="w-full"
             />
           </div>

@@ -142,10 +142,10 @@ export default async function KategoriyaViloyatPage({ params }: Props) {
 
         <div className="rounded-[18px] bg-white border border-[#e4e7ea] p-5 md:p-7 mb-5">
           <h1 className="text-[24px] md:text-[32px] font-bold text-[#16181a] tracking-[-0.02em]">
-            {region.name}da {cat.name.toLowerCase()} kurslari
+            {region.name}da {cat.name.toLowerCase()}{" "}kurslari
           </h1>
           <p className="text-[14px] md:text-[16px] text-[#7c8490] mt-2">
-            <strong>{courses.length}</strong> ta aktiv kurs · {region.name} bo&apos;ylab
+            <strong>{courses.length}</strong> ta aktiv kurs · {region.name}{" "}bo&apos;ylab
             {cat.desc ? ` · ${cat.desc}` : ""}
           </p>
         </div>

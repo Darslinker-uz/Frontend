@@ -165,7 +165,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-09">9-avgust, 2026</time> · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-09">9-avgust, 2026</time>{" "}· O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               O&apos;zbekistonda SMM mutaxassisi qancha ishlaydi? (2026)
@@ -176,7 +176,7 @@ export default function Page() {
           <section className="mb-10 bg-[#f8f9fa] border-l-4 border-[#7ea2d4] rounded-r-[10px] p-5">
             <h2 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-2">Qisqacha javob</h2>
             <p className="text-[16px] text-[#16181a] leading-relaxed">
-              2026-yil avgust holatida Toshkentda SMM mutaxassisi oyiga <strong>3 mln so&apos;mdan 18 mln so&apos;mgacha</strong> oladi: boshlovchi daraja 3-5 mln, tajribali mutaxassis 5-10 mln, senior PR va SMM menejer 15-18 mln so&apos;m. GorodRabot.uz bo&apos;yicha Toshkentdagi o&apos;rtacha taklif 8,3 mln so&apos;m — bu milliy o&apos;rtacha ish haqidan (7,09 mln) yuqori, lekin Toshkent shahri o&apos;rtachasidan (12,01 mln) past.
+              2026-yil avgust holatida Toshkentda SMM mutaxassisi oyiga <strong>3 mln so&apos;mdan 18 mln so&apos;mgacha</strong>{" "}oladi: boshlovchi daraja 3-5 mln, tajribali mutaxassis 5-10 mln, senior PR va SMM menejer 15-18 mln so&apos;m. GorodRabot.uz bo&apos;yicha Toshkentdagi o&apos;rtacha taklif 8,3 mln so&apos;m — bu milliy o&apos;rtacha ish haqidan (7,09 mln) yuqori, lekin Toshkent shahri o&apos;rtachasidan (12,01 mln) past.
             </p>
           </section>
 
@@ -222,7 +222,7 @@ export default function Page() {
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Bu ko&apos;p pulmi? Milliy o&apos;rtacha bilan solishtiramiz</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Maosh raqamining o&apos;zi hech narsa aytmaydi — u faqat taqqoslaganda ma&apos;no kasb etadi. Milliy statistika qo&apos;mitasi ma&apos;lumotiga ko&apos;ra, 2026-yil yanvar-iyun oylarida O&apos;zbekistonda o&apos;rtacha oylik nominal ish haqi{" "}
-              <strong className="text-[#16181a]">7 mln 91,1 ming so&apos;m</strong> ni tashkil etdi va bir yilda 18,4% ga o&apos;sdi (
+              <strong className="text-[#16181a]">7 mln 91,1 ming so&apos;m</strong>{" "}ni tashkil etdi va bir yilda 18,4% ga o&apos;sdi (
               <a href="https://stat.uz/uz/matbuot-markazi/qo-mita-yangiliklar/69378-o-zbekiston-respublikasida-o-rtacha-oylik-nominal-hisoblangan-ish-haqi-25-07-2026" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">stat.uz</a>
               ).
             </p>
@@ -231,7 +231,7 @@ export default function Page() {
             </p>
             <div className="bg-[#f8f9fa] rounded-[12px] p-5 mb-3">
               <p className="text-[15.5px] text-[#16181a] leading-relaxed">
-                Shundan kelib chiqadigan xulosa reklama va&apos;dalaridan farq qiladi: <strong>o&apos;rta darajadagi SMM mutaxassisi (5-7 mln) mamlakat o&apos;rtachasiga teng keladi, lekin Toshkent o&apos;rtachasidan past turadi.</strong> Poytaxtdagi shahar o&apos;rtachasidan oshish uchun senior darajaga chiqish yoki oylik ustiga qo&apos;shimcha mijoz olish kerak.
+                Shundan kelib chiqadigan xulosa reklama va&apos;dalaridan farq qiladi: <strong>o&apos;rta darajadagi SMM mutaxassisi (5-7 mln) mamlakat o&apos;rtachasiga teng keladi, lekin Toshkent o&apos;rtachasidan past turadi.</strong>{" "}Poytaxtdagi shahar o&apos;rtachasidan oshish uchun senior darajaga chiqish yoki oylik ustiga qo&apos;shimcha mijoz olish kerak.
               </p>
             </div>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
@@ -245,7 +245,7 @@ export default function Page() {
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Chunki auditoriya allaqachon onlayn, biznes esa uning ortidan endi yetib boryapti. DataReportal ma&apos;lumotiga ko&apos;ra 2025-yil oktabr holatida O&apos;zbekistonda{" "}
               <strong className="text-[#16181a]">33,1 mln internet foydalanuvchisi</strong> (aholining 89,0%) va{" "}
-              <strong className="text-[#16181a]">14,1 mln ijtimoiy tarmoq profili</strong> (37,9%) qayd etilgan (
+              <strong className="text-[#16181a]">14,1 mln ijtimoiy tarmoq profili</strong>{" "}(37,9%) qayd etilgan (
               <a href="https://datareportal.com/reports/digital-2026-uzbekistan" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Digital 2026: Uzbekistan</a>
               ).
             </p>
@@ -281,7 +281,7 @@ export default function Page() {
               </table>
             </div>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              Hisob oddiy: <strong className="text-[#16181a]">ikkita o&apos;rta darajadagi mijoz allaqachon Toshkent o&apos;rtacha ish haqini beradi.</strong> Uchtasi — senior vakansiyadan yuqori.
+              Hisob oddiy: <strong className="text-[#16181a]">ikkita o&apos;rta darajadagi mijoz allaqachon Toshkent o&apos;rtacha ish haqini beradi.</strong>{" "}Uchtasi — senior vakansiyadan yuqori.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
               Lekin bu raqamlar ostida ko&apos;rinmaydigan ish bor: mijoz qidirish, shartnoma tuzish, to&apos;lovni undirish va natijani asoslash. Reklama byudjeti odatda alohida qator bo&apos;ladi — test bosqichi ko&apos;pincha 7-14 kun davomida kuniga $5-10 sarflanadi (
@@ -315,7 +315,7 @@ export default function Page() {
               </table>
             </div>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mt-4">
-              Eng qisqa xulosa: <strong className="text-[#16181a]">byudjetga javob beradigan odam kontent chiqaradigan odamdan qimmatroq turadi.</strong> Shuning uchun SMM va targeting ko&apos;nikmalarini birga o&apos;rganish maoshning yuqori pog&apos;onasiga eng tez yo&apos;l hisoblanadi.
+              Eng qisqa xulosa: <strong className="text-[#16181a]">byudjetga javob beradigan odam kontent chiqaradigan odamdan qimmatroq turadi.</strong>{" "}Shuning uchun SMM va targeting ko&apos;nikmalarini birga o&apos;rganish maoshning yuqori pog&apos;onasiga eng tez yo&apos;l hisoblanadi.
             </p>
           </section>
 
@@ -323,7 +323,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Qancha vaqtda birinchi ishga chiqish mumkin?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              Vakansiyalardagi talablarga qarab realistik manzara shunday: 3-5 mln so&apos;mlik boshlang&apos;ich o&apos;rinlar diplom emas, <strong className="text-[#16181a]">ish namunasi</strong> so&apos;raydi. Odatda 2-4 oylik izchil mashq va 3-5 ta real keys yetarli bo&apos;ladi.
+              Vakansiyalardagi talablarga qarab realistik manzara shunday: 3-5 mln so&apos;mlik boshlang&apos;ich o&apos;rinlar diplom emas, <strong className="text-[#16181a]">ish namunasi</strong>{" "}so&apos;raydi. Odatda 2-4 oylik izchil mashq va 3-5 ta real keys yetarli bo&apos;ladi.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               5 mln so&apos;mdan yuqori takliflar esa deyarli har doim o&apos;lchanadigan natija talab qiladi — obunachi o&apos;sishi emas, balki ariza soni, ariza narxi yoki reklama xarajatining qaytimi.
@@ -365,7 +365,7 @@ export default function Page() {
             <p className="text-[15.5px] text-[#16181a]/75 mb-4">
               Kurs tanlashda nimaga qarash kerakligi haqida alohida qo&apos;llanma bor:{" "}
               <Link href="/blog/kursni-qanday-tanlash-7-mezon" className="text-[#7ea2d4] hover:underline">kursni qanday tanlash — 7 mezon</Link>. To&apos;lovdan oldin markazni tekshirish tartibi esa{" "}
-              <Link href="/blog/ishonchli-oquv-markazni-qanday-tekshirish" className="text-[#7ea2d4] hover:underline">bu yerda</Link> yozilgan.
+              <Link href="/blog/ishonchli-oquv-markazni-qanday-tekshirish" className="text-[#7ea2d4] hover:underline">bu yerda</Link>{" "}yozilgan.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link

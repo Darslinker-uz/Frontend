@@ -792,7 +792,7 @@ export default async function KursDetailPage({ params }: Props) {
                 <div className="rounded-[18px] bg-[#fff7ed] border border-[#fdba74] p-6">
                   <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Bu markaz hozir Darslinker hamkori emas</h3>
                   <p className="text-[13px] text-[#7c8490] mb-4">
-                    {course.provider} hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida shu yo&apos;nalishdagi faol kurslarni ko&apos;rishingiz mumkin.
+                    {course.provider}{" "}hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida shu yo&apos;nalishdagi faol kurslarni ko&apos;rishingiz mumkin.
                   </p>
                   <Link
                     href={course.categorySlug ? `/kurslar/${course.categorySlug}` : "/kurslar"}
@@ -819,7 +819,7 @@ export default async function KursDetailPage({ params }: Props) {
             <div className="flex items-end justify-between gap-4 mb-5">
               <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a]">Shu kategoriyadagi boshqa kurslar</h2>
               <Link href={`/kurslar/${kategoriya}`} className="text-[13px] text-[#7ea2d4] hover:text-[#5b87c0] font-semibold whitespace-nowrap transition-colors">
-                Barcha {catName} kurslari &rarr;
+                Barcha {catName}{" "}kurslari &rarr;
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -855,7 +855,7 @@ export default async function KursDetailPage({ params }: Props) {
         <div className="mt-10">
           <Link href={`/kurslar/${kategoriya}`} className="inline-flex items-center gap-2 text-[14px] text-[#7ea2d4] hover:text-[#5b87c0] font-medium transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            {catName} kurslariga qaytish
+            {catName}{" "}kurslariga qaytish
           </Link>
         </div>
       </div>

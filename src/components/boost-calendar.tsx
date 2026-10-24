@@ -138,7 +138,7 @@ export function BoostCalendar({
 
       {startDate && skippedInRange.length > 0 && (
         <div className="mt-3 rounded-[8px] p-2.5 text-[11px]" style={{ backgroundColor: "#f59e0b15", color: "#a16207" }}>
-          ⚠️ {skippedInRange.length} ta kun band — bu kunlar o&apos;tkazib yuboriladi va pul faqat bo&apos;sh kunlar uchun olinadi.
+          ⚠️ {skippedInRange.length}{" "}ta kun band — bu kunlar o&apos;tkazib yuboriladi va pul faqat bo&apos;sh kunlar uchun olinadi.
         </div>
       )}
     </div>

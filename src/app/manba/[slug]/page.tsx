@@ -238,7 +238,7 @@ export default async function ManbaArticlePage({ params }: Props) {
                 </span>
               )}
               <span className="inline-flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5" /> {article.views} ko&apos;rishlar
+                <Eye className="w-3.5 h-3.5" /> {article.views}{" "}ko&apos;rishlar
               </span>
             </div>
 

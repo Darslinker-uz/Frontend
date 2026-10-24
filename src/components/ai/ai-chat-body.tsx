@@ -151,7 +151,7 @@ export function AiChatBody({ chat, skin = "widget", coursesInSidebar = false }: 
           {c.title}
         </p>
         <p className={`mt-1 text-xs ${isGemini ? "text-white/45" : "text-[#6a7585]"}`}>
-          {c.page * 5 + 1}–{Math.min((c.page + 1) * 5, c.total)} / {c.total} ta
+          {c.page * 5 + 1}–{Math.min((c.page + 1) * 5, c.total)} / {c.total}{" "}ta
         </p>
         <ol className="mt-3 space-y-2">
           {c.courses.map((course, i) => (

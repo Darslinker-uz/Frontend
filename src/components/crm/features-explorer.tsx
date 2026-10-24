@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
+import Link from "next/link";
 import { centerTarget, scrollToY } from "@/components/smooth-scroll";
-import { Users, CalendarDays, ClipboardCheck, Wallet, KanbanSquare, LayoutDashboard, FileSpreadsheet, ShieldCheck, Trophy, Check, AlertTriangle, ChevronDown, type LucideIcon } from "lucide-react";
+import { Users, CalendarDays, ClipboardCheck, Wallet, KanbanSquare, LayoutDashboard, FileSpreadsheet, ShieldCheck, Trophy, Check, AlertTriangle, ChevronDown, ArrowRight, type LucideIcon } from "lucide-react";
 
 // "Darslinker imkoniyatlari" — 9 ta asosiy CRM/LMS imkoniyati (MVP), sticky scroll ko'rinishida:
 // chapda namuna sahnasi yopishib turadi, o'ngdagi ro'yxat bo'ylab scroll qilganda almashadi.
@@ -16,12 +17,14 @@ type Feature = {
   Icon: LucideIcon;
   title: string;
   points: string[];
+  href: string; // batafsil sahifa (/features/*)
   Preview: () => ReactNode;
 };
 
 const FEATURES: Feature[] = [
   {
     id: "students",
+    href: "/features/students",
     Icon: Users,
     title: "O'quvchilar",
     points: ["Holatlar: sinov → faol → ketgan", "Har o'quvchining davomati va to'lovlari bir joyda", "Quiz natijalari ham shu yerda ko'rinadi"],
@@ -29,6 +32,7 @@ const FEATURES: Feature[] = [
   },
   {
     id: "schedule",
+    href: "/features/schedule",
     Icon: CalendarDays,
     title: "Guruhlar va jadval",
     points: ["Kurslar, guruhlar, xonalar va o'qituvchilar", "Xona yoki o'qituvchi bandligi", "Dam olish kunlari hisobga olinadi"],
@@ -36,6 +40,7 @@ const FEATURES: Feature[] = [
   },
   {
     id: "attendance",
+    href: "/features/attendance",
     Icon: ClipboardCheck,
     title: "Davomat",
     points: ["O'qituvchi darsda telefondan belgilaydi", "Kelmagan o'quvchining ota-onasiga Telegram xabar", "Ilova o'rnatish shart emas"],
@@ -43,6 +48,7 @@ const FEATURES: Feature[] = [
   },
   {
     id: "gamification",
+    href: "/features/live-quiz",
     Icon: Trophy,
     title: "Gamifikatsiya",
     points: ["Jonli quiz: o'quvchilar PIN bilan telefondan qo'shiladi", "Taymer va ballar — reyting jonli yangilanadi", "Dars o'yinga aylanadi, o'quvchi zerikmaydi"],
@@ -50,6 +56,7 @@ const FEATURES: Feature[] = [
   },
   {
     id: "payments",
+    href: "/features/payments",
     Icon: Wallet,
     title: "To'lov va qarzdorlik",
     points: ["Naqd, karta yoki o'tkazma — chek bilan", "Kalendar yoki modul bo'yicha avtomatik qarz", "Qarzdorlar ro'yxati doim tayyor"],
@@ -57,6 +64,7 @@ const FEATURES: Feature[] = [
   },
   {
     id: "leads",
+    href: "/features/leads",
     Icon: KanbanSquare,
     title: "Lidlar",
     points: ["Kanban doska: har bir murojaat ko'z oldida", "Lidni bir bosishda o'quvchiga aylantirish"],
@@ -64,6 +72,7 @@ const FEATURES: Feature[] = [
   },
   {
     id: "dashboard",
+    href: "/features/reports",
     Icon: LayoutDashboard,
     title: "Dashboard",
     points: ["8 ta asosiy ko'rsatkich", "Faol o'quvchidan qarzdorgacha", "Sinovdan keyin ketganlar alohida ko'rinadi"],
@@ -71,13 +80,15 @@ const FEATURES: Feature[] = [
   },
   {
     id: "import",
+    href: "/features/easy-to-use",
     Icon: FileSpreadsheet,
     title: "Excel import",
-    points: ["Mavjud ro'yxatni Excel'dan ko'chirish", "Pullik tariflarda importga yordam beramiz"],
+    points: ["Mavjud ro'yxatni Excel'dan ko'chirish", "Ko'chirishda yordam beramiz"],
     Preview: ImportPreview,
   },
   {
     id: "roles",
+    href: "/features/customization",
     Icon: ShieldCheck,
     title: "Rollar va huquqlar",
     points: ["Rahbar, administrator, o'qituvchi, kassir", "Har rolga faqat kerakli bo'limlar", "Ota-onalar — Telegram orqali"],
@@ -86,7 +97,7 @@ const FEATURES: Feature[] = [
 ];
 
 // Yagona rang (grafit): --a — urg'u, --s — och fon. Namunalar ham shu o'zgaruvchilardan foydalanadi.
-const COLORS = { "--a": "#3d444d", "--s": "#eceef1" } as CSSProperties;
+export const PREVIEW_COLORS = { "--a": "#3d444d", "--s": "#eceef1" } as CSSProperties;
 
 // Sarlavha ostidan necha px oraliqda qator to'liq ko'rinishdan 0% gacha so'nadi.
 const FADE_DISTANCE = 72;
@@ -164,7 +175,7 @@ export function FeaturesExplorer() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="imkoniyatlar" aria-labelledby="features-title" style={COLORS} className="scroll-mt-24 max-w-[1600px] mx-auto bg-[var(--s)] px-5 md:px-20 py-16 md:py-24 min-[1600px]:shadow-[0_0_0_100vmax_var(--s)] min-[1600px]:[clip-path:inset(0_-100vmax)] [--preview-top:240px] [--preview-h:min(520px,calc(100dvh_-_var(--preview-top)_-_24px))]">
+    <section ref={sectionRef} id="imkoniyatlar" aria-labelledby="features-title" style={PREVIEW_COLORS} className="scroll-mt-24 max-w-[1600px] mx-auto bg-[var(--s)] px-5 md:px-20 py-16 md:py-24 min-[1600px]:shadow-[0_0_0_100vmax_var(--s)] min-[1600px]:[clip-path:inset(0_-100vmax)] [--preview-top:240px] [--preview-h:min(520px,calc(100dvh_-_var(--preview-top)_-_24px))]">
       {/* Sarlavha shu o'ram ichida yopishadi. Desktopda o'ram namuna yopishishni tugatadigan nuqtada
           (ro'yxat oxiri − 20px oraliq − namuna balandligi) tugaydi: sarlavha va namuna tepaga birga
           ketadi. flow-root — manfiy margin o'ramdan tashqariga "oqib" chiqmasin. */}
@@ -242,6 +253,9 @@ export function FeaturesExplorer() {
                     </li>
                   ))}
                 </ul>
+                <Link data-fade href={f.href} className="mt-5 inline-flex w-fit items-center gap-1.5 text-[15px] font-semibold text-[var(--a)] hover:underline">
+                  {f.title} haqida batafsil <ArrowRight className="h-4 w-4" />
+                </Link>
               </article>
             ))}
           </div>
@@ -250,6 +264,11 @@ export function FeaturesExplorer() {
       </div>
       {/* O'ramning manfiy marginini qoplaydi — sahifa joylashuvi o'zgarmaydi. */}
       <div aria-hidden="true" className="hidden h-[calc(76px_+_var(--preview-h))] lg:block" />
+      <div className="mt-10 flex justify-center">
+        <Link href="/features" className="inline-flex h-[52px] items-center gap-2 rounded-full bg-white px-7 text-[15px] font-semibold text-[#16181a] ring-1 ring-[#16181a]/10 transition-colors hover:bg-[#f7f8f9]">
+          Barcha imkoniyatlar <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
     </section>
   );
 }
@@ -337,6 +356,9 @@ function MobileFolder() {
                       </li>
                     ))}
                   </ul>
+                  <Link href={f.href} className={`mt-4 inline-flex items-center gap-1.5 text-[14px] font-semibold underline-offset-4 hover:underline ${dark ? "text-white" : "text-[#16181a]"}`}>
+                    Batafsil <ArrowRight className="h-4 w-4" />
+                  </Link>
                   <div aria-hidden="true" className="mt-5 flex items-center justify-center rounded-[20px] bg-white/80 p-5">
                     <f.Preview />
                   </div>
@@ -354,7 +376,7 @@ function MobileFolder() {
 
 const card = "w-full max-w-[360px] rounded-[18px] bg-white p-4 shadow-[0_18px_40px_-20px_rgba(22,24,26,0.35)]";
 
-function StudentsPreview() {
+export function StudentsPreview() {
   const rows: [string, string, string][] = [
     ["Aziz Rahimov", "Faol", "bg-[#e3f4ec] text-[#1d6b4a]"],
     ["Madina Karimova", "Sinov", "bg-[var(--s)] text-[var(--a)]"],
@@ -379,7 +401,7 @@ function StudentsPreview() {
   );
 }
 
-function SchedulePreview() {
+export function SchedulePreview() {
   const days = ["Du", "Se", "Ch", "Pa", "Ju"];
   const filled = [0, 2, 4, 6, 10, 12];
   return (
@@ -403,7 +425,7 @@ function SchedulePreview() {
   );
 }
 
-function AttendancePreview() {
+export function AttendancePreview() {
   const rows = [["Aziz", true], ["Madina", false], ["Javohir", true], ["Sevara", true]] as const;
   return (
     <div className="w-full max-w-[230px] rounded-[30px] bg-[#16181a] p-2 shadow-[0_24px_50px_-24px_rgba(22,24,26,0.6)]">
@@ -426,7 +448,7 @@ function AttendancePreview() {
   );
 }
 
-function QuizPreview() {
+export function QuizPreview() {
   const rows: [string, number][] = [["Madina", 940], ["Aziz", 870], ["Javohir", 810], ["Sevara", 760]];
   return (
     <div className={card}>
@@ -450,7 +472,7 @@ function QuizPreview() {
   );
 }
 
-function PaymentsPreview() {
+export function PaymentsPreview() {
   return (
     <div className={card}>
       <div className="flex items-center justify-between text-[12px]">
@@ -468,7 +490,7 @@ function PaymentsPreview() {
   );
 }
 
-function LeadsPreview() {
+export function LeadsPreview() {
   const cols = [["Yangi", ["Bekzod", "Nilufar", "Sevara"]], ["Sinov darsi", ["Javohir", "Kamola"]], ["O'quvchi", ["Aziz"]]] as const;
   return (
     <div className="grid w-full max-w-[440px] grid-cols-3 gap-2">
@@ -489,7 +511,7 @@ function LeadsPreview() {
   );
 }
 
-function DashboardPreview() {
+export function DashboardPreview() {
   const m = ["Faol o'quvchi", "Faol lid", "Guruhlar", "Qarzdorlar", "Sinovda", "Shu oy to'lagan", "Guruhni tark etgan", "Sinovdan keyin ketgan"];
   return (
     <div className="grid w-full max-w-[440px] grid-cols-2 gap-2">
@@ -503,7 +525,7 @@ function DashboardPreview() {
   );
 }
 
-function ImportPreview() {
+export function ImportPreview() {
   return (
     <div className="flex w-full max-w-[400px] items-center gap-3">
       <div className="flex h-24 w-20 shrink-0 flex-col items-center justify-center rounded-[16px] bg-white shadow-[0_18px_40px_-20px_rgba(22,24,26,0.35)]">
@@ -523,7 +545,7 @@ function ImportPreview() {
   );
 }
 
-function RolesPreview() {
+export function RolesPreview() {
   const cols = ["Lid", "To'lov", "Davomat", "Sozlama"];
   const rows: [string, boolean[]][] = [
     ["Rahbar", [true, true, true, true]],

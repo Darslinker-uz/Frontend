@@ -41,7 +41,7 @@ function TutorSlideCard({ t }: { t: FakeTutor }) {
           </span>
           {t.experience != null && (
             <span className="inline-flex items-center text-[12px] font-medium text-white bg-white/15 border border-white/15 rounded-full px-2.5 py-1">
-              {t.experience} yil tajriba
+              {t.experience}{" "}yil tajriba
             </span>
           )}
         </div>

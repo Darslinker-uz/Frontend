@@ -144,7 +144,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-28">28-avgust, 2026</time> · Yangilangan: 2026-08 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-28">28-avgust, 2026</time>{" "}· Yangilangan: 2026-08 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               O&apos;zbekiston sun&apos;iy intellekt strategiyasi (2030): kimlar uchun yangi imkoniyat ochadi?
@@ -155,7 +155,7 @@ export default function Page() {
           <section className="mb-10 bg-[#f8f9fa] border-l-4 border-[#7ea2d4] rounded-r-[10px] p-5">
             <h2 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-2">Qisqacha javob</h2>
             <p className="text-[16px] text-[#16181a] leading-relaxed">
-              2026-yil 8-avgustda O&apos;zbekiston AI infratuzilmasiga <strong>$6 mlrddan ortiq</strong> xususiy investitsiya kelishuvlarini imzoladi — maqsad 2030-yilgacha <strong>800 MVt</strong> quvvatga ega hisoblash infratuzilmasi yaratish. Shu bilan bir vaqtda tibbiyot, energetika, transport, bojxona, huquq, xavfsizlik va ekologiya kabi <strong>7 sohada 200 dan ortiq</strong> AI loyihasi amalga oshirilmoqda, mamlakat esa xalqaro AI tayyorlik reytingida <strong>25 pog&apos;ona ko&apos;tarilib 62-o&apos;ringa</strong> chiqdi. Bu — talaba, davlat xizmatchisi, bank xodimi va tadbirkor uchun turlicha, ammo aniq imkoniyat degani.
+              2026-yil 8-avgustda O&apos;zbekiston AI infratuzilmasiga <strong>$6 mlrddan ortiq</strong> xususiy investitsiya kelishuvlarini imzoladi — maqsad 2030-yilgacha <strong>800 MVt</strong> quvvatga ega hisoblash infratuzilmasi yaratish. Shu bilan bir vaqtda tibbiyot, energetika, transport, bojxona, huquq, xavfsizlik va ekologiya kabi <strong>7 sohada 200 dan ortiq</strong> AI loyihasi amalga oshirilmoqda, mamlakat esa xalqaro AI tayyorlik reytingida <strong>25 pog&apos;ona ko&apos;tarilib 62-o&apos;ringa</strong>{" "}chiqdi. Bu — talaba, davlat xizmatchisi, bank xodimi va tadbirkor uchun turlicha, ammo aniq imkoniyat degani.
             </p>
           </section>
 
@@ -163,12 +163,12 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Nega bu mavzu 2026-yil avgustda yana kun tartibiga keldi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              O&apos;zbekistonning sun&apos;iy intellekt strategiyasi 2024-yil 14-oktabrda Prezident farmoni (PQ-358) bilan tasdiqlangan va 2030-yilgacha mo&apos;ljallangan. Lekin 2026-yil avgust oyida jarayon aniq sezilarli tezlashdi: Prezident Shavkat Mirziyoyevga sohadagi natijalar va ustuvor vazifalar bo&apos;yicha taqdimot qilindi, shundan so&apos;ng Raqamli texnologiyalar vazirligi birinchi vazir o&apos;rinbosari Oleg Pekosh &quot;O&apos;zbekiston 24&quot; telekanaliga bergan intervyusida AI infratuzilmasiga <strong className="text-[#16181a]">$6 mlrddan ortiq</strong> xususiy investitsiya jalb qilish bo&apos;yicha kelishuvlar imzolanganini e&apos;lon qildi (
+              O&apos;zbekistonning sun&apos;iy intellekt strategiyasi 2024-yil 14-oktabrda Prezident farmoni (PQ-358) bilan tasdiqlangan va 2030-yilgacha mo&apos;ljallangan. Lekin 2026-yil avgust oyida jarayon aniq sezilarli tezlashdi: Prezident Shavkat Mirziyoyevga sohadagi natijalar va ustuvor vazifalar bo&apos;yicha taqdimot qilindi, shundan so&apos;ng Raqamli texnologiyalar vazirligi birinchi vazir o&apos;rinbosari Oleg Pekosh &quot;O&apos;zbekiston 24&quot; telekanaliga bergan intervyusida AI infratuzilmasiga <strong className="text-[#16181a]">$6 mlrddan ortiq</strong>{" "}xususiy investitsiya jalb qilish bo&apos;yicha kelishuvlar imzolanganini e&apos;lon qildi (
               <a href="https://www.spot.uz/ru/2026/08/08/artificial-intelligence" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Spot.uz, 2026-08-08</a>
               ).
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
-              Bu mablag&apos; hisobiga 2030-yilgacha jami <strong className="text-[#16181a]">800 MVt</strong> quvvatga ega hisoblash infratuzilmasi mamlakat bo&apos;ylab bosqichma-bosqich quriladi. Sabab oddiy: mavjud infratuzilma allaqachon <strong className="text-[#16181a]">90 foiz</strong> yuklangan — ya&apos;ni deyarli to&apos;liq band, kengaytirmasdan yangi loyihalarga joy qolmayapti.
+              Bu mablag&apos; hisobiga 2030-yilgacha jami <strong className="text-[#16181a]">800 MVt</strong> quvvatga ega hisoblash infratuzilmasi mamlakat bo&apos;ylab bosqichma-bosqich quriladi. Sabab oddiy: mavjud infratuzilma allaqachon <strong className="text-[#16181a]">90 foiz</strong>{" "}yuklangan — ya&apos;ni deyarli to&apos;liq band, kengaytirmasdan yangi loyihalarga joy qolmayapti.
             </p>
           </section>
 
@@ -176,7 +176,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Qaysi sohalarda 200 dan ortiq loyiha amalga oshiriladi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-4">
-              2030-yilgacha jami <strong className="text-[#16181a]">200 dan ortiq</strong> yangi AI loyihasi, shu jumladan <strong className="text-[#16181a]">2026-yilning o&apos;zida 100 dan ortiq</strong> loyiha rejalashtirilgan (
+              2030-yilgacha jami <strong className="text-[#16181a]">200 dan ortiq</strong> yangi AI loyihasi, shu jumladan <strong className="text-[#16181a]">2026-yilning o&apos;zida 100 dan ortiq</strong>{" "}loyiha rejalashtirilgan (
               <a href="https://www.gazeta.uz/oz/2026/08/07/ai-uzbekistan/" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Gazeta.uz, 2026-08-07</a>
               ). Joriy yilda quyidagi yetti sohada AI loyihalari qayd etilgan:
             </p>
@@ -230,7 +230,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Tadbirkor va IT mutaxassislar uchun qanday infratuzilma imkoniyati bor?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-4">
-              Hisoblash quvvatiga eng ko&apos;p ehtiyoj sezadigan tomon — AI mahsulot yaratayotgan startap va IT kompaniyalar. 2026-yil yozida ishga tushirilgan NVIDIA texnologiyasidagi superkompyuter buning aniq belgisi: hozircha jahon superkompyuterlar reytingida <strong className="text-[#16181a]">321-o&apos;rinni</strong> egallaydi (
+              Hisoblash quvvatiga eng ko&apos;p ehtiyoj sezadigan tomon — AI mahsulot yaratayotgan startap va IT kompaniyalar. 2026-yil yozida ishga tushirilgan NVIDIA texnologiyasidagi superkompyuter buning aniq belgisi: hozircha jahon superkompyuterlar reytingida <strong className="text-[#16181a]">321-o&apos;rinni</strong>{" "}egallaydi (
               <a href="https://www.spot.uz/oz/2026/08/07/ai-uzbekistan" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Spot.uz, 2026-08-07</a>
               ), oylik yuklamasi esa 90 foizga yetgan.
             </p>
@@ -265,7 +265,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-4">O&apos;zbekiston xalqaro AI reytingida qayerda turibdi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
-              So&apos;nggi yillarda mamlakat xalqaro AI tayyorlik reytingida (Government AI Readiness Index) <strong className="text-[#16181a]">25 pog&apos;ona ko&apos;tarilib, 62-o&apos;rinni</strong> egalladi. 2030-yilgacha strategiyaning rasmiy maqsadi — shu reytingda dunyodagi eng ilg&apos;or <strong className="text-[#16181a]">50 davlat</strong> qatoriga kirish. Bu ko&apos;tarilish tasodifiy emas — aynan yuqorida sanab o&apos;tilgan investitsiya, infratuzilma va kadrlar bo&apos;yicha qadamlar reytingga bevosita ta&apos;sir qiladigan mezonlar hisoblanadi.
+              So&apos;nggi yillarda mamlakat xalqaro AI tayyorlik reytingida (Government AI Readiness Index) <strong className="text-[#16181a]">25 pog&apos;ona ko&apos;tarilib, 62-o&apos;rinni</strong> egalladi. 2030-yilgacha strategiyaning rasmiy maqsadi — shu reytingda dunyodagi eng ilg&apos;or <strong className="text-[#16181a]">50 davlat</strong>{" "}qatoriga kirish. Bu ko&apos;tarilish tasodifiy emas — aynan yuqorida sanab o&apos;tilgan investitsiya, infratuzilma va kadrlar bo&apos;yicha qadamlar reytingga bevosita ta&apos;sir qiladigan mezonlar hisoblanadi.
             </p>
           </section>
 

@@ -145,7 +145,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-20">20-avgust, 2026</time> · Yangilangan: 2026-08 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-20">20-avgust, 2026</time>{" "}· Yangilangan: 2026-08 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               SMM&apos;ni noldan o&apos;rganish: 3 oylik reja (2026)
@@ -156,7 +156,7 @@ export default function Page() {
           <section className="mb-10 bg-[#f8f9fa] border-l-4 border-[#7ea2d4] rounded-r-[10px] p-5">
             <h2 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-2">Qisqacha javob</h2>
             <p className="text-[16px] text-[#16181a] leading-relaxed">
-              SMM&apos;ni noldan o&apos;rganib, boshlang&apos;ich (3-5 mln so&apos;m) lavozimga tayyor bo&apos;lish uchun taxminan <strong>2-4 oy</strong> izchil amaliyot va <strong>3-5 ta real portfolio ishi</strong> kifoya. 3 oylik reja: <strong>1-oy</strong> — platforma va kontent asoslari, <strong>2-oy</strong> — AI vositalar bilan ishlab chiqarish va kichik reklama testi ($5-10/kun), <strong>3-oy</strong> — portfolio yig&apos;ish va birinchi mijoz. O&apos;zbekistonda Telegram (27 mln foydalanuvchi) va Instagram (11 mln) ikkalasi ham kerak — lekin har biri boshqa strategiya talab qiladi.
+              SMM&apos;ni noldan o&apos;rganib, boshlang&apos;ich (3-5 mln so&apos;m) lavozimga tayyor bo&apos;lish uchun taxminan <strong>2-4 oy</strong> izchil amaliyot va <strong>3-5 ta real portfolio ishi</strong> kifoya. 3 oylik reja: <strong>1-oy</strong> — platforma va kontent asoslari, <strong>2-oy</strong> — AI vositalar bilan ishlab chiqarish va kichik reklama testi ($5-10/kun), <strong>3-oy</strong>{" "}— portfolio yig&apos;ish va birinchi mijoz. O&apos;zbekistonda Telegram (27 mln foydalanuvchi) va Instagram (11 mln) ikkalasi ham kerak — lekin har biri boshqa strategiya talab qiladi.
             </p>
           </section>
 
@@ -230,7 +230,7 @@ export default function Page() {
               </table>
             </div>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
-              Bitta amaliy qoida ham bor: mahalliy auditoriyaga yetish uchun kontentning <strong className="text-[#16181a]">80-85%i o&apos;zbek tilida</strong> bo&apos;lishi tavsiya etiladi (101digital.uz). 1-oy oxirigacha shaxsiy yoki kelishilgan sahifada kamida 10-15 ta post joylab, qamrov va saqlash ko&apos;rsatkichlarini o&apos;qishni o&apos;rganish kifoya — hali reklama kabinetiga tegish shart emas.
+              Bitta amaliy qoida ham bor: mahalliy auditoriyaga yetish uchun kontentning <strong className="text-[#16181a]">80-85%i o&apos;zbek tilida</strong>{" "}bo&apos;lishi tavsiya etiladi (101digital.uz). 1-oy oxirigacha shaxsiy yoki kelishilgan sahifada kamida 10-15 ta post joylab, qamrov va saqlash ko&apos;rsatkichlarini o&apos;qishni o&apos;rganish kifoya — hali reklama kabinetiga tegish shart emas.
             </p>
           </section>
 
@@ -261,7 +261,7 @@ export default function Page() {
               </table>
             </div>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
-              Shu bilan birga birinchi targeting testi qilinadi: Toshkentda odatiy amaliyot — kuniga <strong className="text-[#16181a]">$5-10 byudjet bilan 7-14 kun</strong> bitta kampaniyani sinash (
+              Shu bilan birga birinchi targeting testi qilinadi: Toshkentda odatiy amaliyot — kuniga <strong className="text-[#16181a]">$5-10 byudjet bilan 7-14 kun</strong>{" "}bitta kampaniyani sinash (
               <a href="https://uzneo.uz/uz/blog/skolko-stoit-smm-v-tashkente-2026" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">uzneo.uz</a>
               ). Bu bosqichning maqsadi katta natija emas — reklama kabineti, auditoriya sozlamalari va hisobotni amalda tushunish.
             </p>
@@ -271,7 +271,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">3-oy: portfolio va birinchi mijozni qanday topish kerak?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              Uchinchi oyning yagona maqsadi — 1 va 2-oydagi ishni <strong className="text-[#16181a]">3-5 ta ko&apos;rsatiladigan natijaga</strong> aylantirish: obunachi o&apos;sishi, qamrov, kelgan so&apos;rovlar soni. Eng tez yo&apos;l — mahalliy kichik biznesga (kafe, do&apos;kon, fitnes zal) bir oy bepul yoki chegirmali ishlab, real raqam olish.
+              Uchinchi oyning yagona maqsadi — 1 va 2-oydagi ishni <strong className="text-[#16181a]">3-5 ta ko&apos;rsatiladigan natijaga</strong>{" "}aylantirish: obunachi o&apos;sishi, qamrov, kelgan so&apos;rovlar soni. Eng tez yo&apos;l — mahalliy kichik biznesga (kafe, do&apos;kon, fitnes zal) bir oy bepul yoki chegirmali ishlab, real raqam olish.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
               Portfolio tayyor bo&apos;lgach, uchta yo&apos;nalishda qidiruv boshlanadi: hh.uz va ish.uz&apos;dagi &quot;SMM menejer&quot; e&apos;lonlariga to&apos;g&apos;ridan-to&apos;g&apos;ri murojaat, Telegram&apos;dagi freelance/vakansiya kanallariga e&apos;lon qoldirish, va mavjud mijozdan tavsiya so&apos;rash. Ko&apos;pchilik boshlovchi aynan shu 3-oy yakunida birinchi pullik ishga yoki ish suhbatiga chiqadi.

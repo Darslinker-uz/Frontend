@@ -191,7 +191,7 @@ export default async function YonalishPage({ params }: Props) {
           {/* Hero */}
           <header className="mb-10">
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
-              {mod.label} {cat.name.toLowerCase()} kurslari
+              {mod.label} {cat.name.toLowerCase()}{" "}kurslari
             </h1>
             <p className="mt-4 text-[15.5px] md:text-[17px] text-[#16181a]/75 leading-relaxed max-w-[720px]">
               {mod.intro(cat.name)}
@@ -201,7 +201,7 @@ export default async function YonalishPage({ params }: Props) {
           {/* Listings */}
           <section className="mb-12">
             <h2 className="text-[20px] md:text-[24px] font-bold text-[#16181a] mb-4">
-              {filtered.length} ta kurs topildi
+              {filtered.length}{" "}ta kurs topildi
             </h2>
             {filtered.length === 0 ? (
               <p className="text-[#7c8490]">Bu yo&apos;nalish bo&apos;yicha hozircha kurs yo&apos;q. <Link href={`/kurslar/${cat.slug}`} className="text-[#7ea2d4] hover:underline">Barcha {cat.name.toLowerCase()} kurslarini ko&apos;rish →</Link></p>
@@ -267,7 +267,7 @@ export default async function YonalishPage({ params }: Props) {
               href={`/kurslar/${cat.slug}`}
               className="inline-flex items-center gap-2 bg-[#16181a] hover:bg-[#16181a]/90 text-white rounded-[12px] px-6 py-3.5 text-[15px] font-semibold transition-colors"
             >
-              Barcha {cat.name.toLowerCase()} kurslarini ko&apos;rish
+              Barcha {cat.name.toLowerCase()}{" "}kurslarini ko&apos;rish
               <span aria-hidden>→</span>
             </Link>
           </section>

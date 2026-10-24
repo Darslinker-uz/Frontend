@@ -57,7 +57,7 @@ export function RatingComments({ comments }: { comments: Comment[] }) {
             className="inline-flex items-center gap-2 h-[36px] px-4 rounded-[8px] text-[12px] font-medium text-[#7ea2d4] hover:bg-[#7ea2d4]/10 transition-colors"
           >
             <ChevronDown className="w-3.5 h-3.5" />
-            Yana {Math.min(remaining, PAGE_SIZE)} ta ko&apos;rsatish
+            Yana {Math.min(remaining, PAGE_SIZE)}{" "}ta ko&apos;rsatish
           </button>
         )}
         <button

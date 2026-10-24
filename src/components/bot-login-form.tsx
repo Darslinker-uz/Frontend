@@ -157,7 +157,7 @@ export function BotLoginForm({ title, subtitle, botUsername, expectedRole, succe
           </form>
 
           <p className="text-[11px] text-[#7c8490] text-center mt-5">
-            Muammo bormi? Botga <code className="bg-[#f0f2f3] px-1.5 py-0.5 rounded">/code</code> yozib yangi kod so&apos;rang.
+            Muammo bormi? Botga <code className="bg-[#f0f2f3] px-1.5 py-0.5 rounded">/code</code>{" "}yozib yangi kod so&apos;rang.
           </p>
           {altLabel && altHref && (
             <p className="text-[11px] text-[#7c8490] text-center mt-2">

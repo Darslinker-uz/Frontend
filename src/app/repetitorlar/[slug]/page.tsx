@@ -345,7 +345,7 @@ export default async function TutorPage({ params }: Props) {
               <div id="ariza-qoldirish" className="rounded-[20px] bg-[#fff7ed] border border-[#fdba74] p-6">
                 <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Bu repetitor hozir Darslinker hamkori emas</h3>
                 <p className="text-[13px] text-[#7c8490] mb-4">
-                  {tutor.fullName} hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida o&apos;xshash repetitorlarni ko&apos;rishingiz mumkin.
+                  {tutor.fullName}{" "}hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida o&apos;xshash repetitorlarni ko&apos;rishingiz mumkin.
                 </p>
                 <Link
                   href="/repetitorlar/barcha"
@@ -359,7 +359,7 @@ export default async function TutorPage({ params }: Props) {
                 <div className="bg-fuchsia-50 border border-fuchsia-100 rounded-t-[20px] px-5 md:px-6 pt-5 pb-3">
                   <h2 className="text-[18px] md:text-[20px] font-bold text-[#16181a] tracking-[-0.02em]">Dars uchun ariza</h2>
                   <p className="text-[12.5px] text-[#475569] mt-1.5">
-                    <span className="font-semibold">{tutor.fullName}</span> 24 soat ichida bog&apos;lanadi.
+                    <span className="font-semibold">{tutor.fullName}</span>{" "}24 soat ichida bog&apos;lanadi.
                   </p>
                 </div>
                 <div className="-mt-1">

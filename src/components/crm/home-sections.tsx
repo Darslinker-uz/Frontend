@@ -28,7 +28,7 @@ export function HomeSections() {
         <FeaturesExplorer />
 
         {/* TARIFLAR */}
-        <PricingSection plans={PLANS} />
+        <PricingSection plans={PLANS} moreLink />
 
         {/* QANDAY BOSHLANADI — tariflardan keyin, "sinab ko'rsam nima bo'ladi?" savoliga javob */}
         <StartSteps />

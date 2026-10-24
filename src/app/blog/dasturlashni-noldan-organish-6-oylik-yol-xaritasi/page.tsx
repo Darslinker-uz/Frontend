@@ -151,7 +151,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-22">22-avgust, 2026</time> · Yangilangan: 2026-08 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-22">22-avgust, 2026</time>{" "}· Yangilangan: 2026-08 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Dasturlashni noldan o&apos;rganish: 6 oylik yo&apos;l xaritasi (2026)
@@ -162,7 +162,7 @@ export default function Page() {
           <section className="mb-10 bg-[#f8f9fa] border-l-4 border-[#7ea2d4] rounded-r-[10px] p-5">
             <h2 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-2">Qisqacha javob</h2>
             <p className="text-[16px] text-[#16181a] leading-relaxed">
-              Dasturlashni noldan o&apos;rganib, portfolio bilan birinchi ishga tayyor bo&apos;lish uchun kuniga 4-5 soat intensiv mashg&apos;ulot bilan <strong>6 oy</strong> real muddat — lekin faqat bitta yo&apos;nalishga (frontend <strong>yoki</strong> backend) toraytirilgan holda. Rasmiy bootcamplar to&apos;liq mutaxassislik uchun ko&apos;proq beradi: Najot Ta&apos;lim <strong>8 oydan</strong>, bepul School 21 esa <strong>6 oydan 3 yilgacha</strong>. Reja: <strong>1-2 oy</strong> — asos, <strong>3-4 oy</strong> — tanlangan yo&apos;nalish va amaliy loyihalar, <strong>5-oy</strong> — portfolio, <strong>6-oy</strong> — ish qidiruv.
+              Dasturlashni noldan o&apos;rganib, portfolio bilan birinchi ishga tayyor bo&apos;lish uchun kuniga 4-5 soat intensiv mashg&apos;ulot bilan <strong>6 oy</strong> real muddat — lekin faqat bitta yo&apos;nalishga (frontend <strong>yoki</strong> backend) toraytirilgan holda. Rasmiy bootcamplar to&apos;liq mutaxassislik uchun ko&apos;proq beradi: Najot Ta&apos;lim <strong>8 oydan</strong>, bepul School 21 esa <strong>6 oydan 3 yilgacha</strong>. Reja: <strong>1-2 oy</strong> — asos, <strong>3-4 oy</strong> — tanlangan yo&apos;nalish va amaliy loyihalar, <strong>5-oy</strong> — portfolio, <strong>6-oy</strong>{" "}— ish qidiruv.
             </p>
           </section>
 
@@ -179,7 +179,7 @@ export default function Page() {
               <a href="https://kurslar.najottalim.uz/dasturlash" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Najot Ta&apos;lim</a>
               &apos;ning dasturlash yo&apos;nalishi ikki bosqichli: avval Foundation (dasturlash mantig&apos;i, C va Python asoslari), so&apos;ngra tanlangan mutaxassislik bo&apos;yicha Result bosqichi (Frontend React, Backend Node.js/Python, C# .NET yoki Flutter). To&apos;liq yo&apos;l formatga qarab <strong className="text-[#16181a]">8 oydan</strong> boshlanadi, Toshkent filialida narxi oyiga taxminan 1,2 mln so&apos;mdan. Bepul{" "}
               <a href="https://21-school.uz/" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">School 21</a>{" "}
-              esa boshqacha quriladi: 90 daqiqalik test va 14 kunlik intensiv &quot;basseyn&quot; bosqichidan o&apos;tgach, low-code yo&apos;nalish <strong className="text-[#16181a]">6 oydan 1,5 yilgacha</strong>, to&apos;liq dasturchi dasturi esa <strong className="text-[#16181a]">1,5-3 yil</strong> (jumladan 3 oylik majburiy amaliyot) davom etadi.
+              esa boshqacha quriladi: 90 daqiqalik test va 14 kunlik intensiv &quot;basseyn&quot; bosqichidan o&apos;tgach, low-code yo&apos;nalish <strong className="text-[#16181a]">6 oydan 1,5 yilgacha</strong>, to&apos;liq dasturchi dasturi esa <strong className="text-[#16181a]">1,5-3 yil</strong>{" "}(jumladan 3 oylik majburiy amaliyot) davom etadi.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
               Xulosa: 6 oy — portfolio va boshlang&apos;ich darajaga yetarli, lekin bu uch yillik tajribaga teng degani emas. Bu rejaning maqsadi &quot;junior&quot; yorlig&apos;ini emas, ko&apos;rsatiladigan 3-4 ta ishlaydigan loyihani qo&apos;lga kiritish.

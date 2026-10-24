@@ -70,8 +70,8 @@ export default function Page() {
           </div>
           <section>
             <h2>Darslinker nima va kimlar uchun yaratilgan?</h2>
-            <p>Darslinker — O‘zbekistonda kurslar va o‘quv markazlarini topish hamda taqqoslashga yordam beradigan ta’lim platformasi. U o‘quvchilar va ota-onalarga mos ta’lim yo‘nalishini izlashda, o‘quv markazlariga esa o‘z kurslarini tanishtirish va yangi o‘quvchilarga yetib borishda yordam beradi.</p>
-            <p>Platforma ustida ishlashimizning asosiy maqsadi ham shu: o‘quv markazi izlayotgan inson bilan ta’lim berayotgan markazning bir-birini topishini osonlashtirish.</p>
+            <p>Darslinker — O‘zbekistondagi o‘quv markazlari uchun interaktiv CRM va LMS platformasi: o‘quvchilar, davomat, to‘lov va qarzdorlik bitta tizimda, jonli quiz va ota-onaga Telegram xabarlari bilan. Qo‘shimcha ravishda Darslinker <Link href="/marketplace">marketplace’i</Link> o‘quvchilar va ota-onalarga mos kursni topishda, markazlarga esa yangi o‘quvchilarga yetib borishda yordam beradi.</p>
+            <p>Loyiha shu maqsad bilan boshlangan edi: o‘quv markazi izlayotgan inson bilan ta’lim berayotgan markazning bir-birini topishini osonlashtirish.</p>
             <p>O‘quvchi yoki ota-ona uchun bu — mavjud variantlar bilan tanishish va tanlov qilish imkoniyati. O‘quv markazi uchun esa o‘z xizmatini unga ehtiyoji bor odamlarga ko‘rsatish imkoniyati.</p>
           </section>
           <section>

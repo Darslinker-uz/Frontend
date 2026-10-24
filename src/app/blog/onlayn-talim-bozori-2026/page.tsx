@@ -150,7 +150,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-20">20-avgust, 2026</time> · Yangilangan: 2026-08 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-20">20-avgust, 2026</time>{" "}· Yangilangan: 2026-08 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               O&apos;zbekistonda onlayn ta&apos;lim bozori: 2026-yil raqamlari
@@ -231,7 +231,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">O&apos;zbekistonda onlayn kurs qanchalik iste&apos;mol qilinmoqda?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-4">
-              Bu savolga eng yaqin javob — davlatning Coursera bilan hamkorlikdagi <strong>uzbekcoders.uz</strong> platformasi statistikasi. Bu yagona keng ko&apos;lamli, raqamlari e&apos;lon qilingan onlayn ta&apos;lim loyihasi (
+              Bu savolga eng yaqin javob — davlatning Coursera bilan hamkorlikdagi <strong>uzbekcoders.uz</strong>{" "}platformasi statistikasi. Bu yagona keng ko&apos;lamli, raqamlari e&apos;lon qilingan onlayn ta&apos;lim loyihasi (
               <a href="https://gov.uz/oz/digital/news/view/28934" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">gov.uz</a>
               ):
             </p>
@@ -287,7 +287,7 @@ export default function Page() {
               </table>
             </div>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mt-4">
-              To&apos;liq matn: <a href="https://www.norma.uz/oz/qonunchilikda_yangi/raqamli_uzbekiston-2030_strategiyasi_qabul_qilindi" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Norma.uz</a> (Raqamli O&apos;zbekiston-2030), <a href="https://gov.uz/oz/yoshlar/sections/view/28106" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">gov.uz</a> (Bir million dasturchi), <a href="https://12news.uz/earn/ozbekiston-5-million-nafar-suniy-intellekt-yetakchisini-tayyorlashni-rejalashtirmoqda/" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">12news.uz</a> (Besh million AI yetakchilari).
+              To&apos;liq matn: <a href="https://www.norma.uz/oz/qonunchilikda_yangi/raqamli_uzbekiston-2030_strategiyasi_qabul_qilindi" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Norma.uz</a> (Raqamli O&apos;zbekiston-2030), <a href="https://gov.uz/oz/yoshlar/sections/view/28106" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">gov.uz</a> (Bir million dasturchi), <a href="https://12news.uz/earn/ozbekiston-5-million-nafar-suniy-intellekt-yetakchisini-tayyorlashni-rejalashtirmoqda/" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">12news.uz</a>{" "}(Besh million AI yetakchilari).
             </p>
           </section>
 

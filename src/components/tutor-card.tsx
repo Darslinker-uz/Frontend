@@ -48,7 +48,7 @@ export function TutorCard({ t }: { t: FakeTutor }) {
         </span>
         {t.experience != null && (
           <span className="inline-flex items-center text-[11.5px] font-medium text-[#16181a]/70 bg-[#f2f4f5] rounded-full px-2.5 py-1">
-            {t.experience} yil tajriba
+            {t.experience}{" "}yil tajriba
           </span>
         )}
       </div>

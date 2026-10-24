@@ -27,7 +27,8 @@ const mobileLinks = [
 
 // CRM/LMS sahifalaridagi havolalar — CRM bosh sahifasi bo'limlariga.
 const crmLinks = [
-  { href: `${CRM_HOME}#imkoniyatlar`, label: "Imkoniyatlar", desc: "Darslinker nima qiladi", icon: LayoutGrid },
+  // Imkoniyatlar — alohida hub sahifasiga (/features), qolganlari bosh sahifa bo'limlariga.
+  { href: "/features", label: "Imkoniyatlar", desc: "Darslinker nima qiladi", icon: LayoutGrid },
   { href: `${CRM_HOME}#narxlar`, label: "Tariflar", desc: "Narx va chegirmalar", icon: Wallet },
   { href: `${CRM_HOME}#boshlash`, label: "Qanday boshlanadi", desc: "4 qadam", icon: Rocket },
   { href: `${CRM_HOME}#savollar`, label: "Savollar", desc: "Ko'p so'raladigan", icon: CircleHelp },

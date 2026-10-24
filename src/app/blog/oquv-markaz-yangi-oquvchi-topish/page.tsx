@@ -112,7 +112,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-05-04">4-may, 2026</time> • O&apos;quv markaz egalari uchun
+              Nashr etilgan: <time dateTime="2026-05-04">4-may, 2026</time>{" "}• O&apos;quv markaz egalari uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Yangi o&apos;quvchi topish: o&apos;quv markaz uchun 5 strategiya 2026
@@ -141,7 +141,7 @@ export default function Page() {
               <li><strong>Auditoriya passiv</strong> — Instagram&apos;dagi odam &quot;kurs qidirmagan&quot;, banner ko&apos;rgan; uning intentsi past</li>
             </ul>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
-              Yangi o&apos;quvchi <strong>aktiv qidirayotgan</strong> joydan kelishi kerak: Google qidiruv, marketplace platformalari, mavjud o&apos;quvchilar tavsiyasi. Quyida 5 ta strategiya — har biri o&apos;ziga xos CPL va vaqt bilan.
+              Yangi o&apos;quvchi <strong>aktiv qidirayotgan</strong>{" "}joydan kelishi kerak: Google qidiruv, marketplace platformalari, mavjud o&apos;quvchilar tavsiyasi. Quyida 5 ta strategiya — har biri o&apos;ziga xos CPL va vaqt bilan.
             </p>
           </section>
 
@@ -265,7 +265,7 @@ export default function Page() {
                 O&apos;quv markazingizni Darslinker katalogiga qo&apos;shing
               </h2>
               <p className="text-[15px] text-white/75 leading-relaxed mb-5 max-w-[640px]">
-                Darslinker — O&apos;zbekistondagi mahalliy o&apos;quv markazlarni kataloglashtirilgan platforma.
+                Darslinker — o&apos;quv markazlari uchun CRM va LMS platformasi. Qo&apos;shimcha ravishda uning marketplace&apos;i orqali markazingiz kurs qidirayotgan o&apos;quvchilarga ko&apos;rinadi.
                 Marketplace strategiyasi (#2 strategiya) orqali siz aktiv qidirayotgan o&apos;quvchilarga to&apos;g&apos;ridan-to&apos;g&apos;ri yetib borasiz —
                 Instagramga qaraganda 3-5 baravar past CPL bilan.
               </p>

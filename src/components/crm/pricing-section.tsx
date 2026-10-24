@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Check, ChevronDown } from "lucide-react";
 import { CrmApplyButton } from "@/components/crm/crm-apply";
 import type { PlanInfo } from "@/lib/crm-content";
 import { panelGrowth, scrollToFutureCenter } from "@/components/smooth-scroll";
@@ -61,7 +62,9 @@ const t: Theme = {
   featCta: "bg-white/15 text-white hover:bg-white/25",
 };
 
-export function PricingSection({ plans }: { plans: PlanInfo[] }) {
+// moreLink — bosh sahifada pastda /pricing havolasi (u yerda 6/12 oylik jami summalar va misollar bor);
+// /pricing sahifasining o'zida kerak emas.
+export function PricingSection({ plans, moreLink = false }: { plans: PlanInfo[]; moreLink?: boolean }) {
   const [period, setPeriod] = useState(0);
   const { months, discount } = PERIODS[period];
 
@@ -155,6 +158,14 @@ export function PricingSection({ plans }: { plans: PlanInfo[] }) {
             Bog&apos;lanish
           </CrmApplyButton>
         </div>
+
+        {moreLink && (
+          <p className="mt-6 text-center">
+            <Link href="/pricing" className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#2d5a8a] hover:underline">
+              6 va 12 oylik jami summalar va hisob-kitob misollari <ArrowRight className="h-4 w-4" />
+            </Link>
+          </p>
+        )}
       </div>
 
       <style>{"@keyframes pr-in { from { opacity: 0; transform: translateY(6px); filter: blur(3px) } to { opacity: 1; transform: none; filter: none } }"}</style>

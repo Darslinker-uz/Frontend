@@ -171,7 +171,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-12">12-avgust, 2026</time> · Yangilangan: 2026-08 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-12">12-avgust, 2026</time>{" "}· Yangilangan: 2026-08 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               O&apos;zbekistonda UI/UX dizayner: maosh, talab va portfolio (2026)
@@ -184,7 +184,7 @@ export default function Page() {
             <p className="text-[16px] text-[#16181a] leading-relaxed">
               2026-yil 12-avgust holatida hh.uz&apos;ning Toshkent ro&apos;yxatida{" "}
               <strong>22 ta dizayn o&apos;rni</strong> ochiq turibdi, lekin ulardan atigi bittasida maosh raqami yozilgan — u ham dizayner emas, dizayn kursi spikeri o&apos;rni. Ochiq raqamlar boshqa manbalarda{" "}
-              <strong>6,4 mln so&apos;mdan 25 mln so&apos;mgacha</strong> oraliqda. Talabning eng katta qismi bank va fintechdan kelyapti (22 tadan 9 ta e&apos;lon), 14 tasi kamida 3 yil tajriba so&apos;raydi, &ldquo;junior&rdquo; deb belgilangan sof dizayn o&apos;rni esa bitta ham yo&apos;q.
+              <strong>6,4 mln so&apos;mdan 25 mln so&apos;mgacha</strong>{" "}oraliqda. Talabning eng katta qismi bank va fintechdan kelyapti (22 tadan 9 ta e&apos;lon), 14 tasi kamida 3 yil tajriba so&apos;raydi, &ldquo;junior&rdquo; deb belgilangan sof dizayn o&apos;rni esa bitta ham yo&apos;q.
             </p>
           </section>
 
@@ -193,7 +193,7 @@ export default function Page() {
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Toshkentda bugun kim dizayner qidiryapti?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-4">
               hh.uz&apos;ning Toshkent bo&apos;yicha &ldquo;UX designer&rdquo; so&apos;rovi 56 ta natija beradi, ammo ro&apos;yxatning ko&apos;rinadigan qismidan faqat{" "}
-              <strong className="text-[#16181a]">22 tasi haqiqiy dizayn o&apos;rni</strong> — qolganlari dasturchi, product manager va biznes-analitik vakansiyalari. Shu 22 tasini ish beruvchi turi bo&apos;yicha ajratganda manzara aniq bo&apos;ladi.
+              <strong className="text-[#16181a]">22 tasi haqiqiy dizayn o&apos;rni</strong>{" "}— qolganlari dasturchi, product manager va biznes-analitik vakansiyalari. Shu 22 tasini ish beruvchi turi bo&apos;yicha ajratganda manzara aniq bo&apos;ladi.
             </p>
             <div className="overflow-x-auto rounded-[12px] border border-[#e4e7ea]">
               <table className="w-full text-[14px]">
@@ -229,7 +229,7 @@ export default function Page() {
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">UI/UX dizayner qancha oladi va nega raqam ko&apos;rinmaydi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Yuqoridagi 22 ta e&apos;londan{" "}
-              <strong className="text-[#16181a]">faqat bittasida oylik yozilgan</strong> — PROWEB.UZ&apos;ning &ldquo;PRO Design&rdquo; kursi spikeri o&apos;rni, 10 mln so&apos;mdan. Ya&apos;ni Toshkentda dizayn o&apos;rgatish uchun ochiq narx bor, dizayn qilish uchun yo&apos;q.
+              <strong className="text-[#16181a]">faqat bittasida oylik yozilgan</strong>{" "}— PROWEB.UZ&apos;ning &ldquo;PRO Design&rdquo; kursi spikeri o&apos;rni, 10 mln so&apos;mdan. Ya&apos;ni Toshkentda dizayn o&apos;rgatish uchun ochiq narx bor, dizayn qilish uchun yo&apos;q.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-4">
               Taqqoslash uchun: xuddi shu ro&apos;yxatdagi dasturchi o&apos;rinlarida raqam bemalol turibdi — I TECH IT GROUP frontend uchun 15–20 mln so&apos;m, EVENTSOLUTIONS senior iOS uchun 40–50 mln so&apos;m yozgan. Quyidagi jadvalga esa turli manbalardan topilgan, raqami ochiq dizayn e&apos;lonlari yig&apos;ilgan.
@@ -275,7 +275,7 @@ export default function Page() {
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">&ldquo;962 ta vakansiya&rdquo; raqami nimani anglatadi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               GorodRabot.uz O&apos;zbekiston bo&apos;yicha UI/UX dizayner so&apos;roviga{" "}
-              <strong className="text-[#16181a]">962 ta e&apos;lon va 14 026 000 so&apos;m o&apos;rtacha</strong> ko&apos;rsatadi. Sahifadagi minimal va maksimal chegaralar esa 10 018 500 va 18 033 200 so&apos;m.
+              <strong className="text-[#16181a]">962 ta e&apos;lon va 14 026 000 so&apos;m o&apos;rtacha</strong>{" "}ko&apos;rsatadi. Sahifadagi minimal va maksimal chegaralar esa 10 018 500 va 18 033 200 so&apos;m.
             </p>
             <div className="bg-[#f8f9fa] rounded-[12px] p-5 mb-3">
               <p className="text-[15.5px] text-[#16181a] leading-relaxed">
@@ -332,7 +332,7 @@ export default function Page() {
               E&apos;lonlar matni portfolio haqida qisqa gapiradi, lekin bir xil gapiradi. 2026-yil 8-iyulda joylashtirilgan Toshkent vakansiyasi &ldquo;2 yildan ortiq tajriba va amalga oshirilgan loyihalar bilan portfolio&rdquo; so&apos;raydi. Free.uz e&apos;loni &ldquo;kamida 2 yil UI/UX yoki grafik dizayn tajribasi, Figma&apos;ni chuqur bilish&rdquo; deb yozgan. ish-bor.uz arxividagi 5 mln so&apos;mlik veb-dizayner e&apos;lonida esa yagona talab sifatida &ldquo;yaxshi portfolio&rdquo; yozilgan.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-4">
-              Ish beruvchilarning tarkibi (9 ta bank va fintech, 3 ta marketplace) portfolio mazmunini ham belgilaydi. Shundan kelib chiqib quyidagi tuzilma ishlaydi — uni <strong className="text-[#16181a]">uch oqim qoidasi</strong> deb atash mumkin.
+              Ish beruvchilarning tarkibi (9 ta bank va fintech, 3 ta marketplace) portfolio mazmunini ham belgilaydi. Shundan kelib chiqib quyidagi tuzilma ishlaydi — uni <strong className="text-[#16181a]">uch oqim qoidasi</strong>{" "}deb atash mumkin.
             </p>
             <div className="rounded-[12px] border border-[#e4e7ea] overflow-hidden mb-4">
               {[
@@ -375,7 +375,7 @@ export default function Page() {
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">AI dizaynerni almashtiryaptimi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Raqamlar hozircha buni ko&apos;rsatmayapti. Figma&apos;ning 2026-yilgi Design Hiring Study hisobotida rahbarlarning{" "}
-              <strong className="text-[#16181a]">82 foizi</strong> dizaynerga ehtiyoj oshgan yoki avvalgidek qolgan deb javob bergan, 47 foizi esa ehtiyoj aynan oshganini aytgan (
+              <strong className="text-[#16181a]">82 foizi</strong>{" "}dizaynerga ehtiyoj oshgan yoki avvalgidek qolgan deb javob bergan, 47 foizi esa ehtiyoj aynan oshganini aytgan (
               <a href="https://www.figma.com/blog/why-demand-for-designers-is-on-the-rise/" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Figma, 2026</a>
               ).
             </p>
@@ -385,7 +385,7 @@ export default function Page() {
             <div className="bg-[#f8f9fa] rounded-[12px] p-5">
               <p className="text-[15.5px] text-[#16181a] leading-relaxed">
                 Mahalliy bozorda buning aniq belgisi bor: TBC Operations Toshkentda{" "}
-                <strong>Conversational Interface Designer</strong> — suhbat interfeysi dizayneri o&apos;rnini ochgan, Uzum Technologies esa Uzum Tezkor uchun alohida Lead UX/UI Researcher qidiryapti. Ikkala lavozim ham klassik &ldquo;ekran chizuvchi&rdquo; roldan uzoq: biri dialog oqimini, ikkinchisi tadqiqot jarayonini loyihalaydi.
+                <strong>Conversational Interface Designer</strong>{" "}— suhbat interfeysi dizayneri o&apos;rnini ochgan, Uzum Technologies esa Uzum Tezkor uchun alohida Lead UX/UI Researcher qidiryapti. Ikkala lavozim ham klassik &ldquo;ekran chizuvchi&rdquo; roldan uzoq: biri dialog oqimini, ikkinchisi tadqiqot jarayonini loyihalaydi.
               </p>
             </div>
           </section>

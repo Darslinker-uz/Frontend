@@ -472,7 +472,7 @@ export default async function MarkazPage({ params }: Props) {
             <section className="bg-white border border-[#e4e7ea] rounded-[20px] p-5 md:p-6">
               <div className="flex items-end justify-between gap-3 mb-5">
                 <h2 className="text-[18px] md:text-[22px] font-bold text-[#16181a] tracking-[-0.02em]">
-                  {center.provider} kurslari
+                  {center.provider}{" "}kurslari
                 </h2>
                 <span className="text-[12.5px] text-[#7c8490] shrink-0">{courses.length} ta kurs</span>
               </div>
@@ -560,7 +560,7 @@ export default async function MarkazPage({ params }: Props) {
               <div id="ariza-qoldirish" className="rounded-[20px] bg-[#fff7ed] border border-[#fdba74] p-6">
                 <h3 className="text-[16px] font-bold text-[#16181a] mb-2">Bu markaz hozir Darslinker hamkori emas</h3>
                 <p className="text-[13px] text-[#7c8490] mb-4">
-                  {center.provider} hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida o&apos;xshash markazlarni ko&apos;rishingiz mumkin.
+                  {center.provider}{" "}hozircha platformamizda faol emas, shuning uchun ariza qabul qilinmaydi. Quyida o&apos;xshash markazlarni ko&apos;rishingiz mumkin.
                 </p>
                 <Link
                   href="/oquv-markazlar"
@@ -582,7 +582,7 @@ export default async function MarkazPage({ params }: Props) {
                       Bog&apos;lanish uchun ariza qoldiring
                     </h2>
                     <p className="text-[12.5px] text-[#475569] mt-1.5">
-                      <span className="font-semibold">{center.provider}</span> vakili siz bilan 24 soat ichida bog&apos;lanadi.
+                      <span className="font-semibold">{center.provider}</span>{" "}vakili siz bilan 24 soat ichida bog&apos;lanadi.
                     </p>
                   </div>
                   <div className="-mt-1">

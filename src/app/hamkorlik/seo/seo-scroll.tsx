@@ -773,7 +773,7 @@ function SectionGeo({ inView }: { inView: boolean }) {
           ChatGPT, Gemini va boshqa modellar javob berayotganda ochiq manbalarga tayanadi.
           Biz sizning ma&apos;lumotlaringizni shu manbalarda to&apos;g&apos;ri, to&apos;liq va
           bir xil qilib joylashtiramiz — <span className="text-white/80">AI tavsiyalarida
-          ko&apos;rinish imkoniyatingiz</span> shunda oshadi.
+          ko&apos;rinish imkoniyatingiz</span>{" "}shunda oshadi.
         </p>
       </div>
     </>
@@ -1197,7 +1197,7 @@ function SectionCta({ inView }: { inView: boolean }) {
 
           <p className="mt-4 md:mt-5 text-[13px] md:text-[16px] text-white/40">
             Website va SEO xizmatlari — oyiga{" "}
-            <span className="font-mono font-semibold text-[#7ea2d4]">$300</span> dan.
+            <span className="font-mono font-semibold text-[#7ea2d4]">$300</span>{" "}dan.
           </p>
 
           <div className="mt-8 md:mt-11 flex w-full flex-wrap items-center justify-between gap-x-7 gap-y-4 md:w-auto md:justify-start">

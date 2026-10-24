@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { CRM_DESCRIPTION, CRM_FEATURES, FAQS, PLANS, TAGLINE } from "@/lib/crm-content";
+import { CRM_SITE_PAGES } from "@/lib/crm-pages";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
@@ -149,6 +150,10 @@ export async function GET() {
   lines.push("| Individual | Kelishuv | 1 500 dan ortiq o'quvchi yoki ko'p filialli tarmoq | Katta tarmoqlar uchun |");
   lines.push("");
   lines.push("Chegirma: 6 oyga to'lovda 10%, 12 oyga to'lovda 20%. 14 kun bepul sinov, karta talab qilinmaydi.");
+  lines.push("");
+  lines.push("### Sahifalar");
+  lines.push("");
+  for (const p of CRM_SITE_PAGES) lines.push(`- [${p.title}](${SITE_URL}${p.path}) — ${p.about}`);
   lines.push("");
   lines.push("### Ko'p so'raladigan savollar");
   lines.push("");

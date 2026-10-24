@@ -121,7 +121,7 @@ export default function Page() {
           {/* Header */}
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-05-10">10-may, 2026</time> • O&apos;quv markaz egalari uchun
+              Nashr etilgan: <time dateTime="2026-05-10">10-may, 2026</time>{" "}• O&apos;quv markaz egalari uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Nega o&apos;quv markazlar Darslinker&apos;ni tanlaydi? 5 ta sabab (2026)
@@ -132,7 +132,7 @@ export default function Page() {
           <section className="mb-10 bg-[#f8f9fa] border-l-4 border-[#7ea2d4] rounded-r-[10px] p-5">
             <h2 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-2">Qisqacha javob</h2>
             <p className="text-[16px] text-[#16181a] leading-relaxed">
-              Darslinker — o&apos;quv markaz uchun <strong>SEO + marketplace + lid tizimi + CRM</strong> bir platformada.
+              Darslinker — o&apos;quv markaz uchun <strong>CRM va LMS + lid tizimi + marketplace + SEO</strong>{" "}bir platformada.
               Sayt qurish, SEO mutaxassis yollash, lid kuzatish — hech biriga vaqt sarflamaysiz.
               Markazingiz Google&apos;da va Darslinker&apos;da bir vaqtda ko&apos;rinishni boshlaydi.
             </p>

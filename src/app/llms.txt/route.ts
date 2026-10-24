@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { CRM_DESCRIPTION, CRM_FEATURES, PLANS, TAGLINE } from "@/lib/crm-content";
+import { CRM_SITE_PAGES } from "@/lib/crm-pages";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
@@ -63,8 +64,7 @@ export async function GET() {
     "- 14 kun bepul sinov, karta talab qilinmaydi",
     "",
     `- [CRM va LMS — bosh sahifa](${SITE_URL}/) — imkoniyatlar, tariflar, savollar`,
-    `- [Tariflar](${SITE_URL}/#narxlar)`,
-    `- [Ko'p so'raladigan savollar](${SITE_URL}/#savollar)`,
+    ...CRM_SITE_PAGES.map((p) => `- [${p.title}](${SITE_URL}${p.path}) — ${p.about}`),
     `- [Haqimizda](${SITE_URL}/haqimizda) — Darslinker kompaniyasi haqida`,
     `- [Blog](${SITE_URL}/blog) — maqolalar`,
     "",

@@ -8,7 +8,7 @@ import type { CrmPlan } from "@/components/crm/crm-apply";
 export const TAGLINE = "Darslinker • o'quv markazlari uchun interaktiv CRM va LMS platformasi";
 
 export const CRM_DESCRIPTION =
-  "O'zbekistondagi o'quv markazlari uchun CRM va LMS: o'quvchilar, guruhlar, davomat, to'lov va qarzdorlik bitta tizimda. Jonli quiz va ota-onaga Telegram xabarlari o'quvchini markazda ushlab qoladi.";
+  "O'zbekistondagi o'quv markazlari uchun CRM va LMS: o'quvchilar, davomat, to'lov va qarzdorlik bitta tizimda, jonli quiz va ota-onaga Telegram xabar.";
 
 export const CRM_KEYWORDS = [
   "o'quv markaz CRM",
@@ -29,6 +29,8 @@ export const CRM_FEATURES = [
   "Davomat: o'qituvchi telefondan belgilaydi",
   "Gamifikatsiya: jonli quiz, PIN bilan qo'shilish, jonli reyting",
   "Ota-onaga Telegram xabar: darsga kelmadi, qarzdorlik, to'lov tasdig'i",
+  "Ota-ona farzandining davomati va to'lovlarini kuzatadi",
+  "Telegram mini ilova: Darslinker'dan Telegram ichida, alohida ilova o'rnatmasdan foydalanish",
   "To'lov va qarzdorlik: naqd, karta yoki o'tkazma, chek bilan",
   "Lidlar: Kanban doska, lidni o'quvchiga aylantirish",
   "Dashboard: 8 ta asosiy ko'rsatkich",

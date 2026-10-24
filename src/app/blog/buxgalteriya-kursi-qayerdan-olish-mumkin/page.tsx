@@ -113,7 +113,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-09-17">17-sentabr, 2026</time> · Yangilangan: 2026-09 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-09-17">17-sentabr, 2026</time>{" "}· Yangilangan: 2026-09 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Toshkentda buxgalteriya kursi: 3 ta ishonchli variant (2026)
@@ -132,7 +132,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Nega buxgalteriya kursini tanlash qiyin?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              &ldquo;Buxgalteriya kursi&rdquo; degan bitta so&apos;z ostida aslida bir-biridan tubdan farq qiluvchi ikkita yo&apos;nalish yashiringan: <strong className="text-[#16181a]">milliy amaliyot</strong> (1C dasturi, O&apos;zbekiston soliq qonunchiligi — 2-6 oyda o&apos;rganiladi) va <strong className="text-[#16181a]">xalqaro malaka</strong> (ACCA, MSFO, DipIFR — bir necha yilga cho&apos;ziladigan, xalqaro imtihon talab qiladigan dastur).
+              &ldquo;Buxgalteriya kursi&rdquo; degan bitta so&apos;z ostida aslida bir-biridan tubdan farq qiluvchi ikkita yo&apos;nalish yashiringan: <strong className="text-[#16181a]">milliy amaliyot</strong> (1C dasturi, O&apos;zbekiston soliq qonunchiligi — 2-6 oyda o&apos;rganiladi) va <strong className="text-[#16181a]">xalqaro malaka</strong>{" "}(ACCA, MSFO, DipIFR — bir necha yilga cho&apos;ziladigan, xalqaro imtihon talab qiladigan dastur).
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
               Ikkalasi ham &ldquo;buxgalteriya kursi&rdquo; deb reklama qilinadi, lekin narxi, davomiyligi va natijasi butunlay boshqacha. Quyida uchta real markazni — qamrovi, narxi va formati bo&apos;yicha — qo&apos;lda solishtirdik.

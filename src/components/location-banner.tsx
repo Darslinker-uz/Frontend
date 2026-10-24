@@ -148,7 +148,7 @@ export function LocationBanner({ region, district, fallback }: Props) {
         <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#4a7ab5]" />
         <div className="flex-1 text-[13px] text-[#16181a]/80 leading-relaxed">
           <strong className="font-semibold text-[#16181a]">{district}</strong> atrofida {fallback.nearby} ta kurs.{" "}
-          <strong className="font-semibold text-[#16181a]">{region}</strong> bo&apos;yicha barcha {fallback.expanded} ta kurs ko&apos;rsatilmoqda.
+          <strong className="font-semibold text-[#16181a]">{region}</strong> bo&apos;yicha barcha {fallback.expanded}{" "}ta kurs ko&apos;rsatilmoqda.
         </div>
         <button
           onClick={clearFilter}

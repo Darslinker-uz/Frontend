@@ -243,7 +243,7 @@ function StudentsSelect({ value, onChange, disabled, className }: { value: strin
                       selected ? "bg-[#eef3fa] font-semibold text-[#2d5a8a] ring-1 ring-[#7ea2d4]/50" : "bg-[#f7f8fa] text-[#16181a] hover:bg-[#eef1f4]",
                     )}
                   >
-                    {r} o&apos;quvchi
+                    {r}{" "}o&apos;quvchi
                     {selected && <Check aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.5} />}
                   </button>
                 </li>

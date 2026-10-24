@@ -190,7 +190,7 @@ export default async function JoylarHududPage({ params }: Props) {
                       {c.name}
                     </div>
                     <div className="text-[13px] text-[#7c8490] group-hover:text-white/70">
-                      {c.count} ta kurs
+                      {c.count}{" "}ta kurs
                     </div>
                     <div className="mt-3 text-[12px] font-semibold text-[#7ea2d4] group-hover:text-white">
                       Ko&apos;rish →
@@ -460,7 +460,7 @@ export default async function JoylarHududPage({ params }: Props) {
                   href={`/kurslar?region=${encodeURIComponent(region.name)}`}
                   className="inline-flex items-center gap-2 bg-white hover:bg-[#16181a] hover:text-white text-[#16181a] border border-[#16181a] rounded-[12px] px-6 py-3 text-[14px] font-semibold transition-colors"
                 >
-                  {region.name} bo&apos;yicha barcha {allInRegion.length} ta kursni ko&apos;rish →
+                  {region.name} bo&apos;yicha barcha {allInRegion.length}{" "}ta kursni ko&apos;rish →
                 </Link>
               </div>
             )}
@@ -497,7 +497,7 @@ export default async function JoylarHududPage({ params }: Props) {
                       {r.name}
                     </div>
                     <div className="text-[12px] text-[#7c8490] group-hover:text-white/70 mt-0.5">
-                      {r.count} ta kurs
+                      {r.count}{" "}ta kurs
                     </div>
                   </Link>
                 ))}
@@ -519,7 +519,7 @@ export default async function JoylarHududPage({ params }: Props) {
               href={`/kurslar?region=${encodeURIComponent(region.name)}`}
               className="inline-flex items-center gap-2 bg-white hover:bg-[#7ea2d4] text-[#16181a] hover:text-white rounded-[12px] px-6 py-3.5 text-[15px] font-semibold transition-colors"
             >
-              {region.name} kurslarini ko&apos;rish
+              {region.name}{" "}kurslarini ko&apos;rish
               <span aria-hidden>→</span>
             </Link>
           </div>

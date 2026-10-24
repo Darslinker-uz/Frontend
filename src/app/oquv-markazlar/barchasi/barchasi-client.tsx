@@ -180,7 +180,7 @@ export function OquvMarkazlarBarchasiClient({ centers, regions, categories }: Pr
       {/* RESULT COUNT + EMPTY STATE */}
       <div className="flex items-center justify-between gap-3 mb-4 md:mb-5">
         <p className="text-[13px] md:text-[14px] text-[#7c8490]">
-          <span className="font-bold text-[#16181a]">{filtered.length}</span> markaz topildi
+          <span className="font-bold text-[#16181a]">{filtered.length}</span>{" "}markaz topildi
           {hasActiveFilters && <span className="ml-2 text-emerald-700">(filtr qo&apos;llanildi)</span>}
         </p>
       </div>

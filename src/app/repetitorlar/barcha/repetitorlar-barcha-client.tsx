@@ -239,7 +239,7 @@ export function RepetitorlarBarchaClient({ tutors }: { tutors: FakeTutor[] }) {
       {/* Natija soni + tozalash */}
       <div className="flex items-center justify-between gap-2 mb-4">
         <p className="text-[14px] text-[#7c8490]">
-          <span className="font-bold text-[#16181a]">{result.length}</span> ta repetitor
+          <span className="font-bold text-[#16181a]">{result.length}</span>{" "}ta repetitor
           {subject !== "all" ? ` · ${SUBJECT_LABELS[subject] ?? subject}` : ""}
         </p>
         {hasActive && (

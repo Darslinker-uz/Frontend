@@ -63,7 +63,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-07-02">2-iyul, 2026</time> · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-07-02">2-iyul, 2026</time>{" "}· O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               O&apos;zbekistonda kurslarni qayerdan topish mumkin? (2026 qo&apos;llanma)
@@ -75,7 +75,7 @@ export default function Page() {
             <h2 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-2">Qisqacha javob</h2>
             <p className="text-[16px] text-[#16181a] leading-relaxed">
               O&apos;zbekistonda kurslarni eng tez topish uchun{" "}
-              <Link href="/kurslar" className="text-[#7ea2d4] hover:underline font-semibold">Darslinker.uz</Link> kabi katalogdan foydalanish qulay — bu yerda yo&apos;nalish, shahar va narx bo&apos;yicha filtrlab, bir nechta o&apos;quv markazini bir joyda solishtirish mumkin. Ijtimoiy tarmoqlarda alohida-alohida qidirishga qaraganda ancha tezroq yo&apos;l.
+              <Link href="/kurslar" className="text-[#7ea2d4] hover:underline font-semibold">Darslinker.uz</Link>{" "}kabi katalogdan foydalanish qulay — bu yerda yo&apos;nalish, shahar va narx bo&apos;yicha filtrlab, bir nechta o&apos;quv markazini bir joyda solishtirish mumkin. Ijtimoiy tarmoqlarda alohida-alohida qidirishga qaraganda ancha tezroq yo&apos;l.
             </p>
           </section>
 
@@ -155,7 +155,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Darslinker qanday ishlaydi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              <Link href="/kurslar" className="text-[#7ea2d4] hover:underline">Darslinker katalogida</Link> kurslar 7 ta yo&apos;nalish guruhiga bo&apos;lingan — Tillar, IT va dasturlash, Biznes va marketing, Dizayn va san&apos;at, Akademik fanlar, Bolalar uchun yo&apos;nalishlar va kasbiy ko&apos;nikmalar (masalan, haydovchilik kurslari). Har bir yo&apos;nalish ichida narx, shahar va format bo&apos;yicha filtrlash mumkin.
+              <Link href="/kurslar" className="text-[#7ea2d4] hover:underline">Darslinker katalogida</Link>{" "}kurslar 7 ta yo&apos;nalish guruhiga bo&apos;lingan — Tillar, IT va dasturlash, Biznes va marketing, Dizayn va san&apos;at, Akademik fanlar, Bolalar uchun yo&apos;nalishlar va kasbiy ko&apos;nikmalar (masalan, haydovchilik kurslari). Har bir yo&apos;nalish ichida narx, shahar va format bo&apos;yicha filtrlash mumkin.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
               Agar aynan o&apos;z hududingizdagi markazlarni ko&apos;rmoqchi bo&apos;lsangiz —{" "}

@@ -13,7 +13,7 @@ const SUPPORT_URL = "https://t.me/Darslinker_Support";
 
 const TITLE = "Darslinker haqida — o'quv markazlari uchun CRM va LMS";
 const DESCRIPTION =
-  "Darslinker — O'zbekistondagi o'quv markazlari uchun interaktiv CRM va LMS platformasi: davomat, to'lov va qarzdorlik, jonli quiz va ota-onaga Telegram xabarlari bitta tizimda.";
+  "Darslinker — O'zbekistondagi o'quv markazlari uchun CRM va LMS: davomat, to'lov va qarzdorlik, jonli quiz va ota-onaga Telegram xabar bitta tizimda.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -28,7 +28,7 @@ const minPrice = PLANS[0].price;
 
 const faqs = [
   {
-    q: "Darslinker nima?",
+    q: "Darslinker nima va o'quv markazini boshqarishda qanday yordam beradi?",
     a: "Darslinker — O'zbekistondagi o'quv markazlari uchun interaktiv CRM va LMS platformasi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi, jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
   },
   {
@@ -100,7 +100,7 @@ export default function HaqimizdaPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="bg-white min-h-screen">
+      <div className="bg-[#f0f2f3] min-h-screen">
         <article className="max-w-[760px] mx-auto px-5 md:px-6 py-12 md:py-16">
           <header className="mb-12">
             <h1 className="text-[32px] md:text-[44px] font-bold text-[#16181a] leading-tight tracking-tight">
@@ -138,7 +138,7 @@ export default function HaqimizdaPage() {
               {CRM_FEATURES.map((f) => <li key={f}>{f}</li>)}
             </ul>
             <p className={`${P} mt-4`}>
-              Barcha imkoniyatlar har bir tarifda bor. Tariflar oyiga {minPrice} so&apos;mdan
+              Barcha imkoniyatlar har bir tarifda bor. Tariflar oyiga {minPrice}{" "}so&apos;mdan
               boshlanadi va faqat o&apos;quvchilar, filiallar va xodimlar soni bilan farq qiladi —{" "}
               <Link href="/#narxlar" className={LINK}>tariflar va narxlar</Link>.
             </p>
@@ -255,7 +255,7 @@ export default function HaqimizdaPage() {
               </Link>
               <Link
                 href="/marketplace"
-                className="inline-flex items-center gap-2 bg-[#f0f2f3] hover:bg-[#e4e7ea] text-[#16181a] rounded-[12px] px-6 py-3.5 text-[15px] font-semibold transition-colors"
+                className="inline-flex items-center gap-2 bg-white hover:bg-[#e4e7ea] text-[#16181a] rounded-[12px] px-6 py-3.5 text-[15px] font-semibold transition-colors"
               >
                 Kurslarni ko&apos;rish
               </Link>

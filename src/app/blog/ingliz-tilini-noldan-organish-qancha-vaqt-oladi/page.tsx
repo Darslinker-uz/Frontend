@@ -117,7 +117,7 @@ export default function Page() {
               <li>Keyingi bosqichga o‘tish faqat muddatgami yoki natijaga ham bog‘liqmi?</li>
               <li>Materiallar va qo‘shimcha mashqlar oylik to‘lovga kiradimi?</li>
             </ol>
-            <p><Link href="/">Darslinker.uz</Link> — O‘zbekistonda kurslar, o‘quv markazlari va repetitorlarni topishga yordam beradigan ta’lim platformasi. <Link href="/kurslar/ingliz-tili">Ingliz tili kurslarini</Link> ko‘rib, dastur va jadvalni markaz bilan aniqlashtirishingiz mumkin. Individual reja kerak bo‘lsa, <Link href="/repetitorlar">repetitorlar</Link> takliflarini ham solishtiring.</p>
+            <p><Link href="/">Darslinker</Link> — o‘quv markazlari uchun CRM va LMS platformasi. Uning <Link href="/marketplace">marketplace’ida</Link> esa O‘zbekistondagi kurslar, o‘quv markazlari va repetitorlarni topish mumkin. <Link href="/kurslar/ingliz-tili">Ingliz tili kurslarini</Link> ko‘rib, dastur va jadvalni markaz bilan aniqlashtirishingiz mumkin. Individual reja kerak bo‘lsa, <Link href="/repetitorlar">repetitorlar</Link> takliflarini ham solishtiring.</p>
             <p>Markaz haqida ko‘proq ma’lumot uchun <Link href="/oquv-markazlar">o‘quv markazlari katalogi</Link> va <Link href="/blog/ishonchli-oquv-markazni-qanday-tekshirish">to‘lovdan oldin markazni tekshirish qo‘llanmasi</Link> yordam beradi.</p>
           </section>
           <section>

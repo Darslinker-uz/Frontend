@@ -168,7 +168,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-11">11-avgust, 2026</time> · Yangilangan: 2026-08 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-11">11-avgust, 2026</time>{" "}· Yangilangan: 2026-08 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               O&apos;zbekistonda frontend dasturchi maoshi va talab (2026)
@@ -181,7 +181,7 @@ export default function Page() {
             <p className="text-[16px] text-[#16181a] leading-relaxed">
               2026-yil 11-avgust holatida Toshkentda maoshi ochiq yozilgan frontend e&apos;lonlari{" "}
               <strong>2,4 mln so&apos;mdan 20 mln so&apos;mgacha</strong> oraliqda: middle daraja 15–20 mln so&apos;m, Angular yo&apos;nalishi 8 mln so&apos;mdan, dollarda to&apos;laydigan e&apos;lonlar $200 dan $1 000 gacha. Eng muhim raqam esa boshqa: hh.uz&apos;dagi 82 ta frontend vakansiyasidan{" "}
-              <strong>faqat bittasi ochiq &ldquo;junior&rdquo;</strong> deb belgilangan — va u ham 1–3 yil tajriba so&apos;raydi.
+              <strong>faqat bittasi ochiq &ldquo;junior&rdquo;</strong>{" "}deb belgilangan — va u ham 1–3 yil tajriba so&apos;raydi.
             </p>
           </section>
 
@@ -189,7 +189,7 @@ export default function Page() {
           <section className="mb-10">
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Nega har bir saytda boshqa o&apos;rtacha raqam chiqadi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-4">
-              Chunki o&apos;rtacha maosh kasbga emas, <strong className="text-[#16181a]">qidiruv so&apos;zining yozilishiga</strong> bog&apos;liq. Quyidagi jadval bitta kun ichida, bitta shahar bo&apos;yicha to&apos;plangan — farqni o&apos;zingiz ko&apos;rasiz.
+              Chunki o&apos;rtacha maosh kasbga emas, <strong className="text-[#16181a]">qidiruv so&apos;zining yozilishiga</strong>{" "}bog&apos;liq. Quyidagi jadval bitta kun ichida, bitta shahar bo&apos;yicha to&apos;plangan — farqni o&apos;zingiz ko&apos;rasiz.
             </p>
             <div className="overflow-x-auto rounded-[12px] border border-[#e4e7ea]">
               <table className="w-full text-[14px]">
@@ -283,7 +283,7 @@ export default function Page() {
             <h2 className="text-[22px] md:text-[26px] font-bold text-[#16181a] mb-3">Dollarda to&apos;laydigan kompaniya ko&apos;proq beradimi?</h2>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Yo&apos;q — bu bozorda valyuta maosh darajasining belgisi emas. TENZOR SOFT frontend o&apos;rni uchun{" "}
-              <strong className="text-[#16181a]">$200–700</strong> yozgan, bu joriy kursda 2,4–8,4 mln so&apos;m. Shu paytning o&apos;zida so&apos;mda to&apos;laydigan Crowe TAC middle frontend uchun 15–20 mln so&apos;m taklif qilyapti.
+              <strong className="text-[#16181a]">$200–700</strong>{" "}yozgan, bu joriy kursda 2,4–8,4 mln so&apos;m. Shu paytning o&apos;zida so&apos;mda to&apos;laydigan Crowe TAC middle frontend uchun 15–20 mln so&apos;m taklif qilyapti.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Dollar takliflarining yuqori qismi ham unchalik uzoqqa ketmaydi: React yo&apos;nalishidagi $800–1 000 taklifi taxminan 9,6–11,9 mln so&apos;m — bu so&apos;mdagi middle takliflardan past.
@@ -306,7 +306,7 @@ export default function Page() {
             <div className="bg-[#f8f9fa] rounded-[12px] p-5 mb-3">
               <p className="text-[15.5px] text-[#16181a] leading-relaxed">
                 2026-yilning yangi belgisi ham shu ro&apos;yxatda ko&apos;rinadi: ALIFCO kompaniyasi{" "}
-                <strong>&ldquo;Full-stack разработчик (AI-assisted)&rdquo;</strong> nomli o&apos;rinni 5–7 mln so&apos;mga e&apos;lon qilgan — bu middle frontend taklifidan (15–20 mln) uch barobar past. Lavozim nomiga AI kiritilishi ish hajmini emas, narxni o&apos;zgartirgan.
+                <strong>&ldquo;Full-stack разработчик (AI-assisted)&rdquo;</strong>{" "}nomli o&apos;rinni 5–7 mln so&apos;mga e&apos;lon qilgan — bu middle frontend taklifidan (15–20 mln) uch barobar past. Lavozim nomiga AI kiritilishi ish hajmini emas, narxni o&apos;zgartirgan.
               </p>
             </div>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
@@ -320,7 +320,7 @@ export default function Page() {
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Milliy statistika qo&apos;mitasi ma&apos;lumotiga ko&apos;ra, 2026-yil yanvar-iyun oylarida O&apos;zbekistonda o&apos;rtacha oylik nominal ish haqi{" "}
               <strong className="text-[#16181a]">7 mln 91,1 ming so&apos;m</strong>, Toshkent shahri bo&apos;yicha esa{" "}
-              <strong className="text-[#16181a]">12 mln 13,9 ming so&apos;m</strong> ni tashkil etdi (
+              <strong className="text-[#16181a]">12 mln 13,9 ming so&apos;m</strong>{" "}ni tashkil etdi (
               <a href="https://stat.uz/uz/matbuot-markazi/qo-mita-yangiliklar/69378-o-zbekiston-respublikasida-o-rtacha-oylik-nominal-hisoblangan-ish-haqi-25-07-2026" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">stat.uz</a>
               ).
             </p>
@@ -343,7 +343,7 @@ export default function Page() {
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Davlat maqsadlari ham e&apos;lon qilingan: 2030-yilga qadar IT eksportini{" "}
-              <strong className="text-[#16181a]">5 mlrd dollarga</strong> yetkazish, 5 000 ta faol startap va 2 mlrd dollarlik investitsiya. StartupBlink reytingida O&apos;zbekiston 31 pog&apos;ona ko&apos;tarilgan, Toshkent Markaziy Osiyo shaharlari orasida birinchi o&apos;rinda.
+              <strong className="text-[#16181a]">5 mlrd dollarga</strong>{" "}yetkazish, 5 000 ta faol startap va 2 mlrd dollarlik investitsiya. StartupBlink reytingida O&apos;zbekiston 31 pog&apos;ona ko&apos;tarilgan, Toshkent Markaziy Osiyo shaharlari orasida birinchi o&apos;rinda.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
               Bu raqamlar vakansiya sonini kafolatlamaydi, lekin bir narsani ko&apos;rsatadi: ish o&apos;rinlari mahalliy iste&apos;molga emas, eksport buyurtmasiga bog&apos;langan. Shuning uchun ingliz tili bu kasbda maoshga texnologiya darajasida ta&apos;sir qiladi.

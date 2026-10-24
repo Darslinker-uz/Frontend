@@ -47,7 +47,7 @@ const faqs = [
   },
   {
     q: "Darslinker markazlarni tekshiradimi?",
-    a: "Darslinker — katalog: har bir e'lon sahifasida markazning narxi, formati, hududi va aloqa ma'lumotlari ochiq ko'rsatiladi, shuning uchun taqqoslash va bog'lanish oson. Hujjat darajasidagi rasmiy tekshiruvni esa yuqorida ko'rsatilgan davlat resurslari orqali o'zingiz o'tkazasiz — bu ikki bosqich bir-birini to'ldiradi.",
+    a: "Darslinker — o'quv markazlari uchun CRM va LMS platformasi; uning marketplace'ida esa har bir e'lon sahifasida markazning narxi, formati, hududi va aloqa ma'lumotlari ochiq ko'rsatiladi, shuning uchun taqqoslash va bog'lanish oson. Hujjat darajasidagi rasmiy tekshiruvni esa yuqorida ko'rsatilgan davlat resurslari orqali o'zingiz o'tkazasiz — bu ikki bosqich bir-birini to'ldiradi.",
   },
 ];
 
@@ -135,7 +135,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-07-31">31-iyul, 2026</time> · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-07-31">31-iyul, 2026</time>{" "}· O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               Ishonchli o&apos;quv markazni qanday tekshirish kerak? 5 mezon (2026)
@@ -164,7 +164,7 @@ export default function Page() {
               Shikoyatlarning asosiy uch sababi: ta&apos;lim sifati qoniqarsizligi, ko&apos;rsatilmagan xizmat uchun pul olinishi va shartnoma shartlari hamda pulni qaytarish tartibi haqida yetarli ma&apos;lumot berilmasligi.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
-              Bu uchtasining ikkitasi — pul bilan bog&apos;liq va ularning barchasi to&apos;lovdan <strong className="text-[#16181a]">oldin</strong> 15 daqiqalik tekshiruv bilan oldini olsa bo&apos;ladi.
+              Bu uchtasining ikkitasi — pul bilan bog&apos;liq va ularning barchasi to&apos;lovdan <strong className="text-[#16181a]">oldin</strong>{" "}15 daqiqalik tekshiruv bilan oldini olsa bo&apos;ladi.
             </p>
           </section>
 
@@ -182,7 +182,7 @@ export default function Page() {
               bilan tartibga solingan. Diplom beradigan nodavlat oliy ta&apos;lim tashkilotlari uchun esa litsenziya hamon majburiy.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed">
-              Shuning uchun to&apos;g&apos;ri savol boshqacha yangraydi: <strong className="text-[#16181a]">&ldquo;Qaysi hujjat asosida ishlaysiz — litsenziya yoki xabarnoma? Raqamini ayting.&rdquo;</strong> Aniq raqam aytilmasa — bu allaqachon birinchi signal.
+              Shuning uchun to&apos;g&apos;ri savol boshqacha yangraydi: <strong className="text-[#16181a]">&ldquo;Qaysi hujjat asosida ishlaysiz — litsenziya yoki xabarnoma? Raqamini ayting.&rdquo;</strong>{" "}Aniq raqam aytilmasa — bu allaqachon birinchi signal.
             </p>
           </section>
 
@@ -279,7 +279,7 @@ export default function Page() {
               bilan &ldquo;2+6&rdquo; dasturi joriy etildi: 14-30 yoshdagi yosh xorijiy tilni o&apos;rganishning dastlabki 2 oyini o&apos;zi to&apos;laydi, keyingi 6 oyi davlat subsidiyasi hisobidan qoplanadi.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              Markaz bu dasturga o&apos;z-o&apos;zidan kira olmaydi. Qatnashish uchun u elektron platformada belgilangan tartibda ro&apos;yxatdan o&apos;tishi, o&apos;quvchilar davomatini kunlik elektron nazoratga ulashi va o&apos;qituvchilari kamida <strong className="text-[#16181a]">B2</strong> yoki unga tenglashtirilgan til sertifikatiga ega bo&apos;lishi talab qilinadi. Ariza beruvchi yoshdan esa kamida B1 darajadagi sertifikat va kursda 70% davomat so&apos;raladi.
+              Markaz bu dasturga o&apos;z-o&apos;zidan kira olmaydi. Qatnashish uchun u elektron platformada belgilangan tartibda ro&apos;yxatdan o&apos;tishi, o&apos;quvchilar davomatini kunlik elektron nazoratga ulashi va o&apos;qituvchilari kamida <strong className="text-[#16181a]">B2</strong>{" "}yoki unga tenglashtirilgan til sertifikatiga ega bo&apos;lishi talab qilinadi. Ariza beruvchi yoshdan esa kamida B1 darajadagi sertifikat va kursda 70% davomat so&apos;raladi.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               Subsidiya miqdori bazaviy hisoblash miqdoriga (BHM) bog&apos;langan: Toshkent shahrida 2 BHM gacha, Qoraqalpog&apos;iston Respublikasi va viloyat markazlarida 1,5 BHM gacha, tuman va shaharlarda 1 BHM gacha oyiga. 2026-yil 1-sentabrdan BHM 440 000 so&apos;mni tashkil etadi — ya&apos;ni Toshkentda oyiga 880 000 so&apos;mgacha. Dastur yiliga 20 000 nafargacha yoshni qamrab oladi va 2031-yilgacha amal qiladi.

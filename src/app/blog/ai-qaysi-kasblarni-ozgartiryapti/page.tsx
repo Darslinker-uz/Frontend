@@ -137,7 +137,7 @@ export default function Page() {
 
           <header className="mb-8">
             <div className="text-[12px] text-[#7c8490] mb-2">
-              Nashr etilgan: <time dateTime="2026-08-17">17-avgust, 2026</time> · Yangilangan: 2026-08 · O&apos;quvchilar uchun
+              Nashr etilgan: <time dateTime="2026-08-17">17-avgust, 2026</time>{" "}· Yangilangan: 2026-08 · O&apos;quvchilar uchun
             </div>
             <h1 className="text-[28px] md:text-[40px] font-bold text-[#16181a] leading-tight tracking-tight">
               AI O&apos;zbekistonda qaysi kasblarni o&apos;zgartiryapti? (2026)
@@ -148,7 +148,7 @@ export default function Page() {
           <section className="mb-10 bg-[#f8f9fa] border-l-4 border-[#7ea2d4] rounded-r-[10px] p-5">
             <h2 className="text-[12px] font-semibold text-[#7c8490] uppercase tracking-wider mb-2">Qisqacha javob</h2>
             <p className="text-[16px] text-[#16181a] leading-relaxed">
-              2026-yil avgust holatida O&apos;zbekistonda AI ommaviy ish o&apos;rinlarini qisqartirmayapti, lekin uchta yo&apos;nalishda aniq sezilmoqda: banklar call-markaz uchun ovozli AI&apos;ni sinamoqda, Soliq qo&apos;mitasi <strong>AI Soliq</strong> portalini ishga tushirdi, davlat esa &ldquo;Besh million sun&apos;iy intellekt yetakchilari&rdquo; dasturi bilan aholini yangi ko&apos;nikmalarga o&apos;rgatmoqda. Eng ko&apos;p e&apos;lon beriladigan kasblardan biri — call-markaz operatori — aynan shu o&apos;zgarish markazida turibdi.
+              2026-yil avgust holatida O&apos;zbekistonda AI ommaviy ish o&apos;rinlarini qisqartirmayapti, lekin uchta yo&apos;nalishda aniq sezilmoqda: banklar call-markaz uchun ovozli AI&apos;ni sinamoqda, Soliq qo&apos;mitasi <strong>AI Soliq</strong>{" "}portalini ishga tushirdi, davlat esa &ldquo;Besh million sun&apos;iy intellekt yetakchilari&rdquo; dasturi bilan aholini yangi ko&apos;nikmalarga o&apos;rgatmoqda. Eng ko&apos;p e&apos;lon beriladigan kasblardan biri — call-markaz operatori — aynan shu o&apos;zgarish markazida turibdi.
             </p>
           </section>
 
@@ -223,7 +223,7 @@ export default function Page() {
             </div>
             <div className="bg-[#f8f9fa] rounded-[12px] p-5">
               <p className="text-[15.5px] text-[#16181a] leading-relaxed">
-                Bu ikkita faktni yonma-yon qo&apos;yish kerak: call-markaz operatori — O&apos;zbekistonda uchinchi eng ko&apos;p ishga olinayotgan mutaxassislik (2026 boshida jami e&apos;lonlarning 5,3%i), va aynan shu paytda mamlakatning yirik banklari <strong>xuddi shu ish o&apos;rnining standart qismi</strong> uchun ovozli AI sinamoqda. Ya&apos;ni eng ko&apos;p ishga olinayotgan boshlang&apos;ich kasb bilan AI eng oson egallay oladigan vazifa turi to&apos;g&apos;ridan-to&apos;g&apos;ri ustma-ust tushmoqda — bu tasodif emas, chunki aynan shu vazifalar (ma&apos;lumot berish, holat tekshirish) ovozli AI uchun texnik jihatdan eng oson yo&apos;nalish hisoblanadi.
+                Bu ikkita faktni yonma-yon qo&apos;yish kerak: call-markaz operatori — O&apos;zbekistonda uchinchi eng ko&apos;p ishga olinayotgan mutaxassislik (2026 boshida jami e&apos;lonlarning 5,3%i), va aynan shu paytda mamlakatning yirik banklari <strong>xuddi shu ish o&apos;rnining standart qismi</strong>{" "}uchun ovozli AI sinamoqda. Ya&apos;ni eng ko&apos;p ishga olinayotgan boshlang&apos;ich kasb bilan AI eng oson egallay oladigan vazifa turi to&apos;g&apos;ridan-to&apos;g&apos;ri ustma-ust tushmoqda — bu tasodif emas, chunki aynan shu vazifalar (ma&apos;lumot berish, holat tekshirish) ovozli AI uchun texnik jihatdan eng oson yo&apos;nalish hisoblanadi.
               </p>
             </div>
           </section>
@@ -234,10 +234,10 @@ export default function Page() {
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
               2024-yil 14-oktabrda tasdiqlangan Prezident farmoni (№358) bilan O&apos;zbekiston 2030-yilgacha sun&apos;iy intellekt texnologiyalarini rivojlantirish strategiyasini qabul qildi (
               <a href="https://www.norma.uz/oz/qonunchilikda_yangi/suniy_intellekt_tehnologiyalarini_2030_yilga_qadar_rivojlantirish_strategiyasi_tasdiqlandi" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">Norma.uz</a>
-              ). Maqsad — AI asosidagi dasturiy mahsulot va xizmatlar hajmini <strong className="text-[#16181a]">1,5 mlrd dollarga</strong> yetkazish, raqamli xizmatlar indeksida AI ulushini 10%ga chiqarish va 10 ta ilmiy laboratoriya ochish.
+              ). Maqsad — AI asosidagi dasturiy mahsulot va xizmatlar hajmini <strong className="text-[#16181a]">1,5 mlrd dollarga</strong>{" "}yetkazish, raqamli xizmatlar indeksida AI ulushini 10%ga chiqarish va 10 ta ilmiy laboratoriya ochish.
             </p>
             <p className="text-[15.5px] text-[#16181a]/75 leading-relaxed mb-3">
-              Kadrlar tomoni: 2026-yildan &ldquo;Besh million sun&apos;iy intellekt yetakchilari&rdquo; loyihasi ishga tushdi — shu yilning o&apos;zida <strong className="text-[#16181a]">500 ming kishi</strong>, 2035-yilga qadar jami <strong className="text-[#16181a]">5 million kishi</strong> o&apos;qitilishi rejalashtirilgan (
+              Kadrlar tomoni: 2026-yildan &ldquo;Besh million sun&apos;iy intellekt yetakchilari&rdquo; loyihasi ishga tushdi — shu yilning o&apos;zida <strong className="text-[#16181a]">500 ming kishi</strong>, 2035-yilga qadar jami <strong className="text-[#16181a]">5 million kishi</strong>{" "}o&apos;qitilishi rejalashtirilgan (
               <a href="https://12news.uz/earn/ozbekiston-5-million-nafar-suniy-intellekt-yetakchisini-tayyorlashni-rejalashtirmoqda/" target="_blank" rel="noreferrer noopener" className="text-[#7ea2d4] hover:underline">12news.uz</a>
               ), &ldquo;Bir million dasturchi&rdquo; dasturining davomi sifatida. Hozirgacha 1,5 milliondan ortiq kishi AI bo&apos;yicha sertifikat olgan.
             </p>

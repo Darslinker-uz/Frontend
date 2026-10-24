@@ -83,7 +83,7 @@ export function TutorLeadForm({ tutorName, firstListingId }: Props) {
         </div>
         <h3 className="text-[18px] md:text-[20px] font-bold text-[#16181a]">Arizangiz qabul qilindi</h3>
         <p className="text-[13px] md:text-[14px] text-[#6a7585] mt-2 max-w-[380px] mx-auto">
-          <span className="font-semibold">{tutorName}</span> siz bilan 24 soat ichida bog&apos;lanadi.
+          <span className="font-semibold">{tutorName}</span>{" "}siz bilan 24 soat ichida bog&apos;lanadi.
         </p>
         <button
           type="button"

@@ -155,7 +155,7 @@ export function LeadQualifyModal({ open, accent = "dark", submitting, error, onS
               </div>
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9aa2ad]">
-                  {step + 1} / {TOTAL} · Ixtiyoriy
+                  {step + 1} / {TOTAL}{" "}· Ixtiyoriy
                 </p>
                 <p className="text-[12.5px] text-[#7c8490] leading-tight">
                   Sizga mosroq taklif uchun
