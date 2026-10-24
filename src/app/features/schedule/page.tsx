@@ -72,7 +72,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Jadvalni tartibga soling",
-    text: "14 kun bepul sinov, karta kerak emas. Guruhlar va xonalarni birinchi kundayoq kiritasiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Guruhlar va xonalarni kiritishda yordam beramiz.",
   },
 };
 

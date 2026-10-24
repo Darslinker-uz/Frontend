@@ -77,7 +77,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "O'quvchilaringiz hisobini tartibga soling",
-    text: "14 kun bepul sinov, karta kerak emas. Birinchi kundan to'lov va davomatni tizimda yuritasiz.",
+    text: "14 kun bepul sinov, karta kerak emas. O'quvchilaringizni kiritib, to'lov va davomatni tizimda yuritasiz.",
   },
 };
 

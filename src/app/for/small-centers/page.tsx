@@ -14,7 +14,7 @@ const c: FeaturePageContent = {
   parent: FOR_CRUMB,
   crumb: "Kichik markazlar",
   metaTitle: "Kichik o'quv markazi uchun CRM — Darslinker",
-  metaDescription: `Kichik o'quv markazi uchun CRM: oyiga ${MIN.price} so'm, 100 tagacha o'quvchi, barcha imkoniyatlar bilan. Excel'dan bir kunda o'tiladi.`,
+  metaDescription: `Kichik o'quv markazi uchun CRM: oyiga ${MIN.price} so'm, 100 tagacha o'quvchi, barcha imkoniyatlar bilan. Excel'dan o'tishda yordam beramiz.`,
   keywords: ["kichik o'quv markazi uchun CRM", "yangi o'quv markazi boshqaruv dasturi", "kichik markaz uchun arzon CRM", "sodda CRM o'quv markazi"],
   title: "Kichik o'quv markazi uchun CRM",
   lead: `Kichik va yangi ochilgan o'quv markazlarida ham davomat, to'lov va qarzdorlik tartibli bo'lishi kerak. Darslinker'ning Minimal tarifi oyiga ${MIN.price} so'm va unda barcha imkoniyatlar bor.`,
@@ -24,14 +24,14 @@ const c: FeaturePageContent = {
     answer: `Kichik markazga sodda, tez o'rganiladigan va narxi o'quvchilar soniga mos tizim kerak. Darslinker'ning Minimal tarifi oyiga ${MIN.price} so'm: 100 tagacha o'quvchi, 1 filial va 3 xodim. Imkoniyatlar katta tariflardagi bilan bir xil: davomat, to'lov, ota-onaga Telegram xabar, jonli quiz, lidlar.`,
     steps: [
       { title: "Ro'yxatni ko'chirasiz", text: "Daftar yoki Excel'dagi o'quvchilar ro'yxati tizimga yuklanadi." },
-      { title: "Bir kunda ishlaysiz", text: "Davomat va to'lovlarni o'sha kundan tizimda yuritasiz." },
+      { title: "Tez boshlaysiz", text: "Ro'yxatni ko'chirishda yordam beramiz, keyin davomat va to'lovlarni tizimda yuritasiz." },
       { title: "O'sgan sari kengayasiz", text: "O'quvchilar ko'paysa, kattaroq tarifga o'tasiz yoki faqat ortiqcha o'quvchilar uchun to'laysiz." },
     ],
   },
   summary: [
     `Minimal tarif: oyiga ${MIN.price} so'm, 100 tagacha o'quvchi, 1 filial, 3 xodim.`,
     "Kichik tarifda ham barcha imkoniyatlar bor: davomat, to'lov, ota-onaga xabar, jonli quiz, lidlar.",
-    "O'quvchilar ro'yxati daftar yoki Excel'dan bir kunda ko'chiriladi.",
+    "O'quvchilar ro'yxati daftar yoki Excel'dan ko'chiriladi, bunda yordam beramiz.",
     "100 tadan oshsa, har 10 o'quvchiga oyiga +20 000 so'm qo'shiladi.",
   ],
   compare: {
@@ -71,7 +71,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Kichik markazni katta tartib bilan boshqaring",
-    text: "14 kun bepul sinov, karta kerak emas. Ro'yxatni ko'chirib, birinchi kundan ishlaysiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Ro'yxatni birga ko'chiramiz.",
   },
 };
 

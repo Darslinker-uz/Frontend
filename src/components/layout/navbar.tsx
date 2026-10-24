@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
-import { BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight, LayoutGrid, Wallet, Rocket, CircleHelp } from "lucide-react";
+import { BookOpen, MapPin, MessageCircle, ChevronDown, GraduationCap, Building2, Newspaper, ArrowUpRight, LayoutGrid, Wallet, Headset } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { scrollToTop } from "@/components/smooth-scroll";
 import { CrmApplyButton } from "@/components/crm/crm-apply";
@@ -25,13 +25,14 @@ const mobileLinks = [
   { href: "/blog", label: "Blog", desc: "Maqolalar", icon: Newspaper, primary: false },
 ];
 
-// CRM/LMS sahifalaridagi havolalar — CRM bosh sahifasi bo'limlariga.
+// CRM/LMS sahifalaridagi havolalar — hammasi alohida sahifalarga (bosh sahifa bo'limlariga emas):
+// har sahifadan ichki havola oladi, SEO uchun shu muhimroq. Dropdown ataylab yo'q (2026-10-25 qarori).
 const crmLinks = [
-  // Imkoniyatlar — alohida hub sahifasiga (/features), qolganlari bosh sahifa bo'limlariga.
   { href: "/features", label: "Imkoniyatlar", desc: "Darslinker nima qiladi", icon: LayoutGrid },
-  { href: `${CRM_HOME}#narxlar`, label: "Tariflar", desc: "Narx va chegirmalar", icon: Wallet },
-  { href: `${CRM_HOME}#boshlash`, label: "Qanday boshlanadi", desc: "4 qadam", icon: Rocket },
-  { href: `${CRM_HOME}#savollar`, label: "Savollar", desc: "Ko'p so'raladigan", icon: CircleHelp },
+  { href: "/features/support", label: "Support", desc: "O'rnatish va yordam", icon: Headset },
+  { href: "/pricing", label: "Tariflar", desc: "Narx va chegirmalar", icon: Wallet },
+  { href: "/blog", label: "Blog", desc: "Maqolalar", icon: Newspaper },
+  { href: "/contact", label: "Aloqa", desc: "Telegram va ariza", icon: MessageCircle },
 ];
 
 type ApiCategory = {
@@ -230,7 +231,7 @@ export function Navbar() {
     setHovering(true);
   };
   // Rang <nav> dan meros olinadi (kechiktirilgan o'tish uchun) — hover faqat opacity.
-  const desktopLink = "relative inline-flex items-center gap-1 h-9 px-3.5 rounded-full whitespace-nowrap text-[14px] font-semibold text-inherit opacity-70 hover:opacity-100 transition-opacity duration-300";
+  const desktopLink = "relative inline-flex items-center gap-1 h-10 px-4 rounded-full whitespace-nowrap text-[15.5px] font-semibold tracking-[-0.01em] text-inherit opacity-90 hover:opacity-100 transition-opacity duration-300";
 
   // Pastga — fon burchaklar yumaloqlanishi bilan bir vaqtda, bir xil tezlikda
   // qorayadi (torayish davom etaveradi); tepaga — avval fon ochiladi, keyin shakl yoyiladi.
@@ -278,13 +279,14 @@ export function Navbar() {
         style={crm ? { transitionTimingFunction: EASE } : undefined}
       >
         <div className="grid grid-cols-2 gap-2">
-          {crm && crmLinks.map((l) => (
+          {crm && crmLinks.map((l, i) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={(e) => onSectionClick(e)}
               tabIndex={tab}
-              className={`${cardGlass} flex aspect-[1.4] flex-col justify-between p-4`}
+              // Toq son bo'lsa oxirgisi butun qatorni egallaydi (2 ustunli to'r).
+              className={`${cardGlass} flex flex-col justify-between p-4 ${crmLinks.length % 2 && i === crmLinks.length - 1 ? "col-span-2 min-h-[104px]" : "aspect-[1.4]"}`}
             >
               <l.icon className="h-6 w-6 text-[#2d5a8a]" />
               <span>

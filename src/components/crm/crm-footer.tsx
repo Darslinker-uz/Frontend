@@ -81,6 +81,9 @@ export function CrmFooter() {
             <Link href="/features/security" className="mt-2 block text-[14px] text-[#5d6672] transition-colors hover:text-[#16181a]">
               Ma&apos;lumotlar xavfsizligi
             </Link>
+            <Link href="/contact" className="mt-2 block text-[14px] text-[#5d6672] transition-colors hover:text-[#16181a]">
+              Aloqa
+            </Link>
           </div>
         </div>
         <div className="mt-10 border-t border-[#e4e7ea] pt-6">

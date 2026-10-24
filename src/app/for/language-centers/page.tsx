@@ -75,7 +75,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Til markazingizni tartibga soling",
-    text: "14 kun bepul sinov, karta kerak emas. Guruhlar ro'yxatini Excel'dan ko'chirib, birinchi kundan ishlaysiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Guruhlar ro'yxatini Excel'dan ko'chirishda yordam beramiz.",
   },
 };
 

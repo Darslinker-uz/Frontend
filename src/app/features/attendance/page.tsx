@@ -75,7 +75,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Davomatni qog'ozdan tizimga o'tkazing",
-    text: "14 kun bepul sinov, karta kerak emas. O'quvchilar ro'yxatini Excel'dan ko'chirib, birinchi darsdanoq davomatni tizimda belgilaysiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Ro'yxatni ko'chirishda yordam beramiz, keyin davomatni darsda telefondan belgilaysiz.",
   },
 };
 

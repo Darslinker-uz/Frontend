@@ -315,7 +315,7 @@ export default function FeaturesPage() {
         <div className="grid items-center gap-8 overflow-hidden rounded-[24px] bg-[#1e2024] p-8 text-white md:grid-cols-[1fr_auto] md:p-14">
           <div>
             <h2 className="text-[28px] font-bold leading-tight tracking-[-0.03em] md:text-[40px]">Markazingizni bitta tizimga o&apos;tkazing</h2>
-            <p className="mt-3 max-w-[520px] text-[15px] text-white/60 md:text-[17px]">14 kun bepul sinov, karta kerak emas. O&apos;quvchilar ro&apos;yxatini Excel&apos;dan ko&apos;chirib, birinchi kundan ishlaysiz.</p>
+            <p className="mt-3 max-w-[520px] text-[15px] text-white/60 md:text-[17px]">14 kun bepul sinov, karta kerak emas. Excel&apos;dagi ro&apos;yxatni ko&apos;chirishda yordam beramiz, tizimni birga sozlaymiz.</p>
           </div>
           <CrmApplyButton refSource="features" className="inline-flex h-[56px] items-center justify-center gap-2 rounded-[14px] bg-white px-8 text-[16px] font-semibold text-[#16181a] transition-colors hover:bg-white/90">
             Bepul sinab ko&apos;rish <ArrowRight className="h-4 w-4" />

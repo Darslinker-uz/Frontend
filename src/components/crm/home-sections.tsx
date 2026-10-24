@@ -51,7 +51,7 @@ export function HomeSections() {
                 Markazingizni bugun tizimga o&apos;tkazing
               </h2>
               <p className="mt-3 text-[15px] md:text-[17px] text-white/60 max-w-[520px]">
-                14 kun bepul sinov, karta kerak emas. O&apos;quvchilar ro&apos;yxatini Excel&apos;dan ko&apos;chirib, birinchi kundan ishlaysiz.
+                14 kun bepul sinov, karta kerak emas. O&apos;quvchilar ro&apos;yxatini Excel&apos;dan ko&apos;chirishda yordam beramiz.
               </p>
             </div>
             <CrmApplyButton refSource="home" className="h-[56px] px-8 rounded-[14px] bg-white text-[#16181a] text-[16px] font-semibold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2">

@@ -73,7 +73,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Qarzdorlikni vaqtida ko'ring",
-    text: "14 kun bepul sinov, karta kerak emas. O'quvchilar ro'yxatini Excel'dan ko'chirib, to'lovlarni birinchi kundan tizimda yuritasiz.",
+    text: "14 kun bepul sinov, karta kerak emas. To'lov rejasini birga sozlaymiz, qarzdorlik esa o'zi hisoblanadi.",
   },
 };
 

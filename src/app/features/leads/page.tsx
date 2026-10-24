@@ -75,7 +75,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Har bir arizani o'quvchiga aylantiring",
-    text: "14 kun bepul sinov, karta kerak emas. Lidlar doskasini o'sha kuniyoq ishlata boshlaysiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Lidlar doskasini o'z arizalaringiz bilan sinab ko'rasiz.",
   },
 };
 

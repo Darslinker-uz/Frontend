@@ -97,6 +97,37 @@ export function CrmApplyButton({
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+// Sahifaning o'zidagi formalar uchun (modalsiz, /contact): holat va yuborish bitta joyda, ko'rinishni sahifa o'zi quradi.
+export function useCrmApplyForm(refSource: string, plan: CrmPlan = "minimal") {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [centerName, setCenterName] = useState("");
+  const [students, setStudents] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  const phoneOk = phone.replace(/\D/g, "").length === 9;
+  const canSubmit = name.trim() !== "" && phoneOk && centerName.trim() !== "";
+
+  const submit = async () => {
+    setError(null);
+    if (!canSubmit) {
+      setError("Ism, telefon va markaz nomi majburiy");
+      return;
+    }
+    setStatus("submitting");
+    try {
+      await submitCrmApplication({ name: name.trim(), phone, centerName: centerName.trim(), students, plan, ref: refSource });
+      setStatus("success");
+    } catch {
+      setError("Xatolik yuz berdi, qayta urining");
+      setStatus("error");
+    }
+  };
+
+  return { name, setName, phone, setPhone, centerName, setCenterName, students, setStudents, status, error, phoneOk, canSubmit, submit, busy: status === "submitting", done: status === "success" };
+}
+
 const AUTO_CLOSE_MS = 5000;
 
 function ApplyForm({ plan: initialPlan, refSource, onClose }: { plan: CrmPlan; refSource: string; onClose: () => void }) {

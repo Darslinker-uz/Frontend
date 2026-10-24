@@ -241,7 +241,9 @@ export default function HaqimizdaPage() {
               </a>
               . Support haftaning 7 kuni, 10:00 dan 20:00 gacha ishlaydi. Tizimni birgalikda o&apos;rnatamiz va to&apos;liq
               sozlab beramiz, batafsil:{" "}
-              <Link href="/features/support" className={LINK}>support va sozlash</Link>.
+              <Link href="/features/support" className={LINK}>support va sozlash</Link>. Barcha aloqa
+              yo&apos;llari:{" "}
+              <Link href="/contact" className={LINK}>aloqa sahifasi</Link>.
             </p>
           </section>
 

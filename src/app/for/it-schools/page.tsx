@@ -73,7 +73,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "IT akademiyangizni bitta tizimga o'tkazing",
-    text: "14 kun bepul sinov, karta kerak emas. Guruhlar va lidlarni birinchi kundan tizimda yuritasiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Guruhlar va lidlarni tizimga ko'chirishda yordam beramiz.",
   },
 };
 

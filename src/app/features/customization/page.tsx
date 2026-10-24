@@ -78,7 +78,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Tizimni markazingizga moslang",
-    text: "14 kun bepul sinov, karta kerak emas. Logotip, ranglar va xabarlarni birinchi kundayoq sozlaysiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Logotip, ranglar va xabar matnlarini sinov davomida sozlab ko'rasiz.",
   },
 };
 

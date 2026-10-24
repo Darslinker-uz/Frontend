@@ -99,7 +99,7 @@ export const FAQS = [
   },
   {
     q: "Darslinker qaysi markazlar uchun mos?",
-    a: "Xususiy o'quv markazlari (til, IT, abituriyentlarga tayyorlov va boshqa yo'nalishlar) va repetitorlar uchun. Ayniqsa hali daftar yoki Excel'da ishlayotgan markazlar uchun: mavjud o'quvchilar ro'yxatini Excel'dan ko'chirib, birinchi kundan ishlash mumkin.",
+    a: "Xususiy o'quv markazlari (til, IT, abituriyentlarga tayyorlov va boshqa yo'nalishlar) va repetitorlar uchun. Ayniqsa hali daftar yoki Excel'da ishlayotgan markazlar uchun: mavjud o'quvchilar ro'yxatini Excel'dan ko'chirish mumkin, bunda yordam beramiz.",
   },
   {
     q: "Darslinker'ni sinab ko'rsa bo'ladimi?",

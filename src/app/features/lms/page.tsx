@@ -77,7 +77,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Hisob va o'quv jarayoni bitta tizimda",
-    text: "14 kun bepul sinov, karta kerak emas. Birinchi quizni o'sha kuniyoq o'tkazishingiz mumkin.",
+    text: "14 kun bepul sinov, karta kerak emas. Jonli quizni sinov davomida o'z darsingizda sinab ko'rasiz.",
   },
 };
 

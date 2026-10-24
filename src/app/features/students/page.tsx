@@ -74,7 +74,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "O'quvchilaringizni bitta bazaga yig'ing",
-    text: "14 kun bepul sinov, karta kerak emas. Ro'yxatni Excel'dan ko'chirib, birinchi kundan ishlaysiz.",
+    text: "14 kun bepul sinov, karta kerak emas. Ro'yxatni Excel'dan ko'chirishda yordam beramiz.",
   },
 };
 

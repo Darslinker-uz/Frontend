@@ -21,7 +21,7 @@ const c: FeaturePageContent = {
   how: {
     question: "Excel'dagi o'quvchilar bazasini CRM'ga qanday ko'chirish mumkin?",
     answer:
-      "Mavjud o'quvchilar ro'yxatini Excel faylidan Darslinker'ga yuklaysiz. Har bir o'quvchini qaytadan qo'lda kiritish shart emas. Ko'chirishda qiynalsangiz, jamoamiz yordam beradi. Ro'yxat tizimga tushgach, davomat va to'lovlarni birinchi kundan yuritasiz.",
+      "Mavjud o'quvchilar ro'yxatini Excel faylidan Darslinker'ga yuklaysiz. Har bir o'quvchini qaytadan qo'lda kiritish shart emas. Ko'chirishda qiynalsangiz, jamoamiz yordam beradi. Ro'yxat tizimga tushgach, davomat va to'lovlarni shu yerda yuritasiz.",
     steps: [
       { title: "Excel faylni yuklaysiz", text: "Hozirgi o'quvchilar ro'yxati tizimga bir martada ko'chiriladi." },
       { title: "Xodimlarni qo'shasiz", text: "Administrator, o'qituvchi va kassirga kirish beriladi, har biri o'z bo'limini ko'radi." },
@@ -72,8 +72,8 @@ const c: FeaturePageContent = {
     { q: "Sinab ko'rsa bo'ladimi?", a: `Ha. Istalgan tarifni 14 kun bepul sinab ko'rish mumkin, karta talab qilinmaydi. Tariflar oyiga ${PLANS[0].price} so'mdan boshlanadi.` },
   ],
   cta: {
-    title: "Daftar va Excel'dan bir kunda o'ting",
-    text: "14 kun bepul sinov, karta kerak emas. Ro'yxatni ko'chiramiz, siz esa birinchi kundan tizimda ishlaysiz.",
+    title: "Daftar va Excel'dan oson o'ting",
+    text: "14 kun bepul sinov, karta kerak emas. Ro'yxatni birga ko'chiramiz va tizimni sozlab beramiz.",
   },
 };
 

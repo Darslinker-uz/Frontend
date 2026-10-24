@@ -8,7 +8,7 @@ export const MARKETPLACE_HOME = "/marketplace";
 // Qolgan (katalog) sahifalar — eski navbar, "Yordam", oddiy footer.
 // Yangi CRM/LMS sahifa qo'shilsa — shu ro'yxatga qo'shiladi (prefiks: ichki sahifalari ham kiradi).
 // /features, /pricing, /crm-comparison, /for — rejadagi sahifalar (hali yo'q, oldindan qo'shilgan).
-const CRM_PREFIXES = ["/haqimizda", "/features", "/pricing", "/crm-comparison", "/for"];
+const CRM_PREFIXES = ["/haqimizda", "/features", "/pricing", "/crm-comparison", "/for", "/contact"];
 export const isCrmPage = (pathname: string) =>
   pathname === CRM_HOME || CRM_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
@@ -43,4 +43,5 @@ export const CRM_SITE_PAGES: { path: string; title: string; about: string }[] = 
   { path: "/for/kids-centers", title: "Bolalar markazlari uchun", about: "bolalar o'quv markazi uchun CRM" },
   { path: "/for/small-centers", title: "Kichik markazlar uchun", about: "kichik o'quv markazi uchun CRM" },
   { path: "/for/tutors", title: "Repetitorlar uchun", about: "repetitor uchun o'quvchilar hisobi dasturi" },
+  { path: "/contact", title: "Aloqa", about: "Telegram support (7 kun, 10:00–20:00), CRM uchun ariza, ijtimoiy tarmoqlar" },
 ];

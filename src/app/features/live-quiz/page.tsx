@@ -77,7 +77,7 @@ const c: FeaturePageContent = {
   ],
   cta: {
     title: "Keyingi darsni o'yinga aylantiring",
-    text: "14 kun bepul sinov, karta kerak emas. Birinchi quizni o'sha kuniyoq o'tkazishingiz mumkin.",
+    text: "14 kun bepul sinov, karta kerak emas. Birinchi quizni sinov davomida darsda o'tkazib ko'ring.",
   },
 };
 
