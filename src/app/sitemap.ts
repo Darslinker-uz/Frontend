@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { execSync } from "node:child_process";
 import { prisma } from "@/lib/prisma";
 import { STATIC_BLOG_POSTS } from "@/data/static-blog-posts";
 import { CRM_SITE_PAGES } from "@/lib/crm-pages";
@@ -9,6 +10,19 @@ import { CRM_SITE_PAGES } from "@/lib/crm-pages";
 export const revalidate = 3600;
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
+
+// CRM sahifasi faylining oxirgi commit sanasi — sitemap'dagi lastmod (Google o'zgargan sahifani tezroq qayta ko'radi).
+// Git bo'lmasa yoki fayl topilmasa — lastmod berilmaydi.
+function pageLastModified(routePath: string): Date | undefined {
+  try {
+    const out = execSync(`git log -1 --format=%cI -- "src/app${routePath}/page.tsx"`, { stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim();
+    return out ? new Date(out) : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -22,10 +36,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/manba`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/blog`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/hamkorlik`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${SITE_URL}/haqimizda`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE_URL}/haqimizda`, lastModified: pageLastModified("/haqimizda"), changeFrequency: "monthly", priority: 0.6 },
     // CRM/LMS sahifalari (ro'yxat — src/lib/crm-pages.ts)
     ...CRM_SITE_PAGES.map((p) => ({
       url: `${SITE_URL}${p.path}`,
+      lastModified: pageLastModified(p.path),
       changeFrequency: "monthly" as const,
       priority: p.path === "/features" || p.path === "/pricing" ? 0.9 : 0.8,
     })),

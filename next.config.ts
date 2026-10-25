@@ -1,7 +1,19 @@
 import type { NextConfig } from "next";
+import { execSync } from "node:child_process";
 import path from "node:path";
 
+// Har deploy'ning versiyasi — git commit. Ochiq tab'dagi eski versiya serverdagi yangisi bilan mos kelmasa,
+// Next.js sahifani to'liq qayta yuklaydi (version skew). Git bo'lmasa — o'chiq.
+function gitSha(): string | undefined {
+  try {
+    return execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim() || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 const nextConfig: NextConfig = {
+  deploymentId: process.env.NEXT_DEPLOYMENT_ID || gitSha(),
   // darslinker.uz orqali next dev (reverse proxy) — HMR / _next dev resurslari uchun
   allowedDevOrigins: ["darslinker.uz", "www.darslinker.uz"],
   turbopack: {
