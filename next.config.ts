@@ -7,10 +7,8 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
-  // CSS <link> o'rniga <style> — render-blocking so'rov yo'qoladi, mobil LCP tezlashadi (Tailwind CSS kichik).
-  experimental: {
-    inlineCss: true,
-  },
+  // experimental.inlineCss ishlatilmaydi: sinovda (2026-10-25) har sahifa HTML'i 20 KB dan 137 KB (gzip) ga oshdi —
+  // butun sayt CSS'i ikki marta inline bo'ldi va mobil LCP yomonlashdi.
   async redirects() {
     // Brauzerlar odatda /favicon.ico so‘raydi; metadata faqat svg/png yo‘llarini ko‘rsatadi.
     return [
