@@ -8,7 +8,8 @@ export const MARKETPLACE_HOME = "/marketplace";
 // Qolgan (katalog) sahifalar — eski navbar, "Yordam", oddiy footer.
 // Yangi CRM/LMS sahifa qo'shilsa — shu ro'yxatga qo'shiladi (prefiks: ichki sahifalari ham kiradi).
 // /features, /pricing, /crm-comparison, /for — rejadagi sahifalar (hali yo'q, oldindan qo'shilgan).
-const CRM_PREFIXES = ["/haqimizda", "/features", "/pricing", "/crm-comparison", "/for", "/contact"];
+// /blog (2026-10-25): CRM navbar'idagi "Blog" havolasidan o'tiladi — ko'rinish va navbar CRM bilan bir xil.
+const CRM_PREFIXES = ["/haqimizda", "/features", "/pricing", "/crm-comparison", "/for", "/contact", "/blog"];
 export const isCrmPage = (pathname: string) =>
   pathname === CRM_HOME || CRM_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
