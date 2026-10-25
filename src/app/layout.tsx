@@ -14,10 +14,12 @@ const outfit = Outfit({
   weight: ["300", "400", "500", "600"],
 });
 
+// Faqat marketplace va demo'da ishlatiladi — har sahifada oldindan yuklanmaydi (CRM sahifalari mobil LCP).
 const kalam = Kalam({
   variable: "--font-kalam",
   subsets: ["latin"],
   weight: ["400", "700"],
+  preload: false,
 });
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -99,7 +101,8 @@ export default function RootLayout({
           <MainShell footer={<Footer />} crmFooter={<CrmFooter />}>{children}</MainShell>
         </Providers>
         {process.env.NODE_ENV === "production" && (
-          <Script id="microsoft-clarity" strategy="afterInteractive">
+          // lazyOnload: sahifa to'liq yuklangach ishga tushadi — ochilish paytida asosiy oqimni band qilmaydi.
+          <Script id="microsoft-clarity" strategy="lazyOnload">
             {`(function(c,l,a,r,i,t,y){
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
                 t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;

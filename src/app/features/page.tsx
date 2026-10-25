@@ -215,7 +215,7 @@ export default function FeaturesPage() {
               width={1254}
               height={1254}
               sizes="460px"
-              priority
+              loading="eager"
               className="h-auto w-full"
             />
           </div>
