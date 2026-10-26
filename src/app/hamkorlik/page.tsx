@@ -33,7 +33,8 @@ export default function HamkorlikPage() {
   };
 
   const handlePhone = (value: string) => {
-    const digits = value.replace(/\D/g, "").replace(/^998/, "");
+    const all = value.replace(/\D/g, "");
+    const digits = (all.length > 9 && all.startsWith("998") ? all.slice(3) : all).slice(0, 9);
     let formatted = "";
     if (digits.length > 0) formatted = digits.slice(0, 2);
     if (digits.length > 2) formatted += " " + digits.slice(2, 5);
@@ -121,7 +122,7 @@ export default function HamkorlikPage() {
                 <label className="block text-[13px] font-medium text-[#16181a] mb-1.5">Telefon raqam *</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[16px] text-[#16181a] font-medium">+998</span>
-                  <input type="tel" required value={form.phone} onChange={(e) => handlePhone(e.target.value)} disabled={busy} placeholder="77 123 45 67" maxLength={12} className={`${inputClass} pl-[60px]`} />
+                  <input type="tel" required value={form.phone} onChange={(e) => handlePhone(e.target.value)} disabled={busy} placeholder="77 123 45 67" maxLength={17} className={`${inputClass} pl-[60px]`} />
                 </div>
               </div>
             </div>

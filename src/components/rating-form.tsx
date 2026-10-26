@@ -19,7 +19,8 @@ export function RatingForm({ listingId }: { listingId: number }) {
   const [done, setDone] = useState(false);
 
   function handlePhone(value: string) {
-    const digits = value.replace(/\D/g, "").replace(/^998/, "").slice(0, 9);
+    const all = value.replace(/\D/g, "");
+    const digits = (all.length > 9 && all.startsWith("998") ? all.slice(3) : all).slice(0, 9);
     let formatted = "";
     if (digits.length > 0) formatted = digits.slice(0, 2);
     if (digits.length > 2) formatted += " " + digits.slice(2, 5);
@@ -161,7 +162,7 @@ export function RatingForm({ listingId }: { listingId: number }) {
                       value={phone}
                       onChange={(e) => handlePhone(e.target.value)}
                       placeholder="77 123 45 67"
-                      maxLength={12}
+                      maxLength={17}
                       disabled={submitting}
                       className="w-full h-[44px] pl-[68px] pr-3 text-[16px] rounded-[10px] bg-white border border-[#e4e7ea] focus:outline-none focus:border-[#7ea2d4] transition-colors"
                     />

@@ -3,7 +3,9 @@
 import { useState, type ChangeEvent } from "react";
 
 function formatPhone(input: string) {
-  const digits = input.replace(/\D/g, "").replace(/^998/, "").slice(0, 9);
+  // 998 faqat to'liq raqamda (+998 XX XXX XX XX) mamlakat kodi; 9 raqamli "99 800 .." kabi raqam buzilmasin.
+  const all = input.replace(/\D/g, "");
+  const digits = (all.length > 9 && all.startsWith("998") ? all.slice(3) : all).slice(0, 9);
   let formatted = "";
   if (digits.length > 0) formatted = digits.slice(0, 2);
   if (digits.length > 2) formatted += " " + digits.slice(2, 5);
@@ -48,7 +50,7 @@ export function PhoneInput({ className, value: controlled, onChange, disabled }:
         onChange={handleChange}
         disabled={disabled}
         placeholder="77 123 45 67"
-        maxLength={12}
+        maxLength={17}
         className={`${className} pl-[60px]`}
       />
     </div>

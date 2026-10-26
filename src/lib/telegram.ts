@@ -171,8 +171,8 @@ export function escHtml(s: string) {
 // Normalize a phone number to digits only (drops +, spaces, dashes)
 export function normalizePhone(input: string): string {
   const digits = input.replace(/\D/g, "");
-  // Ensure starts with 998 for UZ
-  if (digits.startsWith("998")) return "+" + digits;
+  // 9 raqam — mahalliy raqam (998 bilan boshlansa ham, masalan 99 800 12 34), unga +998 qo'shiladi.
   if (digits.length === 9) return "+998" + digits;
+  if (digits.startsWith("998")) return "+" + digits;
   return "+" + digits;
 }

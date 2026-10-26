@@ -15,7 +15,8 @@ export default function AsadminPage() {
   const [submitting, setSubmitting] = useState(false);
 
   function handlePhone(value: string) {
-    const digits = value.replace(/\D/g, "").replace(/^998/, "").slice(0, 9);
+    const all = value.replace(/\D/g, "");
+    const digits = (all.length > 9 && all.startsWith("998") ? all.slice(3) : all).slice(0, 9);
     let formatted = "";
     if (digits.length > 0) formatted = digits.slice(0, 2);
     if (digits.length > 2) formatted += " " + digits.slice(2, 5);

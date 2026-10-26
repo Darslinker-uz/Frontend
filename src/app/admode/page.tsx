@@ -12,7 +12,8 @@ export default function AdmodePage() {
   const [submitting, setSubmitting] = useState(false);
 
   function handlePhone(value: string) {
-    const digits = value.replace(/\D/g, "").replace(/^998/, "").slice(0, 9);
+    const all = value.replace(/\D/g, "");
+    const digits = (all.length > 9 && all.startsWith("998") ? all.slice(3) : all).slice(0, 9);
     let formatted = "";
     if (digits.length > 0) formatted = digits.slice(0, 2);
     if (digits.length > 2) formatted += " " + digits.slice(2, 5);
@@ -79,7 +80,7 @@ export default function AdmodePage() {
                   value={phone}
                   onChange={(e) => handlePhone(e.target.value)}
                   placeholder="33 888 01 33"
-                  maxLength={12}
+                  maxLength={17}
                   disabled={submitting}
                   autoComplete="username"
                   className="w-full h-[48px] pl-[70px] pr-4 text-[16px] rounded-[10px] bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-white/30 focus:outline-none focus:border-white/40 transition-colors"
