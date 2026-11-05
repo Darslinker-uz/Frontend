@@ -141,7 +141,7 @@ export default async function BlogPage() {
           {posts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
               <article className="overflow-hidden rounded-[20px] border-2 border-[#e4e7ea] hover:border-[#16181a] transition-all duration-300 h-full flex flex-col bg-white">
-                {post.coverImage && (
+                {post.coverImage ? (
                   <div className="relative aspect-video w-full overflow-hidden border-b border-[#e4e7ea] bg-white">
                     <Image
                       src={post.coverImage}
@@ -152,6 +152,8 @@ export default async function BlogPage() {
                       className="object-cover"
                     />
                   </div>
+                ) : (
+                  <TextCover title={post.title} category={post.category} />
                 )}
                 <div className="flex flex-1 flex-col p-5 md:p-6">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#7c8490]">{post.category}</span>
@@ -178,6 +180,43 @@ export default async function BlogPage() {
               </article>
             </Link>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Rasmi yo'q maqolalar uchun avtomatik muqova: brend ranglaridagi 16:9 panel, sarlavha va logo belgisi.
+// Ranglar toifaga qarab: markazlar uchun to'q ko'k, o'quvchilar uchun och ko'k, qolganlari qora.
+const COVER_THEMES: Record<string, { bg: string; ink: string; muted: string; mark: string }> = {
+  "O'quv markazlar uchun": { bg: "linear-gradient(135deg, #0f2236 0%, #2d5a8a 100%)", ink: "#ffffff", muted: "rgba(255,255,255,0.65)", mark: "#7ea2d4" },
+  "O'quvchilar uchun": { bg: "linear-gradient(135deg, #e6eef8 0%, #c9daef 100%)", ink: "#16181a", muted: "#4b525c", mark: "#5b87c0" },
+};
+const DEFAULT_COVER = { bg: "linear-gradient(135deg, #16181a 0%, #2a2e33 100%)", ink: "#ffffff", muted: "rgba(255,255,255,0.6)", mark: "#7ea2d4" };
+
+function TextCover({ title, category }: { title: string; category: string }) {
+  const t = COVER_THEMES[category] ?? DEFAULT_COVER;
+  return (
+    <div aria-hidden="true" className="relative aspect-video w-full overflow-hidden border-b border-[#e4e7ea]" style={{ background: t.bg }}>
+      {/* Logo belgisining katta, yarim shaffof nusxasi — o'ng tomonda bezak */}
+      <div className="absolute -right-[6%] top-1/2 h-[70%] w-[38%] -translate-y-1/2">
+        {[0.12, 0.22, 0.4].map((o, i) => (
+          <span
+            key={o}
+            className="absolute top-1/2 aspect-square h-[70%] -translate-y-1/2 rotate-45 rounded-[18%]"
+            style={{ left: `${i * 16}%`, background: t.mark, opacity: o }}
+          />
+        ))}
+      </div>
+      <div className="relative flex h-full flex-col justify-between p-[7%]">
+        <span className="text-[13px] font-extrabold tracking-tight md:text-[15px]" style={{ color: t.ink }}>
+          Dars<span style={{ color: t.mark }}>Linker</span>
+        </span>
+        <div className="max-w-[72%]">
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] md:text-[11px]" style={{ color: t.muted }}>{category}</span>
+          <p className="mt-2 line-clamp-3 text-[20px] font-bold leading-[1.12] tracking-[-0.02em] md:text-[26px]" style={{ color: t.ink }}>
+            {title}
+          </p>
         </div>
       </div>
     </div>

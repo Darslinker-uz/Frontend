@@ -6,8 +6,10 @@ Blog yozish, mavzu tanlash va kontent rejalashda ushbu hujjatni o‘qing.
 ## Maqsad
 
 - O‘zbekiston auditoriyasining ta’limga oid real savoliga foydali javob berish.
-- Darslinker.uz ni kurslar, o‘quv markazlari va repetitorlarni topishga yordam
-  beradigan ta’lim platformasi sifatida aniq tanishtirish.
+- 2026-11-06 dan: Darslinker'ni o‘quv markazlari uchun CRM va LMS platformasi sifatida
+  tanishtirish (marketplace — qo‘shimcha imkoniyat). Auditoriya — markaz egalari va
+  repetitorlar. Mavzu rejasi va CTA qoidalari: `docs/crm-blog-plan.md`. Saytdagi mavjud
+  maqolalar o‘chirilmaydi.
 - Tegishli asosiy va kategoriya sahifalarini mazmunli ichki havolalar bilan qo‘llash.
 - SEO, AEO va GEO: qidiruv hamda AI javoblarida foydalanishga yaroqli, aniq,
   tekshiriladigan mazmun yaratish. Reyting yoki AI tavsiyasini kafolatlamaslik.

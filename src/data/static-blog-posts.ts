@@ -16,6 +16,13 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "ozbekistonda-eng-yaxshi-crm-oquv-markazlari-uchun",
+    date: "2026-11-06",
+    title: "O'zbekistonda o'quv markazlari uchun eng yaxshi CRM qaysi? (2026)",
+    excerpt: "Modme, Darslinker, EduTizim, SchoolUp va Edulog narx, sinov muddati, ota-onaga xabar va onlayn to'lov bo'yicha rasmiy saytlardan solishtirildi.",
+    category: "O'quv markazlar uchun",
+  },
+  {
     slug: "ozbekistonda-qaysi-kurslarga-talab-yuqori",
     date: "2026-10-12",
     title: "O‘zbekistonda qaysi kurslarga talab yuqori? Darslinker tahlili (2026)",

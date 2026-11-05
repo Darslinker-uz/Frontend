@@ -20,11 +20,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.phone || !credentials?.password) return null;
-        const phone = normalizePhone(String(credentials.phone));
-        const password = String(credentials.password);
-        const user = await prisma.user.findUnique({ where: { phone } });
+        // Faqat lokal dev: .env.local'da ADMIN_DEV_LOGIN=1 bo'lsa, birinchi admin parolsiz kiradi (phone "dev").
+        // NODE_ENV production'da (server) bu shart hech qachon bajarilmaydi.
+        const devLogin =
+          process.env.NODE_ENV === "development" && process.env.ADMIN_DEV_LOGIN === "1" && credentials.phone === "dev";
+        const user = devLogin
+          ? await prisma.user.findFirst({ where: { role: "admin", banned: false }, orderBy: { id: "asc" } })
+          : await prisma.user.findUnique({ where: { phone: normalizePhone(String(credentials.phone)) } });
         if (!user || user.role !== "admin" || user.banned) return null;
-        if (!user.passwordHash || user.passwordHash !== sha256(password)) return null;
+        if (!devLogin && (!user.passwordHash || user.passwordHash !== sha256(String(credentials.password)))) return null;
         await prisma.user.update({
           where: { id: user.id },
           data: { lastActiveAt: new Date() },

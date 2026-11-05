@@ -91,11 +91,15 @@ export const PLANS: PlanInfo[] = [
 export const FAQS = [
   {
     q: "Darslinker nima?",
-    a: "Darslinker O'zbekistondagi o'quv markazlari uchun yaratilgan interaktiv CRM va LMS platformasi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi. Jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
+    a: "Darslinker O'zbekistondagi o'quv markazlari uchun yaratilgan interaktiv CRM va LMS platformasi, ya'ni o'quv markazini boshqarish va avtomatlashtirish dasturi. O'quvchilar, guruhlar, dars jadvali, davomat, to'lov va qarzdorlik bitta tizimda yuritiladi. Jonli quiz va ota-onaga Telegram xabarlari esa o'quvchini markazda ushlab qolishga yordam beradi.",
   },
   {
     q: "O'quv markaz uchun CRM nima beradi?",
     a: "CRM markazdagi barcha hisobni bir joyga yig'adi: kim qaysi guruhda o'qiydi, kim darsga kelmadi, kim qancha to'ladi va kimning qarzi bor. Daftar yoki Excel'da bu ma'lumotlar tarqoq bo'ladi va qarzdorlik kech bilinadi. Darslinker'da davomat, to'lov va qarzdorlik avtomatik bog'lanadi, ota-onaga xabar esa Telegram orqali o'zi boradi.",
+  },
+  {
+    q: "Darslinker onlayn ishlaydimi yoki dasturni kompyuterga o'rnatish kerakmi?",
+    a: "Darslinker onlayn CRM. U brauzerda va Telegram ichida mini ilova sifatida ishlaydi, kompyuterga dastur o'rnatish shart emas. Har bir markaz tizimga o'z manzili orqali kiradi, masalan markaz.darslinker.app.",
   },
   {
     q: "Darslinker qaysi markazlar uchun mos?",

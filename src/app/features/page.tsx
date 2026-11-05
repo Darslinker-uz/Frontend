@@ -186,7 +186,7 @@ export default function FeaturesPage() {
               O&apos;quv markazi uchun CRM va LMS imkoniyatlari
             </h1>
             <p className="mt-5 max-w-[620px] text-[16px] leading-relaxed text-[#4b525c] md:text-[18px]">
-              Darslinker o&apos;quv markazining kundalik ishini bitta tizimga yig&apos;adi:
+              O&apos;quv markazini boshqarish dasturi sifatida Darslinker markazning kundalik ishini bitta tizimga yig&apos;adi:
               o&apos;quvchilar, davomat, to&apos;lov va qarzdorlik, ota-ona bilan aloqa va darsdagi jonli quiz.
               Barcha imkoniyatlar har bir tarifda bor.
             </p>

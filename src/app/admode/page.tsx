@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { Shield, Phone, Lock, AlertCircle } from "lucide-react";
 
+// Faqat lokal dev: .env.local'da NEXT_PUBLIC_ADMIN_DEV_LOGIN=1 va ADMIN_DEV_LOGIN=1 bo'lsa, sahifa o'zi kiradi.
+const DEV_AUTO_LOGIN = process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_ADMIN_DEV_LOGIN === "1";
+
 export default function AdmodePage() {
+  useEffect(() => {
+    if (!DEV_AUTO_LOGIN) return;
+    signIn("admin-password", { phone: "dev", password: "dev", redirect: false }).then((res) => {
+      if (!res?.error) window.location.href = "/admode/home";
+    });
+  }, []);
+
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

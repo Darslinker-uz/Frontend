@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, FileText, MessageSquare, CreditCard, BarChart3, Settings,
-  LogOut, ExternalLink, Layers, Building2,
+  LogOut, ExternalLink, Layers, Building2, Newspaper,
 } from "lucide-react";
 import { DarslinkerLogo } from "@/components/ui/darslinker-logo";
 import { AdminThemeProvider, useAdminTheme } from "@/context/admin-theme-context";
@@ -57,6 +57,7 @@ const navItems: NavItem[] = [
     badgeKeys: ["categories"],
     groupPaths: ["/admode/categories", "/admode/regions", "/admode/kontent", "/admode/faq"],
   },
+  { href: "/admode/blog", label: "Blog", icon: Newspaper, perm: "content.view" },
   { href: "/admode/analytics", label: "Analytics", icon: BarChart3, perm: "analytics.view" },
   { href: "/admode/settings", label: "Sozlamalar", icon: Settings, perm: null },
 ];
