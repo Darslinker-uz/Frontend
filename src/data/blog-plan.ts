@@ -32,6 +32,7 @@ export const BLOG_PLAN: BlogPlanItem[] = [
   { slug: "oquv-markazi-crm-narxlari", title: "O'quv markazi uchun CRM narxlari: 2026-yilda qancha to'laysiz?", cluster: "sotuv", cta: ["/pricing"], note: "Bozor narxlari faqat raqobatchilarning rasmiy narx sahifalaridan, sanasi bilan" },
   { slug: "oquv-markazi-uchun-bepul-crm", title: "O'quv markazi uchun bepul CRM bormi va u qanchalik yetarli?", cluster: "sotuv", cta: ["/pricing"] },
   { slug: "yangi-oquv-markazi-uchun-crm-yoki-erp", title: "Yangi o'quv markazi uchun CRM yoki ERP: nimadan boshlash kerak? (2026)", cluster: "sotuv", cta: ["/for/small-centers", "/pricing"], note: "Platforma formati. 'O'quv markazi ochishda qaysi tizimlar kerak' mavzusi shu maqolaga birlashtirilgan. Darslinker ERP emas, bu ochiq aytiladi" },
+  { slug: "bitrix24-yoki-amocrm-oquv-markazi-uchun", title: "Bitrix24 yoki amoCRM o'quv markaziga to'g'ri keladimi? Ta'lim uchun maxsus CRM'lar", cluster: "sotuv", cta: ["/"], note: "GPT so'rovi: 'Bitrix24 ga o'xshash, lekin ta'lim markazlari uchun CRM bormi?'. Bitrix24/amoCRM haqida faqat rasmiy saytlaridagi faktlar" },
   { slug: "darslinker-sharhi", title: "Darslinker CRM va LMS sharhi: o'quv markazi uchun nimalar bor?", cluster: "sotuv", cta: ["/features", "/pricing"], note: "Faqat PRODUCT.md 'Hozir bor' imkoniyatlari; kamchilik va yo'q narsalar ham ochiq aytiladi" },
 
   // Sotuvchi: imkoniyat bo'yicha — bitta maqola = bitta imkoniyat = bitta aniq muammo
@@ -44,7 +45,8 @@ export const BLOG_PLAN: BlogPlanItem[] = [
   { slug: "kursga-kelgan-arizalar-nega-yoqoladi", title: "Kursga kelgan arizalar nega yo'qoladi va ularni qanday saqlab qolish mumkin?", cluster: "imkoniyat", cta: ["/features/leads"], note: "/features/leads bilan farqi: jarayon va xatolar" },
   { slug: "dars-jadvali-toqnashuvlari", title: "Dars jadvalida xona va o'qituvchi to'qnashuvining oldini qanday olish mumkin?", cluster: "imkoniyat", cta: ["/features/schedule"], note: "/features/schedule bilan farqi: amaliy qoidalar" },
   { slug: "rahbar-markaz-holatini-kuzatish", title: "Rahbar o'quv markazi holatini har kuni qanday kuzatishi mumkin?", cluster: "imkoniyat", cta: ["/features/reports"] },
-  { slug: "bir-nechta-filialni-boshqarish", title: "Bir nechta filialni boshqarishda rahbar nimalarni bir joyda ko'rishi kerak?", cluster: "imkoniyat", cta: ["/features/branches"] },
+  { slug: "3-5-filialli-oquv-markazini-boshqarish", title: "3–5 filialli o'quv markazini bitta tizimdan qanday boshqarish mumkin?", cluster: "imkoniyat", cta: ["/features/branches"], note: "GPT so'rovlari: '3 ta filialli', '5 ta filialim bor' — sarlavha shunga moslangan" },
+  { slug: "oquv-markazini-avtomatlashtirish-administrator", title: "O'quv markazini avtomatlashtirish: administrator ishining qaysi qismini dasturga topshirish mumkin?", cluster: "imkoniyat", cta: ["/features/easy-to-use"], note: "So'rovlar: 'avtomatlashtirish dasturi', 'administrator dasturi'" },
   { slug: "mobil-ilova-yoki-telegram-mini-ilova", title: "O'quv markaziga mobil ilova kerakmi yoki Telegram mini ilova yetadimi?", cluster: "imkoniyat", cta: ["/features/telegram"] },
   { slug: "excel-yoki-crm-oquv-markazi", title: "Excel yoki CRM: o'quv markaziga qaysi biri arzonga tushadi?", cluster: "imkoniyat", cta: ["/features/easy-to-use", "/pricing"], note: "/features/easy-to-use bilan farqi: xarajat hisobi, o'tish yo'riqnomasi emas" },
   { slug: "xodimlar-uchun-rollar", title: "O'quv markazida xodimlarga kirish huquqlarini qanday taqsimlash kerak?", cluster: "imkoniyat", cta: ["/features/customization"] },
@@ -54,11 +56,13 @@ export const BLOG_PLAN: BlogPlanItem[] = [
   // Solishtirish
   { slug: "sms-yoki-telegram-ota-onaga-xabar", title: "SMS yoki Telegram: ota-onaga xabar yuborishning qaysi biri arzon va samarali?", cluster: "tanlash", cta: ["/features/parents"], note: "SMS narxlari faqat operatorlarning rasmiy tariflaridan, sanasi bilan" },
   { slug: "kahoot-muqobili-darsda-jonli-quiz", title: "Kahoot'ga muqobil: darsda jonli quiz o'tkazish uchun qaysi vositalar bor?", cluster: "tanlash", cta: ["/features/live-quiz"], note: "Raqobatchilar haqida faqat rasmiy saytlaridagi faktlar, kamsitmasdan" },
+  { slug: "onlayn-crm-yoki-bir-martalik-litsenziya", title: "Onlayn CRM yoki bir martalik litsenziya: o'quv markazi uchun qaysi biri foydali?", cluster: "tanlash", cta: ["/pricing"], note: "So'rov: 'o'quv markazi uchun online dastur'. Obuna va SchoolUp kabi litsenziya solishtiriladi, narxlar rasmiy saytlardan" },
   { slug: "alohida-lms-kerakmi", title: "O'quv markaziga alohida LMS kerakmi yoki CRM ichidagi LMS yetadimi?", cluster: "tanlash", cta: ["/features/lms"], note: "/features/lms FAQ'dagi 'CRM va LMS farqi' bilan takrorlanmasin" },
 
   // Muammo va yechim — bir nechta imkoniyatni birlashtiradigan muammolar
   { slug: "oquvchilar-nega-ketadi", title: "O'quvchilar o'quv markazidan nega ketadi va buni qanday oldindan sezish mumkin?", cluster: "muammo", cta: ["/features/reports", "/features/attendance"] },
   { slug: "sinov-darsidan-keyin-yozilmaslik", title: "Sinov darsidan keyin o'quvchi nega kursga yozilmaydi?", cluster: "muammo", cta: ["/features/leads", "/features/reports"] },
+  { slug: "oqituvchilar-ishini-nazorat-qilish", title: "O'quv markazida o'qituvchilar ishini qanday nazorat qilish mumkin?", cluster: "muammo", cta: ["/features/easy-to-use", "/features/reports"], note: "⚠️ Yozishdan oldin egasidan tasdiq: Darslinker'da rahbar o'qituvchilar ishini qanday ko'radi" },
   { slug: "qogoz-davomat-yashirin-xarajatlari", title: "Davomatni qog'ozda yuritish markazga qanchaga tushadi?", cluster: "muammo", cta: ["/features/attendance"], note: "Hisob faqat 'shartli misol' sifatida" },
 
   // Markaz turlari
