@@ -31,6 +31,7 @@ export const BLOG_PLAN: BlogPlanItem[] = [
   { slug: "ozbekistonda-eng-yaxshi-crm-oquv-markazlari-uchun", title: "O'zbekistonda o'quv markazlari uchun eng yaxshi CRM qaysi? (2026)", cluster: "sotuv", cta: ["/", "/pricing"], note: "Tavsiyalar formati: 5–7 ta CRM nomi bilan, rasmiy saytlaridan tekshirilgan faktlar, kamsitishsiz. ⚠️ /crm-comparison asosiy so'rovi bilan to'qnashadi — yozishdan oldin egasi bilan hal qilinadi" },
   { slug: "oquv-markazi-crm-narxlari", title: "O'quv markazi uchun CRM narxlari: 2026-yilda qancha to'laysiz?", cluster: "sotuv", cta: ["/pricing"], note: "Bozor narxlari faqat raqobatchilarning rasmiy narx sahifalaridan, sanasi bilan" },
   { slug: "oquv-markazi-uchun-bepul-crm", title: "O'quv markazi uchun bepul CRM bormi va u qanchalik yetarli?", cluster: "sotuv", cta: ["/pricing"] },
+  { slug: "yangi-oquv-markazi-uchun-crm-yoki-erp", title: "Yangi o'quv markazi uchun CRM yoki ERP: nimadan boshlash kerak? (2026)", cluster: "sotuv", cta: ["/for/small-centers", "/pricing"], note: "Platforma formati. 'O'quv markazi ochishda qaysi tizimlar kerak' mavzusi shu maqolaga birlashtirilgan. Darslinker ERP emas, bu ochiq aytiladi" },
   { slug: "darslinker-sharhi", title: "Darslinker CRM va LMS sharhi: o'quv markazi uchun nimalar bor?", cluster: "sotuv", cta: ["/features", "/pricing"], note: "Faqat PRODUCT.md 'Hozir bor' imkoniyatlari; kamchilik va yo'q narsalar ham ochiq aytiladi" },
 
   // Sotuvchi: imkoniyat bo'yicha — bitta maqola = bitta imkoniyat = bitta aniq muammo
@@ -67,6 +68,5 @@ export const BLOG_PLAN: BlogPlanItem[] = [
   { slug: "repetitor-koplab-oquvchini-boshqarish", title: "Repetitor 20 tadan ortiq o'quvchini qanday boshqaradi?", cluster: "segment", cta: ["/for/tutors"] },
 
   // Markaz ochish va o'sish
-  { slug: "oquv-markazi-ochishda-qaysi-tizimlar-kerak", title: "O'quv markazi ochishda birinchi kundan qaysi tizimlarni yo'lga qo'yish kerak?", cluster: "ochish", cta: ["/for/small-centers"], note: "Huquqiy va soliq faktlari faqat rasmiy manbadan (lex.uz, soliq.uz)" },
   { slug: "marketplace-orqali-yangi-oquvchi", title: "Marketplace orqali yangi o'quvchi topish o'quv markaziga nima beradi?", cluster: "ochish", cta: ["/features/leads", "/marketplace"] },
 ];

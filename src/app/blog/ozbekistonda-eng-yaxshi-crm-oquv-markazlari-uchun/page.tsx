@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { FaqList } from "@/components/faq-item";
 import { CrmApplyButton } from "@/components/crm/crm-apply";
@@ -64,7 +65,7 @@ type Item = {
   name: string;
   site: string;
   siteLabel: string;
-  intro: string;
+  intro: ReactNode;
   pros: string[];
   cons: string[];
   fit: string;
@@ -92,8 +93,15 @@ const items: Item[] = [
     name: "Darslinker",
     site: "/",
     siteLabel: "darslinker.uz",
-    intro:
-      "Darslinker o'quv markazlari uchun CRM va LMS. Bitta tizimda o'quvchilar bazasi, davomat, to'lov va qarzdorlik, lidlar va dashboard bilan birga darsda jonli quiz va ota-onaga Telegram xabar ishlaydi. Barcha imkoniyatlar har bir tarifda bor, tariflar faqat o'quvchi, filial va xodim soni bilan farq qiladi.",
+    intro: (
+      <>
+        Darslinker{" "}
+        <Link href="/" className="text-[#2d5a8a] font-semibold hover:underline">o&apos;quv markazlari uchun CRM va LMS</Link>. Bitta
+        tizimda o&apos;quvchilar bazasi, davomat, to&apos;lov va qarzdorlik, lidlar va dashboard bilan birga darsda jonli quiz va
+        ota-onaga Telegram xabar ishlaydi. Barcha imkoniyatlar har bir tarifda bor, tariflar faqat o&apos;quvchi, filial va xodim
+        soni bilan farq qiladi.
+      </>
+    ),
     pros: [
       "Darsda jonli quiz va reyting har tarifda, alohida modul to'lovisiz",
       "Ota-onaga Telegram xabar va farzand kuzatuvi, SMS uchun pul to'lanmaydi",

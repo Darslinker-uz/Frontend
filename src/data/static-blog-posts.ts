@@ -16,6 +16,13 @@ export type StaticBlogPost = {
 
 export const STATIC_BLOG_POSTS: StaticBlogPost[] = [
   {
+    slug: "yangi-oquv-markazi-uchun-crm-yoki-erp",
+    date: "2026-11-07",
+    title: "Yangi o'quv markazi uchun CRM yoki ERP: nimadan boshlash kerak? (2026)",
+    excerpt: "Yangi markazga ERP emas, CRM kerak. Birinchi 90 kunda qaysi imkoniyat kerakligi, birinchi yil xarajati va tanlashdagi to'rt xato.",
+    category: "O'quv markazlar uchun",
+  },
+  {
     slug: "ozbekistonda-eng-yaxshi-crm-oquv-markazlari-uchun",
     date: "2026-11-06",
     title: "O'zbekistonda o'quv markazlari uchun eng yaxshi CRM qaysi? (2026)",
