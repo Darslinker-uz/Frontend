@@ -11,6 +11,12 @@ export const dynamic = "force-dynamic";
 
 const SITE_URL = process.env.AUTH_URL ?? "https://darslinker.uz";
 
+// Markazlar sayt manzilini ba'zan "https://..." bilan, ba'zan usiz kiritadi —
+// protokolni ikki marta qo'shib yuborsak link ishlamay qoladi.
+function websiteUrl(website: string) {
+  return website.startsWith("http") ? website : `https://${website}`;
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -267,7 +273,7 @@ export default async function MarkazPage({ params }: Props) {
       "sameAs": [
         ...(center.telegram ? [`https://t.me/${center.telegram}`] : []),
         ...(center.instagram ? [`https://instagram.com/${center.instagram}`] : []),
-        ...(center.website ? [`https://${center.website}`] : []),
+        ...(center.website ? [websiteUrl(center.website)] : []),
       ],
     } : {}),
   };
@@ -619,11 +625,11 @@ export default async function MarkazPage({ params }: Props) {
                     </a>
                   )}
                   {center.website && (
-                    <a href={`https://${center.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors">
+                    <a href={websiteUrl(center.website)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[13px] text-[#16181a] hover:text-emerald-700 transition-colors">
                       <div className="w-8 h-8 rounded-[10px] bg-[#f2f4f5] text-[#16181a]/70 flex items-center justify-center shrink-0">
                         <ArrowRight className="w-4 h-4" />
                       </div>
-                      <span className="font-medium">{center.website}</span>
+                      <span className="font-medium">{center.website.replace(/^https?:\/\//, "")}</span>
                     </a>
                   )}
                 </div>
